@@ -53,6 +53,7 @@ android/app/google-services.json
 # Local team workflow & developer private notes
 GIT_USERS.md
 DEV_NOTES.md
+PROMPT_GUIDE.md
 
 # Widget Preview
 .widget_preview/
