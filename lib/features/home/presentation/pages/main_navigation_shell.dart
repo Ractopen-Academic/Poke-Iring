@@ -146,16 +146,24 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       extendBody: true,
       body: Stack(
         children: [
-          _isShowingMap
-              ? LiveMapPage(
-                  onPointerDown: _onMapPointerDown,
-                  onPointerUp: _onMapPointerUp,
-                  onClose: () => setState(() {
-                    _isShowingMap = false;
-                    _isNavbarVisible = true;
-                  }),
-                )
-              : IndexedStack(index: _currentIndex, children: pages),
+          Offstage(
+            offstage: _isShowingMap,
+            child: IndexedStack(index: _currentIndex, children: pages),
+          ),
+          Offstage(
+            offstage: !_isShowingMap,
+            child: TickerMode(
+              enabled: _isShowingMap,
+              child: LiveMapPage(
+                onPointerDown: _onMapPointerDown,
+                onPointerUp: _onMapPointerUp,
+                onClose: () => setState(() {
+                  _isShowingMap = false;
+                  _isNavbarVisible = true;
+                }),
+              ),
+            ),
+          ),
           if (showOffline)
             Positioned(
               top: _isShowingMap ? 56 : 0,
