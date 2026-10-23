@@ -115,16 +115,16 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
-                      Icons.add_location_alt,
+                      Icons.photo_library,
                       color: AppColors.secondary,
                     ),
                   ),
                   title: const Text(
-                    'Drop 10-Minute Sighting Pin',
+                    'Browse Cat Album',
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                   ),
                   subtitle: const Text(
-                    'Broadcast a real-time cat discovery on the map',
+                    'View your catalogued cat photos and memories',
                     style: TextStyle(fontSize: 12),
                   ),
                   trailing: const Icon(Icons.chevron_right, size: 18),
@@ -146,7 +146,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   Widget build(BuildContext context) {
     final pages = [
       _QuestsPlaceholderPage(user: widget.user),
-      const _LiveMapPlaceholderPage(),
+      const _AlbumPlaceholderPage(),
       const _IringDexPlaceholderPage(),
       DashboardPage(user: widget.user, authRepository: widget.authRepository),
     ];
@@ -302,15 +302,15 @@ class _QuestCard extends StatelessWidget {
   }
 }
 
-class _LiveMapPlaceholderPage extends StatelessWidget {
-  const _LiveMapPlaceholderPage();
+class _AlbumPlaceholderPage extends StatelessWidget {
+  const _AlbumPlaceholderPage();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Live Sightings Map'),
+        title: const Text('Cat Album'),
         backgroundColor: Colors.white,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
@@ -328,14 +328,14 @@ class _LiveMapPlaceholderPage extends StatelessWidget {
                   color: AppColors.secondary.withAlpha(25),
                 ),
                 child: const Icon(
-                  Icons.map_outlined,
+                  Icons.photo_library_outlined,
                   size: 48,
                   color: AppColors.secondary,
                 ),
               ),
               const SizedBox(height: 20),
               const Text(
-                '10-Minute Real-Time Map',
+                'Cat Portrait Gallery',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -344,7 +344,7 @@ class _LiveMapPlaceholderPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Temporary sightings posted by nearby explorers appear here for 10 minutes.',
+                'All cat portraits and sightings captured during your neighborhood explorations appear here.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),

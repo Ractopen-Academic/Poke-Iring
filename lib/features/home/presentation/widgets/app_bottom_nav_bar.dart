@@ -33,9 +33,9 @@ class AppBottomNavBar extends StatelessWidget {
               onTap: () => onTabSelected(0),
             ),
             _NavBarItem(
-              icon: Icons.map_outlined,
-              activeIcon: Icons.map,
-              label: 'Live Map',
+              icon: Icons.photo_library_outlined,
+              activeIcon: Icons.photo_library,
+              label: 'Album',
               isSelected: currentIndex == 1,
               onTap: () => onTabSelected(1),
             ),
