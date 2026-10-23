@@ -1,9 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../map/data/datasources/map_remote_datasource.dart';
+import '../../../map/data/repositories/map_repository_impl.dart';
+import '../../../map/domain/repositories/map_repository.dart';
+import '../../../map/presentation/pages/live_map_page.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/iring_center_button.dart';
 import 'dashboard_page.dart';
@@ -11,11 +16,13 @@ import 'dashboard_page.dart';
 class MainNavigationShell extends StatefulWidget {
   final AuthUser user;
   final AuthRepository authRepository;
+  final MapRepository? mapRepository;
 
   const MainNavigationShell({
     super.key,
     required this.user,
     required this.authRepository,
+    this.mapRepository,
   });
 
   @override
@@ -24,121 +31,26 @@ class MainNavigationShell extends StatefulWidget {
 
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
+  late final MapRepository _mapRepository;
+
+  @override
+  void initState() {
+    super.initState();
+    _mapRepository =
+        widget.mapRepository ??
+        MapRepositoryImpl(
+          datasource:
+              (kIsWeb || defaultTargetPlatform != TargetPlatform.android)
+              ? DevMapDatasource()
+              : FirestoreMapDatasource(),
+        );
+  }
 
   void _handleIringCenterTap() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => LiveMapPage(mapRepository: _mapRepository),
       ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.border,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Row(
-                  children: [
-                    Icon(Icons.pets, color: AppColors.primary, size: 24),
-                    SizedBox(width: 10),
-                    Text(
-                      'Iring Action Hub',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Quick actions for cat sightings and feline discovery.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(25),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  title: const Text(
-                    'Instant Cat Scanner',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                  ),
-                  subtitle: const Text(
-                    'Launch AI breed classifier with live camera',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  trailing: const Icon(Icons.chevron_right, size: 18),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Cat Scanner module selected'),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary.withAlpha(25),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.photo_library,
-                      color: AppColors.secondary,
-                    ),
-                  ),
-                  title: const Text(
-                    'Browse Cat Album',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                  ),
-                  subtitle: const Text(
-                    'View your catalogued cat photos and memories',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  trailing: const Icon(Icons.chevron_right, size: 18),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    setState(() => _currentIndex = 1);
-                  },
-                ),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -148,7 +60,11 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       _HomePage(user: widget.user),
       const _AlbumPlaceholderPage(),
       const _ShowcasePlaceholderPage(),
-      DashboardPage(user: widget.user, authRepository: widget.authRepository),
+      DashboardPage(
+        user: widget.user,
+        authRepository: widget.authRepository,
+        onOpenMap: _handleIringCenterTap,
+      ),
     ];
 
     return Scaffold(

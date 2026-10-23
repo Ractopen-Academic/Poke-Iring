@@ -9,11 +9,13 @@ import '../../../auth/domain/repositories/auth_repository.dart';
 class DashboardPage extends StatefulWidget {
   final AuthUser user;
   final AuthRepository authRepository;
+  final VoidCallback? onOpenMap;
 
   const DashboardPage({
     super.key,
     required this.user,
     required this.authRepository,
+    this.onOpenMap,
   });
 
   @override
@@ -177,13 +179,15 @@ class _DashboardPageState extends State<DashboardPage> {
                 icon: Icons.map_outlined,
                 title: 'Live Sightings Map',
                 subtitle: 'Real-time 10-minute cat discoveries nearby',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Map module feature branch active'),
-                    ),
-                  );
-                },
+                onTap:
+                    widget.onOpenMap ??
+                    () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Use center Iring button to view map'),
+                        ),
+                      );
+                    },
               ),
               const SizedBox(height: 10),
               _ModuleTile(
