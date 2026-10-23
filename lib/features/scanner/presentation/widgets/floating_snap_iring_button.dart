@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_colors.dart';
 import '../../data/services/quick_snap_position_service_impl.dart';
 import '../../domain/services/quick_snap_position_service.dart';
+import 'cute_cat_camera_painter.dart';
 
 class FloatingSnapIringButton extends StatefulWidget {
   final VoidCallback onTap;
@@ -25,7 +25,7 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
   late final AnimationController _snapController;
   Animation<Offset>? _snapAnimation;
 
-  static const double _buttonSize = 54.0;
+  static const double _buttonSize = 58.0;
   static const double _margin = 12.0;
 
   Offset? _currentOffset;
@@ -155,50 +155,12 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
         onTap: widget.onTap,
         child: AnimatedScale(
           duration: const Duration(milliseconds: 140),
-          scale: _isDragging ? 1.08 : 1.0,
-          child: Material(
-            color: Colors.transparent,
-            shape: const CircleBorder(),
-            elevation: _isDragging ? 8 : 4,
-            shadowColor: Colors.black.withAlpha(90),
-            child: Container(
+          scale: _isDragging ? 1.10 : 1.0,
+          child: const RepaintBoundary(
+            child: SizedBox(
               width: _buttonSize,
               height: _buttonSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFFFFA726),
-                    AppColors.primary,
-                    Color(0xFFF57C00),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(color: Colors.white, width: 2.2),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(
-                    Icons.camera_alt_rounded,
-                    color: Colors.white,
-                    size: 26,
-                  ),
-                  Positioned(
-                    top: 11,
-                    right: 14,
-                    child: Container(
-                      width: 5,
-                      height: 5,
-                      decoration: const BoxDecoration(
-                        color: Colors.white70,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: CustomPaint(painter: CuteCatCameraPainter()),
             ),
           ),
         ),
