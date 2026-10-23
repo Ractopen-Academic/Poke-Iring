@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../data/datasources/cached_tile_provider.dart';
 
 class LiveMapPage extends StatefulWidget {
   final LatLng initialCenter;
@@ -82,6 +83,7 @@ class _LiveMapPageState extends State<LiveMapPage> {
                       'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
                   subdomains: const ['a', 'b', 'c'],
                   userAgentPackageName: 'com.ryme.pokeiring',
+                  tileProvider: CachedTileProvider(),
                 ),
                 MarkerLayer(
                   markers: [

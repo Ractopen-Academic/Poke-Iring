@@ -58,7 +58,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   void _onMapPointerUp() {
     _idleTimer?.cancel();
-    _idleTimer = Timer(const Duration(milliseconds: 1200), () {
+    _idleTimer = Timer(const Duration(milliseconds: 350), () {
       if (mounted && !_isNavbarVisible) {
         setState(() {
           _isNavbarVisible = true;
@@ -96,15 +96,15 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             )
           : IndexedStack(index: _currentIndex, children: pages),
       floatingActionButton: AnimatedSlide(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
         offset: _isNavbarVisible ? Offset.zero : const Offset(0, 2.5),
         child: IringCenterButton(onTap: _handleIringCenterTap),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AnimatedSlide(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
         offset: _isNavbarVisible ? Offset.zero : const Offset(0, 1.5),
         child: AppBottomNavBar(
           currentIndex: _isShowingMap ? -1 : _currentIndex,
