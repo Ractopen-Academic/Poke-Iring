@@ -50,37 +50,7 @@ jobs:
       - name: Configure Mock Google Services for CI
         run: |
           if [ ! -f android/app/google-services.json ]; then
-            cat << 'EOF' > android/app/google-services.json
-            {
-              "project_info": {
-                "project_number": "000000000000",
-                "project_id": "pokeiring-ci-mock",
-                "storage_bucket": "pokeiring-ci-mock.appspot.com"
-              },
-              "client": [
-                {
-                  "client_info": {
-                    "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
-                    "android_client_info": {
-                      "package_name": "com.ryme.pokeiring"
-                    }
-                  },
-                  "oauth_client": [],
-                  "api_key": [
-                    {
-                      "current_key": "AIzaSyMockKeyForContinuousIntegration00"
-                    }
-                  ],
-                  "services": {
-                    "analytics_service": {
-                      "status": 1
-                    }
-                  }
-                }
-              ],
-              "configuration_version": "1"
-            }
-            EOF
+            echo '{"project_info":{"project_number":"0","project_id":"pokeiring-ci","storage_bucket":"pokeiring-ci.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.ryme.pokeiring"}},"oauth_client":[],"api_key":[{"current_key":"dummy"}],"services":{"analytics_service":{"status":1}}}],"configuration_version":"1"}' > android/app/google-services.json
           fi
 
       - name: Build Android APK (Debug Smoke Test)
