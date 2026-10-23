@@ -1,0 +1,82 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build configuration type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    name: Build Android APK (${{ inputs.build_type || 'release' }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/app/build.gradle.kts', 'android/build.gradle.kts', 'android/settings.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # v2.18.0
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Configure Google Services
+        env:
+          GOOGLE_SERVICES_SECRET: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_SECRET" ]; then
+            echo "$GOOGLE_SERVICES_SECRET" > android/app/google-services.json
+          elif [ ! -f android/app/google-services.json ]; then
+            echo '{"project_info":{"project_number":"0","project_id":"pokeiring-ci","storage_bucket":"pokeiring-ci.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.ryme.pokeiring"}},"oauth_client":[],"api_key":[{"current_key":"dummy"}],"services":{"analytics_service":{"status":1}}}],"configuration_version":"1"}' > android/app/google-services.json
+          fi
+
+      - name: Build Android 14+ 64-bit APK
+        run: |
+          BUILD_TYPE="${{ inputs.build_type || 'release' }}"
+          if [ "$BUILD_TYPE" = "release" ]; then
+            flutter build apk --release --target-platform android-arm64 --tree-shake-icons
+          else
+            flutter build apk --debug --target-platform android-arm64
+          fi
+
+      - name: Prepare Artifact Package
+        run: |
+          BUILD_TYPE="${{ inputs.build_type || 'release' }}"
+          mkdir -p output
+          find build/app/outputs/flutter-apk -type f -name "*.apk" -exec cp {} "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" \;
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: pokeiring-android14-arm64-apk
+          path: output/*.apk
+          retention-days: 14
