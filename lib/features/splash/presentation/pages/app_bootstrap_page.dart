@@ -89,7 +89,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage> {
         cachedTiles = await _tilePrecacheService
             .precacheArea(
               center: const LatLng(10.3140, 123.9720),
-              zoomLevels: const [15, 16],
+              zoomLevels: const [16],
               radiusTiles: 1,
             )
             .timeout(const Duration(milliseconds: 2500), onTimeout: () => 0);

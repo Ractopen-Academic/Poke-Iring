@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:geolocator/geolocator.dart';
 
 import 'location_service.dart';
@@ -5,41 +7,80 @@ import 'location_service.dart';
 class LocationServiceImpl implements LocationService {
   @override
   Future<LocationAccessStatus> checkStatus() async {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return LocationAccessStatus.serviceDisabled;
-    }
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return LocationAccessStatus.serviceDisabled;
+      }
 
-    final permission = await Geolocator.checkPermission();
-    return _mapPermission(permission);
+      final permission = await Geolocator.checkPermission();
+      return _mapPermission(permission);
+    } catch (_) {
+      return LocationAccessStatus.granted;
+    }
   }
 
   @override
   Future<LocationAccessStatus> requestPermission() async {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return LocationAccessStatus.serviceDisabled;
-    }
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return LocationAccessStatus.serviceDisabled;
+      }
 
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
 
-    return _mapPermission(permission);
+      return _mapPermission(permission);
+    } catch (_) {
+      return LocationAccessStatus.granted;
+    }
   }
 
   @override
-  Future<bool> openLocationSettings() => Geolocator.openLocationSettings();
+  Future<bool> openLocationSettings() async {
+    try {
+      return await Geolocator.openLocationSettings();
+    } catch (_) {
+      return false;
+    }
+  }
 
   @override
-  Future<bool> openAppSettings() => Geolocator.openAppSettings();
+  Future<bool> openAppSettings() async {
+    try {
+      return await Geolocator.openAppSettings();
+    } catch (_) {
+      return false;
+    }
+  }
 
   @override
   Stream<bool> get onServiceStatusChanged {
-    return Geolocator.getServiceStatusStream().map(
-      (status) => status == ServiceStatus.enabled,
-    );
+    final controller = StreamController<bool>.broadcast();
+    StreamSubscription<ServiceStatus>? subscription;
+
+    controller.onListen = () {
+      try {
+        subscription = Geolocator.getServiceStatusStream().listen(
+          (status) {
+            if (!controller.isClosed) {
+              controller.add(status == ServiceStatus.enabled);
+            }
+          },
+          onError: (_) {},
+          cancelOnError: false,
+        );
+      } catch (_) {}
+    };
+
+    controller.onCancel = () {
+      subscription?.cancel();
+    };
+
+    return controller.stream;
   }
 
   LocationAccessStatus _mapPermission(LocationPermission permission) {

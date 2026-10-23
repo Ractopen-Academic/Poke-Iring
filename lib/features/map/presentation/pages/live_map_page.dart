@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
 import '../../data/datasources/cached_tile_provider.dart';
 import '../widgets/cat_arm_compass_pointer.dart';
+import '../widgets/peeking_cat_recenter_button.dart';
 
 class LiveMapPage extends StatefulWidget {
   final LatLng initialCenter;
@@ -39,6 +41,8 @@ class _LiveMapPageState extends State<LiveMapPage>
   late final AnimationController _moveController;
   double _currentRotation = 0.0;
   bool _hasTileError = false;
+  bool _isControlsVisible = true;
+  Timer? _controlsTimer;
 
   @override
   void initState() {
@@ -49,16 +53,39 @@ class _LiveMapPageState extends State<LiveMapPage>
     );
     _moveController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 380),
+      duration: const Duration(milliseconds: 450),
     );
   }
 
   @override
   void dispose() {
+    _controlsTimer?.cancel();
     _rotationController.dispose();
     _moveController.dispose();
     _mapController.dispose();
     super.dispose();
+  }
+
+  void _onPointerDown() {
+    _controlsTimer?.cancel();
+    if (_isControlsVisible) {
+      setState(() {
+        _isControlsVisible = false;
+      });
+    }
+    widget.onPointerDown?.call();
+  }
+
+  void _onPointerUp() {
+    _controlsTimer?.cancel();
+    _controlsTimer = Timer(const Duration(milliseconds: 350), () {
+      if (mounted && !_isControlsVisible) {
+        setState(() {
+          _isControlsVisible = true;
+        });
+      }
+    });
+    widget.onPointerUp?.call();
   }
 
   void _recenter() {
@@ -130,9 +157,9 @@ class _LiveMapPageState extends State<LiveMapPage>
       body: Stack(
         children: [
           Listener(
-            onPointerDown: (_) => widget.onPointerDown?.call(),
-            onPointerUp: (_) => widget.onPointerUp?.call(),
-            onPointerCancel: (_) => widget.onPointerUp?.call(),
+            onPointerDown: (_) => _onPointerDown(),
+            onPointerUp: (_) => _onPointerUp(),
+            onPointerCancel: (_) => _onPointerUp(),
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
@@ -273,13 +300,11 @@ class _LiveMapPageState extends State<LiveMapPage>
           Positioned(
             right: 16,
             bottom: 100,
-            child: FloatingActionButton.small(
-              heroTag: 'recenter_bankal',
-              onPressed: _recenter,
-              backgroundColor: Colors.white,
-              foregroundColor: AppColors.textPrimary,
-              tooltip: 'Recenter to Bankal',
-              child: const Icon(Icons.my_location),
+            child: AnimatedSlide(
+              duration: const Duration(milliseconds: 140),
+              curve: Curves.easeOutCubic,
+              offset: _isControlsVisible ? Offset.zero : const Offset(2.0, 0),
+              child: PeekingCatRecenterButton(onTap: _recenter),
             ),
           ),
         ],
