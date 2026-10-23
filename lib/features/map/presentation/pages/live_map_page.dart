@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -27,6 +29,7 @@ class LiveMapPage extends StatefulWidget {
 
 class _LiveMapPageState extends State<LiveMapPage> {
   final MapController _mapController = MapController();
+  double _currentRotation = 0.0;
 
   @override
   void dispose() {
@@ -36,6 +39,13 @@ class _LiveMapPageState extends State<LiveMapPage> {
 
   void _recenter() {
     _mapController.move(widget.initialCenter, 16.0);
+  }
+
+  void _resetToNorth() {
+    _mapController.rotate(0.0);
+    setState(() {
+      _currentRotation = 0.0;
+    });
   }
 
   @override
@@ -56,8 +66,15 @@ class _LiveMapPageState extends State<LiveMapPage> {
                 minZoom: 12.0,
                 maxZoom: 18.0,
                 interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                  flags: InteractiveFlag.all,
                 ),
+                onPositionChanged: (camera, hasGesture) {
+                  if (_currentRotation != camera.rotation) {
+                    setState(() {
+                      _currentRotation = camera.rotation;
+                    });
+                  }
+                },
               ),
               children: [
                 TileLayer(
@@ -130,20 +147,26 @@ class _LiveMapPageState extends State<LiveMapPage> {
                       ],
                     ),
                   ),
-                  if (widget.onClose != null)
-                    Material(
-                      color: Colors.white,
-                      shape: const CircleBorder(),
-                      elevation: 3,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          size: 20,
-                          color: AppColors.textPrimary,
+                  Material(
+                    color: Colors.white,
+                    shape: const CircleBorder(),
+                    elevation: 3,
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: _resetToNorth,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Transform.rotate(
+                          angle: -_currentRotation * (math.pi / 180),
+                          child: const Icon(
+                            Icons.navigation,
+                            size: 20,
+                            color: AppColors.primary,
+                          ),
                         ),
-                        onPressed: widget.onClose,
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
