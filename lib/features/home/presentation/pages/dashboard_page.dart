@@ -50,6 +50,9 @@ class _DashboardPageState extends State<DashboardPage> {
         ? widget.user.displayName
         : widget.user.email.split('@').first;
 
+    final isTestAccount =
+        widget.user.email.contains('test') || widget.user.email.contains('dev');
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -136,18 +139,27 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Row(
+              Row(
                 children: [
                   Expanded(
-                    child: _StatCard(label: 'Cats Logged', value: '0'),
+                    child: _StatCard(
+                      label: 'Cats Logged',
+                      value: isTestAccount ? '6' : '0',
+                    ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: _StatCard(label: 'Sightings', value: '0'),
+                    child: _StatCard(
+                      label: 'Sightings',
+                      value: isTestAccount ? '3' : '0',
+                    ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: _StatCard(label: 'Distance', value: '0.0 km'),
+                    child: _StatCard(
+                      label: 'Distance',
+                      value: isTestAccount ? '4.8 km' : '0.0 km',
+                    ),
                   ),
                 ],
               ),

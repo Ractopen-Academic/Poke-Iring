@@ -298,6 +298,23 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       onPressed: _handleGoogleAuth,
                     ),
+                    const SizedBox(height: 12),
+                    AppButton(
+                      text: 'Quick Test Login',
+                      isOutlined: true,
+                      isLoading: _isLoading,
+                      icon: const Icon(
+                        Icons.developer_mode_outlined,
+                        size: 20,
+                        color: AppColors.secondary,
+                      ),
+                      onPressed: () {
+                        _emailController.text = 'test.explorer@pokeiring.app';
+                        _passwordController.text = 'PokeIring2026!';
+                        _isSignUp = false;
+                        _handleManualAuth();
+                      },
+                    ),
                   ],
                 ),
               ),
