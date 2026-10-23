@@ -8,7 +8,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
 import '../../data/datasources/cached_tile_provider.dart';
-import '../widgets/cat_arm_compass_pointer.dart';
+import '../widgets/cute_paw_compass_pointer.dart';
 import '../widgets/peeking_cat_recenter_button.dart';
 
 class LiveMapPage extends StatefulWidget {
@@ -270,7 +270,7 @@ class _LiveMapPageState extends State<LiveMapPage>
                         padding: const EdgeInsets.all(8),
                         child: Transform.rotate(
                           angle: -_currentRotation * (math.pi / 180),
-                          child: const CatArmCompassPointer(size: 26),
+                          child: const CutePawCompassPointer(size: 28),
                         ),
                       ),
                     ),

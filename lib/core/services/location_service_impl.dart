@@ -1,13 +1,31 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'location_service.dart';
 
 class LocationServiceImpl implements LocationService {
+  Future<bool> _isPlatformChannelReady() async {
+    if (kIsWeb) return false;
+    try {
+      await Geolocator.isLocationServiceEnabled();
+      return true;
+    } on MissingPluginException {
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   Future<LocationAccessStatus> checkStatus() async {
+    if (kIsWeb) return LocationAccessStatus.granted;
     try {
+      final ready = await _isPlatformChannelReady();
+      if (!ready) return LocationAccessStatus.granted;
+
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         return LocationAccessStatus.serviceDisabled;
@@ -22,7 +40,11 @@ class LocationServiceImpl implements LocationService {
 
   @override
   Future<LocationAccessStatus> requestPermission() async {
+    if (kIsWeb) return LocationAccessStatus.granted;
     try {
+      final ready = await _isPlatformChannelReady();
+      if (!ready) return LocationAccessStatus.granted;
+
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         return LocationAccessStatus.serviceDisabled;
@@ -41,7 +63,10 @@ class LocationServiceImpl implements LocationService {
 
   @override
   Future<bool> openLocationSettings() async {
+    if (kIsWeb) return false;
     try {
+      final ready = await _isPlatformChannelReady();
+      if (!ready) return false;
       return await Geolocator.openLocationSettings();
     } catch (_) {
       return false;
@@ -50,7 +75,10 @@ class LocationServiceImpl implements LocationService {
 
   @override
   Future<bool> openAppSettings() async {
+    if (kIsWeb) return false;
     try {
+      final ready = await _isPlatformChannelReady();
+      if (!ready) return false;
       return await Geolocator.openAppSettings();
     } catch (_) {
       return false;
@@ -62,7 +90,10 @@ class LocationServiceImpl implements LocationService {
     final controller = StreamController<bool>.broadcast();
     StreamSubscription<ServiceStatus>? subscription;
 
-    controller.onListen = () {
+    controller.onListen = () async {
+      final ready = await _isPlatformChannelReady();
+      if (!ready || controller.isClosed) return;
+
       try {
         subscription = Geolocator.getServiceStatusStream().listen(
           (status) {

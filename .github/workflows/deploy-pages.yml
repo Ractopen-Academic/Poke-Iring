@@ -1,0 +1,63 @@
+name: Deploy Web to GitHub Pages
+
+on:
+  push:
+    branches:
+      - development
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    name: Build Web and Deploy to Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: development
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Analyze Code
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Build Flutter Web
+        run: flutter build web --release --base-href "/Poke-Iring/"
+
+      - name: Prepare GitHub Pages Docs
+        run: |
+          mkdir -p docs
+          rm -rf docs/*
+          cp -r build/web/* docs/
+          cp docs/index.html docs/404.html
+          touch docs/.nojekyll
+
+      - name: Commit and Push to Pages
+        run: |
+          git config user.name "ractopen"
+          git config user.email "197402134+ractopen@users.noreply.github.com"
+          git add docs/
+          if git diff --staged --quiet; then
+            echo "No changes in docs directory."
+          else
+            git commit -m "chore(pages): deploy web release to github pages [skip ci]"
+            git push origin development
+          fi
