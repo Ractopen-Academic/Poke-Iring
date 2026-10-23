@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
-import '../../../map/data/datasources/map_remote_datasource.dart';
-import '../../../map/data/repositories/map_repository_impl.dart';
 import '../../../map/domain/repositories/map_repository.dart';
 import '../../../map/presentation/pages/live_map_page.dart';
 import '../widgets/app_bottom_nav_bar.dart';
@@ -31,27 +30,41 @@ class MainNavigationShell extends StatefulWidget {
 
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
-  late final MapRepository _mapRepository;
+  bool _isShowingMap = false;
+  bool _isNavbarVisible = true;
+  Timer? _idleTimer;
 
   @override
-  void initState() {
-    super.initState();
-    _mapRepository =
-        widget.mapRepository ??
-        MapRepositoryImpl(
-          datasource:
-              (kIsWeb || defaultTargetPlatform != TargetPlatform.android)
-              ? DevMapDatasource()
-              : FirestoreMapDatasource(),
-        );
+  void dispose() {
+    _idleTimer?.cancel();
+    super.dispose();
   }
 
   void _handleIringCenterTap() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => LiveMapPage(mapRepository: _mapRepository),
-      ),
-    );
+    setState(() {
+      _isShowingMap = !_isShowingMap;
+      _isNavbarVisible = true;
+    });
+  }
+
+  void _onMapPointerDown() {
+    _idleTimer?.cancel();
+    if (_isNavbarVisible) {
+      setState(() {
+        _isNavbarVisible = false;
+      });
+    }
+  }
+
+  void _onMapPointerUp() {
+    _idleTimer?.cancel();
+    _idleTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (mounted && !_isNavbarVisible) {
+        setState(() {
+          _isNavbarVisible = true;
+        });
+      }
+    });
   }
 
   @override
@@ -63,21 +76,46 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       DashboardPage(
         user: widget.user,
         authRepository: widget.authRepository,
-        onOpenMap: _handleIringCenterTap,
+        onOpenMap: () => setState(() {
+          _isShowingMap = true;
+          _isNavbarVisible = true;
+        }),
       ),
     ];
 
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: pages),
-      floatingActionButton: IringCenterButton(onTap: _handleIringCenterTap),
+      extendBody: true,
+      body: _isShowingMap
+          ? LiveMapPage(
+              onPointerDown: _onMapPointerDown,
+              onPointerUp: _onMapPointerUp,
+              onClose: () => setState(() {
+                _isShowingMap = false;
+                _isNavbarVisible = true;
+              }),
+            )
+          : IndexedStack(index: _currentIndex, children: pages),
+      floatingActionButton: AnimatedSlide(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        offset: _isNavbarVisible ? Offset.zero : const Offset(0, 2.5),
+        child: IringCenterButton(onTap: _handleIringCenterTap),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: _currentIndex,
-        onTabSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+      bottomNavigationBar: AnimatedSlide(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        offset: _isNavbarVisible ? Offset.zero : const Offset(0, 1.5),
+        child: AppBottomNavBar(
+          currentIndex: _isShowingMap ? -1 : _currentIndex,
+          onTabSelected: (index) {
+            setState(() {
+              _isShowingMap = false;
+              _currentIndex = index;
+              _isNavbarVisible = true;
+            });
+          },
+        ),
       ),
     );
   }
