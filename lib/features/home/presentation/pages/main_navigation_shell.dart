@@ -145,7 +145,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      _QuestsPlaceholderPage(user: widget.user),
+      _HomePage(user: widget.user),
       const _AlbumPlaceholderPage(),
       const _ShowcasePlaceholderPage(),
       DashboardPage(user: widget.user, authRepository: widget.authRepository),
@@ -167,10 +167,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   }
 }
 
-class _QuestsPlaceholderPage extends StatelessWidget {
+class _HomePage extends StatelessWidget {
   final AuthUser user;
 
-  const _QuestsPlaceholderPage({required this.user});
+  const _HomePage({required this.user});
 
   @override
   Widget build(BuildContext context) {

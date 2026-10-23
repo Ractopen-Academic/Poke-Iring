@@ -26,9 +26,9 @@ class AppBottomNavBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _NavBarItem(
-              icon: Icons.explore_outlined,
-              activeIcon: Icons.explore,
-              label: 'Quests',
+              icon: Icons.home_outlined,
+              activeIcon: Icons.home,
+              label: 'Home',
               isSelected: currentIndex == 0,
               onTap: () => onTabSelected(0),
             ),
