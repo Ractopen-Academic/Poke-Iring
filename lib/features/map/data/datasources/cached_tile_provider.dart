@@ -5,11 +5,11 @@ import 'package:flutter_map/flutter_map.dart';
 class CachedTileProvider extends TileProvider {
   CachedTileProvider({Map<String, String>? headers})
     : super(
-        headers:
-            headers ??
-            const {
-              'User-Agent': 'PokeIringApp/1.0 (Mobile; Android; Contact: ractopen@users.noreply.github.com)',
-            },
+        headers: headers != null
+            ? Map<String, String>.from(headers)
+            : <String, String>{
+                'User-Agent': 'PokeIringApp/1.0 (Mobile; Android; Contact: ractopen@users.noreply.github.com)',
+              },
       );
 
   @override
