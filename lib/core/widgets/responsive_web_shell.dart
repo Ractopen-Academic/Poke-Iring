@@ -47,7 +47,13 @@ class ResponsiveWebShell extends StatelessWidget {
                 borderRadius: BorderRadius.circular(31),
                 child: Stack(
                   children: [
-                    Positioned.fill(child: child),
+                    Positioned.fill(
+                      child: MediaQuery(
+                        data: MediaQuery.of(context)
+                            .copyWith(size: Size(s25FeWidth, targetHeight)),
+                        child: child,
+                      ),
+                    ),
                     Positioned(
                       top: 10,
                       left: 0,

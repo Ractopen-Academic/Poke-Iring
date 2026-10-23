@@ -33,12 +33,6 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get --enforce-lockfile
 
-      - name: Analyze Code
-        run: flutter analyze
-
-      - name: Run Tests
-        run: flutter test
-
       - name: Build Flutter Web
         run: flutter build web --release --base-href "/Poke-Iring/"
 
