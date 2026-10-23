@@ -56,10 +56,24 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   late bool _isLocationServiceEnabled;
   bool _dismissedOfflineBanner = false;
   bool _dismissedGpsBanner = false;
+  late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    _pages = [
+      _HomePage(user: widget.user),
+      const _AlbumPlaceholderPage(),
+      const _ShowcasePlaceholderPage(),
+      DashboardPage(
+        user: widget.user,
+        authRepository: widget.authRepository,
+        onOpenMap: () => setState(() {
+          _isShowingMap = true;
+          _isNavbarVisible = true;
+        }),
+      ),
+    ];
     _networkInfo = widget.networkInfo ?? NetworkInfoImpl();
     _locationService = widget.locationService ?? LocationServiceImpl();
     _isOnline = widget.initialOnline ?? true;
@@ -124,20 +138,6 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      _HomePage(user: widget.user),
-      const _AlbumPlaceholderPage(),
-      const _ShowcasePlaceholderPage(),
-      DashboardPage(
-        user: widget.user,
-        authRepository: widget.authRepository,
-        onOpenMap: () => setState(() {
-          _isShowingMap = true;
-          _isNavbarVisible = true;
-        }),
-      ),
-    ];
-
     final showOffline = !_isOnline && !_dismissedOfflineBanner;
     final showGpsDisabled =
         !_isLocationServiceEnabled && !_dismissedGpsBanner && !showOffline;
@@ -148,7 +148,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         children: [
           Offstage(
             offstage: _isShowingMap,
-            child: IndexedStack(index: _currentIndex, children: pages),
+            child: IndexedStack(index: _currentIndex, children: _pages),
           ),
           Offstage(
             offstage: !_isShowingMap,

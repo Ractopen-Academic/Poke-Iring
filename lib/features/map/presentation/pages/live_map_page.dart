@@ -39,7 +39,8 @@ class _LiveMapPageState extends State<LiveMapPage>
   final MapController _mapController = MapController();
   late final AnimationController _rotationController;
   late final AnimationController _moveController;
-  double _currentRotation = 0.0;
+  late final TileProvider _tileProvider;
+  final ValueNotifier<double> _rotationNotifier = ValueNotifier<double>(0.0);
   bool _hasTileError = false;
   bool _isControlsVisible = true;
   Timer? _controlsTimer;
@@ -47,6 +48,7 @@ class _LiveMapPageState extends State<LiveMapPage>
   @override
   void initState() {
     super.initState();
+    _tileProvider = CachedTileProvider();
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 320),
@@ -60,6 +62,7 @@ class _LiveMapPageState extends State<LiveMapPage>
   @override
   void dispose() {
     _controlsTimer?.cancel();
+    _rotationNotifier.dispose();
     _rotationController.dispose();
     _moveController.dispose();
     _mapController.dispose();
@@ -127,7 +130,7 @@ class _LiveMapPageState extends State<LiveMapPage>
   void _resetToNorth() {
     if (_rotationController.isAnimating) return;
 
-    var start = _currentRotation % 360;
+    var start = _rotationNotifier.value % 360;
     if (start > 180) start -= 360;
     if (start < -180) start += 360;
 
@@ -139,9 +142,7 @@ class _LiveMapPageState extends State<LiveMapPage>
 
     void listener() {
       _mapController.rotate(anim.value);
-      setState(() {
-        _currentRotation = anim.value;
-      });
+      _rotationNotifier.value = anim.value;
     }
 
     anim.addListener(listener);
@@ -171,10 +172,8 @@ class _LiveMapPageState extends State<LiveMapPage>
                   flags: InteractiveFlag.all,
                 ),
                 onPositionChanged: (camera, hasGesture) {
-                  if (_currentRotation != camera.rotation) {
-                    setState(() {
-                      _currentRotation = camera.rotation;
-                    });
+                  if (_rotationNotifier.value != camera.rotation) {
+                    _rotationNotifier.value = camera.rotation;
                   }
                 },
               ),
@@ -184,7 +183,9 @@ class _LiveMapPageState extends State<LiveMapPage>
                       'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
                   subdomains: const ['a', 'b', 'c'],
                   userAgentPackageName: 'com.ryme.pokeiring',
-                  tileProvider: CachedTileProvider(),
+                  tileProvider: _tileProvider,
+                  panBuffer: 1,
+                  keepBuffer: 2,
                   evictErrorTileStrategy: EvictErrorTileStrategy.none,
                   errorTileCallback: (tile, error, stackTrace) {
                     if (!_hasTileError && mounted) {
@@ -201,20 +202,7 @@ class _LiveMapPageState extends State<LiveMapPage>
                       point: widget.initialCenter,
                       width: 28,
                       height: 28,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.blue.withAlpha(50),
-                        ),
-                        padding: const EdgeInsets.all(4),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.blue.shade700,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                        ),
-                      ),
+                      child: const _UserLocationDot(),
                     ),
                   ],
                 ),
@@ -268,9 +256,17 @@ class _LiveMapPageState extends State<LiveMapPage>
                       onTap: _resetToNorth,
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Transform.rotate(
-                          angle: -_currentRotation * (math.pi / 180),
-                          child: const CutePawCompassPointer(size: 28),
+                        child: ValueListenableBuilder<double>(
+                          valueListenable: _rotationNotifier,
+                          builder: (context, rotation, child) {
+                            return Transform.rotate(
+                              angle: -rotation * (math.pi / 180),
+                              child: child,
+                            );
+                          },
+                          child: const RepaintBoundary(
+                            child: CutePawCompassPointer(size: 28),
+                          ),
                         ),
                       ),
                     ),
@@ -308,6 +304,28 @@ class _LiveMapPageState extends State<LiveMapPage>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _UserLocationDot extends StatelessWidget {
+  const _UserLocationDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.blue.withAlpha(50),
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.blue.shade700,
+          border: Border.all(color: Colors.white, width: 2),
+        ),
       ),
     );
   }
