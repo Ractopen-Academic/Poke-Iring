@@ -1,9 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/network/network_info.dart';
+import '../../../../core/network/network_info_impl.dart';
+import '../../../../core/services/location_service.dart';
+import '../../../../core/services/location_service_impl.dart';
+import '../../../../core/widgets/feline_status_banner.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../map/domain/repositories/map_repository.dart';
+import '../../../map/presentation/pages/live_map_page.dart';
+import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/iring_center_button.dart';
 import 'dashboard_page.dart';
@@ -11,11 +21,21 @@ import 'dashboard_page.dart';
 class MainNavigationShell extends StatefulWidget {
   final AuthUser user;
   final AuthRepository authRepository;
+  final MapRepository? mapRepository;
+  final bool? initialOnline;
+  final LocationAccessStatus? initialLocationStatus;
+  final NetworkInfo? networkInfo;
+  final LocationService? locationService;
 
   const MainNavigationShell({
     super.key,
     required this.user,
     required this.authRepository,
+    this.mapRepository,
+    this.initialOnline,
+    this.initialLocationStatus,
+    this.networkInfo,
+    this.locationService,
   });
 
   @override
@@ -24,144 +44,305 @@ class MainNavigationShell extends StatefulWidget {
 
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
+  bool _isShowingMap = false;
+  bool _isNavbarVisible = true;
+  Timer? _idleTimer;
+
+  late final NetworkInfo _networkInfo;
+  late final LocationService _locationService;
+  StreamSubscription<bool>? _networkSubscription;
+  StreamSubscription<bool>? _locationSubscription;
+
+  late bool _isOnline;
+  late bool _isLocationServiceEnabled;
+  bool _dismissedOfflineBanner = false;
+  bool _dismissedGpsBanner = false;
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      _HomePage(user: widget.user),
+      const _AlbumPlaceholderPage(),
+      const _ShowcasePlaceholderPage(),
+      DashboardPage(
+        user: widget.user,
+        authRepository: widget.authRepository,
+        onOpenMap: () => setState(() {
+          _isShowingMap = true;
+          _isNavbarVisible = true;
+        }),
+      ),
+    ];
+    _networkInfo = widget.networkInfo ?? NetworkInfoImpl();
+    _locationService = widget.locationService ?? LocationServiceImpl();
+    _isOnline = widget.initialOnline ?? true;
+    _isLocationServiceEnabled =
+        widget.initialLocationStatus != LocationAccessStatus.serviceDisabled;
+
+    _networkSubscription = _networkInfo.onConnectivityChanged.listen((status) {
+      if (mounted) {
+        setState(() {
+          _isOnline = status;
+          if (status) _dismissedOfflineBanner = false;
+        });
+      }
+    });
+
+    _locationSubscription = _locationService.onServiceStatusChanged.listen((
+      enabled,
+    ) {
+      if (mounted) {
+        setState(() {
+          _isLocationServiceEnabled = enabled;
+          if (enabled) _dismissedGpsBanner = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _idleTimer?.cancel();
+    _networkSubscription?.cancel();
+    _locationSubscription?.cancel();
+    super.dispose();
+  }
 
   void _handleIringCenterTap() {
+    setState(() {
+      _isShowingMap = !_isShowingMap;
+      _isNavbarVisible = true;
+    });
+  }
+
+  void _onMapPointerDown() {
+    _idleTimer?.cancel();
+    if (_isNavbarVisible) {
+      setState(() {
+        _isNavbarVisible = false;
+      });
+    }
+  }
+
+  void _onMapPointerUp() {
+    _idleTimer?.cancel();
+    _idleTimer = Timer(const Duration(milliseconds: 350), () {
+      if (mounted && !_isNavbarVisible) {
+        setState(() {
+          _isNavbarVisible = true;
+        });
+      }
+    });
+  }
+
+  void _openQuickSnapCamera() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.border,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withAlpha(30),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt_rounded,
+                    color: AppColors.primary,
+                    size: 24,
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Row(
+                const SizedBox(width: 14),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.pets, color: AppColors.primary, size: 24),
-                    SizedBox(width: 10),
                     Text(
-                      'Iring Action Hub',
+                      'Snap an Iring',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
                       ),
                     ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Point camera at a spotted cat to log it',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Quick actions for cat sightings and feline discovery.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(25),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  title: const Text(
-                    'Instant Cat Scanner',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                  ),
-                  subtitle: const Text(
-                    'Launch AI breed classifier with live camera',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  trailing: const Icon(Icons.chevron_right, size: 18),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Cat Scanner module selected'),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary.withAlpha(25),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.photo_library,
-                      color: AppColors.secondary,
-                    ),
-                  ),
-                  title: const Text(
-                    'Browse Cat Album',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                  ),
-                  subtitle: const Text(
-                    'View your catalogued cat photos and memories',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  trailing: const Icon(Icons.chevron_right, size: 18),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    setState(() => _currentIndex = 1);
-                  },
-                ),
-                const SizedBox(height: 12),
               ],
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 24),
+            Container(
+              height: 140,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F7),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.pets, size: 36, color: AppColors.primary),
+                    SizedBox(height: 8),
+                    Text(
+                      'Quick Cat Camera Viewfinder',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'AI breed classifier ready',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Close Preview',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      _HomePage(user: widget.user),
-      const _AlbumPlaceholderPage(),
-      const _ShowcasePlaceholderPage(),
-      DashboardPage(user: widget.user, authRepository: widget.authRepository),
-    ];
+    final showOffline = !_isOnline && !_dismissedOfflineBanner;
+    final showGpsDisabled =
+        !_isLocationServiceEnabled && !_dismissedGpsBanner && !showOffline;
 
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: pages),
-      floatingActionButton: IringCenterButton(onTap: _handleIringCenterTap),
+      extendBody: true,
+      body: Stack(
+        children: [
+          Offstage(
+            offstage: _isShowingMap,
+            child: IndexedStack(index: _currentIndex, children: _pages),
+          ),
+          Offstage(
+            offstage: !_isShowingMap,
+            child: TickerMode(
+              enabled: _isShowingMap,
+              child: LiveMapPage(
+                onPointerDown: _onMapPointerDown,
+                onPointerUp: _onMapPointerUp,
+                onClose: () => setState(() {
+                  _isShowingMap = false;
+                  _isNavbarVisible = true;
+                }),
+              ),
+            ),
+          ),
+          if (showOffline)
+            Positioned(
+              top: _isShowingMap ? 56 : 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: FelineStatusBanner(
+                  message: 'Offline mode: exploration is limited to cached territories.',
+                  icon: Icons.pets,
+                  actionLabel: 'Retry',
+                  onAction: () async {
+                    final online = await _networkInfo.isConnected;
+                    if (mounted) {
+                      setState(() => _isOnline = online);
+                    }
+                  },
+                  onDismiss: () =>
+                      setState(() => _dismissedOfflineBanner = true),
+                ),
+              ),
+            )
+          else if (showGpsDisabled)
+            Positioned(
+              top: _isShowingMap ? 56 : 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: FelineStatusBanner(
+                  message: 'GPS disabled. Exploration map centered on Bankal default zone.',
+                  icon: Icons.location_off,
+                  actionLabel: 'Enable',
+                  onAction: () => _locationService.openLocationSettings(),
+                  onDismiss: () => setState(() => _dismissedGpsBanner = true),
+                ),
+              ),
+            ),
+          FloatingSnapIringButton(onTap: _openQuickSnapCamera),
+        ],
+      ),
+      floatingActionButton: AnimatedSlide(
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
+        offset: _isNavbarVisible ? Offset.zero : const Offset(0, 2.5),
+        child: IringCenterButton(onTap: _handleIringCenterTap),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: _currentIndex,
-        onTabSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+      bottomNavigationBar: AnimatedSlide(
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
+        offset: _isNavbarVisible ? Offset.zero : const Offset(0, 1.5),
+        child: AppBottomNavBar(
+          currentIndex: _isShowingMap ? -1 : _currentIndex,
+          onTabSelected: (index) {
+            setState(() {
+              _isShowingMap = false;
+              _currentIndex = index;
+              _isNavbarVisible = true;
+            });
+          },
+        ),
       ),
     );
   }
