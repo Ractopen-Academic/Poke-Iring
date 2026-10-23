@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/network/network_info.dart';
+import '../../../../core/network/network_info_impl.dart';
+import '../../../../core/services/location_service.dart';
+import '../../../../core/services/location_service_impl.dart';
+import '../../../../core/widgets/feline_status_banner.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../map/domain/repositories/map_repository.dart';
@@ -16,12 +21,20 @@ class MainNavigationShell extends StatefulWidget {
   final AuthUser user;
   final AuthRepository authRepository;
   final MapRepository? mapRepository;
+  final bool? initialOnline;
+  final LocationAccessStatus? initialLocationStatus;
+  final NetworkInfo? networkInfo;
+  final LocationService? locationService;
 
   const MainNavigationShell({
     super.key,
     required this.user,
     required this.authRepository,
     this.mapRepository,
+    this.initialOnline,
+    this.initialLocationStatus,
+    this.networkInfo,
+    this.locationService,
   });
 
   @override
@@ -34,9 +47,51 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   bool _isNavbarVisible = true;
   Timer? _idleTimer;
 
+  late final NetworkInfo _networkInfo;
+  late final LocationService _locationService;
+  StreamSubscription<bool>? _networkSubscription;
+  StreamSubscription<bool>? _locationSubscription;
+
+  late bool _isOnline;
+  late bool _isLocationServiceEnabled;
+  bool _dismissedOfflineBanner = false;
+  bool _dismissedGpsBanner = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _networkInfo = widget.networkInfo ?? NetworkInfoImpl();
+    _locationService = widget.locationService ?? LocationServiceImpl();
+    _isOnline = widget.initialOnline ?? true;
+    _isLocationServiceEnabled =
+        widget.initialLocationStatus != LocationAccessStatus.serviceDisabled;
+
+    _networkSubscription = _networkInfo.onConnectivityChanged.listen((status) {
+      if (mounted) {
+        setState(() {
+          _isOnline = status;
+          if (status) _dismissedOfflineBanner = false;
+        });
+      }
+    });
+
+    _locationSubscription = _locationService.onServiceStatusChanged.listen((
+      enabled,
+    ) {
+      if (mounted) {
+        setState(() {
+          _isLocationServiceEnabled = enabled;
+          if (enabled) _dismissedGpsBanner = false;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
     _idleTimer?.cancel();
+    _networkSubscription?.cancel();
+    _locationSubscription?.cancel();
     super.dispose();
   }
 
@@ -83,18 +138,62 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       ),
     ];
 
+    final showOffline = !_isOnline && !_dismissedOfflineBanner;
+    final showGpsDisabled =
+        !_isLocationServiceEnabled && !_dismissedGpsBanner && !showOffline;
+
     return Scaffold(
       extendBody: true,
-      body: _isShowingMap
-          ? LiveMapPage(
-              onPointerDown: _onMapPointerDown,
-              onPointerUp: _onMapPointerUp,
-              onClose: () => setState(() {
-                _isShowingMap = false;
-                _isNavbarVisible = true;
-              }),
+      body: Stack(
+        children: [
+          _isShowingMap
+              ? LiveMapPage(
+                  onPointerDown: _onMapPointerDown,
+                  onPointerUp: _onMapPointerUp,
+                  onClose: () => setState(() {
+                    _isShowingMap = false;
+                    _isNavbarVisible = true;
+                  }),
+                )
+              : IndexedStack(index: _currentIndex, children: pages),
+          if (showOffline)
+            Positioned(
+              top: _isShowingMap ? 56 : 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: FelineStatusBanner(
+                  message: 'Offline mode: exploration is limited to cached territories.',
+                  icon: Icons.pets,
+                  actionLabel: 'Retry',
+                  onAction: () async {
+                    final online = await _networkInfo.isConnected;
+                    if (mounted) {
+                      setState(() => _isOnline = online);
+                    }
+                  },
+                  onDismiss: () =>
+                      setState(() => _dismissedOfflineBanner = true),
+                ),
+              ),
             )
-          : IndexedStack(index: _currentIndex, children: pages),
+          else if (showGpsDisabled)
+            Positioned(
+              top: _isShowingMap ? 56 : 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: FelineStatusBanner(
+                  message: 'GPS disabled. Exploration map centered on Bankal default zone.',
+                  icon: Icons.location_off,
+                  actionLabel: 'Enable',
+                  onAction: () => _locationService.openLocationSettings(),
+                  onDismiss: () => setState(() => _dismissedGpsBanner = true),
+                ),
+              ),
+            ),
+        ],
+      ),
       floatingActionButton: AnimatedSlide(
         duration: const Duration(milliseconds: 140),
         curve: Curves.easeOutCubic,

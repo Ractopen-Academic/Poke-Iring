@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/feline_status_banner.dart';
 import '../../data/datasources/cached_tile_provider.dart';
 
 class LiveMapPage extends StatefulWidget {
@@ -12,6 +13,7 @@ class LiveMapPage extends StatefulWidget {
   final VoidCallback? onPointerDown;
   final VoidCallback? onPointerUp;
   final VoidCallback? onClose;
+  final VoidCallback? onTileError;
 
   const LiveMapPage({
     super.key,
@@ -22,6 +24,7 @@ class LiveMapPage extends StatefulWidget {
     this.onPointerDown,
     this.onPointerUp,
     this.onClose,
+    this.onTileError,
   });
 
   @override
@@ -31,6 +34,7 @@ class LiveMapPage extends StatefulWidget {
 class _LiveMapPageState extends State<LiveMapPage> {
   final MapController _mapController = MapController();
   double _currentRotation = 0.0;
+  bool _hasTileError = false;
 
   @override
   void dispose() {
@@ -84,6 +88,15 @@ class _LiveMapPageState extends State<LiveMapPage> {
                   subdomains: const ['a', 'b', 'c'],
                   userAgentPackageName: 'com.ryme.pokeiring',
                   tileProvider: CachedTileProvider(),
+                  evictErrorTileStrategy: EvictErrorTileStrategy.none,
+                  errorTileCallback: (tile, error, stackTrace) {
+                    if (!_hasTileError && mounted) {
+                      setState(() {
+                        _hasTileError = true;
+                      });
+                      widget.onTileError?.call();
+                    }
+                  },
                 ),
                 MarkerLayer(
                   markers: [
@@ -173,6 +186,24 @@ class _LiveMapPageState extends State<LiveMapPage> {
               ),
             ),
           ),
+          if (_hasTileError)
+            Positioned(
+              top: 70,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: FelineStatusBanner(
+                  message:
+                      'Network issue loading tiles. Serving cached feline map.',
+                  icon: Icons.pets,
+                  onDismiss: () {
+                    setState(() {
+                      _hasTileError = false;
+                    });
+                  },
+                ),
+              ),
+            ),
           Positioned(
             right: 16,
             bottom: 100,
