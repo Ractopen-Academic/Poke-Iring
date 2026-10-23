@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
 import '../../data/datasources/cached_tile_provider.dart';
+import '../widgets/cat_arm_compass_pointer.dart';
 
 class LiveMapPage extends StatefulWidget {
   final LatLng initialCenter;
@@ -31,25 +32,94 @@ class LiveMapPage extends StatefulWidget {
   State<LiveMapPage> createState() => _LiveMapPageState();
 }
 
-class _LiveMapPageState extends State<LiveMapPage> {
+class _LiveMapPageState extends State<LiveMapPage>
+    with TickerProviderStateMixin {
   final MapController _mapController = MapController();
+  late final AnimationController _rotationController;
+  late final AnimationController _moveController;
   double _currentRotation = 0.0;
   bool _hasTileError = false;
 
   @override
+  void initState() {
+    super.initState();
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 320),
+    );
+    _moveController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 380),
+    );
+  }
+
+  @override
   void dispose() {
+    _rotationController.dispose();
+    _moveController.dispose();
     _mapController.dispose();
     super.dispose();
   }
 
   void _recenter() {
-    _mapController.move(widget.initialCenter, 16.0);
+    if (_moveController.isAnimating) return;
+
+    final startCenter = _mapController.camera.center;
+    final startZoom = _mapController.camera.zoom;
+    final targetCenter = widget.initialCenter;
+    const targetZoom = 16.0;
+
+    final latTween = Tween<double>(
+      begin: startCenter.latitude,
+      end: targetCenter.latitude,
+    );
+    final lngTween = Tween<double>(
+      begin: startCenter.longitude,
+      end: targetCenter.longitude,
+    );
+    final zoomTween = Tween<double>(begin: startZoom, end: targetZoom);
+
+    final anim = CurvedAnimation(
+      parent: _moveController,
+      curve: Curves.easeOutCubic,
+    );
+
+    void listener() {
+      _mapController.move(
+        LatLng(latTween.evaluate(anim), lngTween.evaluate(anim)),
+        zoomTween.evaluate(anim),
+      );
+    }
+
+    anim.addListener(listener);
+    _moveController.forward(from: 0.0).then((_) {
+      anim.removeListener(listener);
+    });
   }
 
   void _resetToNorth() {
-    _mapController.rotate(0.0);
-    setState(() {
-      _currentRotation = 0.0;
+    if (_rotationController.isAnimating) return;
+
+    var start = _currentRotation % 360;
+    if (start > 180) start -= 360;
+    if (start < -180) start += 360;
+
+    if (start.abs() < 0.5) return;
+
+    final anim = Tween<double>(begin: start, end: 0.0).animate(
+      CurvedAnimation(parent: _rotationController, curve: Curves.easeOutCubic),
+    );
+
+    void listener() {
+      _mapController.rotate(anim.value);
+      setState(() {
+        _currentRotation = anim.value;
+      });
+    }
+
+    anim.addListener(listener);
+    _rotationController.forward(from: 0.0).then((_) {
+      anim.removeListener(listener);
     });
   }
 
@@ -170,14 +240,10 @@ class _LiveMapPageState extends State<LiveMapPage> {
                       customBorder: const CircleBorder(),
                       onTap: _resetToNorth,
                       child: Padding(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(8),
                         child: Transform.rotate(
                           angle: -_currentRotation * (math.pi / 180),
-                          child: const Icon(
-                            Icons.navigation,
-                            size: 20,
-                            color: AppColors.primary,
-                          ),
+                          child: const CatArmCompassPointer(size: 26),
                         ),
                       ),
                     ),
