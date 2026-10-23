@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../home/presentation/pages/dashboard_page.dart';
+import '../../../home/presentation/pages/main_navigation_shell.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'login_page.dart';
@@ -29,7 +29,10 @@ class AuthGate extends StatelessWidget {
 
         final user = snapshot.data;
         if (user != null && user.isNotEmpty) {
-          return DashboardPage(user: user, authRepository: authRepository);
+          return MainNavigationShell(
+            user: user,
+            authRepository: authRepository,
+          );
         }
 
         return LoginPage(authRepository: authRepository);
