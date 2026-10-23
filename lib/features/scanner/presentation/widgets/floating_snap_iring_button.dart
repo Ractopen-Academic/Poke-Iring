@@ -130,40 +130,60 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final screenSize = mediaQuery.size;
-    final padding = mediaQuery.padding;
+    return Positioned.fill(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final parentWidth =
+              constraints.maxWidth.isFinite && constraints.maxWidth > 0
+              ? constraints.maxWidth
+              : MediaQuery.sizeOf(context).width;
+          final parentHeight =
+              constraints.maxHeight.isFinite && constraints.maxHeight > 0
+              ? constraints.maxHeight
+              : MediaQuery.sizeOf(context).height;
+          final parentSize = Size(parentWidth, parentHeight);
+          final padding = MediaQuery.paddingOf(context);
 
-    if (!_isInitialized) {
-      _initPosition(screenSize, padding);
-      return const SizedBox.shrink();
-    }
+          if (!_isInitialized) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _initPosition(parentSize, padding);
+            });
+          }
 
-    final offset =
-        _currentOffset ??
-        Offset(
-          screenSize.width - _buttonSize - _margin,
-          screenSize.height * 0.65,
-        );
+          final defaultOffset = Offset(
+            parentSize.width - _buttonSize - _margin,
+            parentSize.height * 0.65,
+          );
+          final offset = _currentOffset ?? defaultOffset;
 
-    return Positioned(
-      left: offset.dx,
-      top: offset.dy,
-      child: GestureDetector(
-        onPanUpdate: (details) => _onPanUpdate(details, screenSize, padding),
-        onPanEnd: (details) => _onPanEnd(details, screenSize, padding),
-        onTap: widget.onTap,
-        child: AnimatedScale(
-          duration: const Duration(milliseconds: 140),
-          scale: _isDragging ? 1.10 : 1.0,
-          child: const RepaintBoundary(
-            child: SizedBox(
-              width: _buttonSize,
-              height: _buttonSize,
-              child: CustomPaint(painter: CuteCatCameraPainter()),
-            ),
-          ),
-        ),
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                left: offset.dx,
+                top: offset.dy,
+                child: GestureDetector(
+                  onPanUpdate: (details) =>
+                      _onPanUpdate(details, parentSize, padding),
+                  onPanEnd: (details) =>
+                      _onPanEnd(details, parentSize, padding),
+                  onTap: widget.onTap,
+                  child: AnimatedScale(
+                    duration: const Duration(milliseconds: 140),
+                    scale: _isDragging ? 1.10 : 1.0,
+                    child: const RepaintBoundary(
+                      child: SizedBox(
+                        width: _buttonSize,
+                        height: _buttonSize,
+                        child: CustomPaint(painter: CuteCatCameraPainter()),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
