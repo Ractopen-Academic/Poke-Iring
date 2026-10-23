@@ -147,7 +147,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     final pages = [
       _QuestsPlaceholderPage(user: widget.user),
       const _AlbumPlaceholderPage(),
-      const _IringDexPlaceholderPage(),
+      const _ShowcasePlaceholderPage(),
       DashboardPage(user: widget.user, authRepository: widget.authRepository),
     ];
 
@@ -356,51 +356,81 @@ class _AlbumPlaceholderPage extends StatelessWidget {
   }
 }
 
-class _IringDexPlaceholderPage extends StatelessWidget {
-  const _IringDexPlaceholderPage();
+class _ShowcasePlaceholderPage extends StatelessWidget {
+  const _ShowcasePlaceholderPage();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Iring-Dex Catalog'),
+        title: const Text('Showcase'),
         backgroundColor: Colors.white,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary.withAlpha(25),
-                ),
-                child: const Icon(
-                  Icons.menu_book_outlined,
-                  size: 48,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(height: 20),
               const Text(
-                'Feline Species Catalog',
+                'Feline Spotlight',
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               const Text(
-                'Document breeds, view rarity classifications, and unlock badges.',
-                textAlign: TextAlign.center,
+                'Exhibit your finest cat portraits and featured community discoveries.',
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.primary.withAlpha(25),
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome,
+                        size: 40,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No Pinned Highlights Yet',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Pin your favorite captured shots from your Album to feature them here on your showcase.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

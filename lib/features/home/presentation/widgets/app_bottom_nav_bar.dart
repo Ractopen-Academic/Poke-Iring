@@ -41,9 +41,9 @@ class AppBottomNavBar extends StatelessWidget {
             ),
             const SizedBox(width: 56),
             _NavBarItem(
-              icon: Icons.menu_book_outlined,
-              activeIcon: Icons.menu_book,
-              label: 'Iring-Dex',
+              icon: Icons.auto_awesome_outlined,
+              activeIcon: Icons.auto_awesome,
+              label: 'Showcase',
               isSelected: currentIndex == 2,
               onTap: () => onTabSelected(2),
             ),
