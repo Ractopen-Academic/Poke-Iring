@@ -54,6 +54,8 @@ android/app/google-services.json
 GIT_USERS.md
 DEV_NOTES.md
 PROMPT_GUIDE.md
+AGENTS.md
+.agents/
 
 # Widget Preview
 .widget_preview/
