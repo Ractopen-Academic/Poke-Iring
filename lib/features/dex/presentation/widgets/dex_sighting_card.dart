@@ -53,12 +53,7 @@ class DexSightingCard extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: sighting.photoUrl,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
+                      placeholder: (context, url) => _buildFallbackPhotoHeader(),
                       errorWidget: (context, url, error) => _buildFallbackPhotoHeader(),
                     ),
                   )
