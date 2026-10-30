@@ -17,6 +17,7 @@ import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
 import '../../../map/domain/repositories/map_repository.dart';
 import '../../../map/presentation/pages/live_map_page.dart';
+import '../../../quests/presentation/widgets/paw_quests_section.dart';
 import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
 import '../../../stories/presentation/widgets/stories_tray.dart';
@@ -408,25 +409,10 @@ class _HomePageState extends State<_HomePage> {
                     onTap: widget.onOpenLeaderboard ?? () {},
                   ),
                   const SizedBox(height: 24),
-                  const _QuestCard(
-                    title: 'Morning Prowler',
-                    description: 'Scan 1 cat before noon in your neighborhood',
-                    progressText: '0 / 1 Scanned',
-                    progress: 0.0,
-                  ),
-                  const SizedBox(height: 12),
-                  const _QuestCard(
-                    title: 'Cartographer Step',
-                    description: 'Walk 1.5 km while scanning sightings',
-                    progressText: '0.8 / 1.5 km',
-                    progress: 0.53,
-                  ),
-                  const SizedBox(height: 12),
-                  const _QuestCard(
-                    title: 'Calico Whispers',
-                    description: 'Spot a domestic calico or tabby pattern',
-                    progressText: '1 / 1 Spotted',
-                    progress: 1.0,
+                  PawQuestsSection(
+                    userId: widget.user.id.isNotEmpty
+                        ? widget.user.id
+                        : widget.user.email,
                   ),
                 ],
               ),
@@ -471,74 +457,6 @@ class _MiniMetric extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuestCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String progressText;
-  final double progress;
-
-  const _QuestCard({
-    required this.title,
-    required this.description,
-    required this.progressText,
-    required this.progress,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              Text(
-                progressText,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.secondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            description,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: AppColors.border,
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(4),
-            minHeight: 6,
           ),
         ],
       ),

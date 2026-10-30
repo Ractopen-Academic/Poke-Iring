@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../quests/data/repositories/paw_quests_repository_impl.dart';
 import '../../domain/entities/cat_sighting.dart';
 
 class FirebaseSightingsDataSource {
@@ -243,6 +244,14 @@ class FirebaseSightingsDataSource {
           'lastActive': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
 
+        unawaited(
+          PawQuestsRepositoryImpl.instance.recordCatScan(
+            userId: sighting.userId,
+            breed: sighting.breed,
+            timestamp: sighting.createdAt,
+          ),
+        );
+
         return persistedSighting;
       } catch (e) {
         debugPrint('Firebase saveSighting error ($e). Saving locally.');
@@ -253,6 +262,13 @@ class FirebaseSightingsDataSource {
     _localSightings.removeWhere((s) => s.id == sighting.id);
     _localSightings.insert(0, sighting);
     unawaited(_persistSightings());
+    unawaited(
+      PawQuestsRepositoryImpl.instance.recordCatScan(
+        userId: sighting.userId,
+        breed: sighting.breed,
+        timestamp: sighting.createdAt,
+      ),
+    );
     _localStreamController.add(List.unmodifiable(_localSightings));
     return sighting;
   }
@@ -400,6 +416,9 @@ class FirebaseSightingsDataSource {
               'totalPawPoints': FieldValue.increment(5),
             }, SetOptions(merge: true));
           }
+          unawaited(
+            PawQuestsRepositoryImpl.instance.recordBoop(userId: userId),
+          );
           return;
         }
       } catch (e) {
@@ -417,6 +436,7 @@ class FirebaseSightingsDataSource {
           boopsCount: s.boopsCount + 1,
           boopedBy: updatedBooped,
         );
+        unawaited(PawQuestsRepositoryImpl.instance.recordBoop(userId: userId));
         _localStreamController.add(List.unmodifiable(_localSightings));
       }
     }
