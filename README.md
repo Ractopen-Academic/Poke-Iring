@@ -18,8 +18,8 @@
 
 ## Project Status
 
-> **Current Phase: Pre-Alpha (v0.10.0-f11)**  
-> Poke: Iring is in active pre-alpha development with working real-time GPS tracking, multi-scope territory leaderboards, explorer health step counting, email verification, AI cat vision scanning, 24-hour Iring stories, and the Iring-Dex species catalog and sightings album.
+> **Current Phase: Pre-Alpha (v0.12.0-f13)**  
+> Poke: Iring is in active pre-alpha development with working real-time GPS tracking, multi-scope territory leaderboards, explorer health step counting, email verification, AI cat vision scanning, 24-hour Iring stories, the Iring-Dex catalog, and 9-card swipeable explorer showcases with sticker export.
 
 ---
 

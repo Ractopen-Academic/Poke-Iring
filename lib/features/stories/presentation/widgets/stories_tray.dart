@@ -12,11 +12,7 @@ class StoriesTray extends StatefulWidget {
   final AuthUser user;
   final StoriesRepository? repository;
 
-  const StoriesTray({
-    super.key,
-    required this.user,
-    this.repository,
-  });
+  const StoriesTray({super.key, required this.user, this.repository});
 
   @override
   State<StoriesTray> createState() => _StoriesTrayState();
@@ -32,11 +28,7 @@ class _StoriesTrayState extends State<StoriesTray> {
   }
 
   void _openCreateStory() {
-    CreateStoryDialog.show(
-      context,
-      user: widget.user,
-      repository: _repository,
-    );
+    CreateStoryDialog.show(context, user: widget.user, repository: _repository);
   }
 
   void _openStoryViewer(List<IringStory> stories, int index) {

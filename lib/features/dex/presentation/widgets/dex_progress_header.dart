@@ -6,10 +6,7 @@ import '../../domain/entities/iring_dex_entry.dart';
 class DexProgressHeader extends StatelessWidget {
   final List<IringDexEntry> entries;
 
-  const DexProgressHeader({
-    super.key,
-    required this.entries,
-  });
+  const DexProgressHeader({super.key, required this.entries});
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +15,7 @@ class DexProgressHeader extends StatelessWidget {
     final ratio = total > 0 ? (discovered / total) : 0.0;
     final percentage = (ratio * 100).toInt();
 
-    final totalPoints = entries.fold<int>(
-      0,
-      (sum, e) => sum + e.bestPawPoints,
-    );
+    final totalPoints = entries.fold<int>(0, (sum, e) => sum + e.bestPawPoints);
 
     String rankTitle = 'Novice Tracker';
     if (discovered >= 12) {
@@ -69,7 +63,10 @@ class DexProgressHeader extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withAlpha(20),
                   borderRadius: BorderRadius.circular(10),
@@ -93,7 +90,9 @@ class DexProgressHeader extends StatelessWidget {
               value: ratio,
               minHeight: 10,
               backgroundColor: const Color(0xFFEEEEF2),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppColors.primary,
+              ),
             ),
           ),
           const SizedBox(height: 14),
@@ -153,7 +152,10 @@ class _MetricPill extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 9.5, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 9.5,
+                  color: AppColors.textSecondary,
+                ),
               ),
               Text(
                 value,

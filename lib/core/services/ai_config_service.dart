@@ -3,7 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AiConfigService {
   static const String _geminiApiKeyPref = 'gemini_api_key_user_pref';
-  static const String _compileTimeKey = String.fromEnvironment('GEMINI_API_KEY');
+  static const String _compileTimeKey = String.fromEnvironment(
+    'GEMINI_API_KEY',
+  );
 
   static final AiConfigService instance = AiConfigService._internal();
   AiConfigService._internal();

@@ -21,8 +21,7 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
     final ranked = _assignRanks(sorted);
 
     final capacity = filter.scope.poolCapacity;
-    final effectiveLimit =
-        filter.limit > capacity ? capacity : filter.limit;
+    final effectiveLimit = filter.limit > capacity ? capacity : filter.limit;
 
     final start = filter.offset.clamp(0, ranked.length);
     final end = (start + effectiveLimit).clamp(start, ranked.length);
@@ -41,9 +40,7 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
     final ranked = _assignRanks(sorted);
 
     try {
-      return ranked.firstWhere(
-        (e) => e.userId == userId || e.isCurrentUser,
-      );
+      return ranked.firstWhere((e) => e.userId == userId || e.isCurrentUser);
     } catch (_) {
       return null;
     }
@@ -90,8 +87,7 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
       case LeaderboardScope.barangay:
         return entries
             .where(
-              (e) =>
-                  e.barangay.toLowerCase() == filter.barangay.toLowerCase(),
+              (e) => e.barangay.toLowerCase() == filter.barangay.toLowerCase(),
             )
             .toList();
       case LeaderboardScope.city:
@@ -100,9 +96,7 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
             .toList();
       case LeaderboardScope.region:
         return entries
-            .where(
-              (e) => e.region.toLowerCase() == filter.region.toLowerCase(),
-            )
+            .where((e) => e.region.toLowerCase() == filter.region.toLowerCase())
             .toList();
       case LeaderboardScope.national:
         return entries

@@ -8,18 +8,38 @@ import '../datasources/gemini_vision_datasource.dart';
 import '../services/sticker_generator_service.dart';
 
 class CatScannerRepositoryImpl implements CatScannerRepository {
+  static final CatScannerRepositoryImpl _instance =
+      CatScannerRepositoryImpl._internal();
+
   final GeminiVisionDataSource _geminiDataSource;
   final FirebaseSightingsDataSource _firebaseDataSource;
   final StickerGeneratorService _stickerGenerator;
 
-  CatScannerRepositoryImpl({
+  factory CatScannerRepositoryImpl({
     GeminiVisionDataSource? geminiDataSource,
     FirebaseSightingsDataSource? firebaseDataSource,
     StickerGeneratorService? stickerGenerator,
-  })  : _geminiDataSource = geminiDataSource ?? GeminiVisionDataSource(),
-        _firebaseDataSource =
-            firebaseDataSource ?? FirebaseSightingsDataSource(),
-        _stickerGenerator = stickerGenerator ?? StickerGeneratorService();
+  }) {
+    if (geminiDataSource != null ||
+        firebaseDataSource != null ||
+        stickerGenerator != null) {
+      return CatScannerRepositoryImpl._internal(
+        geminiDataSource: geminiDataSource,
+        firebaseDataSource: firebaseDataSource,
+        stickerGenerator: stickerGenerator,
+      );
+    }
+    return _instance;
+  }
+
+  CatScannerRepositoryImpl._internal({
+    GeminiVisionDataSource? geminiDataSource,
+    FirebaseSightingsDataSource? firebaseDataSource,
+    StickerGeneratorService? stickerGenerator,
+  }) : _geminiDataSource = geminiDataSource ?? GeminiVisionDataSource(),
+       _firebaseDataSource =
+           firebaseDataSource ?? FirebaseSightingsDataSource(),
+       _stickerGenerator = stickerGenerator ?? StickerGeneratorService();
 
   @override
   Future<CatScanResult> scanImage(Uint8List imageBytes) {

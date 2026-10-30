@@ -16,8 +16,9 @@ class ImageCompressionResult {
     required this.height,
   });
 
-  double get compressionRatio =>
-      originalSizeBytes > 0 ? (1.0 - (compressedSizeBytes / originalSizeBytes)) * 100 : 0.0;
+  double get compressionRatio => originalSizeBytes > 0
+      ? (1.0 - (compressedSizeBytes / originalSizeBytes)) * 100
+      : 0.0;
 }
 
 class ImageCompressionService {
@@ -47,7 +48,9 @@ class ImageCompressionService {
     });
   }
 
-  static ImageCompressionResult _compressImageIsolate(Map<String, dynamic> params) {
+  static ImageCompressionResult _compressImageIsolate(
+    Map<String, dynamic> params,
+  ) {
     final rawBytes = params['bytes'] as Uint8List;
     final maxWidth = params['maxWidth'] as int;
     final maxHeight = params['maxHeight'] as int;
@@ -91,7 +94,9 @@ class ImageCompressionService {
       );
     }
 
-    final compressed = Uint8List.fromList(img.encodeJpg(processed, quality: quality));
+    final compressed = Uint8List.fromList(
+      img.encodeJpg(processed, quality: quality),
+    );
 
     return ImageCompressionResult(
       compressedBytes: compressed,

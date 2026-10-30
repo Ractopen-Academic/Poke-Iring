@@ -5,24 +5,29 @@ on:
     branches:
       - development
     paths-ignore:
-      - 'docs/**'
       - '**.md'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
     name: Build Web and Deploy to Pages
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: development
-          fetch-depth: 0
 
       - name: Set up Flutter
         uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # v2.18.0
@@ -36,22 +41,16 @@ jobs:
       - name: Build Flutter Web
         run: flutter build web --release --base-href "/Poke-Iring/"
 
-      - name: Prepare GitHub Pages Docs
+      - name: Configure GitHub Pages Artifact
         run: |
-          mkdir -p docs
-          rm -rf docs/*
-          cp -r build/web/* docs/
-          cp docs/index.html docs/404.html
-          touch docs/.nojekyll
+          cp build/web/index.html build/web/404.html
+          touch build/web/.nojekyll
 
-      - name: Commit and Push to Pages
-        run: |
-          git config user.name "ractopen"
-          git config user.email "197402134+ractopen@users.noreply.github.com"
-          git add docs/
-          if git diff --staged --quiet; then
-            echo "No changes in docs directory."
-          else
-            git commit -m "chore(pages): deploy web release to github pages [skip ci]"
-            git push origin development
-          fi
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

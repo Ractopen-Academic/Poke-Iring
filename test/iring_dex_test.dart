@@ -124,77 +124,84 @@ void main() {
   });
 
   group('Dex Widgets', () {
-    testWidgets('DexProgressHeader displays progress percentage and rank badge', (tester) async {
-      final entries = [
-        IringDexEntry(
-          species: FelineDexSpecies.canonicalSpecies[0],
-          isDiscovered: true,
-          timesSighted: 2,
-          bestPawPoints: 85,
-        ),
-        IringDexEntry(
-          species: FelineDexSpecies.canonicalSpecies[1],
-          isDiscovered: true,
-          timesSighted: 1,
-          bestPawPoints: 120,
-        ),
-        IringDexEntry.undiscovered(FelineDexSpecies.canonicalSpecies[2]),
-        IringDexEntry.undiscovered(FelineDexSpecies.canonicalSpecies[3]),
-      ];
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: DexProgressHeader(entries: entries),
+    testWidgets(
+      'DexProgressHeader displays progress percentage and rank badge',
+      (tester) async {
+        final entries = [
+          IringDexEntry(
+            species: FelineDexSpecies.canonicalSpecies[0],
+            isDiscovered: true,
+            timesSighted: 2,
+            bestPawPoints: 85,
           ),
-        ),
-      );
+          IringDexEntry(
+            species: FelineDexSpecies.canonicalSpecies[1],
+            isDiscovered: true,
+            timesSighted: 1,
+            bestPawPoints: 120,
+          ),
+          IringDexEntry.undiscovered(FelineDexSpecies.canonicalSpecies[2]),
+          IringDexEntry.undiscovered(FelineDexSpecies.canonicalSpecies[3]),
+        ];
 
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: DexProgressHeader(entries: entries)),
+          ),
+        );
 
-      expect(find.text('Iring-Dex Progress'), findsOneWidget);
-      expect(find.text('2 of 4 Species Cataloged (50%)'), findsOneWidget);
-      expect(find.text('Discovered'), findsOneWidget);
-      expect(find.text('Remaining'), findsOneWidget);
-      expect(find.text('+205 pts'), findsOneWidget);
-    });
+        await tester.pumpAndSettle();
 
-    testWidgets('DexSpeciesCard renders discovered species vs undiscovered card', (tester) async {
-      final discoveredEntry = IringDexEntry(
-        species: FelineDexSpecies.canonicalSpecies[1], // Calico
-        isDiscovered: true,
-        timesSighted: 3,
-        bestPawPoints: 120,
-      );
+        expect(find.text('Iring-Dex Progress'), findsOneWidget);
+        expect(find.text('2 of 4 Species Cataloged (50%)'), findsOneWidget);
+        expect(find.text('Discovered'), findsOneWidget);
+        expect(find.text('Remaining'), findsOneWidget);
+        expect(find.text('+205 pts'), findsOneWidget);
+      },
+    );
 
-      final undiscoveredEntry =
-          IringDexEntry.undiscovered(FelineDexSpecies.canonicalSpecies[10]); // Bengal
+    testWidgets(
+      'DexSpeciesCard renders discovered species vs undiscovered card',
+      (tester) async {
+        final discoveredEntry = IringDexEntry(
+          species: FelineDexSpecies.canonicalSpecies[1], // Calico
+          isDiscovered: true,
+          timesSighted: 3,
+          bestPawPoints: 120,
+        );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Column(
-              children: [
-                DexSpeciesCard(entry: discoveredEntry, onTap: () {}),
-                DexSpeciesCard(entry: undiscoveredEntry, onTap: () {}),
-              ],
+        final undiscoveredEntry = IringDexEntry.undiscovered(
+          FelineDexSpecies.canonicalSpecies[10],
+        ); // Bengal
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Column(
+                children: [
+                  DexSpeciesCard(entry: discoveredEntry, onTap: () {}),
+                  DexSpeciesCard(entry: undiscoveredEntry, onTap: () {}),
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      expect(find.text('Puspin Calico'), findsOneWidget);
-      expect(find.text('#002'), findsOneWidget);
-      expect(find.text('Sighted 3x • +120 pts'), findsOneWidget);
+        expect(find.text('Puspin Calico'), findsOneWidget);
+        expect(find.text('#002'), findsOneWidget);
+        expect(find.text('Sighted 3x • +120 pts'), findsOneWidget);
 
-      expect(find.text('#011'), findsOneWidget);
-      expect(find.text('???'), findsOneWidget);
-      expect(find.text('Undiscovered'), findsOneWidget);
-    });
+        expect(find.text('#011'), findsOneWidget);
+        expect(find.text('???'), findsOneWidget);
+        expect(find.text('Undiscovered'), findsOneWidget);
+      },
+    );
 
-    testWidgets('CatDetailSheet opens and displays species field notes', (tester) async {
+    testWidgets('CatDetailSheet opens and displays species field notes', (
+      tester,
+    ) async {
       final entry = IringDexEntry(
         species: FelineDexSpecies.canonicalSpecies[1],
         isDiscovered: true,
@@ -228,26 +235,27 @@ void main() {
       expect(find.text('Close Record'), findsOneWidget);
     });
 
-    testWidgets('IringDexPage renders species catalog and switches to album view', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: IringDexPage(user: mockUser),
-        ),
-      );
+    testWidgets(
+      'IringDexPage renders species catalog and switches to album view',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(home: IringDexPage(user: mockUser)),
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      expect(find.text('Iring-Dex'), findsOneWidget);
-      expect(find.text('Species Catalog'), findsOneWidget);
-      expect(find.text('Sightings Album'), findsOneWidget);
-      expect(find.text('All Species'), findsOneWidget);
-      expect(find.text('Puspin Native'), findsOneWidget);
+        expect(find.text('Iring-Dex'), findsOneWidget);
+        expect(find.text('Species Catalog'), findsOneWidget);
+        expect(find.text('Sightings Album'), findsOneWidget);
+        expect(find.text('All Species'), findsOneWidget);
+        expect(find.text('Puspin Native'), findsOneWidget);
 
-      // Switch to Sightings Album tab
-      await tester.tap(find.text('Sightings Album'));
-      await tester.pumpAndSettle();
+        // Switch to Sightings Album tab
+        await tester.tap(find.text('Sightings Album'));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(CustomScrollView), findsOneWidget);
-    });
+        expect(find.byType(CustomScrollView), findsOneWidget);
+      },
+    );
   });
 }

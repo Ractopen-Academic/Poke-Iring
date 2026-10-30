@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/location_service.dart';
+import '../../../../core/services/location_service_impl.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../data/repositories/cat_scanner_repository_impl.dart';
 import '../../domain/entities/cat_scan_result.dart';
@@ -14,6 +18,7 @@ import '../widgets/paw_points_guide_sheet.dart';
 class CatScannerPage extends StatefulWidget {
   final AuthUser user;
   final CatScannerRepository? repository;
+  final LocationService? locationService;
   final double currentLatitude;
   final double currentLongitude;
   final String currentBarangay;
@@ -25,6 +30,7 @@ class CatScannerPage extends StatefulWidget {
     super.key,
     required this.user,
     this.repository,
+    this.locationService,
     this.currentLatitude = 10.3140,
     this.currentLongitude = 123.9720,
     this.currentBarangay = 'Bankal',
@@ -39,6 +45,7 @@ class CatScannerPage extends StatefulWidget {
 
 class _CatScannerPageState extends State<CatScannerPage> {
   late final CatScannerRepository _repository;
+  late final LocationService _locationService;
   final ImagePicker _picker = ImagePicker();
 
   bool _isAnalyzing = false;
@@ -48,23 +55,44 @@ class _CatScannerPageState extends State<CatScannerPage> {
   CatScanResult? _scanResult;
   String? _errorMessage;
 
+  double _lockedLatitude = 10.3140;
+  double _lockedLongitude = 123.9720;
+
   @override
   void initState() {
     super.initState();
     _repository = widget.repository ?? CatScannerRepositoryImpl();
+    _locationService = widget.locationService ?? LocationServiceImpl();
+    _lockedLatitude = widget.currentLatitude;
+    _lockedLongitude = widget.currentLongitude;
+    _acquireCurrentLocation();
+
     if (widget.autoLaunchCamera) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          _pickAndAnalyze(ImageSource.camera);
+          _pickAndAnalyze();
         }
       });
     }
   }
 
-  Future<void> _pickAndAnalyze(ImageSource source) async {
+  Future<void> _acquireCurrentLocation() async {
     try {
+      final loc = await _locationService.getCurrentLocation();
+      if (loc != null && mounted) {
+        setState(() {
+          _lockedLatitude = loc.latitude;
+          _lockedLongitude = loc.longitude;
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _pickAndAnalyze() async {
+    try {
+      _acquireCurrentLocation();
       final XFile? file = await _picker.pickImage(
-        source: source,
+        source: ImageSource.camera,
         maxWidth: 1400,
         maxHeight: 1400,
         imageQuality: 85,
@@ -77,7 +105,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Could not read image: $e';
+          _errorMessage = 'Could not capture encounter: $e';
         });
       }
     }
@@ -127,23 +155,32 @@ class _CatScannerPageState extends State<CatScannerPage> {
   }
 
   Future<void> _saveSighting() async {
-    if (_scanResult == null || _capturedImageBytes == null || _stickerBytes == null) {
+    if (_scanResult == null ||
+        _capturedImageBytes == null ||
+        _stickerBytes == null) {
       return;
     }
 
     setState(() => _isSaving = true);
 
     try {
+      await _acquireCurrentLocation();
+
+      final photoDataUri =
+          'data:image/jpeg;base64,${base64Encode(_capturedImageBytes!)}';
+      final stickerDataUri =
+          'data:image/png;base64,${base64Encode(_stickerBytes!)}';
+
       final sighting = CatSighting(
         id: 'sighting_${DateTime.now().millisecondsSinceEpoch}',
         userId: widget.user.id.isNotEmpty ? widget.user.id : widget.user.email,
         authorName: widget.user.displayName.isNotEmpty
             ? widget.user.displayName
             : (widget.user.email.split('@').first),
-        photoUrl: '',
-        stickerUrl: '',
-        latitude: widget.currentLatitude,
-        longitude: widget.currentLongitude,
+        photoUrl: photoDataUri,
+        stickerUrl: stickerDataUri,
+        latitude: _lockedLatitude,
+        longitude: _lockedLongitude,
         geohash: 'w721x',
         barangay: widget.currentBarangay,
         city: widget.currentCity,
@@ -169,7 +206,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
           SnackBar(
             backgroundColor: AppColors.primary,
             content: Text(
-              'Sighting recorded! +${_scanResult!.totalPawPoints} Paw Points registered.',
+              'Spawned on map! +${_scanResult!.totalPawPoints} Paw Points registered.',
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
@@ -226,8 +263,8 @@ class _CatScannerPageState extends State<CatScannerPage> {
         child: _isAnalyzing
             ? _buildAnalyzingState()
             : _scanResult != null
-                ? _buildResultView()
-                : _buildCapturePrompt(),
+            ? _buildResultView()
+            : _buildCapturePrompt(),
       ),
     );
   }
@@ -327,9 +364,9 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  onPressed: () => _pickAndAnalyze(ImageSource.camera),
+                  onPressed: _pickAndAnalyze,
                   icon: const Icon(Icons.camera_alt),
-                  label: const Text('Take Cat Photo'),
+                  label: const Text('Snap Real-Time Cat Encounter'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -338,19 +375,6 @@ class _CatScannerPageState extends State<CatScannerPage> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 0,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => _pickAndAnalyze(ImageSource.gallery),
-                  icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('Choose from Gallery'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textPrimary,
-                    minimumSize: const Size.fromHeight(50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
                   ),
                 ),
               ],
@@ -383,7 +407,11 @@ class _CatScannerPageState extends State<CatScannerPage> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.stars_rounded, size: 18, color: AppColors.primary),
+                    Icon(
+                      Icons.stars_rounded,
+                      size: 18,
+                      color: AppColors.primary,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'Paw Points Scoring Matrix',
@@ -397,9 +425,15 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 ),
                 const SizedBox(height: 10),
                 _buildMatrixRow('Base Discovery', '+50 pts'),
-                _buildMatrixRow('Pattern Marks (Calico, Tuxedo, Tabby)', '+10 to +40 pts'),
+                _buildMatrixRow(
+                  'Pattern Marks (Calico, Tuxedo, Tabby)',
+                  '+10 to +40 pts',
+                ),
                 _buildMatrixRow('Breed Rarity Multiplier', '1.0x to 2.0x'),
-                _buildMatrixRow('Community Boop Interaction', '+5 pts per boop'),
+                _buildMatrixRow(
+                  'Community Boop Interaction',
+                  '+5 pts per boop',
+                ),
               ],
             ),
           ),
@@ -414,8 +448,14 @@ class _CatScannerPageState extends State<CatScannerPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
-          Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+          ),
         ],
       ),
     );
@@ -431,7 +471,11 @@ class _CatScannerPageState extends State<CatScannerPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.search_off_rounded, size: 64, color: Colors.grey),
+              const Icon(
+                Icons.search_off_rounded,
+                size: 64,
+                color: Colors.grey,
+              ),
               const SizedBox(height: 16),
               const Text(
                 'No Feline Detected',
@@ -443,8 +487,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                result.rejectionReason ??
-                    'Our vision model could not identify a cat. Please frame the cat clearly and try again.',
+                result.rejectionReason ?? 'Our vision model could not identify a cat. Please frame the cat clearly and try again.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13.5, color: Colors.grey.shade600),
               ),
@@ -497,10 +540,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                       ],
                     ),
                     child: ClipOval(
-                      child: Image.memory(
-                        _stickerBytes!,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.memory(_stickerBytes!, fit: BoxFit.cover),
                     ),
                   ),
                 const SizedBox(height: 16),
@@ -515,7 +555,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 ),
                 const SizedBox(height: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(16),
@@ -565,8 +608,14 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 ),
                 const SizedBox(height: 12),
                 _buildMatrixRow('Base Discovery', '+${result.basePoints} pts'),
-                _buildMatrixRow('Coat Pattern Bonus', '+${result.patternBonus} pts'),
-                _buildMatrixRow('Rarity Multiplier', '${result.rarityMultiplier}x'),
+                _buildMatrixRow(
+                  'Coat Pattern Bonus',
+                  '+${result.patternBonus} pts',
+                ),
+                _buildMatrixRow(
+                  'Rarity Multiplier',
+                  '${result.rarityMultiplier}x',
+                ),
                 const Divider(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -603,12 +652,19 @@ class _CatScannerPageState extends State<CatScannerPage> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.location_on_outlined, size: 18, color: AppColors.primary),
+                const Icon(
+                  Icons.location_on_outlined,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Territory: ${widget.currentBarangay}, ${widget.currentCity}',
-                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -632,7 +688,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 : const Text(
                     'Register to Iring-Dex & Pin on Map',

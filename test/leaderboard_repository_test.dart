@@ -6,12 +6,30 @@ import 'package:pokeiring/features/leaderboard/domain/entities/leaderboard_tier.
 void main() {
   group('LeaderboardTier', () {
     test('fromPoints evaluates proper tiers', () {
-      expect(LeaderboardTier.fromPoints(250), equals(LeaderboardTier.sleepyKitten));
-      expect(LeaderboardTier.fromPoints(600), equals(LeaderboardTier.alleyProwler));
-      expect(LeaderboardTier.fromPoints(2000), equals(LeaderboardTier.whiskersTracker));
-      expect(LeaderboardTier.fromPoints(4500), equals(LeaderboardTier.felineRanger));
-      expect(LeaderboardTier.fromPoints(8000), equals(LeaderboardTier.territoryAlpha));
-      expect(LeaderboardTier.fromPoints(15000), equals(LeaderboardTier.mythicGuardian));
+      expect(
+        LeaderboardTier.fromPoints(250),
+        equals(LeaderboardTier.sleepyKitten),
+      );
+      expect(
+        LeaderboardTier.fromPoints(600),
+        equals(LeaderboardTier.alleyProwler),
+      );
+      expect(
+        LeaderboardTier.fromPoints(2000),
+        equals(LeaderboardTier.whiskersTracker),
+      );
+      expect(
+        LeaderboardTier.fromPoints(4500),
+        equals(LeaderboardTier.felineRanger),
+      );
+      expect(
+        LeaderboardTier.fromPoints(8000),
+        equals(LeaderboardTier.territoryAlpha),
+      );
+      expect(
+        LeaderboardTier.fromPoints(15000),
+        equals(LeaderboardTier.mythicGuardian),
+      );
     });
 
     test('progress calculates fractional progress between thresholds', () {
@@ -73,35 +91,41 @@ void main() {
       }
     });
 
-    test('sorts descending by catsSnapped when snaps category is selected', () async {
-      final entries = await repository.getLeaderboard(
-        filter: const LeaderboardFilter(
-          category: LeaderboardCategory.snaps,
-          scope: LeaderboardScope.city,
-          city: 'Lapu-Lapu City',
-        ),
-        currentUserId: 'test-user',
-      );
+    test(
+      'sorts descending by catsSnapped when snaps category is selected',
+      () async {
+        final entries = await repository.getLeaderboard(
+          filter: const LeaderboardFilter(
+            category: LeaderboardCategory.snaps,
+            scope: LeaderboardScope.city,
+            city: 'Lapu-Lapu City',
+          ),
+          currentUserId: 'test-user',
+        );
 
-      for (int i = 0; i < entries.length - 1; i++) {
-        expect(entries[i].catsSnapped >= entries[i + 1].catsSnapped, isTrue);
-        expect(entries[i].rank, equals(i + 1));
-      }
-    });
+        for (int i = 0; i < entries.length - 1; i++) {
+          expect(entries[i].catsSnapped >= entries[i + 1].catsSnapped, isTrue);
+          expect(entries[i].rank, equals(i + 1));
+        }
+      },
+    );
 
-    test('sorts descending by distanceKm when distance category is selected', () async {
-      final entries = await repository.getLeaderboard(
-        filter: const LeaderboardFilter(
-          category: LeaderboardCategory.distance,
-          scope: LeaderboardScope.global,
-        ),
-        currentUserId: 'test-user',
-      );
+    test(
+      'sorts descending by distanceKm when distance category is selected',
+      () async {
+        final entries = await repository.getLeaderboard(
+          filter: const LeaderboardFilter(
+            category: LeaderboardCategory.distance,
+            scope: LeaderboardScope.global,
+          ),
+          currentUserId: 'test-user',
+        );
 
-      for (int i = 0; i < entries.length - 1; i++) {
-        expect(entries[i].distanceKm >= entries[i + 1].distanceKm, isTrue);
-      }
-    });
+        for (int i = 0; i < entries.length - 1; i++) {
+          expect(entries[i].distanceKm >= entries[i + 1].distanceKm, isTrue);
+        }
+      },
+    );
 
     test('getUserStanding returns accurate rank for current user', () async {
       final standing = await repository.getUserStanding(

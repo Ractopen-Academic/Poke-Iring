@@ -127,7 +127,11 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
             const SizedBox(height: 16),
             const Row(
               children: [
-                Icon(Icons.psychology_outlined, color: AppColors.primary, size: 24),
+                Icon(
+                  Icons.psychology_outlined,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
                 SizedBox(width: 10),
                 Text(
                   'AI Vision Settings',
@@ -158,7 +162,11 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, size: 18, color: AppColors.primary),
+                  const Icon(
+                    Icons.info_outline,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -191,7 +199,10 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(

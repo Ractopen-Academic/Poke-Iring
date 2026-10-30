@@ -140,14 +140,15 @@ class CatSighting {
       pawPoints: (map['pawPoints'] as num?)?.toInt() ?? 50,
       quirk: map['quirk']?.toString() ?? '',
       boopsCount: (map['boopsCount'] as num?)?.toInt() ?? 0,
-      boopedBy: (map['boopedBy'] as List<dynamic>?)
+      boopedBy:
+          (map['boopedBy'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
       createdAt: map['createdAt'] != null
           ? (map['createdAt'] is String
-              ? DateTime.tryParse(map['createdAt']) ?? DateTime.now()
-              : DateTime.now())
+                ? DateTime.tryParse(map['createdAt']) ?? DateTime.now()
+                : DateTime.now())
           : DateTime.now(),
     );
   }

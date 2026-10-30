@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,10 +15,7 @@ class FirebaseStoriesDataSource {
   final StreamController<List<IringStory>> _streamController =
       StreamController<List<IringStory>>.broadcast();
 
-  FirebaseStoriesDataSource({
-    this.firestore,
-    this.storage,
-  }) {
+  FirebaseStoriesDataSource({this.firestore, this.storage}) {
     _initLocalSeedStories();
   }
 
@@ -38,7 +36,8 @@ class FirebaseStoriesDataSource {
         authorName: 'CalicoQueen',
         authorAvatarUrl: '',
         mediaUrl: '',
-        caption: 'Spotted this gorgeous calico perched on a sari-sari store awning!',
+        caption:
+            'Spotted this gorgeous calico perched on a sari-sari store awning!',
         catBreed: 'Calico (Puspin)',
         locationTag: 'Bankal, Lapu-Lapu City',
         boopsCount: 18,
@@ -53,7 +52,8 @@ class FirebaseStoriesDataSource {
         authorName: 'WhiskersAce',
         authorAvatarUrl: '',
         mediaUrl: '',
-        caption: 'Orange tabby taking an epic midday loaf on a warm tricycle seat.',
+        caption:
+            'Orange tabby taking an epic midday loaf on a warm tricycle seat.',
         catBreed: 'Orange Tabby (Puspin)',
         locationTag: 'Basak, Lapu-Lapu City',
         boopsCount: 24,
@@ -104,7 +104,9 @@ class FirebaseStoriesDataSource {
         final st = storage ?? FirebaseStorage.instance;
         final db = firestore ?? FirebaseFirestore.instance;
 
-        final photoRef = st.ref().child('stories/${story.userId}/${story.id}.jpg');
+        final photoRef = st.ref().child(
+          'stories/${story.userId}/${story.id}.jpg',
+        );
         await photoRef.putData(
           compressedBytes,
           SettableMetadata(contentType: 'image/jpeg'),
@@ -141,15 +143,15 @@ class FirebaseStoriesDataSource {
             .limit(30)
             .snapshots()
             .map((snap) {
-          final list = snap.docs.map((doc) {
-            final data = doc.data();
-            data['id'] = doc.id;
-            return IringStory.fromMap(data);
-          }).toList();
+              final list = snap.docs.map((doc) {
+                final data = doc.data();
+                data['id'] = doc.id;
+                return IringStory.fromMap(data);
+              }).toList();
 
-          if (list.isNotEmpty) return list;
-          return List.unmodifiable(_localStories);
-        });
+              if (list.isNotEmpty) return list;
+              return List.unmodifiable(_localStories);
+            });
         return;
       } catch (e) {
         debugPrint('Firebase watchStories failed ($e). Streaming local.');

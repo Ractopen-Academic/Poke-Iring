@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -92,7 +93,10 @@ void main() {
 
       // (50 + 50) * 2.5 = 250 -> capped to 180
       final result = CatScanResult.fromJson(json);
-      expect(result.totalPawPoints, equals(CatScanResult.maxSingleSightingPoints));
+      expect(
+        result.totalPawPoints,
+        equals(CatScanResult.maxSingleSightingPoints),
+      );
       expect(result.totalPawPoints, equals(180));
     });
 
@@ -102,29 +106,32 @@ void main() {
   });
 
   group('StickerGeneratorService', () {
-    test('crops image around bounding box and generates sticker png bytes', () async {
-      // Create a test 200x200 image
-      final testImg = img.Image(width: 200, height: 200);
-      img.fill(testImg, color: img.ColorRgb8(245, 140, 40));
-      final testBytes = Uint8List.fromList(img.encodeJpg(testImg));
+    test(
+      'crops image around bounding box and generates sticker png bytes',
+      () async {
+        // Create a test 200x200 image
+        final testImg = img.Image(width: 200, height: 200);
+        img.fill(testImg, color: img.ColorRgb8(245, 140, 40));
+        final testBytes = Uint8List.fromList(img.encodeJpg(testImg));
 
-      const scanResult = CatScanResult(
-        isCat: true,
-        boundingBox: Rect.fromLTRB(0.2, 0.2, 0.8, 0.8),
-      );
+        const scanResult = CatScanResult(
+          isCat: true,
+          boundingBox: Rect.fromLTRB(0.2, 0.2, 0.8, 0.8),
+        );
 
-      final service = StickerGeneratorService();
-      final stickerBytes = await service.generateSticker(
-        imageBytes: testBytes,
-        scanResult: scanResult,
-      );
+        final service = StickerGeneratorService();
+        final stickerBytes = await service.generateSticker(
+          imageBytes: testBytes,
+          scanResult: scanResult,
+        );
 
-      expect(stickerBytes, isNotEmpty);
-      final decodedSticker = img.decodeImage(stickerBytes);
-      expect(decodedSticker, isNotNull);
-      expect(decodedSticker!.width, equals(320));
-      expect(decodedSticker.height, equals(320));
-    });
+        expect(stickerBytes, isNotEmpty);
+        final decodedSticker = img.decodeImage(stickerBytes);
+        expect(decodedSticker, isNotNull);
+        expect(decodedSticker!.width, equals(320));
+        expect(decodedSticker.height, equals(320));
+      },
+    );
   });
 
   group('FirebaseSightingsDataSource', () {
@@ -149,8 +156,9 @@ void main() {
       final updatedSightings = await dataSource
           .watchNearbySightings(latitude: 10.3140, longitude: 123.9720)
           .first;
-      final updatedTarget =
-          updatedSightings.firstWhere((s) => s.id == target.id);
+      final updatedTarget = updatedSightings.firstWhere(
+        (s) => s.id == target.id,
+      );
 
       expect(updatedTarget.boopsCount, equals(initialBoops + 1));
       expect(updatedTarget.boopedBy, contains('test-user-booper'));
@@ -158,7 +166,9 @@ void main() {
   });
 
   group('CatScannerPage Widget', () {
-    testWidgets('renders capture prompt and scoring matrix guide', (tester) async {
+    testWidgets('renders capture prompt and scoring matrix guide', (
+      tester,
+    ) async {
       const mockUser = AuthUser(
         id: 'test-explorer-id',
         email: 'explorer@pokeiring.test',
@@ -168,17 +178,15 @@ void main() {
       );
 
       await tester.pumpWidget(
-        const MaterialApp(
-          home: CatScannerPage(user: mockUser),
-        ),
+        const MaterialApp(home: CatScannerPage(user: mockUser)),
       );
 
       await tester.pumpAndSettle();
 
       expect(find.text('Cat Scanner & Vision'), findsOneWidget);
       expect(find.text('Spot a Neighborhood Cat'), findsOneWidget);
-      expect(find.text('Take Cat Photo'), findsOneWidget);
-      expect(find.text('Choose from Gallery'), findsOneWidget);
+      expect(find.text('Snap Real-Time Cat Encounter'), findsOneWidget);
+      expect(find.text('Choose from Gallery'), findsNothing);
       expect(find.text('Paw Points Scoring Matrix'), findsOneWidget);
       expect(find.text('Base Discovery'), findsOneWidget);
       expect(find.text('+50 pts'), findsOneWidget);
@@ -194,9 +202,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        const MaterialApp(
-          home: CatScannerPage(user: mockUser),
-        ),
+        const MaterialApp(home: CatScannerPage(user: mockUser)),
       );
 
       await tester.pumpAndSettle();
@@ -219,11 +225,7 @@ void main() {
   group('PawPointsGuideSheet Widget', () {
     testWidgets('renders guide sections and points caps info', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: PawPointsGuideSheet(),
-          ),
-        ),
+        const MaterialApp(home: Scaffold(body: PawPointsGuideSheet())),
       );
 
       await tester.pumpAndSettle();

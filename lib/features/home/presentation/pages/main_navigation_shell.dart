@@ -159,6 +159,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       MaterialPageRoute(
         builder: (context) => CatScannerPage(
           user: widget.user,
+          locationService: _locationService,
           autoLaunchCamera: true,
         ),
       ),
@@ -234,8 +235,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 ),
               ),
             ),
-          if (_isShowingMap || _currentIndex != 2)
-            FloatingSnapIringButton(onTap: _openQuickSnapCamera),
+          FloatingSnapIringButton(onTap: _openQuickSnapCamera),
         ],
       ),
       floatingActionButton: AnimatedSlide(
@@ -268,10 +268,7 @@ class _HomePage extends StatefulWidget {
   final AuthUser user;
   final VoidCallback? onOpenLeaderboard;
 
-  const _HomePage({
-    required this.user,
-    this.onOpenLeaderboard,
-  });
+  const _HomePage({required this.user, this.onOpenLeaderboard});
 
   @override
   State<_HomePage> createState() => _HomePageState();
@@ -321,7 +318,10 @@ class _HomePageState extends State<_HomePage> {
                   const SizedBox(height: 4),
                   const Text(
                     'Track your daily explorer movement and unlock more feline routes.',
-                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   StoriesTray(user: widget.user),
@@ -375,7 +375,8 @@ class _HomePageState extends State<_HomePage> {
                             Expanded(
                               child: _MiniMetric(
                                 label: 'Distance',
-                                value: '${health.distanceKm.toStringAsFixed(2)} km',
+                                value:
+                                    '${health.distanceKm.toStringAsFixed(2)} km',
                               ),
                             ),
                           ],
@@ -386,7 +387,8 @@ class _HomePageState extends State<_HomePage> {
                             Expanded(
                               child: _MiniMetric(
                                 label: 'Calories',
-                                value: '${health.caloriesBurned.toStringAsFixed(0)} kcal',
+                                value:
+                                    '${health.caloriesBurned.toStringAsFixed(0)} kcal',
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -409,22 +411,22 @@ class _HomePageState extends State<_HomePage> {
                   const _QuestCard(
                     title: 'Morning Prowler',
                     description: 'Scan 1 cat before noon in your neighborhood',
-                    progressText: 'Walking today',
-                    progress: 0.2,
+                    progressText: '0 / 1 Scanned',
+                    progress: 0.0,
                   ),
                   const SizedBox(height: 12),
                   const _QuestCard(
                     title: 'Cartographer Step',
                     description: 'Walk 1.5 km while scanning sightings',
-                    progressText: 'Progress active',
+                    progressText: '0.8 / 1.5 km',
                     progress: 0.53,
                   ),
                   const SizedBox(height: 12),
                   const _QuestCard(
                     title: 'Calico Whispers',
                     description: 'Spot a domestic calico or tabby pattern',
-                    progressText: 'Active task',
-                    progress: 0.2,
+                    progressText: '1 / 1 Spotted',
+                    progress: 1.0,
                   ),
                 ],
               ),
@@ -543,4 +545,3 @@ class _QuestCard extends StatelessWidget {
     );
   }
 }
-

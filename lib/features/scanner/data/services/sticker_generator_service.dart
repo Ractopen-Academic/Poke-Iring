@@ -46,15 +46,21 @@ class StickerGeneratorService {
       final marginX = (boxWidth * 0.12).round();
       final marginY = (boxHeight * 0.12).round();
 
-      final x = ((leftNorm * original.width) - marginX).clamp(0, original.width - 1).toInt();
-      final y = ((topNorm * original.height) - marginY).clamp(0, original.height - 1).toInt();
+      final x = ((leftNorm * original.width) - marginX)
+          .clamp(0, original.width - 1)
+          .toInt();
+      final y = ((topNorm * original.height) - marginY)
+          .clamp(0, original.height - 1)
+          .toInt();
       final w = (boxWidth + marginX * 2).clamp(1, original.width - x).toInt();
       final h = (boxHeight + marginY * 2).clamp(1, original.height - y).toInt();
 
       cropped = img.copyCrop(original, x: x, y: y, width: w, height: h);
     } else {
       // Center square crop fallback
-      final side = original.width < original.height ? original.width : original.height;
+      final side = original.width < original.height
+          ? original.width
+          : original.height;
       final x = ((original.width - side) / 2).toInt();
       final y = ((original.height - side) / 2).toInt();
       cropped = img.copyCrop(original, x: x, y: y, width: side, height: side);

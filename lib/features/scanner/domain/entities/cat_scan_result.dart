@@ -32,7 +32,9 @@ class CatScanResult {
     this.rejectionReason,
   });
 
-  factory CatScanResult.notACat([String reason = 'No feline detected in frame']) {
+  factory CatScanResult.notACat([
+    String reason = 'No feline detected in frame',
+  ]) {
     return CatScanResult(
       isCat: false,
       confidence: 0.0,
@@ -64,7 +66,8 @@ class CatScanResult {
         (json['rarity_multiplier'] as num?)?.toDouble() ?? 1.0;
     const base = 50;
     final patternBonus = (json['pattern_bonus_pts'] as num?)?.toInt() ?? 15;
-    final unconstrainedTotal = ((base + patternBonus) * rarityMultiplier).round();
+    final unconstrainedTotal = ((base + patternBonus) * rarityMultiplier)
+        .round();
     final total = unconstrainedTotal.clamp(0, maxSingleSightingPoints);
     final quirk = json['quirk']?.toString() ?? 'Observing the surroundings.';
 

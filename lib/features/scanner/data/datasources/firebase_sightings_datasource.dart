@@ -1,12 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/cat_sighting.dart';
 
 class FirebaseSightingsDataSource {
+  static final FirebaseSightingsDataSource _instance =
+      FirebaseSightingsDataSource._internal();
+
   final FirebaseFirestore? firestore;
   final FirebaseStorage? storage;
 
@@ -15,11 +21,24 @@ class FirebaseSightingsDataSource {
   final StreamController<List<CatSighting>> _localStreamController =
       StreamController<List<CatSighting>>.broadcast();
 
-  FirebaseSightingsDataSource({
-    this.firestore,
-    this.storage,
+  static const String _prefSightingsKey = 'pokeiring_user_spawned_sightings';
+
+  factory FirebaseSightingsDataSource({
+    FirebaseFirestore? firestore,
+    FirebaseStorage? storage,
   }) {
+    if (firestore != null || storage != null) {
+      return FirebaseSightingsDataSource._internal(
+        firestore: firestore,
+        storage: storage,
+      );
+    }
+    return _instance;
+  }
+
+  FirebaseSightingsDataSource._internal({this.firestore, this.storage}) {
     _initLocalSeedData();
+    _loadPersistedSightings();
   }
 
   bool get _isFirebaseAvailable {
@@ -120,7 +139,8 @@ class FirebaseSightingsDataSource {
         dominantColor: 'Classic Brown Tabby',
         rarityMultiplier: 1.1,
         pawPoints: 75,
-        quirk: 'Observing passersby with keen golden eyes from an acacia shade.',
+        quirk:
+            'Observing passersby with keen golden eyes from an acacia shade.',
         boopsCount: 11,
         boopedBy: const [],
         createdAt: now.subtract(const Duration(hours: 18)),
@@ -186,8 +206,8 @@ class FirebaseSightingsDataSource {
 
         // 1. Upload original photo
         final photoRef = st.ref().child(
-              'sightings/${sighting.userId}/${sighting.id}_full.jpg',
-            );
+          'sightings/${sighting.userId}/${sighting.id}_full.jpg',
+        );
         await photoRef.putData(
           originalBytes,
           SettableMetadata(contentType: 'image/jpeg'),
@@ -196,8 +216,8 @@ class FirebaseSightingsDataSource {
 
         // 2. Upload sticker cutout
         final stickerRef = st.ref().child(
-              'sightings/${sighting.userId}/${sighting.id}_sticker.png',
-            );
+          'sightings/${sighting.userId}/${sighting.id}_sticker.png',
+        );
         await stickerRef.putData(
           stickerBytes,
           SettableMetadata(contentType: 'image/png'),
@@ -229,10 +249,47 @@ class FirebaseSightingsDataSource {
       }
     }
 
-    // Local fallback
+    // Local update & live spawn broadcast
+    _localSightings.removeWhere((s) => s.id == sighting.id);
     _localSightings.insert(0, sighting);
+    unawaited(_persistSightings());
     _localStreamController.add(List.unmodifiable(_localSightings));
     return sighting;
+  }
+
+  Future<void> _loadPersistedSightings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final rawList = prefs.getStringList(_prefSightingsKey);
+      if (rawList != null && rawList.isNotEmpty) {
+        final loaded = rawList.map((str) {
+          final map = jsonDecode(str) as Map<String, dynamic>;
+          return CatSighting.fromMap(map);
+        }).toList();
+
+        for (final item in loaded.reversed) {
+          if (!_localSightings.any((s) => s.id == item.id)) {
+            _localSightings.insert(0, item);
+          }
+        }
+        _localStreamController.add(List.unmodifiable(_localSightings));
+      }
+    } catch (e) {
+      debugPrint('Error loading persisted sightings: $e');
+    }
+  }
+
+  Future<void> _persistSightings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userSightings = _localSightings
+          .where((s) => !s.id.startsWith('seed-'))
+          .toList();
+      final rawList = userSightings.map((s) => jsonEncode(s.toMap())).toList();
+      await prefs.setStringList(_prefSightingsKey, rawList);
+    } catch (e) {
+      debugPrint('Error persisting user sightings: $e');
+    }
   }
 
   Stream<List<CatSighting>> watchNearbySightings({
@@ -249,22 +306,25 @@ class FirebaseSightingsDataSource {
             .limit(40)
             .snapshots()
             .map((snapshot) {
-          final list = snapshot.docs.map((doc) {
-            final data = doc.data();
-            data['id'] = doc.id;
-            if (data['createdAt'] is Timestamp) {
-              data['createdAt'] =
-                  (data['createdAt'] as Timestamp).toDate().toIso8601String();
-            }
-            return CatSighting.fromMap(data);
-          }).toList();
+              final list = snapshot.docs.map((doc) {
+                final data = doc.data();
+                data['id'] = doc.id;
+                if (data['createdAt'] is Timestamp) {
+                  data['createdAt'] = (data['createdAt'] as Timestamp)
+                      .toDate()
+                      .toIso8601String();
+                }
+                return CatSighting.fromMap(data);
+              }).toList();
 
-          if (list.isNotEmpty) return list;
-          return List.unmodifiable(_localSightings);
-        });
+              if (list.isNotEmpty) return list;
+              return List.unmodifiable(_localSightings);
+            });
         return;
       } catch (e) {
-        debugPrint('Firebase watchNearbySightings error ($e). Streaming local.');
+        debugPrint(
+          'Firebase watchNearbySightings error ($e). Streaming local.',
+        );
       }
     }
 
@@ -282,22 +342,25 @@ class FirebaseSightingsDataSource {
             .orderBy('createdAt', descending: true)
             .snapshots()
             .map((snapshot) {
-          final list = snapshot.docs.map((doc) {
-            final data = doc.data();
-            data['id'] = doc.id;
-            if (data['createdAt'] is Timestamp) {
-              data['createdAt'] =
-                  (data['createdAt'] as Timestamp).toDate().toIso8601String();
-            }
-            return CatSighting.fromMap(data);
-          }).toList();
+              final list = snapshot.docs.map((doc) {
+                final data = doc.data();
+                data['id'] = doc.id;
+                if (data['createdAt'] is Timestamp) {
+                  data['createdAt'] = (data['createdAt'] as Timestamp)
+                      .toDate()
+                      .toIso8601String();
+                }
+                return CatSighting.fromMap(data);
+              }).toList();
 
-          if (list.isNotEmpty) return list;
-          return _filterLocalByUser(userId);
-        });
+              if (list.isNotEmpty) return list;
+              return _filterLocalByUser(userId);
+            });
         return;
       } catch (e) {
-        debugPrint('Firebase watchSightingsByUser error ($e). Streaming local.');
+        debugPrint(
+          'Firebase watchSightingsByUser error ($e). Streaming local.',
+        );
       }
     }
 
@@ -306,7 +369,9 @@ class FirebaseSightingsDataSource {
   }
 
   List<CatSighting> _filterLocalByUser(String userId) {
-    final userSightings = _localSightings.where((s) => s.userId == userId).toList();
+    final userSightings = _localSightings
+        .where((s) => s.userId == userId)
+        .toList();
     if (userSightings.isNotEmpty) {
       return List.unmodifiable(userSightings);
     }

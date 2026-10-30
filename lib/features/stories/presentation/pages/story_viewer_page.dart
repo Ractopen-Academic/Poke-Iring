@@ -39,14 +39,13 @@ class _StoryViewerPageState extends State<StoryViewerPage>
     _stories = List.from(widget.stories);
     _currentIndex = widget.initialIndex.clamp(0, _stories.length - 1);
 
-    _progressController = AnimationController(
-      vsync: this,
-      duration: _storyDuration,
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _nextStory();
-        }
-      });
+    _progressController =
+        AnimationController(vsync: this, duration: _storyDuration)
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              _nextStory();
+            }
+          });
 
     _markCurrentViewed();
     _progressController.forward();
@@ -198,7 +197,10 @@ class _StoryViewerPageState extends State<StoryViewerPage>
               if (_recentReaction != null)
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(24),
@@ -306,17 +308,19 @@ class _StoryViewerPageState extends State<StoryViewerPage>
                 child: index < _currentIndex
                     ? const ColoredBox(color: Colors.white)
                     : index == _currentIndex
-                        ? AnimatedBuilder(
-                            animation: _progressController,
-                            builder: (context, child) {
-                              return LinearProgressIndicator(
-                                value: _progressController.value,
-                                backgroundColor: Colors.white24,
-                                valueColor: const AlwaysStoppedAnimation(Colors.white),
-                              );
-                            },
-                          )
-                        : const ColoredBox(color: Colors.white24),
+                    ? AnimatedBuilder(
+                        animation: _progressController,
+                        builder: (context, child) {
+                          return LinearProgressIndicator(
+                            value: _progressController.value,
+                            backgroundColor: Colors.white24,
+                            valueColor: const AlwaysStoppedAnimation(
+                              Colors.white,
+                            ),
+                          );
+                        },
+                      )
+                    : const ColoredBox(color: Colors.white24),
               ),
             ),
           ),
@@ -350,10 +354,7 @@ class _StoryViewerPageState extends State<StoryViewerPage>
                 '${story.catBreed} • ${story.locationTag}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.white70,
-                ),
+                style: const TextStyle(fontSize: 11, color: Colors.white70),
               ),
             ],
           ),

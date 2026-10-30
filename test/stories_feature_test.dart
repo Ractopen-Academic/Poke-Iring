@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -25,8 +26,14 @@ void main() {
       final result = await service.compressStoryImage(rawBytes);
 
       expect(result.compressedBytes, isNotEmpty);
-      expect(result.width, lessThanOrEqualTo(ImageCompressionService.maxStoryWidth));
-      expect(result.height, lessThanOrEqualTo(ImageCompressionService.maxStoryHeight));
+      expect(
+        result.width,
+        lessThanOrEqualTo(ImageCompressionService.maxStoryWidth),
+      );
+      expect(
+        result.height,
+        lessThanOrEqualTo(ImageCompressionService.maxStoryHeight),
+      );
       expect(result.compressedSizeBytes, lessThan(result.originalSizeBytes));
     });
   });
@@ -63,38 +70,38 @@ void main() {
   });
 
   group('FirebaseStoriesDataSource', () {
-    test('loads seed stories, records view, and registers community boop', () async {
-      final dataSource = FirebaseStoriesDataSource();
+    test(
+      'loads seed stories, records view, and registers community boop',
+      () async {
+        final dataSource = FirebaseStoriesDataSource();
 
-      final stories = await dataSource.watchStories().first;
-      expect(stories, isNotEmpty);
-      expect(stories.any((s) => s.authorName == 'CalicoQueen'), isTrue);
+        final stories = await dataSource.watchStories().first;
+        expect(stories, isNotEmpty);
+        expect(stories.any((s) => s.authorName == 'CalicoQueen'), isTrue);
 
-      final target = stories.first;
-      final initialBoops = target.boopsCount;
+        final target = stories.first;
+        final initialBoops = target.boopsCount;
 
-      await dataSource.boopStory(target.id, 'user-booper-99');
-      await dataSource.markStoryViewed(target.id, 'user-viewer-88');
+        await dataSource.boopStory(target.id, 'user-booper-99');
+        await dataSource.markStoryViewed(target.id, 'user-viewer-88');
 
-      final updated = await dataSource.watchStories().first;
-      final updatedTarget = updated.firstWhere((s) => s.id == target.id);
+        final updated = await dataSource.watchStories().first;
+        final updatedTarget = updated.firstWhere((s) => s.id == target.id);
 
-      expect(updatedTarget.boopsCount, equals(initialBoops + 1));
-      expect(updatedTarget.boopedBy, contains('user-booper-99'));
-      expect(updatedTarget.viewedBy, contains('user-viewer-88'));
-    });
+        expect(updatedTarget.boopsCount, equals(initialBoops + 1));
+        expect(updatedTarget.boopedBy, contains('user-booper-99'));
+        expect(updatedTarget.viewedBy, contains('user-viewer-88'));
+      },
+    );
   });
 
   group('FelineAvatar Widget', () {
-    testWidgets('renders default stylized feline avatar from seed', (tester) async {
+    testWidgets('renders default stylized feline avatar from seed', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: FelineAvatar(
-              seed: 'test.explorer',
-              radius: 30,
-            ),
-          ),
+          home: Scaffold(body: FelineAvatar(seed: 'test.explorer', radius: 30)),
         ),
       );
 
@@ -104,7 +111,9 @@ void main() {
   });
 
   group('StoriesTray Widget', () {
-    testWidgets('renders Your Story add button and community story circles', (tester) async {
+    testWidgets('renders Your Story add button and community story circles', (
+      tester,
+    ) async {
       const mockUser = AuthUser(
         id: 'test-explorer-id',
         email: 'explorer@pokeiring.test',
@@ -120,10 +129,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: StoriesTray(
-              user: mockUser,
-              repository: repository,
-            ),
+            body: StoriesTray(user: mockUser, repository: repository),
           ),
         ),
       );

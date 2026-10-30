@@ -1,10 +1,4 @@
-enum FelineRarityTier {
-  common,
-  uncommon,
-  rare,
-  veryRare,
-  mythic,
-}
+enum FelineRarityTier { common, uncommon, rare, veryRare, mythic }
 
 extension FelineRarityTierX on FelineRarityTier {
   String get displayName {
