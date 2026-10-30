@@ -9,7 +9,7 @@ void main() {
     });
 
     test('badgeDisplay and buildSubtitle format correctly', () {
-      expect(AppVersion.badgeDisplay, contains('v0.7.0-f7'));
+      expect(AppVersion.badgeDisplay, contains(AppVersion.releaseTag));
       expect(AppVersion.badgeDisplay, contains('Pre-Alpha'));
       expect(AppVersion.buildSubtitle, contains('2026.10.30'));
     });
