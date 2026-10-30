@@ -56,8 +56,6 @@ class MainNavigationShell extends StatefulWidget {
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
   bool _isShowingMap = false;
-  bool _isNavbarVisible = true;
-  Timer? _idleTimer;
 
   late final NetworkInfo _networkInfo;
   late final LocationService _locationService;
@@ -86,13 +84,13 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         initialBarangay: 'Bankal',
         initialCity: 'Lapu-Lapu City',
         initialCountry: 'Philippines',
+        bottomPadding: 84.0,
       ),
       DashboardPage(
         user: widget.user,
         authRepository: widget.authRepository,
         onOpenMap: () => setState(() {
           _isShowingMap = true;
-          _isNavbarVisible = true;
         }),
       ),
     ];
@@ -125,7 +123,6 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   @override
   void dispose() {
-    _idleTimer?.cancel();
     _networkSubscription?.cancel();
     _locationSubscription?.cancel();
     super.dispose();
@@ -134,27 +131,6 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   void _handleIringCenterTap() {
     setState(() {
       _isShowingMap = !_isShowingMap;
-      _isNavbarVisible = true;
-    });
-  }
-
-  void _onMapPointerDown() {
-    _idleTimer?.cancel();
-    if (_isNavbarVisible) {
-      setState(() {
-        _isNavbarVisible = false;
-      });
-    }
-  }
-
-  void _onMapPointerUp() {
-    _idleTimer?.cancel();
-    _idleTimer = Timer(const Duration(milliseconds: 350), () {
-      if (mounted && !_isNavbarVisible) {
-        setState(() {
-          _isNavbarVisible = true;
-        });
-      }
     });
   }
 
@@ -195,11 +171,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 currentUserId: widget.user.id.isNotEmpty
                     ? widget.user.id
                     : widget.user.email,
-                onPointerDown: _onMapPointerDown,
-                onPointerUp: _onMapPointerUp,
                 onClose: () => setState(() {
                   _isShowingMap = false;
-                  _isNavbarVisible = true;
                 }),
               ),
             ),
@@ -240,30 +213,20 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 ),
               ),
             ),
-          FloatingSnapIringButton(onTap: _openQuickSnapCamera),
+          if (_currentIndex == 0 && !_isShowingMap)
+            FloatingSnapIringButton(onTap: _openQuickSnapCamera),
         ],
       ),
-      floatingActionButton: AnimatedSlide(
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOutCubic,
-        offset: _isNavbarVisible ? Offset.zero : const Offset(0, 2.5),
-        child: IringCenterButton(onTap: _handleIringCenterTap),
-      ),
+      floatingActionButton: IringCenterButton(onTap: _handleIringCenterTap),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AnimatedSlide(
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOutCubic,
-        offset: _isNavbarVisible ? Offset.zero : const Offset(0, 1.5),
-        child: AppBottomNavBar(
-          currentIndex: _isShowingMap ? -1 : _currentIndex,
-          onTabSelected: (index) {
-            setState(() {
-              _isShowingMap = false;
-              _currentIndex = index;
-              _isNavbarVisible = true;
-            });
-          },
-        ),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: _isShowingMap ? -1 : _currentIndex,
+        onTabSelected: (index) {
+          setState(() {
+            _isShowingMap = false;
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }
@@ -312,53 +275,56 @@ class _HomePageState extends State<_HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
                               'Welcome, $name',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
                                 color: AppColors.textPrimary,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              'Track your daily explorer movement and unlock more feline routes.',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(width: 8),
+                          StreamBuilder<ExplorerTitle?>(
+                            stream: AchievementsRepositoryImpl.instance
+                                .watchEquippedTitle(
+                                  widget.user.id.isNotEmpty
+                                      ? widget.user.id
+                                      : widget.user.email,
+                                ),
+                            builder: (context, snapshot) {
+                              final title = snapshot.data;
+                              if (title == null) return const SizedBox.shrink();
+                              return EquippedTitleBadge(
+                                title: title,
+                                onTap: () => TitleSelectionSheet.show(
+                                  context,
+                                  userId: widget.user.id.isNotEmpty
+                                      ? widget.user.id
+                                      : widget.user.email,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      StreamBuilder<ExplorerTitle?>(
-                        stream: AchievementsRepositoryImpl.instance
-                            .watchEquippedTitle(
-                              widget.user.id.isNotEmpty
-                                  ? widget.user.id
-                                  : widget.user.email,
-                            ),
-                        builder: (context, snapshot) {
-                          final title = snapshot.data;
-                          if (title == null) return const SizedBox.shrink();
-                          return EquippedTitleBadge(
-                            title: title,
-                            onTap: () => TitleSelectionSheet.show(
-                              context,
-                              userId: widget.user.id.isNotEmpty
-                                  ? widget.user.id
-                                  : widget.user.email,
-                            ),
-                          );
-                        },
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Track your daily explorer movement and unlock more feline routes.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -452,6 +418,7 @@ class _HomePageState extends State<_HomePage> {
                         ? widget.user.id
                         : widget.user.email,
                   ),
+                  const SizedBox(height: 96),
                 ],
               ),
             );

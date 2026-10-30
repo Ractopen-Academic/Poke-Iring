@@ -33,6 +33,12 @@ class AppTheme {
           side: const BorderSide(color: AppColors.border),
         ),
       ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 88),
+      ),
     );
   }
 }

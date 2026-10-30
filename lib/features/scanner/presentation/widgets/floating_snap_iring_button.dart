@@ -31,6 +31,15 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
   Offset? _currentOffset;
   bool _isDragging = false;
   bool _isInitialized = false;
+  double _totalDragDistance = 0.0;
+  DateTime _lastTapTime = DateTime.fromMillisecondsSinceEpoch(0);
+
+  void _fireTap() {
+    final now = DateTime.now();
+    if (now.difference(_lastTapTime).inMilliseconds < 450) return;
+    _lastTapTime = now;
+    widget.onTap();
+  }
 
   @override
   void initState() {
@@ -68,6 +77,10 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
     });
   }
 
+  void _onPanStart(DragStartDetails details) {
+    _totalDragDistance = 0.0;
+  }
+
   void _onPanUpdate(
     DragUpdateDetails details,
     Size screenSize,
@@ -75,6 +88,7 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
   ) {
     if (_snapController.isAnimating) _snapController.stop();
 
+    _totalDragDistance += details.delta.distance;
     setState(() {
       _isDragging = true;
       final current = _currentOffset ?? Offset.zero;
@@ -91,6 +105,11 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
 
   void _onPanEnd(DragEndDetails details, Size screenSize, EdgeInsets padding) {
     _isDragging = false;
+    if (_totalDragDistance < 8.0) {
+      _fireTap();
+      return;
+    }
+
     final current = _currentOffset ?? Offset.zero;
     final minX = _margin;
     final maxX = screenSize.width - _buttonSize - _margin;
@@ -163,11 +182,12 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
                 left: offset.dx,
                 top: offset.dy,
                 child: GestureDetector(
+                  onPanStart: _onPanStart,
                   onPanUpdate: (details) =>
                       _onPanUpdate(details, parentSize, padding),
                   onPanEnd: (details) =>
                       _onPanEnd(details, parentSize, padding),
-                  onTap: widget.onTap,
+                  onTap: _fireTap,
                   child: AnimatedScale(
                     duration: const Duration(milliseconds: 140),
                     scale: _isDragging ? 1.10 : 1.0,
