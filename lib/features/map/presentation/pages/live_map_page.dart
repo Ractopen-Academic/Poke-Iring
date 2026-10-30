@@ -3,11 +3,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/location_service.dart';
+import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
 import '../../data/datasources/cached_tile_provider.dart';
+import '../../domain/entities/user_location.dart';
 import '../widgets/cute_paw_compass_pointer.dart';
 import '../widgets/peeking_cat_recenter_button.dart';
 
@@ -17,17 +20,18 @@ class LiveMapPage extends StatefulWidget {
   final VoidCallback? onPointerUp;
   final VoidCallback? onClose;
   final VoidCallback? onTileError;
+  final LocationService? locationService;
+  final bool isMapActive;
 
   const LiveMapPage({
     super.key,
-    this.initialCenter = const LatLng(
-      10.3140,
-      123.9720,
-    ), // Bankal, Lapu-Lapu City
+    this.initialCenter = const LatLng(10.3140, 123.9720),
     this.onPointerDown,
     this.onPointerUp,
     this.onClose,
     this.onTileError,
+    this.locationService,
+    this.isMapActive = true,
   });
 
   @override
@@ -40,6 +44,11 @@ class _LiveMapPageState extends State<LiveMapPage>
   late final AnimationController _rotationController;
   late final AnimationController _moveController;
   late final TileProvider _tileProvider;
+  late final LocationService _locationService;
+  StreamSubscription<UserLocation>? _locationSubscription;
+  UserLocation? _currentUserLocation;
+  bool _hasCenteredOnUser = false;
+
   final ValueNotifier<double> _rotationNotifier = ValueNotifier<double>(0.0);
   bool _hasTileError = false;
   bool _isControlsVisible = true;
@@ -49,6 +58,7 @@ class _LiveMapPageState extends State<LiveMapPage>
   void initState() {
     super.initState();
     _tileProvider = CachedTileProvider();
+    _locationService = widget.locationService ?? LocationServiceImpl();
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 320),
@@ -57,10 +67,70 @@ class _LiveMapPageState extends State<LiveMapPage>
       vsync: this,
       duration: const Duration(milliseconds: 450),
     );
+
+    if (widget.isMapActive) {
+      _initLocation();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant LiveMapPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isMapActive != oldWidget.isMapActive) {
+      if (widget.isMapActive) {
+        _initLocation();
+      } else {
+        _pauseLocation();
+      }
+    }
+  }
+
+  Future<void> _initLocation() async {
+    final location = await _locationService.getCurrentLocation();
+    if (!mounted) return;
+
+    if (location != null) {
+      setState(() {
+        _currentUserLocation = location;
+      });
+      if (!_hasCenteredOnUser) {
+        _hasCenteredOnUser = true;
+        _mapController.move(
+          LatLng(location.latitude, location.longitude),
+          _mapController.camera.zoom,
+        );
+      }
+    }
+
+    _subscribeToLocation();
+  }
+
+  void _subscribeToLocation() {
+    _locationSubscription?.cancel();
+    _locationSubscription = _locationService.onLocationChanged.listen((loc) {
+      if (!mounted) return;
+      final wasNull = _currentUserLocation == null;
+      setState(() {
+        _currentUserLocation = loc;
+      });
+      if (wasNull && !_hasCenteredOnUser) {
+        _hasCenteredOnUser = true;
+        _mapController.move(
+          LatLng(loc.latitude, loc.longitude),
+          _mapController.camera.zoom,
+        );
+      }
+    });
+  }
+
+  void _pauseLocation() {
+    _locationSubscription?.cancel();
+    _locationSubscription = null;
   }
 
   @override
   void dispose() {
+    _pauseLocation();
     _controlsTimer?.cancel();
     _rotationNotifier.dispose();
     _rotationController.dispose();
@@ -96,7 +166,12 @@ class _LiveMapPageState extends State<LiveMapPage>
 
     final startCenter = _mapController.camera.center;
     final startZoom = _mapController.camera.zoom;
-    final targetCenter = widget.initialCenter;
+    final targetCenter = _currentUserLocation != null
+        ? LatLng(
+            _currentUserLocation!.latitude,
+            _currentUserLocation!.longitude,
+          )
+        : widget.initialCenter;
     const targetZoom = 16.0;
 
     final latTween = Tween<double>(
@@ -125,6 +200,10 @@ class _LiveMapPageState extends State<LiveMapPage>
     _moveController.forward(from: 0.0).then((_) {
       anim.removeListener(listener);
     });
+
+    if (_currentUserLocation == null) {
+      _initLocation();
+    }
   }
 
   void _resetToNorth() {
@@ -153,6 +232,13 @@ class _LiveMapPageState extends State<LiveMapPage>
 
   @override
   Widget build(BuildContext context) {
+    final activeLocation = _currentUserLocation != null
+        ? LatLng(
+            _currentUserLocation!.latitude,
+            _currentUserLocation!.longitude,
+          )
+        : widget.initialCenter;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -164,7 +250,7 @@ class _LiveMapPageState extends State<LiveMapPage>
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
-                initialCenter: widget.initialCenter,
+                initialCenter: activeLocation,
                 initialZoom: 16.0,
                 minZoom: 12.0,
                 maxZoom: 18.0,
@@ -199,10 +285,12 @@ class _LiveMapPageState extends State<LiveMapPage>
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: widget.initialCenter,
-                      width: 28,
-                      height: 28,
-                      child: const _UserLocationDot(),
+                      point: activeLocation,
+                      width: 44,
+                      height: 44,
+                      child: _UserLocationMarker(
+                        heading: _currentUserLocation?.heading,
+                      ),
                     ),
                   ],
                 ),
@@ -231,14 +319,20 @@ class _LiveMapPageState extends State<LiveMapPage>
                         ),
                       ],
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.near_me, size: 16, color: AppColors.primary),
-                        SizedBox(width: 6),
+                        const Icon(
+                          Icons.near_me,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 6),
                         Text(
-                          'Bankal, Lapu-Lapu City',
-                          style: TextStyle(
+                          _currentUserLocation != null
+                              ? '${_currentUserLocation!.latitude.toStringAsFixed(4)}, ${_currentUserLocation!.longitude.toStringAsFixed(4)}'
+                              : 'Bankal, Lapu-Lapu City',
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
@@ -309,24 +403,125 @@ class _LiveMapPageState extends State<LiveMapPage>
   }
 }
 
-class _UserLocationDot extends StatelessWidget {
-  const _UserLocationDot();
+class _UserLocationMarker extends StatefulWidget {
+  final double? heading;
+
+  const _UserLocationMarker({this.heading});
+
+  @override
+  State<_UserLocationMarker> createState() => _UserLocationMarkerState();
+}
+
+class _UserLocationMarkerState extends State<_UserLocationMarker>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.blue.withAlpha(50),
-      ),
-      padding: const EdgeInsets.all(4),
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.blue.shade700,
-          border: Border.all(color: Colors.white, width: 2),
+    final hasHeading = widget.heading != null && widget.heading! >= 0;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        AnimatedBuilder(
+          animation: _pulseController,
+          builder: (context, child) {
+            return Container(
+              width: 22 + (18 * _pulseController.value),
+              height: 22 + (18 * _pulseController.value),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary.withAlpha(
+                  ((1.0 - _pulseController.value) * 65).round(),
+                ),
+              ),
+            );
+          },
         ),
-      ),
+        if (hasHeading)
+          Transform.rotate(
+            angle: widget.heading! * (math.pi / 180),
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: CustomPaint(
+                painter: _HeadingBeamPainter(),
+              ),
+            ),
+          ),
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(45),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Container(
+              width: 13,
+              height: 13,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
+}
+
+class _HeadingBeamPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+
+    final path = Path()
+      ..moveTo(center.dx, center.dy)
+      ..arcTo(
+        Rect.fromCircle(center: center, radius: radius),
+        -math.pi / 2 - (math.pi / 6),
+        math.pi / 3,
+        false,
+      )
+      ..close();
+
+    final paint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          AppColors.primary.withAlpha(110),
+          AppColors.primary.withAlpha(0),
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: radius))
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

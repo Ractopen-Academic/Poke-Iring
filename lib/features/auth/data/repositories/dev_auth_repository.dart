@@ -28,6 +28,7 @@ class DevAuthRepository implements AuthRepository {
       id: 'dev_${email.hashCode.abs()}',
       email: email.trim(),
       displayName: email.split('@').first,
+      emailVerified: true,
     );
     _currentUser = user;
     _controller.add(user);
@@ -49,10 +50,21 @@ class DevAuthRepository implements AuthRepository {
       id: 'dev_google_user',
       email: 'explorer@pokeiring.app',
       displayName: 'Explorer Dev',
+      emailVerified: true,
     );
     _currentUser = user;
     _controller.add(user);
     return user;
+  }
+
+  @override
+  Future<void> sendEmailVerification() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+  }
+
+  @override
+  Future<void> reloadCurrentUser() async {
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 
   @override

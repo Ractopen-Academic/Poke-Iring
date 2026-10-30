@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../home/presentation/pages/main_navigation_shell.dart';
-import '../../../splash/presentation/pages/app_bootstrap_page.dart';
+import '../../../permissions/presentation/pages/permission_gate.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/auth_repository.dart';
+import 'email_verification_page.dart';
 import 'login_page.dart';
 
 class AuthGate extends StatelessWidget {
@@ -30,14 +30,13 @@ class AuthGate extends StatelessWidget {
 
         final user = snapshot.data;
         if (user != null && user.isNotEmpty) {
-          return AppBootstrapPage(
-            onReady: (context, result) => MainNavigationShell(
+          if (!user.emailVerified) {
+            return EmailVerificationPage(
               user: user,
               authRepository: authRepository,
-              initialOnline: result.isOnline,
-              initialLocationStatus: result.locationStatus,
-            ),
-          );
+            );
+          }
+          return PermissionGate(user: user, authRepository: authRepository);
         }
 
         return LoginPage(authRepository: authRepository);

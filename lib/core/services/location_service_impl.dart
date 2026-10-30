@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../features/map/domain/entities/user_location.dart';
 import 'location_service.dart';
 
 class LocationServiceImpl implements LocationService {
@@ -112,6 +113,109 @@ class LocationServiceImpl implements LocationService {
     };
 
     return controller.stream;
+  }
+
+  @override
+  Future<UserLocation?> getCurrentLocation() async {
+    if (kIsWeb) return UserLocation.fallback();
+
+    try {
+      final ready = await _isPlatformChannelReady();
+      if (!ready) return UserLocation.fallback();
+
+      final status = await checkStatus();
+      if (status != LocationAccessStatus.granted) {
+        return UserLocation.fallback();
+      }
+
+      Position? position;
+      try {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 4),
+          ),
+        );
+      } catch (_) {
+        position = await Geolocator.getLastKnownPosition();
+      }
+
+      if (position != null) {
+        return _mapPosition(position);
+      }
+
+      return UserLocation.fallback();
+    } catch (_) {
+      return UserLocation.fallback();
+    }
+  }
+
+  @override
+  Stream<UserLocation> get onLocationChanged {
+    final controller = StreamController<UserLocation>.broadcast();
+    StreamSubscription<Position>? subscription;
+
+    controller.onListen = () async {
+      if (kIsWeb) {
+        if (!controller.isClosed) {
+          controller.add(UserLocation.fallback());
+        }
+        return;
+      }
+
+      final ready = await _isPlatformChannelReady();
+      if (!ready || controller.isClosed) {
+        if (!controller.isClosed) {
+          controller.add(UserLocation.fallback());
+        }
+        return;
+      }
+
+      try {
+        final status = await checkStatus();
+        if (status != LocationAccessStatus.granted) {
+          if (!controller.isClosed) {
+            controller.add(UserLocation.fallback());
+          }
+          return;
+        }
+
+        const settings = LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 3,
+        );
+
+        subscription = Geolocator.getPositionStream(
+          locationSettings: settings,
+        ).listen(
+          (position) {
+            if (!controller.isClosed) {
+              controller.add(_mapPosition(position));
+            }
+          },
+          onError: (_) {},
+          cancelOnError: false,
+        );
+      } catch (_) {}
+    };
+
+    controller.onCancel = () {
+      subscription?.cancel();
+    };
+
+    return controller.stream;
+  }
+
+  UserLocation _mapPosition(Position position) {
+    return UserLocation(
+      latitude: position.latitude,
+      longitude: position.longitude,
+      heading: position.heading,
+      accuracy: position.accuracy,
+      speed: position.speed,
+      altitude: position.altitude,
+      timestamp: position.timestamp,
+    );
   }
 
   LocationAccessStatus _mapPermission(LocationPermission permission) {

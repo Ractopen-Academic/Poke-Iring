@@ -11,6 +11,7 @@ import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../health/services/explorer_health_service.dart';
 import '../../../map/domain/repositories/map_repository.dart';
 import '../../../map/presentation/pages/live_map_page.dart';
 import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
@@ -274,6 +275,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             child: TickerMode(
               enabled: _isShowingMap,
               child: LiveMapPage(
+                locationService: _locationService,
+                isMapActive: _isShowingMap,
                 onPointerDown: _onMapPointerDown,
                 onPointerUp: _onMapPointerUp,
                 onClose: () => setState(() {
@@ -348,16 +351,27 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   }
 }
 
-class _HomePage extends StatelessWidget {
+class _HomePage extends StatefulWidget {
   final AuthUser user;
 
   const _HomePage({required this.user});
 
   @override
+  State<_HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<_HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    ExplorerHealthService.instance.start();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final name = user.displayName.isNotEmpty
-        ? user.displayName
-        : user.email.split('@').first;
+    final name = widget.user.displayName.isNotEmpty
+        ? widget.user.displayName
+        : widget.user.email.split('@').first;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -368,48 +382,172 @@ class _HomePage extends StatelessWidget {
         elevation: 0,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Welcome, $name',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                ),
+        child: StreamBuilder<ExplorerHealthSnapshot>(
+          stream: ExplorerHealthService.instance.stream,
+          initialData: ExplorerHealthService.instance.latest,
+          builder: (context, snapshot) {
+            final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Welcome, $name',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Track your daily explorer movement and unlock more feline routes.',
+                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withAlpha(25),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.directions_walk_rounded,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'Explorer Health',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _MiniMetric(
+                                label: 'Steps',
+                                value: '${health.stepsToday}',
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _MiniMetric(
+                                label: 'Distance',
+                                value: '${health.distanceKm.toStringAsFixed(2)} km',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _MiniMetric(
+                                label: 'Calories',
+                                value: '${health.caloriesBurned.toStringAsFixed(0)} kcal',
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _MiniMetric(
+                                label: 'Active',
+                                value: '${health.activeMinutes} min',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const _QuestCard(
+                    title: 'Morning Prowler',
+                    description: 'Scan 1 cat before noon in your neighborhood',
+                    progressText: 'Walking today',
+                    progress: 0.2,
+                  ),
+                  const SizedBox(height: 12),
+                  const _QuestCard(
+                    title: 'Cartographer Step',
+                    description: 'Walk 1.5 km while scanning sightings',
+                    progressText: 'Progress active',
+                    progress: 0.53,
+                  ),
+                  const SizedBox(height: 12),
+                  const _QuestCard(
+                    title: 'Calico Whispers',
+                    description: 'Spot a domestic calico or tabby pattern',
+                    progressText: 'Active task',
+                    progress: 0.2,
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              const Text(
-                'Complete daily feline quests to unlock rare catalog badges.',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 24),
-              const _QuestCard(
-                title: 'Morning Prowler',
-                description: 'Scan 1 cat before noon in your neighborhood',
-                progressText: '0 / 1 complete',
-                progress: 0.0,
-              ),
-              const SizedBox(height: 12),
-              const _QuestCard(
-                title: 'Cartographer Step',
-                description: 'Walk 1.5 km while scanning sightings',
-                progressText: '0.8 / 1.5 km',
-                progress: 0.53,
-              ),
-              const SizedBox(height: 12),
-              const _QuestCard(
-                title: 'Calico Whispers',
-                description: 'Spot a domestic calico or tabby pattern',
-                progressText: 'Active task',
-                progress: 0.2,
-              ),
-            ],
-          ),
+            );
+          },
         ),
+      ),
+    );
+  }
+}
+
+class _MiniMetric extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _MiniMetric({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -14,7 +14,7 @@ class FirebaseAuthDatasource {
        _googleSignIn = googleSignIn ?? GoogleSignIn();
 
   Stream<AuthUser?> get authStateChanges {
-    return _firebaseAuth.authStateChanges().map(_mapFirebaseUser);
+    return _firebaseAuth.userChanges().map(_mapFirebaseUser);
   }
 
   AuthUser? get currentUser => _mapFirebaseUser(_firebaseAuth.currentUser);
@@ -46,6 +46,7 @@ class FirebaseAuthDatasource {
     if (user == null) {
       throw Exception('Registration failed');
     }
+    await user.sendEmailVerification();
     return _mapFirebaseUser(user)!;
   }
 
@@ -74,6 +75,22 @@ class FirebaseAuthDatasource {
     await _firebaseAuth.sendPasswordResetEmail(email: email.trim());
   }
 
+  Future<void> sendEmailVerification() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('No signed-in user to verify');
+    }
+    await user.sendEmailVerification();
+  }
+
+  Future<void> reloadCurrentUser() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('No signed-in user to refresh');
+    }
+    await user.reload();
+  }
+
   Future<void> signOut() async {
     await Future.wait([_firebaseAuth.signOut(), _googleSignIn.signOut()]);
   }
@@ -85,6 +102,7 @@ class FirebaseAuthDatasource {
       email: user.email ?? '',
       displayName: user.displayName ?? '',
       photoUrl: user.photoURL ?? '',
+      emailVerified: user.emailVerified,
     );
   }
 }

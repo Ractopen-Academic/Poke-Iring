@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import '../../features/map/domain/entities/user_location.dart';
+
 enum LocationAccessStatus {
   granted,
   denied,
@@ -13,4 +15,6 @@ abstract class LocationService {
   Future<bool> openLocationSettings();
   Future<bool> openAppSettings();
   Stream<bool> get onServiceStatusChanged;
+  Future<UserLocation?> getCurrentLocation();
+  Stream<UserLocation> get onLocationChanged;
 }
