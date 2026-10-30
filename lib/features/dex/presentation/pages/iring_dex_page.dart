@@ -13,27 +13,15 @@ import '../widgets/dex_progress_header.dart';
 import '../widgets/dex_sighting_card.dart';
 import '../widgets/dex_species_card.dart';
 
-enum DexViewMode {
-  catalog,
-  album,
-}
+enum DexViewMode { catalog, album }
 
-enum DexFilterTier {
-  all,
-  puspin,
-  rare,
-  mythic,
-}
+enum DexFilterTier { all, puspin, rare, mythic }
 
 class IringDexPage extends StatefulWidget {
   final AuthUser user;
   final DexRepository? repository;
 
-  const IringDexPage({
-    super.key,
-    required this.user,
-    this.repository,
-  });
+  const IringDexPage({super.key, required this.user, this.repository});
 
   @override
   State<IringDexPage> createState() => _IringDexPageState();
@@ -88,10 +76,12 @@ class _IringDexPageState extends State<IringDexPage> {
       if (_searchQuery.trim().isNotEmpty) {
         final query = _searchQuery.toLowerCase().trim();
         final matchName = entry.species.name.toLowerCase().contains(query);
-        final matchCommon =
-            entry.species.commonName.toLowerCase().contains(query);
-        final matchPattern =
-            entry.species.coatPattern.toLowerCase().contains(query);
+        final matchCommon = entry.species.commonName.toLowerCase().contains(
+          query,
+        );
+        final matchPattern = entry.species.coatPattern.toLowerCase().contains(
+          query,
+        );
         return matchName || matchCommon || matchPattern;
       }
 
@@ -114,10 +104,8 @@ class _IringDexPageState extends State<IringDexPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CatScannerPage(
-          user: widget.user,
-          autoLaunchCamera: true,
-        ),
+        builder: (context) =>
+            CatScannerPage(user: widget.user, autoLaunchCamera: true),
       ),
     );
   }
@@ -148,7 +136,9 @@ class _IringDexPageState extends State<IringDexPage> {
         actions: [
           IconButton(
             tooltip: _isSearching ? 'Close Search' : 'Search Dex',
-            icon: Icon(_isSearching ? Icons.close_rounded : Icons.search_rounded),
+            icon: Icon(
+              _isSearching ? Icons.close_rounded : Icons.search_rounded,
+            ),
             onPressed: () {
               setState(() {
                 if (_isSearching) {
@@ -172,7 +162,8 @@ class _IringDexPageState extends State<IringDexPage> {
         child: StreamBuilder<List<IringDexEntry>>(
           stream: _repository.watchDexEntries(_effectiveUserId),
           builder: (context, dexSnapshot) {
-            final entries = dexSnapshot.data ??
+            final entries =
+                dexSnapshot.data ??
                 FelineDexSpecies.canonicalSpecies
                     .map((s) => IringDexEntry.undiscovered(s))
                     .toList();
@@ -206,9 +197,7 @@ class _IringDexPageState extends State<IringDexPage> {
                       _buildCatalogSliver(filteredEntries)
                     else
                       _buildAlbumSliver(filteredSightings),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 90),
-                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 90)),
                   ],
                 );
               },
@@ -266,10 +255,7 @@ class _IringDexPageState extends State<IringDexPage> {
     );
   }
 
-  Widget _filterChip({
-    required String label,
-    required DexFilterTier tier,
-  }) {
+  Widget _filterChip({required String label, required DexFilterTier tier}) {
     final isSelected = _selectedFilter == tier;
     return ChoiceChip(
       label: Text(label),
@@ -299,7 +285,11 @@ class _IringDexPageState extends State<IringDexPage> {
           padding: const EdgeInsets.all(40),
           child: Column(
             children: [
-              Icon(Icons.search_off_rounded, size: 48, color: Colors.grey.shade400),
+              Icon(
+                Icons.search_off_rounded,
+                size: 48,
+                color: Colors.grey.shade400,
+              ),
               const SizedBox(height: 12),
               const Text(
                 'No matching species found',
@@ -325,16 +315,13 @@ class _IringDexPageState extends State<IringDexPage> {
           crossAxisSpacing: 14,
           childAspectRatio: 0.82,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final entry = filtered[index];
-            return DexSpeciesCard(
-              entry: entry,
-              onTap: () => CatDetailSheet.show(context, entry),
-            );
-          },
-          childCount: filtered.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final entry = filtered[index];
+          return DexSpeciesCard(
+            entry: entry,
+            onTap: () => CatDetailSheet.show(context, entry),
+          );
+        }, childCount: filtered.length),
       ),
     );
   }
@@ -379,7 +366,11 @@ class _IringDexPageState extends State<IringDexPage> {
                 const Text(
                   'Explore your neighborhood, snap local felines with the AI vision camera, and watch your sightings album grow.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 ElevatedButton.icon(
@@ -405,31 +396,32 @@ class _IringDexPageState extends State<IringDexPage> {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final sighting = sightings[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: DexSightingCard(
-                sighting: sighting,
-                onTap: () {
-                  // Find matching dex entry or construct entry
-                  final species = FelineDexSpecies.canonicalSpecies.firstWhere(
-                    (s) => s.coatPattern.toLowerCase() == sighting.coatPattern.toLowerCase() ||
-                        s.name.toLowerCase().contains(sighting.breed.toLowerCase()),
-                    orElse: () => FelineDexSpecies.canonicalSpecies.first,
-                  );
-                  final entry = IringDexEntry.fromSightings(
-                    species: species,
-                    matchedSightings: [sighting],
-                  );
-                  CatDetailSheet.show(context, entry);
-                },
-              ),
-            );
-          },
-          childCount: sightings.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final sighting = sightings[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: DexSightingCard(
+              sighting: sighting,
+              onTap: () {
+                // Find matching dex entry or construct entry
+                final species = FelineDexSpecies.canonicalSpecies.firstWhere(
+                  (s) =>
+                      s.coatPattern.toLowerCase() ==
+                          sighting.coatPattern.toLowerCase() ||
+                      s.name.toLowerCase().contains(
+                        sighting.breed.toLowerCase(),
+                      ),
+                  orElse: () => FelineDexSpecies.canonicalSpecies.first,
+                );
+                final entry = IringDexEntry.fromSightings(
+                  species: species,
+                  matchedSightings: [sighting],
+                );
+                CatDetailSheet.show(context, entry);
+              },
+            ),
+          );
+        }, childCount: sightings.length),
       ),
     );
   }
@@ -475,7 +467,9 @@ class _TabButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                color: isSelected
+                    ? AppColors.textPrimary
+                    : AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 2),

@@ -94,11 +94,13 @@ class IringStory {
       catBreed: map['catBreed']?.toString() ?? 'Domestic Shorthair (Puspin)',
       locationTag: map['locationTag']?.toString() ?? 'Bankal, Lapu-Lapu City',
       boopsCount: (map['boopsCount'] as num?)?.toInt() ?? 0,
-      boopedBy: (map['boopedBy'] as List<dynamic>?)
+      boopedBy:
+          (map['boopedBy'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      viewedBy: (map['viewedBy'] as List<dynamic>?)
+      viewedBy:
+          (map['viewedBy'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
@@ -107,7 +109,7 @@ class IringStory {
           : DateTime.now(),
       expiresAt: map['expiresAt'] != null
           ? (DateTime.tryParse(map['expiresAt'].toString()) ??
-              DateTime.now().add(const Duration(hours: 24)))
+                DateTime.now().add(const Duration(hours: 24)))
           : DateTime.now().add(const Duration(hours: 24)),
     );
   }

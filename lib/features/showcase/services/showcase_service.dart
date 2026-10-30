@@ -21,6 +21,28 @@ class ShowcaseService {
 
   bool get isPublicShowcaseEnabled => _isPublic;
   List<String> get pinnedSightingIds => List.unmodifiable(_pinnedSightingIds);
+  int get pinnedCount => _pinnedSightingIds.length;
+
+  Future<ExplorerShowcaseProfile> getProfileForUser({
+    required String userId,
+    required String displayName,
+    String avatarUrl = '',
+    int rank = 4,
+    int pawPoints = 340,
+    String tierTitle = 'Trail Scout',
+    String territory = 'Bankal, Lapu-Lapu City',
+  }) {
+    return getProfile(
+      targetUserId: userId,
+      currentUserId: userId,
+      displayName: displayName,
+      avatarUrl: avatarUrl,
+      rank: rank,
+      tierTitle: tierTitle,
+      pawPoints: pawPoints,
+      territory: territory,
+    );
+  }
 
   Future<void> init({
     SharedPreferences? prefs,
@@ -51,7 +73,8 @@ class ShowcaseService {
       await _persistPinnedIds();
       return false;
     } else {
-      if (_pinnedSightingIds.length >= ExplorerShowcaseProfile.maxShowcaseSlots) {
+      if (_pinnedSightingIds.length >=
+          ExplorerShowcaseProfile.maxShowcaseSlots) {
         throw StateError(
           'Showcase is full (maximum ${ExplorerShowcaseProfile.maxShowcaseSlots} cards). Unpin another cat first.',
         );
@@ -77,22 +100,32 @@ class ShowcaseService {
     String territory = 'Bankal, Lapu-Lapu City',
   }) async {
     final ds = _sightingsDataSource ?? FirebaseSightingsDataSource();
-    final allSightings = await ds.watchNearbySightings(latitude: 10.314, longitude: 123.972).first;
+    final allSightings = await ds
+        .watchNearbySightings(latitude: 10.314, longitude: 123.972)
+        .first;
 
     final isCurrentUser = targetUserId == currentUserId;
 
     if (isCurrentUser) {
       // Find current user's pinned sightings or fall back to their first encounters
-      final userSightings = allSightings.where((s) => s.userId == targetUserId).toList();
-      final sourceList = userSightings.isNotEmpty ? userSightings : allSightings;
+      final userSightings = allSightings
+          .where((s) => s.userId == targetUserId)
+          .toList();
+      final sourceList = userSightings.isNotEmpty
+          ? userSightings
+          : allSightings;
 
       List<CatSighting> pinned = [];
       if (_pinnedSightingIds.isNotEmpty) {
-        pinned = sourceList.where((s) => _pinnedSightingIds.contains(s.id)).toList();
+        pinned = sourceList
+            .where((s) => _pinnedSightingIds.contains(s.id))
+            .toList();
       }
 
       if (pinned.isEmpty) {
-        pinned = sourceList.take(ExplorerShowcaseProfile.maxShowcaseSlots).toList();
+        pinned = sourceList
+            .take(ExplorerShowcaseProfile.maxShowcaseSlots)
+            .toList();
       }
 
       return ExplorerShowcaseProfile(
@@ -116,11 +149,14 @@ class ShowcaseService {
           .toList();
 
       final cards = competitorSightings.isNotEmpty
-          ? competitorSightings.take(ExplorerShowcaseProfile.maxShowcaseSlots).toList()
+          ? competitorSightings
+                .take(ExplorerShowcaseProfile.maxShowcaseSlots)
+                .toList()
           : allSightings.take(3).toList();
 
       // Check if target user has a mock private flag (for testing/demo)
-      final isTargetPublic = !displayName.toLowerCase().contains('shadow') &&
+      final isTargetPublic =
+          !displayName.toLowerCase().contains('shadow') &&
           !displayName.toLowerCase().contains('private');
 
       return ExplorerShowcaseProfile(
@@ -132,7 +168,8 @@ class ShowcaseService {
         pawPoints: pawPoints,
         dexDiscoveredCount: (rank <= 3) ? 12 : (rank <= 10 ? 8 : 4),
         totalDexSpecies: FelineDexSpecies.canonicalSpecies.length,
-        totalBoops: cards.fold<int>(0, (sum, s) => sum + s.boopsCount) + (rank * 5),
+        totalBoops:
+            cards.fold<int>(0, (sum, s) => sum + s.boopsCount) + (rank * 5),
         territory: territory,
         isPublic: isTargetPublic,
         showcaseCards: cards,

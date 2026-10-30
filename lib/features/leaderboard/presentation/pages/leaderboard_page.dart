@@ -121,12 +121,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           // Main List / Podium
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
                 : _entries.isEmpty
-                    ? _buildEmptyState()
-                    : _buildLeaderboardContent(),
+                ? _buildEmptyState()
+                : _buildLeaderboardContent(),
           ),
 
           // Sticky User Standing Bottom Card
@@ -215,8 +213,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight:
-                        isSelected ? FontWeight.w800 : FontWeight.w600,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                     color: isSelected
                         ? AppColors.primary
                         : AppColors.textSecondary,
@@ -295,7 +292,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     final first = _entries.isNotEmpty ? _entries[0] : null;
     final second = _entries.length > 1 ? _entries[1] : null;
     final third = _entries.length > 2 ? _entries[2] : null;
-    final rest = _entries.length > 3 ? _entries.sublist(3) : <LeaderboardEntry>[];
+    final rest = _entries.length > 3
+        ? _entries.sublist(3)
+        : <LeaderboardEntry>[];
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
@@ -359,11 +358,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 color: AppColors.primary.withAlpha(20),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.pets,
-                size: 32,
-                color: AppColors.primary,
-              ),
+              child: const Icon(Icons.pets, size: 32, color: AppColors.primary),
             ),
             const SizedBox(height: 16),
             const Text(

@@ -159,6 +159,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       MaterialPageRoute(
         builder: (context) => CatScannerPage(
           user: widget.user,
+          locationService: _locationService,
           autoLaunchCamera: true,
         ),
       ),
@@ -234,8 +235,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 ),
               ),
             ),
-          if (_isShowingMap || _currentIndex != 2)
-            FloatingSnapIringButton(onTap: _openQuickSnapCamera),
+          FloatingSnapIringButton(onTap: _openQuickSnapCamera),
         ],
       ),
       floatingActionButton: AnimatedSlide(
@@ -268,10 +268,7 @@ class _HomePage extends StatefulWidget {
   final AuthUser user;
   final VoidCallback? onOpenLeaderboard;
 
-  const _HomePage({
-    required this.user,
-    this.onOpenLeaderboard,
-  });
+  const _HomePage({required this.user, this.onOpenLeaderboard});
 
   @override
   State<_HomePage> createState() => _HomePageState();
@@ -321,7 +318,10 @@ class _HomePageState extends State<_HomePage> {
                   const SizedBox(height: 4),
                   const Text(
                     'Track your daily explorer movement and unlock more feline routes.',
-                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   StoriesTray(user: widget.user),
@@ -375,7 +375,8 @@ class _HomePageState extends State<_HomePage> {
                             Expanded(
                               child: _MiniMetric(
                                 label: 'Distance',
-                                value: '${health.distanceKm.toStringAsFixed(2)} km',
+                                value:
+                                    '${health.distanceKm.toStringAsFixed(2)} km',
                               ),
                             ),
                           ],
@@ -386,7 +387,8 @@ class _HomePageState extends State<_HomePage> {
                             Expanded(
                               child: _MiniMetric(
                                 label: 'Calories',
-                                value: '${health.caloriesBurned.toStringAsFixed(0)} kcal',
+                                value:
+                                    '${health.caloriesBurned.toStringAsFixed(0)} kcal',
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -543,4 +545,3 @@ class _QuestCard extends StatelessWidget {
     );
   }
 }
-

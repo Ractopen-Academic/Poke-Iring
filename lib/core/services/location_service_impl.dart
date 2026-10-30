@@ -185,17 +185,16 @@ class LocationServiceImpl implements LocationService {
           distanceFilter: 3,
         );
 
-        subscription = Geolocator.getPositionStream(
-          locationSettings: settings,
-        ).listen(
-          (position) {
-            if (!controller.isClosed) {
-              controller.add(_mapPosition(position));
-            }
-          },
-          onError: (_) {},
-          cancelOnError: false,
-        );
+        subscription = Geolocator.getPositionStream(locationSettings: settings)
+            .listen(
+              (position) {
+                if (!controller.isClosed) {
+                  controller.add(_mapPosition(position));
+                }
+              },
+              onError: (_) {},
+              cancelOnError: false,
+            );
       } catch (_) {}
     };
 

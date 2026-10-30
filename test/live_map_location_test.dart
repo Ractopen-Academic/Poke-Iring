@@ -62,10 +62,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: LiveMapPage(
-            locationService: fakeService,
-            isMapActive: true,
-          ),
+          home: LiveMapPage(locationService: fakeService, isMapActive: true),
         ),
       );
       await tester.pump(const Duration(milliseconds: 200));
@@ -75,48 +72,46 @@ void main() {
       fakeService.dispose();
     });
 
-    testWidgets('updates coordinates display when location stream emits updates', (
-      tester,
-    ) async {
-      final fakeService = FakeLocationService();
-      fakeService.currentLocation = UserLocation(
-        latitude: 10.3150,
-        longitude: 123.9700,
-        heading: 0.0,
-        accuracy: 4.0,
-        speed: 0.0,
-        altitude: 10.0,
-        timestamp: DateTime(2026, 10, 30, 12, 0, 0),
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LiveMapPage(
-            locationService: fakeService,
-            isMapActive: true,
-          ),
-        ),
-      );
-      await tester.pump(const Duration(milliseconds: 200));
-
-      expect(find.text('10.3150, 123.9700'), findsOneWidget);
-
-      fakeService.emitLocation(
-        UserLocation(
-          latitude: 10.3200,
-          longitude: 123.9800,
-          heading: 90.0,
-          accuracy: 2.0,
-          speed: 1.5,
+    testWidgets(
+      'updates coordinates display when location stream emits updates',
+      (tester) async {
+        final fakeService = FakeLocationService();
+        fakeService.currentLocation = UserLocation(
+          latitude: 10.3150,
+          longitude: 123.9700,
+          heading: 0.0,
+          accuracy: 4.0,
+          speed: 0.0,
           altitude: 10.0,
-          timestamp: DateTime(2026, 10, 30, 12, 1, 0),
-        ),
-      );
+          timestamp: DateTime(2026, 10, 30, 12, 0, 0),
+        );
 
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text('10.3200, 123.9800'), findsOneWidget);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: LiveMapPage(locationService: fakeService, isMapActive: true),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 200));
 
-      fakeService.dispose();
-    });
+        expect(find.text('10.3150, 123.9700'), findsOneWidget);
+
+        fakeService.emitLocation(
+          UserLocation(
+            latitude: 10.3200,
+            longitude: 123.9800,
+            heading: 90.0,
+            accuracy: 2.0,
+            speed: 1.5,
+            altitude: 10.0,
+            timestamp: DateTime(2026, 10, 30, 12, 1, 0),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(find.text('10.3200, 123.9800'), findsOneWidget);
+
+        fakeService.dispose();
+      },
+    );
   });
 }

@@ -12,6 +12,7 @@ import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
+import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
 import '../../../showcase/services/showcase_service.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -147,7 +148,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 stream: ExplorerHealthService.instance.stream,
                 initialData: ExplorerHealthService.instance.latest,
                 builder: (context, snapshot) {
-                  final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
+                  final health =
+                      snapshot.data ?? ExplorerHealthSnapshot.empty();
                   return Row(
                     children: [
                       Expanded(
@@ -167,7 +169,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       Expanded(
                         child: _StatCard(
                           label: 'Calories',
-                          value: '${health.caloriesBurned.toStringAsFixed(0)} kcal',
+                          value:
+                              '${health.caloriesBurned.toStringAsFixed(0)} kcal',
                         ),
                       ),
                     ],
@@ -211,7 +214,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Explorer health is live on the home screen and account stats.'),
+                      content: Text(
+                        'Explorer health is live on the home screen and account stats.',
+                      ),
                     ),
                   );
                 },
@@ -268,7 +273,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Showcase & Privacy Settings',
+                'Explorer Showcase & Privacy',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -277,61 +282,130 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(20),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.visibility_outlined,
-                        size: 20,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Public Explorer Showcase',
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withAlpha(20),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.auto_awesome_motion_outlined,
+                            size: 20,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'My Explorer Showcase',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${ShowcaseService.instance.pinnedCount} of 9 slots pinned from Dex',
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: () async {
+                            final profile = await ShowcaseService.instance
+                                .getProfileForUser(
+                                  userId: widget.user.id.isNotEmpty
+                                      ? widget.user.id
+                                      : widget.user.email,
+                                  displayName: displayName,
+                                  avatarUrl: widget.user.photoUrl,
+                                );
+                            if (context.mounted) {
+                              ExplorerShowcaseSheet.show(context, profile);
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            side: const BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            'View',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: AppColors.primary,
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _isPublicShowcase
-                                ? 'Visible to other players on leaderboards'
-                                : 'Hidden from other explorers',
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Switch.adaptive(
-                      value: _isPublicShowcase,
-                      activeThumbColor: AppColors.primary,
-                      onChanged: (val) async {
-                        await ShowcaseService.instance.setPublicShowcaseEnabled(val);
-                        if (mounted) {
-                          setState(() => _isPublicShowcase = val);
-                        }
-                      },
+                    const Divider(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Public Profile Showcase',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _isPublicShowcase
+                                    ? 'Visible to other players on leaderboards'
+                                    : 'Hidden from other explorers',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch.adaptive(
+                          value: _isPublicShowcase,
+                          activeThumbColor: AppColors.primary,
+                          onChanged: (val) async {
+                            await ShowcaseService.instance
+                                .setPublicShowcaseEnabled(val);
+                            if (mounted) {
+                              setState(() => _isPublicShowcase = val);
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

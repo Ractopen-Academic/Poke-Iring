@@ -22,10 +22,7 @@ void main() {
         timestamp: DateTime(2026, 10, 30, 12, 0, 0),
       );
 
-      final updated = initial.copyWith(
-        latitude: 10.3200,
-        heading: 90.0,
-      );
+      final updated = initial.copyWith(latitude: 10.3200, heading: 90.0);
 
       expect(updated.latitude, equals(10.3200));
       expect(updated.longitude, equals(123.9720));

@@ -11,12 +11,12 @@ import 'showcase_card_item.dart';
 class ExplorerShowcaseSheet extends StatefulWidget {
   final ExplorerShowcaseProfile profile;
 
-  const ExplorerShowcaseSheet({
-    super.key,
-    required this.profile,
-  });
+  const ExplorerShowcaseSheet({super.key, required this.profile});
 
-  static Future<void> show(BuildContext context, ExplorerShowcaseProfile profile) {
+  static Future<void> show(
+    BuildContext context,
+    ExplorerShowcaseProfile profile,
+  ) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -161,7 +161,10 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF7F8FA),
                   borderRadius: BorderRadius.circular(16),
@@ -178,7 +181,8 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                     _buildVerticalDivider(),
                     _buildStatItem(
                       label: 'Dex Catalog',
-                      value: '${profile.dexDiscoveredCount} / ${profile.totalDexSpecies}',
+                      value:
+                          '${profile.dexDiscoveredCount} / ${profile.totalDexSpecies}',
                       icon: Icons.collections_bookmark_outlined,
                     ),
                     _buildVerticalDivider(),
@@ -211,7 +215,10 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withAlpha(20),
                         borderRadius: BorderRadius.circular(8),
@@ -233,7 +240,10 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'Swipe horizontally to explore their top neighborhood catches.',
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
               const SizedBox(height: 14),
@@ -257,10 +267,14 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                         index: index,
                         total: cards.length,
                         onTap: () {
-                          final species = FelineDexSpecies.canonicalSpecies.firstWhere(
-                            (s) => s.coatPattern.toLowerCase() == sighting.coatPattern.toLowerCase(),
-                            orElse: () => FelineDexSpecies.canonicalSpecies.first,
-                          );
+                          final species = FelineDexSpecies.canonicalSpecies
+                              .firstWhere(
+                                (s) =>
+                                    s.coatPattern.toLowerCase() ==
+                                    sighting.coatPattern.toLowerCase(),
+                                orElse: () =>
+                                    FelineDexSpecies.canonicalSpecies.first,
+                              );
                           final entry = IringDexEntry.fromSightings(
                             species: species,
                             matchedSightings: [sighting],
@@ -284,7 +298,9 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                       width: isCurrent ? 20 : 6,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: isCurrent ? AppColors.primary : Colors.grey.shade300,
+                        color: isCurrent
+                            ? AppColors.primary
+                            : Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(3),
                       ),
                     );
@@ -307,7 +323,10 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                   ),
                   elevation: 0,
                 ),
-                child: const Text('Close Showcase', style: TextStyle(fontWeight: FontWeight.w700)),
+                child: const Text(
+                  'Close Showcase',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
             ),
           ],
@@ -352,11 +371,7 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
   }
 
   Widget _buildVerticalDivider() {
-    return Container(
-      width: 1,
-      height: 28,
-      color: Colors.grey.shade300,
-    );
+    return Container(width: 1, height: 28, color: Colors.grey.shade300);
   }
 
   Widget _buildPrivatePlaceholder() {
@@ -396,7 +411,11 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
             const Text(
               'This explorer has chosen to keep their feline showcase and collection private.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
+              style: TextStyle(
+                fontSize: 12.5,
+                color: AppColors.textSecondary,
+                height: 1.4,
+              ),
             ),
           ],
         ),
@@ -416,7 +435,11 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
         ),
         child: const Column(
           children: [
-            Icon(Icons.collections_outlined, size: 32, color: AppColors.textSecondary),
+            Icon(
+              Icons.collections_outlined,
+              size: 32,
+              color: AppColors.textSecondary,
+            ),
             SizedBox(height: 10),
             Text(
               'No Featured Cats Yet',

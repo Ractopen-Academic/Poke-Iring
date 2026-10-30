@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../entities/cat_scan_result.dart';
 import '../entities/cat_sighting.dart';
 

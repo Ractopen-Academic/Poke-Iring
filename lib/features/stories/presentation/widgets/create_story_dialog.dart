@@ -26,10 +26,8 @@ class CreateStoryDialog extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CreateStoryDialog(
-        user: user,
-        repository: repository,
-      ),
+      builder: (context) =>
+          CreateStoryDialog(user: user, repository: repository),
     );
   }
 
@@ -79,9 +77,8 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isCompressing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load image: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to load image: $e')));
       }
     }
   }
@@ -117,9 +114,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isPublishing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not publish story: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not publish story: $e')));
       }
     }
   }
@@ -198,7 +195,11 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                             backgroundColor: Colors.black54,
                             radius: 16,
                             child: IconButton(
-                              icon: const Icon(Icons.close, size: 16, color: Colors.white),
+                              icon: const Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Colors.white,
+                              ),
                               onPressed: () => setState(() {
                                 _compressedBytes = null;
                                 _compressionResult = null;
@@ -212,7 +213,10 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                   if (_compressionResult != null) ...[
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.green.shade50,
                         borderRadius: BorderRadius.circular(10),
@@ -220,7 +224,11 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.speed, size: 16, color: Colors.green.shade800),
+                          Icon(
+                            Icons.speed,
+                            size: 16,
+                            color: Colors.green.shade800,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -253,7 +261,10 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                       SizedBox(height: 12),
                       Text(
                         'Compressing image safely...',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -301,7 +312,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                 labelText: 'Cat Breed / Marking',
                 filled: true,
                 fillColor: Colors.grey.shade50,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               items: _commonBreeds
                   .map((b) => DropdownMenuItem(value: b, child: Text(b)))
@@ -322,7 +335,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                 hintText: 'e.g. Found this fluffy calico napping on a scooter!',
                 filled: true,
                 fillColor: Colors.grey.shade50,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
 
@@ -330,7 +345,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
 
             // Publish Button
             ElevatedButton(
-              onPressed: _compressedBytes == null || _isPublishing ? null : _publishStory,
+              onPressed: _compressedBytes == null || _isPublishing
+                  ? null
+                  : _publishStory,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -344,11 +361,17 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     )
                   : const Text(
                       'Share to Neighborhood Stories',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
             ),
           ],

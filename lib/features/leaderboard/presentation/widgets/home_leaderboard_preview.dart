@@ -7,10 +7,7 @@ import '../../domain/entities/leaderboard_entry.dart';
 class HomeLeaderboardPreview extends StatefulWidget {
   final VoidCallback onTap;
 
-  const HomeLeaderboardPreview({
-    super.key,
-    required this.onTap,
-  });
+  const HomeLeaderboardPreview({super.key, required this.onTap});
 
   @override
   State<HomeLeaderboardPreview> createState() => _HomeLeaderboardPreviewState();
@@ -228,7 +225,10 @@ class _MiniPodiumItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
-                  border: Border.all(color: accentColor, width: isChampion ? 2.5 : 1.8),
+                  border: Border.all(
+                    color: accentColor,
+                    width: isChampion ? 2.5 : 1.8,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: accentColor.withAlpha(40),
@@ -248,7 +248,10 @@ class _MiniPodiumItem extends StatelessWidget {
               Positioned(
                 bottom: -5,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 1.5,
+                  ),
                   decoration: BoxDecoration(
                     color: accentColor,
                     borderRadius: BorderRadius.circular(8),
@@ -292,7 +295,9 @@ class _MiniPodiumItem extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(10),
+              ),
               border: Border.all(color: accentColor.withAlpha(50), width: 1.0),
             ),
             child: Center(

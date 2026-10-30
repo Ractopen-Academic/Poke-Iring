@@ -43,18 +43,18 @@ class StoryCircleItem extends StatelessWidget {
                     gradient: isUser
                         ? null
                         : isViewed
-                            ? const LinearGradient(
-                                colors: [Color(0xFFBDBDBD), Color(0xFFE0E0E0)],
-                              )
-                            : const LinearGradient(
-                                colors: [
-                                  Color(0xFFFF5E36),
-                                  Color(0xFFFFAE33),
-                                  Color(0xFFFF2A6D),
-                                ],
-                                begin: Alignment.bottomLeft,
-                                end: Alignment.topRight,
-                              ),
+                        ? const LinearGradient(
+                            colors: [Color(0xFFBDBDBD), Color(0xFFE0E0E0)],
+                          )
+                        : const LinearGradient(
+                            colors: [
+                              Color(0xFFFF5E36),
+                              Color(0xFFFFAE33),
+                              Color(0xFFFF2A6D),
+                            ],
+                            begin: Alignment.bottomLeft,
+                            end: Alignment.topRight,
+                          ),
                     color: isUser ? Colors.transparent : null,
                   ),
                   padding: const EdgeInsets.all(2.5),
@@ -84,11 +84,7 @@ class StoryCircleItem extends StatelessWidget {
                         border: Border.all(color: Colors.white, width: 2),
                       ),
                       child: const Center(
-                        child: Icon(
-                          Icons.add,
-                          size: 13,
-                          color: Colors.white,
-                        ),
+                        child: Icon(Icons.add, size: 13, color: Colors.white),
                       ),
                     ),
                   ),

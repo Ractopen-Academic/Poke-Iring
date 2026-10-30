@@ -9,11 +9,7 @@ class DexSpeciesCard extends StatelessWidget {
   final IringDexEntry entry;
   final VoidCallback onTap;
 
-  const DexSpeciesCard({
-    super.key,
-    required this.entry,
-    required this.onTap,
-  });
+  const DexSpeciesCard({super.key, required this.entry, required this.onTap});
 
   Color _rarityColor(FelineRarityTier rarity) {
     switch (rarity) {
@@ -71,12 +67,17 @@ class DexSpeciesCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: isDiscovered ? AppColors.textSecondary : Colors.grey.shade500,
+                    color: isDiscovered
+                        ? AppColors.textSecondary
+                        : Colors.grey.shade500,
                   ),
                 ),
                 if (isDiscovered)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: rarityColor.withAlpha(20),
                       borderRadius: BorderRadius.circular(6),
@@ -139,7 +140,9 @@ class DexSpeciesCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w800,
-                color: isDiscovered ? AppColors.textPrimary : Colors.grey.shade600,
+                color: isDiscovered
+                    ? AppColors.textPrimary
+                    : Colors.grey.shade600,
               ),
             ),
             const SizedBox(height: 2),

@@ -41,7 +41,11 @@ class PawPointsGuideSheet extends StatelessWidget {
             const SizedBox(height: 18),
             const Row(
               children: [
-                Icon(Icons.help_outline_rounded, color: AppColors.primary, size: 24),
+                Icon(
+                  Icons.help_outline_rounded,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
                 SizedBox(width: 10),
                 Text(
                   'How Paw Points Work',
@@ -56,7 +60,11 @@ class PawPointsGuideSheet extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Paw Points measure your neighborhood feline discoveries and determine your leaderboard standing.',
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade600, height: 1.4),
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
             ),
             const SizedBox(height: 18),
 
@@ -93,7 +101,8 @@ class PawPointsGuideSheet extends StatelessWidget {
                 _GuideItem(
                   label: 'Max Per Sighting',
                   value: '${CatScanResult.maxSingleSightingPoints} pts cap',
-                  description: 'A single feline encounter cannot exceed ${CatScanResult.maxSingleSightingPoints} points, preventing point inflation.',
+                  description:
+                      'A single feline encounter cannot exceed ${CatScanResult.maxSingleSightingPoints} points, preventing point inflation.',
                 ),
                 _GuideItem(
                   label: 'Daily Sighting Soft Cap',
@@ -149,43 +158,45 @@ class PawPointsGuideSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          ...items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          item.label,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
+          ...items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        item.label,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
                         ),
-                        Text(
-                          item.value,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item.description,
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        color: Colors.grey.shade600,
                       ),
+                      Text(
+                        item.value,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.description,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: Colors.grey.shade600,
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

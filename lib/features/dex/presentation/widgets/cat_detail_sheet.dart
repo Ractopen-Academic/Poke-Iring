@@ -10,10 +10,7 @@ import '../../domain/entities/iring_dex_entry.dart';
 class CatDetailSheet extends StatefulWidget {
   final IringDexEntry entry;
 
-  const CatDetailSheet({
-    super.key,
-    required this.entry,
-  });
+  const CatDetailSheet({super.key, required this.entry});
 
   static Future<void> show(BuildContext context, IringDexEntry entry) {
     return showModalBottomSheet(
@@ -163,14 +160,18 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                           : 'undiscovered_mystery',
                       radius: 54,
                       showBorder: true,
-                      borderColor:
-                          entry.isDiscovered ? rarityColor : Colors.grey.shade300,
+                      borderColor: entry.isDiscovered
+                          ? rarityColor
+                          : Colors.grey.shade300,
                       borderWidth: 3,
                     ),
                   ),
                   if (entry.isDiscovered)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: rarityColor,
                         borderRadius: BorderRadius.circular(12),
@@ -227,7 +228,10 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: rarityColor.withAlpha(25),
                     borderRadius: BorderRadius.circular(8),
@@ -244,7 +248,10 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF0F1F5),
                     borderRadius: BorderRadius.circular(8),
@@ -260,7 +267,10 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(20),
                     borderRadius: BorderRadius.circular(8),
@@ -284,10 +294,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
             ),
             const SizedBox(height: 12),
 
-            _buildSection(
-              title: 'Typical Habitat',
-              content: species.habitat,
-            ),
+            _buildSection(title: 'Typical Habitat', content: species.habitat),
             const SizedBox(height: 16),
 
             if (entry.isDiscovered) ...[
@@ -310,10 +317,20 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    _buildRecordRow('First Sighted', _formatDate(entry.firstSightedAt)),
-                    _buildRecordRow('Best Encounter', entry.bestLocation ?? 'Local territory'),
-                    _buildRecordRow('Highest Reward', '+${entry.bestPawPoints} Paw Points'),
-                    if (entry.sightings.isNotEmpty && entry.sightings.first.quirk.isNotEmpty)
+                    _buildRecordRow(
+                      'First Sighted',
+                      _formatDate(entry.firstSightedAt),
+                    ),
+                    _buildRecordRow(
+                      'Best Encounter',
+                      entry.bestLocation ?? 'Local territory',
+                    ),
+                    _buildRecordRow(
+                      'Highest Reward',
+                      '+${entry.bestPawPoints} Paw Points',
+                    ),
+                    if (entry.sightings.isNotEmpty &&
+                        entry.sightings.first.quirk.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
@@ -339,20 +356,26 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                       icon: Icon(
                         _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                         size: 15,
-                        color: _isPinned ? AppColors.primary : AppColors.textPrimary,
+                        color: _isPinned
+                            ? AppColors.primary
+                            : AppColors.textPrimary,
                       ),
                       label: Text(
                         _isPinned ? 'In Showcase' : 'Pin to Showcase',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: _isPinned ? AppColors.primary : AppColors.textPrimary,
+                          color: _isPinned
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         side: BorderSide(
-                          color: _isPinned ? AppColors.primary : AppColors.border,
+                          color: _isPinned
+                              ? AppColors.primary
+                              : AppColors.border,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -364,10 +387,18 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _handleSaveSticker,
-                      icon: const Icon(Icons.download_rounded, size: 15, color: AppColors.textPrimary),
+                      icon: const Icon(
+                        Icons.download_rounded,
+                        size: 15,
+                        color: AppColors.textPrimary,
+                      ),
                       label: const Text(
                         'Save Sticker',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 11),
@@ -384,7 +415,9 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                     onPressed: _handleShareCard,
                     icon: const Icon(Icons.share_outlined, size: 18),
                     style: IconButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       side: const BorderSide(color: AppColors.border),
                     ),
                   ),
@@ -401,12 +434,20 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline_rounded, color: Colors.grey.shade600, size: 20),
+                    Icon(
+                      Icons.info_outline_rounded,
+                      color: Colors.grey.shade600,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     const Expanded(
                       child: Text(
                         'Undiscovered in your Iring-Dex. Point your scanner camera at neighborhood cats to reveal this record.',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ],
@@ -426,7 +467,10 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                 ),
                 elevation: 0,
               ),
-              child: const Text('Close Record', style: TextStyle(fontWeight: FontWeight.w700)),
+              child: const Text(
+                'Close Record',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
           ],
         ),
@@ -465,7 +509,13 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+            ),
+          ),
           Text(
             value,
             style: const TextStyle(
@@ -481,7 +531,20 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
 
   String _formatDate(DateTime? dt) {
     if (dt == null) return 'Unknown';
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
 }

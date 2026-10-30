@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../auth/domain/entities/auth_user.dart';
 import '../entities/iring_story.dart';
 
@@ -20,8 +21,5 @@ abstract class StoriesRepository {
     required String userId,
   });
 
-  Future<void> boopStory({
-    required String storyId,
-    required String userId,
-  });
+  Future<void> boopStory({required String storyId, required String userId});
 }

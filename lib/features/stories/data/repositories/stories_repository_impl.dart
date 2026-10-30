@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../domain/entities/iring_story.dart';
 import '../../domain/repositories/stories_repository.dart';
@@ -8,7 +9,7 @@ class StoriesRepositoryImpl implements StoriesRepository {
   final FirebaseStoriesDataSource _dataSource;
 
   StoriesRepositoryImpl({FirebaseStoriesDataSource? dataSource})
-      : _dataSource = dataSource ?? FirebaseStoriesDataSource();
+    : _dataSource = dataSource ?? FirebaseStoriesDataSource();
 
   @override
   Future<List<IringStory>> getActiveStories() {
@@ -59,10 +60,7 @@ class StoriesRepositoryImpl implements StoriesRepository {
   }
 
   @override
-  Future<void> boopStory({
-    required String storyId,
-    required String userId,
-  }) {
+  Future<void> boopStory({required String storyId, required String userId}) {
     return _dataSource.boopStory(storyId, userId);
   }
 }

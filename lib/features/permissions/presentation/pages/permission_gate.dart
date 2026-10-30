@@ -45,7 +45,8 @@ class _PermissionGateState extends State<PermissionGate> {
       _needsCamera = cameraState != AppPermissionState.granted;
       _isLoading = false;
       if (_needsLocation || _needsCamera) {
-        _message = 'Poke: Iring needs camera and location to track cat sightings.';
+        _message =
+            'Poke: Iring needs camera and location to track cat sightings.';
       } else {
         _message = 'Ready to explore.';
       }
@@ -226,7 +227,8 @@ class _PermissionGateState extends State<PermissionGate> {
                   ),
                   _buildPermissionTile(
                     title: 'Camera access',
-                    subtitle: 'Needed to capture a cat photo for your Iring-dex.',
+                    subtitle:
+                        'Needed to capture a cat photo for your Iring-dex.',
                     required: true,
                     granted: !_needsCamera,
                   ),

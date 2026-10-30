@@ -1,14 +1,43 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pokeiring/features/auth/domain/entities/auth_user.dart';
+import 'package:pokeiring/features/auth/domain/repositories/auth_repository.dart';
 import 'package:pokeiring/features/dex/domain/entities/feline_dex_species.dart';
 import 'package:pokeiring/features/dex/domain/entities/iring_dex_entry.dart';
 import 'package:pokeiring/features/dex/presentation/widgets/cat_detail_sheet.dart';
+import 'package:pokeiring/features/home/presentation/pages/dashboard_page.dart';
+import 'package:pokeiring/features/scanner/data/datasources/firebase_sightings_datasource.dart';
 import 'package:pokeiring/features/scanner/domain/entities/cat_sighting.dart';
 import 'package:pokeiring/features/showcase/domain/entities/explorer_showcase_profile.dart';
 import 'package:pokeiring/features/showcase/presentation/widgets/explorer_showcase_sheet.dart';
 import 'package:pokeiring/features/showcase/presentation/widgets/showcase_card_item.dart';
 import 'package:pokeiring/features/showcase/services/showcase_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class _FakeAuthRepository implements AuthRepository {
+  @override
+  Stream<AuthUser?> get authStateChanges => const Stream.empty();
+  @override
+  AuthUser? get currentUser => null;
+  @override
+  Future<AuthUser> signInWithEmailPassword(String email, String password) =>
+      throw UnimplementedError();
+  @override
+  Future<AuthUser> registerWithEmailPassword(String email, String password) =>
+      throw UnimplementedError();
+  @override
+  Future<AuthUser> signInWithGoogle() => throw UnimplementedError();
+  @override
+  Future<void> sendEmailVerification() async {}
+  @override
+  Future<void> reloadCurrentUser() async {}
+  @override
+  Future<void> sendPasswordReset(String email) async {}
+  @override
+  Future<void> signOut() async {}
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -117,7 +146,9 @@ void main() {
   });
 
   group('ShowcaseCardItem Widget', () {
-    testWidgets('renders breed, points badge, location, and boop counter', (tester) async {
+    testWidgets('renders breed, points badge, location, and boop counter', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -145,7 +176,9 @@ void main() {
   });
 
   group('ExplorerShowcaseSheet Widget', () {
-    testWidgets('renders public showcase header, stats, and cards', (tester) async {
+    testWidgets('renders public showcase header, stats, and cards', (
+      tester,
+    ) async {
       final publicProfile = ExplorerShowcaseProfile(
         userId: 'user-champion',
         displayName: 'CalicoQueen',
@@ -159,9 +192,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: ExplorerShowcaseSheet(profile: publicProfile),
-          ),
+          home: Scaffold(body: ExplorerShowcaseSheet(profile: publicProfile)),
         ),
       );
 
@@ -177,7 +208,9 @@ void main() {
       expect(find.text('Close Showcase'), findsOneWidget);
     });
 
-    testWidgets('renders private profile placeholder when isPublic is false', (tester) async {
+    testWidgets('renders private profile placeholder when isPublic is false', (
+      tester,
+    ) async {
       final privateProfile = ExplorerShowcaseProfile(
         userId: 'user-stealth',
         displayName: 'StealthWhiskers',
@@ -189,9 +222,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: ExplorerShowcaseSheet(profile: privateProfile),
-          ),
+          home: Scaffold(body: ExplorerShowcaseSheet(profile: privateProfile)),
         ),
       );
 
@@ -200,7 +231,9 @@ void main() {
       expect(find.text('StealthWhiskers'), findsOneWidget);
       expect(find.text('Private Explorer Profile'), findsOneWidget);
       expect(
-        find.text('This explorer has chosen to keep their feline showcase and collection private.'),
+        find.text(
+          'This explorer has chosen to keep their feline showcase and collection private.',
+        ),
         findsOneWidget,
       );
       expect(find.text('Feline Showcase'), findsNothing);
@@ -208,7 +241,9 @@ void main() {
   });
 
   group('CatDetailSheet Showcase Actions', () {
-    testWidgets('displays Pin to Showcase and Save Sticker buttons', (tester) async {
+    testWidgets('displays Pin to Showcase and Save Sticker buttons', (
+      tester,
+    ) async {
       final entry = IringDexEntry.fromSightings(
         species: FelineDexSpecies.canonicalSpecies[1], // Calico
         matchedSightings: [testSighting],
@@ -216,9 +251,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: CatDetailSheet(entry: entry),
-          ),
+          home: Scaffold(body: CatDetailSheet(entry: entry)),
         ),
       );
 
@@ -236,5 +269,87 @@ void main() {
 
       expect(find.text('In Showcase'), findsOneWidget);
     });
+  });
+
+  group('DashboardPage Showcase Section', () {
+    testWidgets('renders My Explorer Showcase slot count and View button', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      await ShowcaseService.instance.init();
+
+      const user = AuthUser(
+        id: 'account-tester-id',
+        email: 'account@pokeiring.test',
+        displayName: 'AccountAce',
+        photoUrl: '',
+        emailVerified: true,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: DashboardPage(
+              user: user,
+              authRepository: _FakeAuthRepository(),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Explorer Showcase & Privacy'), findsOneWidget);
+      expect(find.text('My Explorer Showcase'), findsOneWidget);
+      expect(find.text('0 of 9 slots pinned from Dex'), findsOneWidget);
+      expect(find.text('View'), findsOneWidget);
+      expect(find.text('Public Profile Showcase'), findsOneWidget);
+    });
+  });
+
+  group('Real-Time User Cat Spawning', () {
+    test(
+      'saving sighting immediately emits to live broadcast stream',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final ds = FirebaseSightingsDataSource();
+
+        final newlyDiscovered = CatSighting(
+          id: 'live-snap-1',
+          userId: 'live-explorer-1',
+          authorName: 'Trailblazer',
+          photoUrl: 'data:image/jpeg;base64,abc',
+          stickerUrl: 'data:image/png;base64,xyz',
+          latitude: 10.3188,
+          longitude: 123.9788,
+          geohash: 'w721x',
+          barangay: 'Bankal',
+          city: 'Lapu-Lapu City',
+          region: 'Central Visayas',
+          country: 'Philippines',
+          breed: 'Tabby (Puspin)',
+          coatPattern: 'Mackerel Tabby',
+          dominantColor: 'Brown',
+          rarityMultiplier: 1.0,
+          pawPoints: 85,
+          quirk: 'Snagged a quick photo near the plaza.',
+          createdAt: DateTime.now(),
+        );
+
+        final streamFuture = ds
+            .watchNearbySightings(latitude: 10.3188, longitude: 123.9788)
+            .first;
+
+        await ds.saveSighting(
+          sighting: newlyDiscovered,
+          originalBytes: Uint8List(0),
+          stickerBytes: Uint8List(0),
+        );
+
+        final updatedList = await streamFuture;
+        expect(updatedList.any((s) => s.id == 'live-snap-1'), isTrue);
+        expect(updatedList.first.id, equals('live-snap-1'));
+      },
+    );
   });
 }

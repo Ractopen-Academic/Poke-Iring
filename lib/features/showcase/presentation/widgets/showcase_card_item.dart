@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -48,12 +50,25 @@ class ShowcaseCardItem extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   if (sighting.photoUrl.isNotEmpty)
-                    CachedNetworkImage(
-                      imageUrl: sighting.photoUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => _buildFallbackAvatar(),
-                      errorWidget: (context, url, error) => _buildFallbackAvatar(),
-                    )
+                    sighting.photoUrl.startsWith('data:image')
+                        ? Image.memory(
+                            base64Decode(
+                              sighting.photoUrl.contains(',')
+                                  ? sighting.photoUrl.split(',').last
+                                  : sighting.photoUrl,
+                            ),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildFallbackAvatar(),
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: sighting.photoUrl,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                _buildFallbackAvatar(),
+                            errorWidget: (context, url, error) =>
+                                _buildFallbackAvatar(),
+                          )
                   else
                     _buildFallbackAvatar(),
 
@@ -82,7 +97,10 @@ class ShowcaseCardItem extends StatelessWidget {
                     top: 10,
                     left: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withAlpha(150),
                         borderRadius: BorderRadius.circular(8),
@@ -103,7 +121,10 @@ class ShowcaseCardItem extends StatelessWidget {
                     top: 10,
                     right: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(10),
@@ -139,10 +160,7 @@ class ShowcaseCardItem extends StatelessWidget {
                         ],
                       ),
                       child: Center(
-                        child: FelineAvatar(
-                          seed: sighting.breed,
-                          radius: 19,
-                        ),
+                        child: FelineAvatar(seed: sighting.breed, radius: 19),
                       ),
                     ),
                   ),
@@ -174,7 +192,10 @@ class ShowcaseCardItem extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.secondary.withAlpha(25),
                           borderRadius: BorderRadius.circular(8),
@@ -194,7 +215,11 @@ class ShowcaseCardItem extends StatelessWidget {
 
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 13, color: AppColors.textSecondary),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 13,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -210,7 +235,11 @@ class ShowcaseCardItem extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.touch_app_rounded, size: 13, color: AppColors.primary),
+                          const Icon(
+                            Icons.touch_app_rounded,
+                            size: 13,
+                            color: AppColors.primary,
+                          ),
                           const SizedBox(width: 3),
                           Text(
                             '${sighting.boopsCount} boops',

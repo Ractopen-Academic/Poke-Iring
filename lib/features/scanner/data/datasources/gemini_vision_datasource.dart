@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
@@ -10,13 +11,15 @@ class GeminiVisionDataSource {
   final AiConfigService _configService;
 
   GeminiVisionDataSource({AiConfigService? configService})
-      : _configService = configService ?? AiConfigService.instance;
+    : _configService = configService ?? AiConfigService.instance;
 
   Future<CatScanResult> analyzeCatPhoto(Uint8List imageBytes) async {
     final apiKey = await _configService.getApiKey();
 
     if (apiKey == null || apiKey.isEmpty) {
-      debugPrint('No Gemini API key configured. Utilizing mock vision classifier.');
+      debugPrint(
+        'No Gemini API key configured. Utilizing mock vision classifier.',
+      );
       return _generateMockResult();
     }
 
@@ -57,10 +60,7 @@ Guidelines:
 ''';
 
       final response = await model.generateContent([
-        Content.multi([
-          TextPart(prompt),
-          DataPart('image/jpeg', imageBytes),
-        ]),
+        Content.multi([TextPart(prompt), DataPart('image/jpeg', imageBytes)]),
       ]);
 
       final text = response.text;
@@ -71,8 +71,12 @@ Guidelines:
       final jsonMap = jsonDecode(text) as Map<String, dynamic>;
       return CatScanResult.fromJson(jsonMap);
     } catch (e) {
-      debugPrint('Gemini Vision inference failed ($e). Falling back to mock classifier.');
-      return _generateMockResult(fallbackNote: 'Vision analysis fallback active');
+      debugPrint(
+        'Gemini Vision inference failed ($e). Falling back to mock classifier.',
+      );
+      return _generateMockResult(
+        fallbackNote: 'Vision analysis fallback active',
+      );
     }
   }
 

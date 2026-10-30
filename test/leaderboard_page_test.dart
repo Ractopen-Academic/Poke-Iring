@@ -7,35 +7,36 @@ import 'package:pokeiring/features/leaderboard/presentation/widgets/user_standin
 
 void main() {
   group('LeaderboardPage Widget', () {
-    testWidgets('renders season banner, category tabs, podium and standing card', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: LeaderboardPage(
-            repository: LeaderboardRepositoryImpl(),
-            currentUserId: 'test-user',
-            initialBarangay: 'Bankal',
-            initialCity: 'Lapu-Lapu City',
-            initialRegion: 'Central Visayas',
-            initialCountry: 'Philippines',
+    testWidgets(
+      'renders season banner, category tabs, podium and standing card',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: LeaderboardPage(
+              repository: LeaderboardRepositoryImpl(),
+              currentUserId: 'test-user',
+              initialBarangay: 'Bankal',
+              initialCity: 'Lapu-Lapu City',
+              initialRegion: 'Central Visayas',
+              initialCountry: 'Philippines',
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      expect(find.text('Explorer Leaderboard'), findsOneWidget);
-      expect(find.text('Season 1: Sunshine Strays'), findsOneWidget);
-      expect(find.text('Paw Points'), findsOneWidget);
-      expect(find.text('Most Snapped'), findsOneWidget);
-      expect(find.text('Most Walked'), findsOneWidget);
+        expect(find.text('Explorer Leaderboard'), findsOneWidget);
+        expect(find.text('Season 1: Sunshine Strays'), findsOneWidget);
+        expect(find.text('Paw Points'), findsOneWidget);
+        expect(find.text('Most Snapped'), findsOneWidget);
+        expect(find.text('Most Walked'), findsOneWidget);
 
-      expect(find.textContaining('Central Visayas (300)'), findsOneWidget);
-      expect(find.byType(PodiumView), findsOneWidget);
-      expect(find.byType(UserStandingCard), findsOneWidget);
-      expect(find.textContaining('You are at Rank'), findsOneWidget);
-    });
+        expect(find.textContaining('Central Visayas (300)'), findsOneWidget);
+        expect(find.byType(PodiumView), findsOneWidget);
+        expect(find.byType(UserStandingCard), findsOneWidget);
+        expect(find.textContaining('You are at Rank'), findsOneWidget);
+      },
+    );
 
     testWidgets('switching category tab updates view', (tester) async {
       await tester.pumpWidget(

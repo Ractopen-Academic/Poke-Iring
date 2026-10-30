@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -30,14 +32,34 @@ class FelineAvatar extends StatelessWidget {
     Widget avatarContent;
 
     if (photoUrl != null && photoUrl!.trim().isNotEmpty) {
-      avatarContent = CachedNetworkImage(
-        imageUrl: photoUrl!.trim(),
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => _buildDefaultFelineAvatar(size),
-        errorWidget: (context, url, error) => _buildDefaultFelineAvatar(size),
-      );
+      final cleanUrl = photoUrl!.trim();
+      if (cleanUrl.startsWith('data:image')) {
+        final commaIdx = cleanUrl.indexOf(',');
+        final b64 = commaIdx != -1
+            ? cleanUrl.substring(commaIdx + 1)
+            : cleanUrl;
+        try {
+          avatarContent = Image.memory(
+            base64Decode(b64),
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                _buildDefaultFelineAvatar(size),
+          );
+        } catch (_) {
+          avatarContent = _buildDefaultFelineAvatar(size);
+        }
+      } else {
+        avatarContent = CachedNetworkImage(
+          imageUrl: cleanUrl,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => _buildDefaultFelineAvatar(size),
+          errorWidget: (context, url, error) => _buildDefaultFelineAvatar(size),
+        );
+      }
     } else {
       avatarContent = _buildDefaultFelineAvatar(size);
     }
@@ -161,12 +183,28 @@ class _CuteCatFacePainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     // Left whiskers
-    canvas.drawLine(Offset(w * 0.22, h * 0.61), Offset(w * 0.34, h * 0.62), paintWhisker);
-    canvas.drawLine(Offset(w * 0.20, h * 0.68), Offset(w * 0.33, h * 0.66), paintWhisker);
+    canvas.drawLine(
+      Offset(w * 0.22, h * 0.61),
+      Offset(w * 0.34, h * 0.62),
+      paintWhisker,
+    );
+    canvas.drawLine(
+      Offset(w * 0.20, h * 0.68),
+      Offset(w * 0.33, h * 0.66),
+      paintWhisker,
+    );
 
     // Right whiskers
-    canvas.drawLine(Offset(w * 0.66, h * 0.62), Offset(w * 0.78, h * 0.61), paintWhisker);
-    canvas.drawLine(Offset(w * 0.67, h * 0.66), Offset(w * 0.80, h * 0.68), paintWhisker);
+    canvas.drawLine(
+      Offset(w * 0.66, h * 0.62),
+      Offset(w * 0.78, h * 0.61),
+      paintWhisker,
+    );
+    canvas.drawLine(
+      Offset(w * 0.67, h * 0.66),
+      Offset(w * 0.80, h * 0.68),
+      paintWhisker,
+    );
   }
 
   @override

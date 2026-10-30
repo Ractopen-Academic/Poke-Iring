@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -71,8 +72,7 @@ class _LiveMapPageState extends State<LiveMapPage>
     super.initState();
     _tileProvider = CachedTileProvider();
     _locationService = widget.locationService ?? LocationServiceImpl();
-    _scannerRepository =
-        widget.scannerRepository ?? CatScannerRepositoryImpl();
+    _scannerRepository = widget.scannerRepository ?? CatScannerRepositoryImpl();
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 320),
@@ -96,12 +96,12 @@ class _LiveMapPageState extends State<LiveMapPage>
           longitude: widget.initialCenter.longitude,
         )
         .listen((sightings) {
-      if (mounted) {
-        setState(() {
-          _nearbySightings = sightings;
+          if (mounted) {
+            setState(() {
+              _nearbySightings = sightings;
+            });
+          }
         });
-      }
-    });
   }
 
   @override
@@ -351,24 +351,7 @@ class _LiveMapPageState extends State<LiveMapPage>
                                 ),
                               ],
                             ),
-                            child: ClipOval(
-                              child: sighting.stickerUrl.isNotEmpty
-                                  ? CachedNetworkImage(
-                                      imageUrl: sighting.stickerUrl,
-                                      fit: BoxFit.cover,
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(
-                                        Icons.pets,
-                                        size: 20,
-                                        color: AppColors.primary,
-                                      ),
-                                    )
-                                  : const Icon(
-                                      Icons.pets,
-                                      size: 20,
-                                      color: AppColors.primary,
-                                    ),
-                            ),
+                            child: ClipOval(child: _buildMarkerIcon(sighting)),
                           ),
                         ),
                       );
@@ -490,6 +473,37 @@ class _LiveMapPageState extends State<LiveMapPage>
       ),
     );
   }
+
+  Widget _buildMarkerIcon(CatSighting sighting) {
+    final imageUri = sighting.stickerUrl.isNotEmpty
+        ? sighting.stickerUrl
+        : sighting.photoUrl;
+
+    if (imageUri.isNotEmpty) {
+      if (imageUri.startsWith('data:image')) {
+        try {
+          final b64 = imageUri.contains(',')
+              ? imageUri.split(',').last
+              : imageUri;
+          return Image.memory(
+            base64Decode(b64),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.pets, size: 20, color: AppColors.primary),
+          );
+        } catch (_) {}
+      } else {
+        return CachedNetworkImage(
+          imageUrl: imageUri,
+          fit: BoxFit.cover,
+          errorWidget: (context, url, error) =>
+              const Icon(Icons.pets, size: 20, color: AppColors.primary),
+        );
+      }
+    }
+
+    return const Icon(Icons.pets, size: 20, color: AppColors.primary);
+  }
 }
 
 class _UserLocationMarker extends StatefulWidget {
@@ -548,9 +562,7 @@ class _UserLocationMarkerState extends State<_UserLocationMarker>
             child: SizedBox(
               width: 44,
               height: 44,
-              child: CustomPaint(
-                painter: _HeadingBeamPainter(),
-              ),
+              child: CustomPaint(painter: _HeadingBeamPainter()),
             ),
           ),
         Container(

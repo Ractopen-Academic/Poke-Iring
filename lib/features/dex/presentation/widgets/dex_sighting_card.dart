@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +18,20 @@ class DexSightingCard extends StatelessWidget {
   });
 
   String _formatDate(DateTime dt) {
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
     final ampm = dt.hour >= 12 ? 'PM' : 'AM';
     final minute = dt.minute.toString().padLeft(2, '0');
@@ -50,12 +65,25 @@ class DexSightingCard extends StatelessWidget {
                 if (sighting.photoUrl.isNotEmpty)
                   AspectRatio(
                     aspectRatio: 16 / 10,
-                    child: CachedNetworkImage(
-                      imageUrl: sighting.photoUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => _buildFallbackPhotoHeader(),
-                      errorWidget: (context, url, error) => _buildFallbackPhotoHeader(),
-                    ),
+                    child: sighting.photoUrl.startsWith('data:image')
+                        ? Image.memory(
+                            base64Decode(
+                              sighting.photoUrl.contains(',')
+                                  ? sighting.photoUrl.split(',').last
+                                  : sighting.photoUrl,
+                            ),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildFallbackPhotoHeader(),
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: sighting.photoUrl,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                _buildFallbackPhotoHeader(),
+                            errorWidget: (context, url, error) =>
+                                _buildFallbackPhotoHeader(),
+                          ),
                   )
                 else
                   AspectRatio(
@@ -67,7 +95,10 @@ class DexSightingCard extends StatelessWidget {
                   top: 10,
                   right: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withAlpha(160),
                       borderRadius: BorderRadius.circular(10),
@@ -87,7 +118,10 @@ class DexSightingCard extends StatelessWidget {
                   bottom: 8,
                   left: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withAlpha(150),
                       borderRadius: BorderRadius.circular(8),
@@ -127,7 +161,10 @@ class DexSightingCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.secondary.withAlpha(25),
                           borderRadius: BorderRadius.circular(6),
@@ -147,7 +184,11 @@ class DexSightingCard extends StatelessWidget {
 
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 13, color: AppColors.textSecondary),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 13,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -164,7 +205,11 @@ class DexSightingCard extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.touch_app_rounded, size: 13, color: AppColors.primary),
+                          const Icon(
+                            Icons.touch_app_rounded,
+                            size: 13,
+                            color: AppColors.primary,
+                          ),
                           const SizedBox(width: 2),
                           Text(
                             '${sighting.boopsCount}',
