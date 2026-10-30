@@ -8,12 +8,14 @@ class UserStandingCard extends StatelessWidget {
   final LeaderboardEntry? standing;
   final LeaderboardScope scope;
   final LeaderboardCategory category;
+  final double bottomPadding;
 
   const UserStandingCard({
     super.key,
     required this.standing,
     required this.scope,
     required this.category,
+    this.bottomPadding = 0.0,
   });
 
   @override
@@ -41,9 +43,10 @@ class UserStandingCard extends StatelessWidget {
           top: BorderSide(color: AppColors.primary.withAlpha(60), width: 1.5),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: EdgeInsets.fromLTRB(20, 14, 20, 14 + bottomPadding),
       child: SafeArea(
         top: false,
+        bottom: bottomPadding == 0.0,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

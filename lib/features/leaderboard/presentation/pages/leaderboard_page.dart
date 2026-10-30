@@ -18,6 +18,7 @@ class LeaderboardPage extends StatefulWidget {
   final String initialCity;
   final String initialRegion;
   final String initialCountry;
+  final double bottomPadding;
 
   const LeaderboardPage({
     super.key,
@@ -27,6 +28,7 @@ class LeaderboardPage extends StatefulWidget {
     this.initialCity = 'Lapu-Lapu City',
     this.initialRegion = 'Central Visayas',
     this.initialCountry = 'Philippines',
+    this.bottomPadding = 0.0,
   });
 
   @override
@@ -132,6 +134,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             standing: _userStanding,
             scope: _scope,
             category: _category,
+            bottomPadding: widget.bottomPadding,
           ),
         ],
       ),

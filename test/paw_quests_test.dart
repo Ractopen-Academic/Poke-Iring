@@ -41,6 +41,15 @@ void main() {
         currentValue: 1.5,
       );
       expect(distanceQuest.progressFormatted, equals('1.5 / 2.0 km'));
+
+      final overcompletedQuest = inProgressQuest.copyWith(
+        type: QuestType.scanCat,
+        targetValue: 1.0,
+        currentValue: 2.0,
+      );
+      expect(overcompletedQuest.isCompleted, isTrue);
+      expect(overcompletedQuest.progressFraction, equals(1.0));
+      expect(overcompletedQuest.progressFormatted, equals('1 / 1'));
     });
 
     test('serializes toMap and fromMap cleanly', () {

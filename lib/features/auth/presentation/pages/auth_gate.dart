@@ -6,15 +6,22 @@ import '../../domain/repositories/auth_repository.dart';
 import 'email_verification_page.dart';
 import 'login_page.dart';
 
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   final AuthRepository authRepository;
 
   const AuthGate({super.key, required this.authRepository});
 
   @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool _skippedVerification = false;
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder<AuthUser?>(
-      stream: authRepository.authStateChanges,
+      stream: widget.authRepository.authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -30,16 +37,27 @@ class AuthGate extends StatelessWidget {
 
         final user = snapshot.data;
         if (user != null && user.isNotEmpty) {
-          if (!user.emailVerified) {
+          if (!user.emailVerified && !_skippedVerification) {
             return EmailVerificationPage(
               user: user,
-              authRepository: authRepository,
+              authRepository: widget.authRepository,
+              onSkip: () => setState(() => _skippedVerification = true),
             );
           }
-          return PermissionGate(user: user, authRepository: authRepository);
+          return PermissionGate(
+            user: user,
+            authRepository: widget.authRepository,
+          );
         }
 
-        return LoginPage(authRepository: authRepository);
+        // Reset skip state when signed out
+        if (_skippedVerification) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _skippedVerification = false);
+          });
+        }
+
+        return LoginPage(authRepository: widget.authRepository);
       },
     );
   }

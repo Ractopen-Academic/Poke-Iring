@@ -44,12 +44,13 @@ class PawQuest {
   }
 
   String get progressFormatted {
+    final clampedCurrent = currentValue.clamp(0.0, targetValue);
     if (type == QuestType.distance) {
-      return '${currentValue.toStringAsFixed(1)} / ${targetValue.toStringAsFixed(1)} km';
+      return '${clampedCurrent.toStringAsFixed(1)} / ${targetValue.toStringAsFixed(1)} km';
     } else if (type == QuestType.steps) {
-      return '${currentValue.toInt()} / ${targetValue.toInt()} steps';
+      return '${clampedCurrent.toInt()} / ${targetValue.toInt()} steps';
     } else {
-      return '${currentValue.toInt()} / ${targetValue.toInt()}';
+      return '${clampedCurrent.toInt()} / ${targetValue.toInt()}';
     }
   }
 

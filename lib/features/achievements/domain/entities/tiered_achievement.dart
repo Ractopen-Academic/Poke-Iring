@@ -138,10 +138,13 @@ class TieredAchievement {
 
   String get progressFormatted {
     final next = nextMilestone;
+    final clampedProgress = isMaxTier
+        ? next.targetValue
+        : currentProgress.clamp(0.0, next.targetValue);
     if (unit == 'km') {
-      return '${currentProgress.toStringAsFixed(1)} / ${next.targetValue.toStringAsFixed(1)} $unit';
+      return '${clampedProgress.toStringAsFixed(1)} / ${next.targetValue.toStringAsFixed(1)} $unit';
     } else {
-      return '${currentProgress.toInt()} / ${next.targetValue.toInt()} $unit';
+      return '${clampedProgress.toInt()} / ${next.targetValue.toInt()} $unit';
     }
   }
 

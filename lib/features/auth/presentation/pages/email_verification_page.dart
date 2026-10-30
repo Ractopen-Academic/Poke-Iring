@@ -9,11 +9,13 @@ import '../../domain/repositories/auth_repository.dart';
 class EmailVerificationPage extends StatefulWidget {
   final AuthUser user;
   final AuthRepository authRepository;
+  final VoidCallback? onSkip;
 
   const EmailVerificationPage({
     super.key,
     required this.user,
     required this.authRepository,
+    this.onSkip,
   });
 
   @override
@@ -137,6 +139,24 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
+                  if (widget.onSkip != null) ...[
+                    OutlinedButton(
+                      onPressed: _isLoading ? null : widget.onSkip,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        minimumSize: const Size.fromHeight(48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Continue to App (Skip for now)',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   TextButton(
                     onPressed: _isLoading
                         ? null

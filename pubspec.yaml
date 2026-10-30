@@ -2,7 +2,7 @@ name: pokeiring
 description: "A gamified cat discovery and exploration app combining on-device AI classification with GPS mapping."
 publish_to: 'none'
 
-version: 0.14.0+15
+version: 0.14.1+16
 
 environment:
   sdk: ^3.13.7

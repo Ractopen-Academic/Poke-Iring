@@ -63,8 +63,6 @@ class _LiveMapPageState extends State<LiveMapPage>
 
   final ValueNotifier<double> _rotationNotifier = ValueNotifier<double>(0.0);
   bool _hasTileError = false;
-  bool _isControlsVisible = true;
-  Timer? _controlsTimer;
 
   @override
   void initState() {
@@ -164,7 +162,6 @@ class _LiveMapPageState extends State<LiveMapPage>
   void dispose() {
     _pauseLocation();
     _sightingsSubscription?.cancel();
-    _controlsTimer?.cancel();
     _rotationNotifier.dispose();
     _rotationController.dispose();
     _moveController.dispose();
@@ -173,29 +170,19 @@ class _LiveMapPageState extends State<LiveMapPage>
   }
 
   void _onPointerDown() {
-    _controlsTimer?.cancel();
-    if (_isControlsVisible) {
-      setState(() {
-        _isControlsVisible = false;
-      });
-    }
     widget.onPointerDown?.call();
   }
 
   void _onPointerUp() {
-    _controlsTimer?.cancel();
-    _controlsTimer = Timer(const Duration(milliseconds: 350), () {
-      if (mounted && !_isControlsVisible) {
-        setState(() {
-          _isControlsVisible = true;
-        });
-      }
-    });
     widget.onPointerUp?.call();
   }
 
   void _recenter() {
     if (_moveController.isAnimating) return;
+
+    if (_currentUserLocation == null) {
+      _initLocation();
+    }
 
     final startCenter = _mapController.camera.center;
     final startZoom = _mapController.camera.zoom;
@@ -446,10 +433,8 @@ class _LiveMapPageState extends State<LiveMapPage>
           Positioned(
             right: 16,
             bottom: 100,
-            child: AnimatedSlide(
-              duration: const Duration(milliseconds: 140),
-              curve: Curves.easeOutCubic,
-              offset: _isControlsVisible ? Offset.zero : const Offset(2.0, 0),
+            child: Tooltip(
+              message: 'Recenter on my location',
               child: PeekingCatRecenterButton(onTap: _recenter),
             ),
           ),
