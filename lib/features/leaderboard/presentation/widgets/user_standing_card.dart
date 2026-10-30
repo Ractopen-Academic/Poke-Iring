@@ -49,79 +49,104 @@ class UserStandingCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textPrimary,
+                          ),
+                          children: [
+                            const TextSpan(text: 'You are at '),
+                            TextSpan(
+                              text: 'Rank #${user.rank}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const TextSpan(text: ' with '),
+                            TextSpan(
+                              text: user.formattedScore(category),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${scope.label} pool of ${scope.poolCapacity} explorers',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: tier.color.withAlpha(25),
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: tier.color.withAlpha(80),
+                      width: 1.2,
+                    ),
                   ),
                   child: Text(
-                    'Rank #${user.rank}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+                    tier.displayName,
+                    style: TextStyle(
+                      fontSize: 11,
                       fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Your Standing in ${scope.label}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-                Text(
-                  user.formattedScore(category),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 6,
-                      backgroundColor: AppColors.border,
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(tier.color),
+                      color: tier.color,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 7,
+                backgroundColor: AppColors.border,
+                valueColor: AlwaysStoppedAnimation<Color>(tier.color),
+              ),
+            ),
+            const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  tier.displayName,
+                  'Level ${tier.index + 1} / 6: ${tier.displayName}',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                     color: tier.color,
                   ),
                 ),
                 Text(
                   nextThreshold != null
-                      ? '$ptsToNext pts to next tier'
+                      ? '$ptsToNext pts to level up'
                       : 'Max Tier Achieved',
                   style: const TextStyle(
                     fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,
                   ),
                 ),

@@ -23,7 +23,9 @@
 
 ---
 
-## Release & Versioning Policy
+<details>
+<summary><b>Release & Versioning Policy</b></summary>
+<br>
 
 > Poke: Iring strictly stays below `v1.0.0` during development until all core gameplay systems (camera vision classification, crowdsourced persistence, and dex species catalog) are proven stable and battle-tested.
 
@@ -35,6 +37,8 @@
   - `-f[N]`: Feature milestone (e.g. `-f7` for Milestone 7).
   - `-b[N]`: Bugfix release (e.g. `-b1`).
   - `-r[N]`: Refactor or performance optimization.
+
+</details>
 
 ---
 
@@ -52,6 +56,25 @@ Instead of hunting virtual monsters, players discover and catalog real-world nei
 - **The Iring-dex**: A personal collection journal. Inspect documented cats, edit custom nicknames, record observations, and track breed completion milestones.
 - **Crowdsourced Cat Map**: GPS-integrated interactive map displaying geolocated sighting pins submitted by community explorers to locate nearby cats.
 - **Explorer Profiles & Leaderboards**: Track total distance walked, count unique species found, and compete on the local community leaderboard.
+
+---
+
+<details>
+<summary><b>Feature Roadmap: AI Vision Cutout & Paw Points Matrix</b></summary>
+<br>
+
+### 1. On-Device Cat Segmentation & Silhouette Map Pins
+- **Segmentation Pipeline**: On-device edge detection and silhouette extraction to crop photographed felines into sticker cutouts with a subtle outline.
+- **Geolocated Live Map Pins**: Pins the cutout sticker directly onto the interactive map at exact sighting coordinates, allowing neighboring explorers to discover local feline territories.
+
+### 2. Multi-Factor "Paw Points" Scoring Matrix
+Leaderboard rankings are calculated via verified cat encounters:
+- **Base Discovery**: +50 Paw Points for each feline sighting verified by GPS bounds.
+- **Breed Rarity Multiplier**: Tiered rarity multiplier from 1.0x (Domestic Shorthair / Puspin) up to 2.0x (Rare breeds).
+- **Coat Pattern & Color Marks**: Pattern recognition bonus (+10 to +40 pts for Calico, Tortoiseshell, Tuxedo, and Tabby).
+- **Community Boops**: Social cuteness interaction where neighboring explorers can "Boop" a map sighting pin (+5 pts per community boop).
+
+</details>
 
 ---
 

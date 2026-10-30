@@ -17,6 +17,7 @@ void main() {
             currentUserId: 'test-user',
             initialBarangay: 'Bankal',
             initialCity: 'Lapu-Lapu City',
+            initialRegion: 'Central Visayas',
             initialCountry: 'Philippines',
           ),
         ),
@@ -26,13 +27,14 @@ void main() {
 
       expect(find.text('Explorer Leaderboard'), findsOneWidget);
       expect(find.text('Season 1: Sunshine Strays'), findsOneWidget);
-      expect(find.text('Overall'), findsOneWidget);
+      expect(find.text('Paw Points'), findsOneWidget);
       expect(find.text('Most Snapped'), findsOneWidget);
       expect(find.text('Most Walked'), findsOneWidget);
 
+      expect(find.textContaining('Central Visayas (300)'), findsOneWidget);
       expect(find.byType(PodiumView), findsOneWidget);
       expect(find.byType(UserStandingCard), findsOneWidget);
-      expect(find.textContaining('Your Standing'), findsOneWidget);
+      expect(find.textContaining('You are at Rank'), findsOneWidget);
     });
 
     testWidgets('switching category tab updates view', (tester) async {

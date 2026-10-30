@@ -30,6 +30,16 @@ void main() {
     });
   });
 
+  group('LeaderboardScope', () {
+    test('pool capacities match tiered structure', () {
+      expect(LeaderboardScope.barangay.poolCapacity, equals(50));
+      expect(LeaderboardScope.city.poolCapacity, equals(150));
+      expect(LeaderboardScope.region.poolCapacity, equals(300));
+      expect(LeaderboardScope.national.poolCapacity, equals(300));
+      expect(LeaderboardScope.global.poolCapacity, equals(500));
+    });
+  });
+
   group('LeaderboardRepositoryImpl', () {
     const repository = LeaderboardRepositoryImpl();
 
@@ -45,6 +55,21 @@ void main() {
       expect(entries.isNotEmpty, isTrue);
       for (final entry in entries) {
         expect(entry.barangay.toLowerCase(), equals('bankal'));
+      }
+    });
+
+    test('filters entries strictly by region scope', () async {
+      final entries = await repository.getLeaderboard(
+        filter: const LeaderboardFilter(
+          scope: LeaderboardScope.region,
+          region: 'Central Visayas',
+        ),
+        currentUserId: 'test-user',
+      );
+
+      expect(entries.isNotEmpty, isTrue);
+      for (final entry in entries) {
+        expect(entry.region.toLowerCase(), equals('central visayas'));
       }
     });
 
