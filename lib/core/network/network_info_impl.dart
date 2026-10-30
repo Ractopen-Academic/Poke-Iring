@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import 'network_info.dart';
 
 class NetworkInfoImpl implements NetworkInfo {
@@ -13,6 +15,7 @@ class NetworkInfoImpl implements NetworkInfo {
   }
 
   void _startPolling(Duration interval) {
+    if (kIsWeb) return;
     _checkStatus();
     _pollingTimer = Timer.periodic(interval, (_) => _checkStatus());
   }
@@ -29,6 +32,8 @@ class NetworkInfoImpl implements NetworkInfo {
 
   @override
   Future<bool> get isConnected async {
+    if (kIsWeb) return true;
+
     try {
       final result = await InternetAddress.lookup('one.one.one.one')
           .timeout(const Duration(seconds: 2));

@@ -13,6 +13,7 @@ import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
+import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
 import '../../../map/domain/repositories/map_repository.dart';
 import '../../../map/presentation/pages/live_map_page.dart';
 import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
@@ -65,7 +66,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   void initState() {
     super.initState();
     _pages = [
-      _HomePage(user: widget.user),
+      _HomePage(
+        user: widget.user,
+        onOpenLeaderboard: () => setState(() => _currentIndex = 2),
+      ),
       const _AlbumPlaceholderPage(),
       LeaderboardPage(
         currentUserId: widget.user.id.isNotEmpty
@@ -361,8 +365,12 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
 class _HomePage extends StatefulWidget {
   final AuthUser user;
+  final VoidCallback? onOpenLeaderboard;
 
-  const _HomePage({required this.user});
+  const _HomePage({
+    required this.user,
+    this.onOpenLeaderboard,
+  });
 
   @override
   State<_HomePage> createState() => _HomePageState();
@@ -489,6 +497,10 @@ class _HomePageState extends State<_HomePage> {
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 18),
+                  HomeLeaderboardPreview(
+                    onTap: widget.onOpenLeaderboard ?? () {},
                   ),
                   const SizedBox(height: 24),
                   const _QuestCard(
