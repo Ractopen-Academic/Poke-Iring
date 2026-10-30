@@ -6,7 +6,7 @@ class AppVersion {
   static const int feature = 14;
   static const int patch = 1;
   static const String flag = 'b'; // f = feature, b = bugfix, r = refactor
-  static const int iteration = 16;
+  static const int iteration = 17;
   static const String stage = 'Pre-Alpha';
   static const String buildDate = '2026.10.31';
 
