@@ -202,6 +202,47 @@ class FirebaseSightingsDataSource {
     yield* _localStreamController.stream;
   }
 
+  Stream<List<CatSighting>> watchSightingsByUser(String userId) async* {
+    if (_isFirebaseAvailable) {
+      try {
+        final db = firestore ?? FirebaseFirestore.instance;
+        yield* db
+            .collection('sightings')
+            .where('userId', isEqualTo: userId)
+            .orderBy('createdAt', descending: true)
+            .snapshots()
+            .map((snapshot) {
+          final list = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            if (data['createdAt'] is Timestamp) {
+              data['createdAt'] =
+                  (data['createdAt'] as Timestamp).toDate().toIso8601String();
+            }
+            return CatSighting.fromMap(data);
+          }).toList();
+
+          if (list.isNotEmpty) return list;
+          return _filterLocalByUser(userId);
+        });
+        return;
+      } catch (e) {
+        debugPrint('Firebase watchSightingsByUser error ($e). Streaming local.');
+      }
+    }
+
+    yield _filterLocalByUser(userId);
+    yield* _localStreamController.stream.map((_) => _filterLocalByUser(userId));
+  }
+
+  List<CatSighting> _filterLocalByUser(String userId) {
+    final userSightings = _localSightings.where((s) => s.userId == userId).toList();
+    if (userSightings.isNotEmpty) {
+      return List.unmodifiable(userSightings);
+    }
+    return List.unmodifiable(_localSightings);
+  }
+
   Future<void> boopSighting({
     required String sightingId,
     required String userId,
