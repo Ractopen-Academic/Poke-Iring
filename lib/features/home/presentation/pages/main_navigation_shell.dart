@@ -156,7 +156,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CatScannerPage(user: widget.user),
+        builder: (context) => CatScannerPage(
+          user: widget.user,
+          autoLaunchCamera: true,
+        ),
       ),
     );
   }

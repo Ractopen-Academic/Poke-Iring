@@ -8,6 +8,7 @@ import 'package:pokeiring/features/scanner/data/datasources/firebase_sightings_d
 import 'package:pokeiring/features/scanner/data/services/sticker_generator_service.dart';
 import 'package:pokeiring/features/scanner/domain/entities/cat_scan_result.dart';
 import 'package:pokeiring/features/scanner/presentation/pages/cat_scanner_page.dart';
+import 'package:pokeiring/features/scanner/presentation/widgets/paw_points_guide_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -76,6 +77,27 @@ void main() {
       expect(result.isCat, isFalse);
       expect(result.totalPawPoints, equals(0));
       expect(result.rejectionReason, equals('Only parked motorcycle detected'));
+    });
+
+    test('enforces max single sighting points cap', () {
+      final json = {
+        'is_cat': true,
+        'confidence': 0.99,
+        'breed': 'Rare Bengal Leopard',
+        'coat_pattern': 'Rosetted',
+        'dominant_color': 'Golden Leopard',
+        'rarity_multiplier': 2.5,
+        'pattern_bonus_pts': 50,
+      };
+
+      // (50 + 50) * 2.5 = 250 -> capped to 180
+      final result = CatScanResult.fromJson(json);
+      expect(result.totalPawPoints, equals(CatScanResult.maxSingleSightingPoints));
+      expect(result.totalPawPoints, equals(180));
+    });
+
+    test('exposes daily soft cap constant', () {
+      expect(CatScanResult.dailyPawPointsSoftCap, equals(500));
     });
   });
 
@@ -160,6 +182,60 @@ void main() {
       expect(find.text('Paw Points Scoring Matrix'), findsOneWidget);
       expect(find.text('Base Discovery'), findsOneWidget);
       expect(find.text('+50 pts'), findsOneWidget);
+    });
+
+    testWidgets('tapping help icon opens PawPointsGuideSheet', (tester) async {
+      const mockUser = AuthUser(
+        id: 'test-explorer-id',
+        email: 'explorer@pokeiring.test',
+        displayName: 'WhiskersAce',
+        photoUrl: '',
+        emailVerified: true,
+      );
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: CatScannerPage(user: mockUser),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final helpButton = find.byTooltip('Points Calculation Guide');
+      expect(helpButton, findsOneWidget);
+
+      await tester.tap(helpButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text('How Paw Points Work'), findsOneWidget);
+      expect(find.text('Points Scoring Formula'), findsOneWidget);
+      expect(find.text('Fair-Play Points Caps'), findsOneWidget);
+      expect(find.text('180 pts cap'), findsOneWidget);
+      expect(find.text('500 pts / day'), findsOneWidget);
+      expect(find.text('Got It'), findsOneWidget);
+    });
+  });
+
+  group('PawPointsGuideSheet Widget', () {
+    testWidgets('renders guide sections and points caps info', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: PawPointsGuideSheet(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('How Paw Points Work'), findsOneWidget);
+      expect(find.text('Points Scoring Formula'), findsOneWidget);
+      expect(find.text('Fair-Play Points Caps'), findsOneWidget);
+      expect(find.text('Max Per Sighting'), findsOneWidget);
+      expect(find.text('180 pts cap'), findsOneWidget);
+      expect(find.text('Daily Sighting Soft Cap'), findsOneWidget);
+      expect(find.text('500 pts / day'), findsOneWidget);
+      expect(find.text('Got It'), findsOneWidget);
     });
   });
 }

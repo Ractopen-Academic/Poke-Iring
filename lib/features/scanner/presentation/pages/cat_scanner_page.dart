@@ -9,6 +9,7 @@ import '../../domain/entities/cat_scan_result.dart';
 import '../../domain/entities/cat_sighting.dart';
 import '../../domain/repositories/cat_scanner_repository.dart';
 import '../widgets/ai_vision_settings_sheet.dart';
+import '../widgets/paw_points_guide_sheet.dart';
 
 class CatScannerPage extends StatefulWidget {
   final AuthUser user;
@@ -18,6 +19,7 @@ class CatScannerPage extends StatefulWidget {
   final String currentBarangay;
   final String currentCity;
   final String currentRegion;
+  final bool autoLaunchCamera;
 
   const CatScannerPage({
     super.key,
@@ -28,6 +30,7 @@ class CatScannerPage extends StatefulWidget {
     this.currentBarangay = 'Bankal',
     this.currentCity = 'Lapu-Lapu City',
     this.currentRegion = 'Central Visayas',
+    this.autoLaunchCamera = false,
   });
 
   @override
@@ -49,6 +52,13 @@ class _CatScannerPageState extends State<CatScannerPage> {
   void initState() {
     super.initState();
     _repository = widget.repository ?? CatScannerRepositoryImpl();
+    if (widget.autoLaunchCamera) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _pickAndAnalyze(ImageSource.camera);
+        }
+      });
+    }
   }
 
   Future<void> _pickAndAnalyze(ImageSource source) async {
@@ -200,6 +210,11 @@ class _CatScannerPageState extends State<CatScannerPage> {
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            tooltip: 'Points Calculation Guide',
+            icon: const Icon(Icons.help_outline_rounded),
+            onPressed: () => PawPointsGuideSheet.show(context),
+          ),
           IconButton(
             tooltip: 'AI Vision Settings',
             icon: const Icon(Icons.settings_outlined),

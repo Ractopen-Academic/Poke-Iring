@@ -4,14 +4,14 @@ class AppVersion {
   // Major remains locked at 0 during pre-release until full functional stability
   static const int major = 0;
   static const int feature = 9;
-  static const int patch = 0;
+  static const int patch = 1;
   static const String flag = 'f'; // f = feature, b = bugfix, r = refactor
-  static const int iteration = 9;
+  static const int iteration = 10;
   static const String stage = 'Pre-Alpha';
   static const String buildDate = '2026.10.30';
 
   static String get semanticVersion => '$major.$feature.$patch';
   static String get releaseTag => 'v$semanticVersion-$flag$iteration';
   static String get badgeDisplay => '$releaseTag ($stage)';
-  static String get buildSubtitle => 'Build $buildDate • Iring Stories & Highlights';
+  static String get buildSubtitle => 'Build $buildDate • Direct Snap Camera & Paw Points Guide';
 }
