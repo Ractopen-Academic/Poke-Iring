@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
@@ -17,6 +15,7 @@ import '../../../scanner/domain/repositories/cat_scanner_repository.dart';
 import '../../../scanner/presentation/widgets/cat_sighting_detail_sheet.dart';
 import '../../data/datasources/cached_tile_provider.dart';
 import '../../domain/entities/user_location.dart';
+import '../widgets/cat_marker_avatar.dart';
 import '../widgets/cute_paw_compass_pointer.dart';
 import '../widgets/peeking_cat_recenter_button.dart';
 
@@ -318,12 +317,15 @@ class _LiveMapPageState extends State<LiveMapPage>
                 ),
                 MarkerLayer(
                   markers: [
-                    ..._nearbySightings.map((sighting) {
+                    ..._nearbySightings.where((s) => !s.isExpired).map((
+                      sighting,
+                    ) {
                       return Marker(
                         point: LatLng(sighting.latitude, sighting.longitude),
-                        width: 44,
-                        height: 44,
-                        child: GestureDetector(
+                        width: 58,
+                        height: 66,
+                        child: CatMarkerAvatar.fromSighting(
+                          sighting: sighting,
                           onTap: () {
                             CatSightingDetailSheet.show(
                               context: context,
@@ -335,24 +337,6 @@ class _LiveMapPageState extends State<LiveMapPage>
                               ),
                             );
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColors.primary,
-                                width: 2.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(35),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(child: _buildMarkerIcon(sighting)),
-                          ),
                         ),
                       );
                     }),
@@ -472,37 +456,6 @@ class _LiveMapPageState extends State<LiveMapPage>
         ],
       ),
     );
-  }
-
-  Widget _buildMarkerIcon(CatSighting sighting) {
-    final imageUri = sighting.stickerUrl.isNotEmpty
-        ? sighting.stickerUrl
-        : sighting.photoUrl;
-
-    if (imageUri.isNotEmpty) {
-      if (imageUri.startsWith('data:image')) {
-        try {
-          final b64 = imageUri.contains(',')
-              ? imageUri.split(',').last
-              : imageUri;
-          return Image.memory(
-            base64Decode(b64),
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.pets, size: 20, color: AppColors.primary),
-          );
-        } catch (_) {}
-      } else {
-        return CachedNetworkImage(
-          imageUrl: imageUri,
-          fit: BoxFit.cover,
-          errorWidget: (context, url, error) =>
-              const Icon(Icons.pets, size: 20, color: AppColors.primary),
-        );
-      }
-    }
-
-    return const Icon(Icons.pets, size: 20, color: AppColors.primary);
   }
 }
 

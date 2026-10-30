@@ -12,8 +12,9 @@ import '../widgets/cat_detail_sheet.dart';
 import '../widgets/dex_progress_header.dart';
 import '../widgets/dex_sighting_card.dart';
 import '../widgets/dex_species_card.dart';
+import '../widgets/personal_sighting_heatmap.dart';
 
-enum DexViewMode { catalog, album }
+enum DexViewMode { catalog, album, heatmap }
 
 enum DexFilterTier { all, puspin, rare, mythic }
 
@@ -187,16 +188,26 @@ class _IringDexPageState extends State<IringDexPage> {
                             DexProgressHeader(entries: entries),
                             const SizedBox(height: 16),
                             _buildSegmentedTab(sightings.length),
-                            const SizedBox(height: 12),
-                            _buildFilterChips(),
+                            if (_viewMode != DexViewMode.heatmap) ...[
+                              const SizedBox(height: 12),
+                              _buildFilterChips(),
+                            ],
                           ],
                         ),
                       ),
                     ),
                     if (_viewMode == DexViewMode.catalog)
                       _buildCatalogSliver(filteredEntries)
+                    else if (_viewMode == DexViewMode.album)
+                      _buildAlbumSliver(filteredSightings)
                     else
-                      _buildAlbumSliver(filteredSightings),
+                      SliverToBoxAdapter(
+                        child: PersonalSightingHeatmap(
+                          sightings: sightings,
+                          user: widget.user,
+                          onOpenScanner: _openCamera,
+                        ),
+                      ),
                     const SliverToBoxAdapter(child: SizedBox(height: 90)),
                   ],
                 );
@@ -231,6 +242,14 @@ class _IringDexPageState extends State<IringDexPage> {
               subtitle: '$sightingsCount Photos',
               isSelected: _viewMode == DexViewMode.album,
               onTap: () => setState(() => _viewMode = DexViewMode.album),
+            ),
+          ),
+          Expanded(
+            child: _TabButton(
+              title: 'Heatmap',
+              subtitle: '$sightingsCount Spots',
+              isSelected: _viewMode == DexViewMode.heatmap,
+              onTap: () => setState(() => _viewMode = DexViewMode.heatmap),
             ),
           ),
         ],

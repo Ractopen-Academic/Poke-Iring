@@ -93,6 +93,60 @@ class CatSighting {
     );
   }
 
+  /// Total lifespan of a live sighting spawn on the active map.
+  static const Duration totalSpawnDuration = Duration(minutes: 15);
+
+  /// Duration before the fresh sticker turns into a mystery silhouette.
+  static const Duration activeStickerDuration = Duration(minutes: 10);
+
+  /// Age of the sighting since discovery.
+  Duration get age => DateTime.now().difference(createdAt);
+
+  /// Whether the spawn has surpassed the 15-minute live map lifespan.
+  bool get isExpired => age > totalSpawnDuration;
+
+  /// Whether the spawn is in the 10-15 minute decaying silhouette phase.
+  bool get isSilhouettePhase {
+    final elapsed = age;
+    return elapsed >= activeStickerDuration && elapsed <= totalSpawnDuration;
+  }
+
+  /// Remaining time the sighting remains active on the live radar.
+  Duration get remainingSpawnTime {
+    final diff = totalSpawnDuration - age;
+    return diff.isNegative ? Duration.zero : diff;
+  }
+
+  /// Formatted remaining countdown string (e.g. "8m 42s").
+  String get remainingFormatted {
+    final diff = remainingSpawnTime;
+    final minutes = diff.inMinutes;
+    final seconds = diff.inSeconds % 60;
+    return '${minutes}m ${seconds.toString().padLeft(2, '0')}s';
+  }
+
+  /// Visual opacity during the 10-15 minute silhouette phase (fading from 1.0 to 0.35).
+  double get spawnOpacity {
+    if (age < activeStickerDuration) return 1.0;
+    if (age > totalSpawnDuration) return 0.0;
+    final decayElapsed = age - activeStickerDuration;
+    final decayWindow = totalSpawnDuration - activeStickerDuration;
+    final ratio = (decayElapsed.inMilliseconds / decayWindow.inMilliseconds)
+        .clamp(0.0, 1.0);
+    return (1.0 - (ratio * 0.65)).clamp(0.35, 1.0);
+  }
+
+  /// Metallic rarity tier: 'gold' (Mythic), 'silver' (Rare), 'bronze' (Common).
+  String get metallicTier {
+    if (rarityMultiplier >= 2.0 || pawPoints >= 200) {
+      return 'gold';
+    } else if (rarityMultiplier >= 1.4 || pawPoints >= 100) {
+      return 'silver';
+    } else {
+      return 'bronze';
+    }
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
