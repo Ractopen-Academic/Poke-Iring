@@ -12,6 +12,7 @@ import '../../../../core/widgets/feline_status_banner.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../health/services/explorer_health_service.dart';
+import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../map/domain/repositories/map_repository.dart';
 import '../../../map/presentation/pages/live_map_page.dart';
 import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
@@ -66,7 +67,14 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     _pages = [
       _HomePage(user: widget.user),
       const _AlbumPlaceholderPage(),
-      const _ShowcasePlaceholderPage(),
+      LeaderboardPage(
+        currentUserId: widget.user.id.isNotEmpty
+            ? widget.user.id
+            : widget.user.email,
+        initialBarangay: 'Bankal',
+        initialCity: 'Lapu-Lapu City',
+        initialCountry: 'Philippines',
+      ),
       DashboardPage(
         user: widget.user,
         authRepository: widget.authRepository,
@@ -675,86 +683,3 @@ class _AlbumPlaceholderPage extends StatelessWidget {
   }
 }
 
-class _ShowcasePlaceholderPage extends StatelessWidget {
-  const _ShowcasePlaceholderPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Showcase'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Feline Spotlight',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Exhibit your finest cat portraits and featured community discoveries.',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(28),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.primary.withAlpha(25),
-                      ),
-                      child: const Icon(
-                        Icons.auto_awesome,
-                        size: 40,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'No Pinned Highlights Yet',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Pin your favorite captured shots from your Album to feature them here on your showcase.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

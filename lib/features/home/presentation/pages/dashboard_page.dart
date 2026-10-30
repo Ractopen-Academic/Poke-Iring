@@ -6,6 +6,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../health/services/explorer_health_service.dart';
+import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 
 class DashboardPage extends StatefulWidget {
   final AuthUser user;
@@ -186,6 +187,26 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
               const SizedBox(height: 12),
+              _ModuleTile(
+                icon: Icons.leaderboard_outlined,
+                title: 'Leaderboard',
+                subtitle: 'Seasonal territory standings and rankings',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => LeaderboardPage(
+                        currentUserId: widget.user.id.isNotEmpty
+                            ? widget.user.id
+                            : widget.user.email,
+                        initialBarangay: 'Bankal',
+                        initialCity: 'Lapu-Lapu City',
+                        initialCountry: 'Philippines',
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
               _ModuleTile(
                 icon: Icons.favorite_outline_rounded,
                 title: 'Explorer Health',
