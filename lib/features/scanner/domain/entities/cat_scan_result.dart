@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class CatScanResult {
+  static const int maxSingleSightingPoints = 180;
+  static const int dailyPawPointsSoftCap = 500;
+
   final bool isCat;
   final double confidence;
   final String breed;
@@ -61,7 +64,8 @@ class CatScanResult {
         (json['rarity_multiplier'] as num?)?.toDouble() ?? 1.0;
     const base = 50;
     final patternBonus = (json['pattern_bonus_pts'] as num?)?.toInt() ?? 15;
-    final total = ((base + patternBonus) * rarityMultiplier).round();
+    final unconstrainedTotal = ((base + patternBonus) * rarityMultiplier).round();
+    final total = unconstrainedTotal.clamp(0, maxSingleSightingPoints);
     final quirk = json['quirk']?.toString() ?? 'Observing the surroundings.';
 
     Rect? box;
