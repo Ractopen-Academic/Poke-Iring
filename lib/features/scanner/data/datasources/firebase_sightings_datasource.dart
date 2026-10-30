@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../quests/data/repositories/paw_quests_repository_impl.dart';
 import '../../domain/entities/cat_sighting.dart';
 
@@ -251,6 +252,7 @@ class FirebaseSightingsDataSource {
             timestamp: sighting.createdAt,
           ),
         );
+        _notifyAchievements(sighting);
 
         return persistedSighting;
       } catch (e) {
@@ -269,6 +271,7 @@ class FirebaseSightingsDataSource {
         timestamp: sighting.createdAt,
       ),
     );
+    _notifyAchievements(sighting);
     _localStreamController.add(List.unmodifiable(_localSightings));
     return sighting;
   }
@@ -419,6 +422,13 @@ class FirebaseSightingsDataSource {
           unawaited(
             PawQuestsRepositoryImpl.instance.recordBoop(userId: userId),
           );
+          unawaited(
+            AchievementsRepositoryImpl.instance.recordProgressMetric(
+              userId: userId,
+              metricKey: 'community_boops_given',
+              incrementBy: 1,
+            ),
+          );
           return;
         }
       } catch (e) {
@@ -437,8 +447,81 @@ class FirebaseSightingsDataSource {
           boopedBy: updatedBooped,
         );
         unawaited(PawQuestsRepositoryImpl.instance.recordBoop(userId: userId));
+        unawaited(
+          AchievementsRepositoryImpl.instance.recordProgressMetric(
+            userId: userId,
+            metricKey: 'community_boops_given',
+            incrementBy: 1,
+          ),
+        );
         _localStreamController.add(List.unmodifiable(_localSightings));
       }
     }
+  }
+
+  void _notifyAchievements(CatSighting sighting) {
+    final achievements = AchievementsRepositoryImpl.instance;
+    final userId = sighting.userId;
+    unawaited(
+      achievements.recordProgressMetric(
+        userId: userId,
+        metricKey: 'discovery_scans',
+        incrementBy: 1,
+      ),
+    );
+    if (sighting.breed.toLowerCase().contains('puspin') ||
+        sighting.coatPattern.toLowerCase().contains('tabby') ||
+        sighting.coatPattern.toLowerCase().contains('calico') ||
+        sighting.coatPattern.toLowerCase().contains('tortie')) {
+      unawaited(
+        achievements.recordProgressMetric(
+          userId: userId,
+          metricKey: 'discovery_puspin',
+          incrementBy: 1,
+        ),
+      );
+    }
+    final hour = sighting.createdAt.hour;
+    if (hour >= 21 || hour < 4) {
+      unawaited(
+        achievements.recordProgressMetric(
+          userId: userId,
+          metricKey: 'env_night',
+          incrementBy: 1,
+        ),
+      );
+    } else if (hour >= 17 && hour < 19) {
+      unawaited(
+        achievements.recordProgressMetric(
+          userId: userId,
+          metricKey: 'env_golden_hour',
+          incrementBy: 1,
+        ),
+      );
+    } else if (hour >= 5 && hour < 8) {
+      unawaited(
+        achievements.recordProgressMetric(
+          userId: userId,
+          metricKey: 'env_dawn',
+          incrementBy: 1,
+        ),
+      );
+    }
+    if (sighting.rarityMultiplier >= 1.2) {
+      unawaited(
+        achievements.recordProgressMetric(
+          userId: userId,
+          metricKey: 'dex_metallic',
+          incrementBy: 1,
+        ),
+      );
+    }
+    unawaited(
+      achievements.recordProgressMetric(
+        userId: userId,
+        metricKey: 'mastery_paw_points',
+        incrementBy: sighting.pawPoints.toDouble(),
+      ),
+    );
   }
 }
