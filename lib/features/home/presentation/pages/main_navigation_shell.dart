@@ -16,6 +16,7 @@ import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
 import '../../../map/domain/repositories/map_repository.dart';
 import '../../../map/presentation/pages/live_map_page.dart';
+import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/iring_center_button.dart';
@@ -151,119 +152,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   }
 
   void _openQuickSnapCamera() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(30),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt_rounded,
-                    color: AppColors.primary,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Snap an Iring',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Point camera at a spotted cat to log it',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Container(
-              height: 140,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F7),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.pets, size: 36, color: AppColors.primary),
-                    SizedBox(height: 8),
-                    Text(
-                      'Quick Cat Camera Viewfinder',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'AI breed classifier ready',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Close Preview',
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CatScannerPage(user: widget.user),
       ),
     );
   }
@@ -289,6 +181,9 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               child: LiveMapPage(
                 locationService: _locationService,
                 isMapActive: _isShowingMap,
+                currentUserId: widget.user.id.isNotEmpty
+                    ? widget.user.id
+                    : widget.user.email,
                 onPointerDown: _onMapPointerDown,
                 onPointerUp: _onMapPointerUp,
                 onClose: () => setState(() {

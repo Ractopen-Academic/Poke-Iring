@@ -8,6 +8,8 @@ import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
+import '../../../scanner/presentation/pages/cat_scanner_page.dart';
+import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
 
 class DashboardPage extends StatefulWidget {
   final AuthUser user;
@@ -239,11 +241,12 @@ class _DashboardPageState extends State<DashboardPage> {
               _ModuleTile(
                 icon: Icons.camera_alt_outlined,
                 title: 'Cat Scanner',
-                subtitle: 'On-device vision breed classifier',
+                subtitle: 'Vision breed classifier & paw points calculator',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Scanner module feature branch active'),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CatScannerPage(user: widget.user),
                     ),
                   );
                 },
@@ -260,6 +263,13 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   );
                 },
+              ),
+              const SizedBox(height: 10),
+              _ModuleTile(
+                icon: Icons.psychology_outlined,
+                title: 'AI Vision Settings',
+                subtitle: 'Configure Gemini API key for cat recognition',
+                onTap: () => AiVisionSettingsSheet.show(context),
               ),
               const SizedBox(height: 32),
               AppButton(

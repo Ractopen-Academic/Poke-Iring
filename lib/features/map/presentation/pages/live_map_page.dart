@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
@@ -9,6 +10,10 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
+import '../../../scanner/data/repositories/cat_scanner_repository_impl.dart';
+import '../../../scanner/domain/entities/cat_sighting.dart';
+import '../../../scanner/domain/repositories/cat_scanner_repository.dart';
+import '../../../scanner/presentation/widgets/cat_sighting_detail_sheet.dart';
 import '../../data/datasources/cached_tile_provider.dart';
 import '../../domain/entities/user_location.dart';
 import '../widgets/cute_paw_compass_pointer.dart';
@@ -21,6 +26,8 @@ class LiveMapPage extends StatefulWidget {
   final VoidCallback? onClose;
   final VoidCallback? onTileError;
   final LocationService? locationService;
+  final CatScannerRepository? scannerRepository;
+  final String currentUserId;
   final bool isMapActive;
 
   const LiveMapPage({
@@ -31,6 +38,8 @@ class LiveMapPage extends StatefulWidget {
     this.onClose,
     this.onTileError,
     this.locationService,
+    this.scannerRepository,
+    this.currentUserId = 'default-explorer',
     this.isMapActive = true,
   });
 
@@ -45,7 +54,10 @@ class _LiveMapPageState extends State<LiveMapPage>
   late final AnimationController _moveController;
   late final TileProvider _tileProvider;
   late final LocationService _locationService;
+  late final CatScannerRepository _scannerRepository;
   StreamSubscription<UserLocation>? _locationSubscription;
+  StreamSubscription<List<CatSighting>>? _sightingsSubscription;
+  List<CatSighting> _nearbySightings = const [];
   UserLocation? _currentUserLocation;
   bool _hasCenteredOnUser = false;
 
@@ -59,6 +71,8 @@ class _LiveMapPageState extends State<LiveMapPage>
     super.initState();
     _tileProvider = CachedTileProvider();
     _locationService = widget.locationService ?? LocationServiceImpl();
+    _scannerRepository =
+        widget.scannerRepository ?? CatScannerRepositoryImpl();
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 320),
@@ -70,7 +84,24 @@ class _LiveMapPageState extends State<LiveMapPage>
 
     if (widget.isMapActive) {
       _initLocation();
+      _initSightings();
     }
+  }
+
+  void _initSightings() {
+    _sightingsSubscription?.cancel();
+    _sightingsSubscription = _scannerRepository
+        .watchNearbySightings(
+          latitude: widget.initialCenter.latitude,
+          longitude: widget.initialCenter.longitude,
+        )
+        .listen((sightings) {
+      if (mounted) {
+        setState(() {
+          _nearbySightings = sightings;
+        });
+      }
+    });
   }
 
   @override
@@ -79,8 +110,10 @@ class _LiveMapPageState extends State<LiveMapPage>
     if (widget.isMapActive != oldWidget.isMapActive) {
       if (widget.isMapActive) {
         _initLocation();
+        _initSightings();
       } else {
         _pauseLocation();
+        _sightingsSubscription?.cancel();
       }
     }
   }
@@ -131,6 +164,7 @@ class _LiveMapPageState extends State<LiveMapPage>
   @override
   void dispose() {
     _pauseLocation();
+    _sightingsSubscription?.cancel();
     _controlsTimer?.cancel();
     _rotationNotifier.dispose();
     _rotationController.dispose();
@@ -284,6 +318,61 @@ class _LiveMapPageState extends State<LiveMapPage>
                 ),
                 MarkerLayer(
                   markers: [
+                    ..._nearbySightings.map((sighting) {
+                      return Marker(
+                        point: LatLng(sighting.latitude, sighting.longitude),
+                        width: 44,
+                        height: 44,
+                        child: GestureDetector(
+                          onTap: () {
+                            CatSightingDetailSheet.show(
+                              context: context,
+                              sighting: sighting,
+                              currentUserId: widget.currentUserId,
+                              onBoop: () => _scannerRepository.boopSighting(
+                                sightingId: sighting.id,
+                                userId: widget.currentUserId,
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.primary,
+                                width: 2.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(35),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: sighting.stickerUrl.isNotEmpty
+                                  ? CachedNetworkImage(
+                                      imageUrl: sighting.stickerUrl,
+                                      fit: BoxFit.cover,
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(
+                                        Icons.pets,
+                                        size: 20,
+                                        color: AppColors.primary,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.pets,
+                                      size: 20,
+                                      color: AppColors.primary,
+                                    ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
                     Marker(
                       point: activeLocation,
                       width: 44,
