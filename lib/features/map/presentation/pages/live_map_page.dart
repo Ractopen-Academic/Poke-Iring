@@ -63,6 +63,7 @@ class _LiveMapPageState extends State<LiveMapPage>
 
   final ValueNotifier<double> _rotationNotifier = ValueNotifier<double>(0.0);
   bool _hasTileError = false;
+  DateTime? _lastRecenterTapTime;
 
   @override
   void initState() {
@@ -178,7 +179,7 @@ class _LiveMapPageState extends State<LiveMapPage>
   }
 
   void _recenter() {
-    if (_moveController.isAnimating) return;
+    if (_rotationController.isAnimating) return;
 
     if (_currentUserLocation == null) {
       _initLocation();
@@ -192,6 +193,27 @@ class _LiveMapPageState extends State<LiveMapPage>
             _currentUserLocation!.longitude,
           )
         : widget.initialCenter;
+
+    final now = DateTime.now();
+    final isConsecutiveTap = _lastRecenterTapTime != null &&
+        now.difference(_lastRecenterTapTime!).inMilliseconds <= 3000;
+
+    final distanceMeters = const Distance().distance(startCenter, targetCenter);
+    final isAlreadyCentered = distanceMeters < 20.0;
+
+    // When already centered, tapping again (or within 3s consecutive tap) fixes orientation to North
+    if (isAlreadyCentered || isConsecutiveTap) {
+      _lastRecenterTapTime = null;
+      _resetToNorth();
+      return;
+    }
+
+    _lastRecenterTapTime = now;
+
+    if (_moveController.isAnimating) {
+      _moveController.stop();
+    }
+
     const targetZoom = 16.0;
 
     final latTween = Tween<double>(
@@ -227,13 +249,19 @@ class _LiveMapPageState extends State<LiveMapPage>
   }
 
   void _resetToNorth() {
-    if (_rotationController.isAnimating) return;
+    if (_rotationController.isAnimating) {
+      _rotationController.stop();
+    }
 
     var start = _rotationNotifier.value % 360;
     if (start > 180) start -= 360;
     if (start < -180) start += 360;
 
-    if (start.abs() < 0.5) return;
+    if (start.abs() < 0.5) {
+      _mapController.rotate(0.0);
+      _rotationNotifier.value = 0.0;
+      return;
+    }
 
     final anim = Tween<double>(begin: start, end: 0.0).animate(
       CurvedAnimation(parent: _rotationController, curve: Curves.easeOutCubic),

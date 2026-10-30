@@ -120,21 +120,13 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
           const Divider(height: 1, color: AppColors.border),
 
-          // Main List / Podium
+          // Main List / Podium & Standing
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
                 : _entries.isEmpty
                 ? _buildEmptyState()
                 : _buildLeaderboardContent(),
-          ),
-
-          // Sticky User Standing Bottom Card
-          UserStandingCard(
-            standing: _userStanding,
-            scope: _scope,
-            category: _category,
-            bottomPadding: widget.bottomPadding,
           ),
         ],
       ),
@@ -300,8 +292,17 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         : <LeaderboardEntry>[];
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
       children: [
+        if (_userStanding != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+            child: UserStandingCard(
+              standing: _userStanding,
+              scope: _scope,
+              category: _category,
+            ),
+          ),
         if (first != null)
           PodiumView(
             first: first,
