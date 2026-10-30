@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -13,6 +14,7 @@ import '../../domain/entities/cat_scan_result.dart';
 import '../../domain/entities/cat_sighting.dart';
 import '../../domain/repositories/cat_scanner_repository.dart';
 import '../widgets/ai_vision_settings_sheet.dart';
+import '../widgets/camera_viewfinder_reticle.dart';
 import '../widgets/paw_points_guide_sheet.dart';
 
 class CatScannerPage extends StatefulWidget {
@@ -50,6 +52,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
 
   bool _isAnalyzing = false;
   bool _isSaving = false;
+  bool _isReviewingSnap = false;
+  bool _showAsyncNotice = false;
+  Timer? _asyncNoticeTimer;
+  String _selectedFilter = 'normal';
+  String _selectedZoom = '1x';
+
   Uint8List? _capturedImageBytes;
   Uint8List? _stickerBytes;
   CatScanResult? _scanResult;
@@ -74,6 +82,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
         }
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _asyncNoticeTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _acquireCurrentLocation() async {
@@ -101,7 +115,13 @@ class _CatScannerPageState extends State<CatScannerPage> {
       if (file == null) return;
 
       final bytes = await file.readAsBytes();
-      await _runAnalysis(bytes);
+      setState(() {
+        _capturedImageBytes = bytes;
+        _isReviewingSnap = true;
+        _isAnalyzing = false;
+        _showAsyncNotice = false;
+        _errorMessage = null;
+      });
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -112,16 +132,30 @@ class _CatScannerPageState extends State<CatScannerPage> {
   }
 
   Future<void> _runAnalysis(Uint8List bytes) async {
+    _asyncNoticeTimer?.cancel();
+    _showAsyncNotice = false;
+
     setState(() {
       _isAnalyzing = true;
+      _isReviewingSnap = false;
       _errorMessage = null;
       _capturedImageBytes = bytes;
       _scanResult = null;
       _stickerBytes = null;
     });
 
+    _asyncNoticeTimer = Timer(const Duration(milliseconds: 2000), () {
+      if (mounted && _isAnalyzing) {
+        setState(() {
+          _showAsyncNotice = true;
+        });
+      }
+    });
+
     try {
       final result = await _repository.scanImage(bytes);
+      _asyncNoticeTimer?.cancel();
+
       if (!result.isCat) {
         if (mounted) {
           setState(() {
@@ -145,6 +179,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
         });
       }
     } catch (e) {
+      _asyncNoticeTimer?.cancel();
       if (mounted) {
         setState(() {
           _isAnalyzing = false;
@@ -224,6 +259,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
   }
 
   void _reset() {
+    _asyncNoticeTimer?.cancel();
     setState(() {
       _capturedImageBytes = null;
       _stickerBytes = null;
@@ -231,6 +267,8 @@ class _CatScannerPageState extends State<CatScannerPage> {
       _errorMessage = null;
       _isAnalyzing = false;
       _isSaving = false;
+      _isReviewingSnap = false;
+      _showAsyncNotice = false;
     });
   }
 
@@ -262,6 +300,8 @@ class _CatScannerPageState extends State<CatScannerPage> {
       body: SafeArea(
         child: _isAnalyzing
             ? _buildAnalyzingState()
+            : _isReviewingSnap && _capturedImageBytes != null
+            ? _buildSnapReviewState()
             : _scanResult != null
             ? _buildResultView()
             : _buildCapturePrompt(),
@@ -310,10 +350,407 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 height: 1.4,
               ),
             ),
+            if (_showAsyncNotice) ...[
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF8E1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFFFD54F),
+                    width: 1.2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(12),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.inventory_2_outlined,
+                          size: 18,
+                          color: Color(0xFFE65100),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Background Cataloging Active',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFE65100),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Your scanned cat is being processed and cataloged into your Album & Iring-Dex. You can keep exploring or wait here for live sticker generation.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF5D4037),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFE65100),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Continue Exploring Territory',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildSnapReviewState() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      'Encounter Captured',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  _zoomChip('1x'),
+                  const SizedBox(width: 4),
+                  _zoomChip('2x'),
+                  const SizedBox(width: 4),
+                  _zoomChip('3x'),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Container(
+            height: 380,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(40),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                _applyFilterToImage(_capturedImageBytes!),
+                const CameraViewfinderReticle(),
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(160),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Filter: ${_selectedFilter.toUpperCase()}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _filterButton('Natural', 'normal', Icons.lens_blur),
+                const SizedBox(width: 8),
+                _filterButton('Warm Sun', 'warm', Icons.wb_sunny_outlined),
+                const SizedBox(width: 8),
+                _filterButton('Vivid Sun', 'vivid', Icons.filter_hdr_outlined),
+                const SizedBox(width: 8),
+                _filterButton('Mono Night', 'mono', Icons.nights_stay_outlined),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: OutlinedButton.icon(
+                  onPressed: _pickAndAnalyze,
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text('Retake'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(
+                      color: Color(0xFFD1D5DB),
+                      width: 1.5,
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: () => _runAnalysis(_capturedImageBytes!),
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+                  label: const Text('Analyze Cat'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _zoomChip(String zoom) {
+    final isSelected = _selectedZoom == zoom;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedZoom = zoom),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.black87 : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? Colors.black : const Color(0xFFD1D5DB),
+          ),
+        ),
+        child: Text(
+          zoom,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            color: isSelected ? Colors.white : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _filterButton(String label, String filterKey, IconData icon) {
+    final isSelected = _selectedFilter == filterKey;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedFilter = filterKey),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : const Color(0xFFE5E7EB),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(12),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 15,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: isSelected ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _applyFilterToImage(Uint8List bytes) {
+    Widget image = Image.memory(
+      bytes,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+    );
+
+    switch (_selectedFilter) {
+      case 'warm':
+        return ColorFiltered(
+          colorFilter: const ColorFilter.matrix(<double>[
+            1.1,
+            0.0,
+            0.0,
+            0.0,
+            15.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            8.0,
+            0.0,
+            0.0,
+            0.9,
+            0.0,
+            -10.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+          ]),
+          child: image,
+        );
+      case 'vivid':
+        return ColorFiltered(
+          colorFilter: const ColorFilter.matrix(<double>[
+            1.2,
+            0.0,
+            0.0,
+            0.0,
+            -10.0,
+            0.0,
+            1.2,
+            0.0,
+            0.0,
+            -10.0,
+            0.0,
+            0.0,
+            1.2,
+            0.0,
+            -10.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+          ]),
+          child: image,
+        );
+      case 'mono':
+        return ColorFiltered(
+          colorFilter: const ColorFilter.matrix(<double>[
+            0.2126,
+            0.7152,
+            0.0722,
+            0.0,
+            0.0,
+            0.2126,
+            0.7152,
+            0.0722,
+            0.0,
+            0.0,
+            0.2126,
+            0.7152,
+            0.0722,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+          ]),
+          child: image,
+        );
+      case 'normal':
+      default:
+        return image;
+    }
   }
 
   Widget _buildCapturePrompt() {
