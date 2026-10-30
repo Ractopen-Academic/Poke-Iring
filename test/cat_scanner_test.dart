@@ -7,7 +7,6 @@ import 'package:pokeiring/features/auth/domain/entities/auth_user.dart';
 import 'package:pokeiring/features/scanner/data/datasources/firebase_sightings_datasource.dart';
 import 'package:pokeiring/features/scanner/data/services/sticker_generator_service.dart';
 import 'package:pokeiring/features/scanner/domain/entities/cat_scan_result.dart';
-import 'package:pokeiring/features/scanner/domain/entities/cat_sighting.dart';
 import 'package:pokeiring/features/scanner/presentation/pages/cat_scanner_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

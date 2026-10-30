@@ -18,6 +18,7 @@ import '../../../map/domain/repositories/map_repository.dart';
 import '../../../map/presentation/pages/live_map_page.dart';
 import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
+import '../../../stories/presentation/widgets/stories_tray.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/iring_center_button.dart';
 import 'dashboard_page.dart';
@@ -318,7 +319,9 @@ class _HomePageState extends State<_HomePage> {
                     'Track your daily explorer movement and unlock more feline routes.',
                     style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
+                  StoriesTray(user: widget.user),
+                  const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(

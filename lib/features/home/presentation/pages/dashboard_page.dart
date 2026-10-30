@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_version.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/feline_avatar.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../health/services/explorer_health_service.dart';
@@ -93,24 +94,13 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 child: Row(
                   children: [
-                    CircleAvatar(
+                    FelineAvatar(
+                      photoUrl: widget.user.photoUrl,
+                      seed: displayName,
                       radius: 28,
-                      backgroundColor: AppColors.primary.withAlpha(30),
-                      backgroundImage: widget.user.photoUrl.isNotEmpty
-                          ? NetworkImage(widget.user.photoUrl)
-                          : null,
-                      child: widget.user.photoUrl.isEmpty
-                          ? Text(
-                              displayName.isNotEmpty
-                                  ? displayName[0].toUpperCase()
-                                  : 'U',
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
-                            )
-                          : null,
+                      showBorder: true,
+                      borderColor: AppColors.primary.withAlpha(50),
+                      borderWidth: 2,
                     ),
                     const SizedBox(width: 16),
                     Expanded(
