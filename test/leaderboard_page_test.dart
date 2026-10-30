@@ -27,7 +27,7 @@ void main() {
 
       expect(find.text('Explorer Leaderboard'), findsOneWidget);
       expect(find.text('Season 1: Sunshine Strays'), findsOneWidget);
-      expect(find.text('Overall'), findsOneWidget);
+      expect(find.text('Paw Points'), findsOneWidget);
       expect(find.text('Most Snapped'), findsOneWidget);
       expect(find.text('Most Walked'), findsOneWidget);
 

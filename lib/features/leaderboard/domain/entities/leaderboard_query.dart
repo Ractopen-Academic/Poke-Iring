@@ -6,7 +6,7 @@ enum LeaderboardCategory {
   String get label {
     switch (this) {
       case LeaderboardCategory.overall:
-        return 'Overall';
+        return 'Paw Points';
       case LeaderboardCategory.snaps:
         return 'Most Snapped';
       case LeaderboardCategory.distance:

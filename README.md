@@ -59,6 +59,25 @@ Instead of hunting virtual monsters, players discover and catalog real-world nei
 
 ---
 
+<details>
+<summary><b>Feature Roadmap: AI Vision Cutout & Paw Points Matrix</b></summary>
+<br>
+
+### 1. On-Device Cat Segmentation & Silhouette Map Pins
+- **Segmentation Pipeline**: On-device edge detection and silhouette extraction to crop photographed felines into sticker cutouts with a subtle outline.
+- **Geolocated Live Map Pins**: Pins the cutout sticker directly onto the interactive map at exact sighting coordinates, allowing neighboring explorers to discover local feline territories.
+
+### 2. Multi-Factor "Paw Points" Scoring Matrix
+Leaderboard rankings are calculated via verified cat encounters:
+- **Base Discovery**: +50 Paw Points for each feline sighting verified by GPS bounds.
+- **Breed Rarity Multiplier**: Tiered rarity multiplier from 1.0x (Domestic Shorthair / Puspin) up to 2.0x (Rare breeds).
+- **Coat Pattern & Color Marks**: Pattern recognition bonus (+10 to +40 pts for Calico, Tortoiseshell, Tuxedo, and Tabby).
+- **Community Boops**: Social cuteness interaction where neighboring explorers can "Boop" a map sighting pin (+5 pts per community boop).
+
+</details>
+
+---
+
 ### Supported Platform
 
 - **Android**: Android 14.0+ (API level 34+) (Target Platform)
