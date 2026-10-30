@@ -275,6 +275,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             child: TickerMode(
               enabled: _isShowingMap,
               child: LiveMapPage(
+                locationService: _locationService,
+                isMapActive: _isShowingMap,
                 onPointerDown: _onMapPointerDown,
                 onPointerUp: _onMapPointerUp,
                 onClose: () => setState(() {
