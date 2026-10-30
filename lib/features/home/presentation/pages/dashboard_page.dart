@@ -5,6 +5,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../health/services/explorer_health_service.dart';
 
 class DashboardPage extends StatefulWidget {
   final AuthUser user;
@@ -24,6 +25,12 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   bool _isLoggingOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ExplorerHealthService.instance.start();
+  }
 
   Future<void> _handleSignOut() async {
     setState(() {
@@ -51,9 +58,6 @@ class _DashboardPageState extends State<DashboardPage> {
     final displayName = widget.user.displayName.isNotEmpty
         ? widget.user.displayName
         : widget.user.email.split('@').first;
-
-    final isTestAccount =
-        widget.user.email.contains('test') || widget.user.email.contains('dev');
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -133,7 +137,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Explorer Stats',
+                'Explorer State',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -141,29 +145,36 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Cats Logged',
-                      value: isTestAccount ? '6' : '0',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Sightings',
-                      value: isTestAccount ? '3' : '0',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Distance',
-                      value: isTestAccount ? '4.8 km' : '0.0 km',
-                    ),
-                  ),
-                ],
+              StreamBuilder<ExplorerHealthSnapshot>(
+                stream: ExplorerHealthService.instance.stream,
+                initialData: ExplorerHealthService.instance.latest,
+                builder: (context, snapshot) {
+                  final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: _StatCard(
+                          label: 'Steps',
+                          value: '${health.stepsToday}',
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _StatCard(
+                          label: 'Distance',
+                          value: '${health.distanceKm.toStringAsFixed(2)} km',
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _StatCard(
+                          label: 'Calories',
+                          value: '${health.caloriesBurned.toStringAsFixed(0)} kcal',
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 32),
               const Text(
@@ -175,6 +186,19 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
               const SizedBox(height: 12),
+              _ModuleTile(
+                icon: Icons.favorite_outline_rounded,
+                title: 'Explorer Health',
+                subtitle: 'Live step count, distance, and active minutes',
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Explorer health is live on the home screen and account stats.'),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
               _ModuleTile(
                 icon: Icons.map_outlined,
                 title: 'Live Sightings Map',
