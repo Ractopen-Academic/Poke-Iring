@@ -11,6 +11,7 @@ import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../dex/presentation/pages/iring_dex_page.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
@@ -72,7 +73,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         user: widget.user,
         onOpenLeaderboard: () => setState(() => _currentIndex = 2),
       ),
-      const _AlbumPlaceholderPage(),
+      IringDexPage(user: widget.user),
       LeaderboardPage(
         currentUserId: widget.user.id.isNotEmpty
             ? widget.user.id
@@ -538,60 +539,6 @@ class _QuestCard extends StatelessWidget {
             minHeight: 6,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _AlbumPlaceholderPage extends StatelessWidget {
-  const _AlbumPlaceholderPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Cat Album'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.secondary.withAlpha(25),
-                ),
-                child: const Icon(
-                  Icons.photo_library_outlined,
-                  size: 48,
-                  color: AppColors.secondary,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Cat Portrait Gallery',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'All cat portraits and sightings captured during your neighborhood explorations appear here.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
