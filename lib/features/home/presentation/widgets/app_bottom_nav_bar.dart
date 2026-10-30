@@ -41,9 +41,9 @@ class AppBottomNavBar extends StatelessWidget {
             ),
             const SizedBox(width: 56),
             _NavBarItem(
-              icon: Icons.auto_awesome_outlined,
-              activeIcon: Icons.auto_awesome,
-              label: 'Showcase',
+              icon: Icons.leaderboard_outlined,
+              activeIcon: Icons.leaderboard,
+              label: 'Ranks',
               isSelected: currentIndex == 2,
               onTap: () => onTabSelected(2),
             ),
