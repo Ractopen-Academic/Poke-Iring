@@ -18,8 +18,23 @@
 
 ## Project Status
 
-> **Current Phase: Planning & Design (Pre-Alpha)**  
-> Poke: Iring is currently in active design and concept specification. The project structure, team workflow, governance policies, and initial Android boilerplate are established as the foundational base for feature development.
+> **Current Phase: Pre-Alpha (v0.7.0-f7)**  
+> Poke: Iring is in active pre-alpha development with working real-time GPS tracking, multi-scope territory leaderboards, explorer health step counting, and email verification.
+
+---
+
+## Release & Versioning Policy
+
+> Poke: Iring strictly stays below `v1.0.0` during development until all core gameplay systems (camera vision classification, crowdsourced persistence, and dex species catalog) are proven stable and battle-tested.
+
+### Format: `v0.[FEATURE].[PATCH]-[FLAG][COUNT]`
+- **Major (`0`)**: Fixed at `0` for all prototype, pre-alpha, and alpha milestones.
+- **Feature (`[FEATURE]`)**: Increments by `+0.1.0` per distinct feature pull request.
+- **Patch (`[PATCH]`)**: Increments by `+0.0.1` for standalone bug fixes.
+- **Suffix Flag**:
+  - `-f[N]`: Feature milestone (e.g. `-f7` for Milestone 7).
+  - `-b[N]`: Bugfix release (e.g. `-b1`).
+  - `-r[N]`: Refactor or performance optimization.
 
 ---
 

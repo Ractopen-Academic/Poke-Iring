@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/constants/app_version.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
@@ -272,6 +273,31 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 onPressed: _handleSignOut,
               ),
+              const SizedBox(height: 24),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'Poke: Iring ${AppVersion.badgeDisplay}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      AppVersion.buildSubtitle,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: AppColors.textSecondary.withAlpha(160),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
