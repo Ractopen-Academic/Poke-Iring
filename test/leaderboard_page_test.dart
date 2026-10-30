@@ -17,6 +17,7 @@ void main() {
             currentUserId: 'test-user',
             initialBarangay: 'Bankal',
             initialCity: 'Lapu-Lapu City',
+            initialRegion: 'Central Visayas',
             initialCountry: 'Philippines',
           ),
         ),
@@ -30,9 +31,10 @@ void main() {
       expect(find.text('Most Snapped'), findsOneWidget);
       expect(find.text('Most Walked'), findsOneWidget);
 
+      expect(find.textContaining('Central Visayas (300)'), findsOneWidget);
       expect(find.byType(PodiumView), findsOneWidget);
       expect(find.byType(UserStandingCard), findsOneWidget);
-      expect(find.textContaining('Your Standing'), findsOneWidget);
+      expect(find.textContaining('You are at Rank'), findsOneWidget);
     });
 
     testWidgets('switching category tab updates view', (tester) async {

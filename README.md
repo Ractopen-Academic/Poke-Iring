@@ -23,7 +23,9 @@
 
 ---
 
-## Release & Versioning Policy
+<details>
+<summary><b>Release & Versioning Policy</b></summary>
+<br>
 
 > Poke: Iring strictly stays below `v1.0.0` during development until all core gameplay systems (camera vision classification, crowdsourced persistence, and dex species catalog) are proven stable and battle-tested.
 
@@ -35,6 +37,8 @@
   - `-f[N]`: Feature milestone (e.g. `-f7` for Milestone 7).
   - `-b[N]`: Bugfix release (e.g. `-b1`).
   - `-r[N]`: Refactor or performance optimization.
+
+</details>
 
 ---
 

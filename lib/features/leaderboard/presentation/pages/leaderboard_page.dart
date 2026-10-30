@@ -14,6 +14,7 @@ class LeaderboardPage extends StatefulWidget {
   final String currentUserId;
   final String initialBarangay;
   final String initialCity;
+  final String initialRegion;
   final String initialCountry;
 
   const LeaderboardPage({
@@ -22,6 +23,7 @@ class LeaderboardPage extends StatefulWidget {
     this.currentUserId = 'current-user-1',
     this.initialBarangay = 'Bankal',
     this.initialCity = 'Lapu-Lapu City',
+    this.initialRegion = 'Central Visayas',
     this.initialCountry = 'Philippines',
   });
 
@@ -52,6 +54,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       scope: _scope,
       barangay: widget.initialBarangay,
       city: widget.initialCity,
+      region: widget.initialRegion,
       country: widget.initialCountry,
       limit: 100,
     );
@@ -108,7 +111,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           // Category Tabs (Overall / Snaps / Distance)
           _buildCategoryTabs(),
 
-          // Scope Filter Pills (Barangay / City / National / Global)
+          // Scope Filter Pills (Barangay / City / Region / National / Global)
           _buildScopeFilterPills(),
 
           const Divider(height: 1, color: AppColors.border),
@@ -234,11 +237,15 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           final isSelected = _scope == sc;
           String label = sc.label;
           if (sc == LeaderboardScope.barangay) {
-            label = widget.initialBarangay;
+            label = '${widget.initialBarangay} (50)';
           } else if (sc == LeaderboardScope.city) {
-            label = widget.initialCity;
+            label = '${widget.initialCity} (150)';
+          } else if (sc == LeaderboardScope.region) {
+            label = '${widget.initialRegion} (300)';
           } else if (sc == LeaderboardScope.national) {
-            label = widget.initialCountry;
+            label = '${widget.initialCountry} (300)';
+          } else if (sc == LeaderboardScope.global) {
+            label = 'Global (500)';
           }
 
           return Padding(
@@ -284,15 +291,28 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             category: _category,
           ),
         if (rest.isNotEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 12, 20, 6),
-            child: Text(
-              'Explorer Standings',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Explorer Standings',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  'Top ${_scope.poolCapacity} slots',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
           ...rest.map(
@@ -336,10 +356,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'No explorers active in this territory yet. Be the first to scan a local cat and claim the #1 spot.',
+            Text(
+              'No explorers active in ${_scope.label} yet. Be the first to scan a local cat and claim the #1 spot in this ${_scope.poolCapacity}-player pool.',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
                 color: AppColors.textSecondary,
               ),

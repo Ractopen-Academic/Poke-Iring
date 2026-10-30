@@ -334,7 +334,8 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 ),
               ),
             ),
-          FloatingSnapIringButton(onTap: _openQuickSnapCamera),
+          if (_isShowingMap || _currentIndex != 2)
+            FloatingSnapIringButton(onTap: _openQuickSnapCamera),
         ],
       ),
       floatingActionButton: AnimatedSlide(

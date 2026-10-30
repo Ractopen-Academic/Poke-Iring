@@ -20,8 +20,12 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
     final sorted = _sortByCategory(filtered, filter.category);
     final ranked = _assignRanks(sorted);
 
+    final capacity = filter.scope.poolCapacity;
+    final effectiveLimit =
+        filter.limit > capacity ? capacity : filter.limit;
+
     final start = filter.offset.clamp(0, ranked.length);
-    final end = (start + filter.limit).clamp(start, ranked.length);
+    final end = (start + effectiveLimit).clamp(start, ranked.length);
 
     return ranked.sublist(start, end);
   }
@@ -66,6 +70,7 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
       avatarColorIndex: 2,
       barangay: filter.barangay,
       city: filter.city,
+      region: filter.region,
       country: filter.country,
       points: 2150,
       catsSnapped: 15,
@@ -92,6 +97,12 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
       case LeaderboardScope.city:
         return entries
             .where((e) => e.city.toLowerCase() == filter.city.toLowerCase())
+            .toList();
+      case LeaderboardScope.region:
+        return entries
+            .where(
+              (e) => e.region.toLowerCase() == filter.region.toLowerCase(),
+            )
             .toList();
       case LeaderboardScope.national:
         return entries

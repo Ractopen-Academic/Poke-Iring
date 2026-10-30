@@ -9,6 +9,7 @@ class LeaderboardEntry {
   final int avatarColorIndex;
   final String barangay;
   final String city;
+  final String region;
   final String country;
   final int points;
   final int catsSnapped;
@@ -24,6 +25,7 @@ class LeaderboardEntry {
     this.avatarColorIndex = 0,
     required this.barangay,
     required this.city,
+    this.region = 'Central Visayas',
     required this.country,
     required this.points,
     required this.catsSnapped,
@@ -64,6 +66,7 @@ class LeaderboardEntry {
     int? avatarColorIndex,
     String? barangay,
     String? city,
+    String? region,
     String? country,
     int? points,
     int? catsSnapped,
@@ -79,6 +82,7 @@ class LeaderboardEntry {
       avatarColorIndex: avatarColorIndex ?? this.avatarColorIndex,
       barangay: barangay ?? this.barangay,
       city: city ?? this.city,
+      region: region ?? this.region,
       country: country ?? this.country,
       points: points ?? this.points,
       catsSnapped: catsSnapped ?? this.catsSnapped,
