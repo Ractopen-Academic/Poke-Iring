@@ -7,11 +7,13 @@ import '../../domain/entities/leaderboard_query.dart';
 class LeaderboardTile extends StatelessWidget {
   final LeaderboardEntry entry;
   final LeaderboardCategory category;
+  final ValueChanged<LeaderboardEntry>? onTap;
 
   const LeaderboardTile({
     super.key,
     required this.entry,
     required this.category,
+    this.onTap,
   });
 
   @override
@@ -21,22 +23,28 @@ class LeaderboardTile extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: isUser ? AppColors.primary.withAlpha(15) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isUser ? AppColors.primary : AppColors.border,
-          width: isUser ? 1.8 : 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(8),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => onTap?.call(entry),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: isUser ? AppColors.primary.withAlpha(15) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isUser ? AppColors.primary : AppColors.border,
+                width: isUser ? 1.8 : 1.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(8),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
       child: Row(
         children: [
           // Rank Badge
@@ -186,6 +194,9 @@ class LeaderboardTile extends StatelessWidget {
           ),
         ],
       ),
+    ),
+    ),
+    ),
     );
   }
 }

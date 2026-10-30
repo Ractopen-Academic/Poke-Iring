@@ -7,10 +7,12 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../dex/presentation/pages/iring_dex_page.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
+import '../../../showcase/services/showcase_service.dart';
 
 class DashboardPage extends StatefulWidget {
   final AuthUser user;
@@ -30,11 +32,13 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   bool _isLoggingOut = false;
+  bool _isPublicShowcase = true;
 
   @override
   void initState() {
     super.initState();
     ExplorerHealthService.instance.start();
+    _isPublicShowcase = ShowcaseService.instance.isPublicShowcaseEnabled;
   }
 
   Future<void> _handleSignOut() async {
@@ -243,13 +247,14 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 10),
               _ModuleTile(
-                icon: Icons.menu_book_outlined,
+                icon: Icons.collections_bookmark_outlined,
                 title: 'Iring-Dex',
                 subtitle: 'Catalog of documented feline species',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Iring-Dex module feature branch active'),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => IringDexPage(user: widget.user),
                     ),
                   );
                 },
@@ -260,6 +265,76 @@ class _DashboardPageState extends State<DashboardPage> {
                 title: 'AI Vision Settings',
                 subtitle: 'Configure Gemini API key for cat recognition',
                 onTap: () => AiVisionSettingsSheet.show(context),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Showcase & Privacy Settings',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.visibility_outlined,
+                        size: 20,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Public Explorer Showcase',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _isPublicShowcase
+                                ? 'Visible to other players on leaderboards'
+                                : 'Hidden from other explorers',
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch.adaptive(
+                      value: _isPublicShowcase,
+                      activeThumbColor: AppColors.primary,
+                      onChanged: (val) async {
+                        await ShowcaseService.instance.setPublicShowcaseEnabled(val);
+                        if (mounted) {
+                          setState(() => _isPublicShowcase = val);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 32),
               AppButton(

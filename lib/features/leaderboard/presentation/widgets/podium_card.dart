@@ -9,6 +9,7 @@ class PodiumView extends StatelessWidget {
   final LeaderboardEntry? second;
   final LeaderboardEntry? third;
   final LeaderboardCategory category;
+  final ValueChanged<LeaderboardEntry>? onEntryTap;
 
   const PodiumView({
     super.key,
@@ -16,6 +17,7 @@ class PodiumView extends StatelessWidget {
     this.second,
     this.third,
     required this.category,
+    this.onEntryTap,
   });
 
   @override
@@ -67,6 +69,7 @@ class PodiumView extends StatelessWidget {
                         pedestalColor: const Color(0xFFECEFF1),
                         accentColor: const Color(0xFF78909C),
                         category: category,
+                        onTap: () => onEntryTap?.call(second!),
                       )
                     : const SizedBox.shrink(),
               ),
@@ -80,6 +83,7 @@ class PodiumView extends StatelessWidget {
                   pedestalColor: const Color(0xFFFFF8E1),
                   accentColor: const Color(0xFFFFA000),
                   category: category,
+                  onTap: () => onEntryTap?.call(first),
                 ),
               ),
               const SizedBox(width: 8),
@@ -93,6 +97,7 @@ class PodiumView extends StatelessWidget {
                         pedestalColor: const Color(0xFFEFEBE9),
                         accentColor: const Color(0xFF8D6E63),
                         category: category,
+                        onTap: () => onEntryTap?.call(third!),
                       )
                     : const SizedBox.shrink(),
               ),
@@ -111,6 +116,7 @@ class _PodiumStep extends StatelessWidget {
   final Color pedestalColor;
   final Color accentColor;
   final LeaderboardCategory category;
+  final VoidCallback? onTap;
 
   const _PodiumStep({
     required this.entry,
@@ -119,14 +125,17 @@ class _PodiumStep extends StatelessWidget {
     required this.pedestalColor,
     required this.accentColor,
     required this.category,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final avatarSize = rank == 1 ? 46.0 : 38.0;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
       children: [
         // Avatar badge
         Stack(
@@ -236,6 +245,7 @@ class _PodiumStep extends StatelessWidget {
           ),
         ),
       ],
+    ),
     );
   }
 }

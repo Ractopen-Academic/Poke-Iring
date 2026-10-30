@@ -5,6 +5,8 @@ import '../../data/repositories/leaderboard_repository_impl.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
+import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
+import '../../../showcase/services/showcase_service.dart';
 import '../widgets/leaderboard_tile.dart';
 import '../widgets/podium_card.dart';
 import '../widgets/user_standing_card.dart';
@@ -274,6 +276,21 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     );
   }
 
+  Future<void> _openShowcaseForEntry(LeaderboardEntry entry) async {
+    final profile = await ShowcaseService.instance.getProfile(
+      targetUserId: entry.userId,
+      currentUserId: widget.currentUserId,
+      displayName: entry.displayName,
+      avatarUrl: '',
+      rank: entry.rank,
+      tierTitle: entry.tier.displayName,
+      pawPoints: entry.points,
+      territory: '${entry.barangay}, Lapu-Lapu City',
+    );
+    if (!mounted) return;
+    ExplorerShowcaseSheet.show(context, profile);
+  }
+
   Widget _buildLeaderboardContent() {
     final first = _entries.isNotEmpty ? _entries[0] : null;
     final second = _entries.length > 1 ? _entries[1] : null;
@@ -289,6 +306,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             second: second,
             third: third,
             category: _category,
+            onEntryTap: _openShowcaseForEntry,
           ),
         if (rest.isNotEmpty) ...[
           Padding(
@@ -319,6 +337,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             (entry) => LeaderboardTile(
               entry: entry,
               category: _category,
+              onTap: _openShowcaseForEntry,
             ),
           ),
         ],

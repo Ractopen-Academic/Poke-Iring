@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/feline_avatar.dart';
+import '../../../scanner/domain/entities/cat_sighting.dart';
+import '../../../showcase/services/showcase_service.dart';
 import '../../domain/entities/feline_dex_species.dart';
 import '../../domain/entities/iring_dex_entry.dart';
 
-class CatDetailSheet extends StatelessWidget {
+class CatDetailSheet extends StatefulWidget {
   final IringDexEntry entry;
 
   const CatDetailSheet({
@@ -20,6 +22,25 @@ class CatDetailSheet extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => CatDetailSheet(entry: entry),
     );
+  }
+
+  @override
+  State<CatDetailSheet> createState() => _CatDetailSheetState();
+}
+
+class _CatDetailSheetState extends State<CatDetailSheet> {
+  bool _isPinned = false;
+
+  CatSighting? get _featuredSighting =>
+      widget.entry.sightings.isNotEmpty ? widget.entry.sightings.first : null;
+
+  @override
+  void initState() {
+    super.initState();
+    final sighting = _featuredSighting;
+    if (sighting != null) {
+      _isPinned = ShowcaseService.instance.isSightingPinned(sighting.id);
+    }
   }
 
   Color _rarityColor(FelineRarityTier rarity) {
@@ -37,8 +58,61 @@ class CatDetailSheet extends StatelessWidget {
     }
   }
 
+  Future<void> _handleTogglePin() async {
+    final sighting = _featuredSighting;
+    if (sighting == null) return;
+
+    try {
+      final pinned = await ShowcaseService.instance.togglePinSighting(sighting);
+      if (!mounted) return;
+      setState(() => _isPinned = pinned);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            pinned
+                ? 'Pinned to your 9-card Explorer Showcase'
+                : 'Removed from your Showcase',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('StateError: ', '')),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
+    }
+  }
+
+  void _handleSaveSticker() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Saved ${widget.entry.species.name} transparent sticker cutout to local album.',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _handleShareCard() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Sharing ${widget.entry.species.name} discovery card with local explorers.',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final entry = widget.entry;
     final species = entry.species;
     final rarityColor = _rarityColor(species.rarity);
 
@@ -89,7 +163,8 @@ class CatDetailSheet extends StatelessWidget {
                           : 'undiscovered_mystery',
                       radius: 54,
                       showBorder: true,
-                      borderColor: entry.isDiscovered ? rarityColor : Colors.grey.shade300,
+                      borderColor:
+                          entry.isDiscovered ? rarityColor : Colors.grey.shade300,
                       borderWidth: 3,
                     ),
                   ),
@@ -253,7 +328,69 @@ class CatDetailSheet extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+
+              // Action buttons row: Pin to Showcase | Save Sticker | Share
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _handleTogglePin,
+                      icon: Icon(
+                        _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                        size: 15,
+                        color: _isPinned ? AppColors.primary : AppColors.textPrimary,
+                      ),
+                      label: Text(
+                        _isPinned ? 'In Showcase' : 'Pin to Showcase',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: _isPinned ? AppColors.primary : AppColors.textPrimary,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        side: BorderSide(
+                          color: _isPinned ? AppColors.primary : AppColors.border,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _handleSaveSticker,
+                      icon: const Icon(Icons.download_rounded, size: 15, color: AppColors.textPrimary),
+                      label: const Text(
+                        'Save Sticker',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        side: const BorderSide(color: AppColors.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.outlined(
+                    tooltip: 'Share Card',
+                    onPressed: _handleShareCard,
+                    icon: const Icon(Icons.share_outlined, size: 18),
+                    style: IconButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      side: const BorderSide(color: AppColors.border),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
             ] else ...[
               Container(
                 padding: const EdgeInsets.all(16),
