@@ -5,6 +5,12 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_version.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/feline_avatar.dart';
+import '../../../achievements/data/repositories/achievements_repository_impl.dart';
+import '../../../achievements/domain/entities/achievement_tier.dart';
+import '../../../achievements/domain/entities/explorer_title.dart';
+import '../../../achievements/presentation/pages/achievements_page.dart';
+import '../../../achievements/presentation/widgets/equipped_title_badge.dart';
+import '../../../achievements/presentation/widgets/title_selection_sheet.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../dex/presentation/pages/iring_dex_page.dart';
@@ -127,6 +133,35 @@ class _DashboardPageState extends State<DashboardPage> {
                               fontSize: 13,
                               color: AppColors.textSecondary,
                             ),
+                          ),
+                          const SizedBox(height: 8),
+                          StreamBuilder<ExplorerTitle?>(
+                            stream: AchievementsRepositoryImpl.instance
+                                .watchEquippedTitle(
+                                  widget.user.id.isNotEmpty
+                                      ? widget.user.id
+                                      : widget.user.email,
+                                ),
+                            builder: (context, snapshot) {
+                              final equipped =
+                                  snapshot.data ??
+                                  const ExplorerTitle(
+                                    id: 'title_novice_scout',
+                                    name: 'Novice Scout',
+                                    description: 'Default title',
+                                    rarity: TitleRarity.common,
+                                    tier: AchievementTier.bronze,
+                                  );
+                              return EquippedTitleBadge(
+                                title: equipped,
+                                onTap: () => TitleSelectionSheet.show(
+                                  context,
+                                  userId: widget.user.id.isNotEmpty
+                                      ? widget.user.id
+                                      : widget.user.email,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -260,6 +295,24 @@ class _DashboardPageState extends State<DashboardPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => IringDexPage(user: widget.user),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              _ModuleTile(
+                icon: Icons.military_tech_outlined,
+                title: 'Achievements & Titles',
+                subtitle: '100 tiered bronze, silver & gold milestones',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AchievementsPage(
+                        userId: widget.user.id.isNotEmpty
+                            ? widget.user.id
+                            : widget.user.email,
+                      ),
                     ),
                   );
                 },

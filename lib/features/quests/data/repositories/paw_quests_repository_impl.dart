@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../domain/entities/paw_quest.dart';
 import '../../domain/repositories/paw_quests_repository.dart';
@@ -292,6 +293,21 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
 
     // 1. Mark claimed locally
     await prefs.setBool(claimedKey, true);
+
+    unawaited(
+      AchievementsRepositoryImpl.instance.recordProgressMetric(
+        userId: userId,
+        metricKey: 'mastery_quests_claimed',
+        incrementBy: 1,
+      ),
+    );
+    unawaited(
+      AchievementsRepositoryImpl.instance.recordProgressMetric(
+        userId: userId,
+        metricKey: 'mastery_paw_points',
+        incrementBy: quest.rewardPawPoints.toDouble(),
+      ),
+    );
 
     // 2. Increment user total Paw Points in Firestore if available
     if (_isFirebaseAvailable) {

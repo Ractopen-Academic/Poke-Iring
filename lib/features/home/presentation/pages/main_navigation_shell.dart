@@ -9,6 +9,10 @@ import '../../../../core/network/network_info_impl.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
+import '../../../achievements/data/repositories/achievements_repository_impl.dart';
+import '../../../achievements/domain/entities/explorer_title.dart';
+import '../../../achievements/presentation/widgets/equipped_title_badge.dart';
+import '../../../achievements/presentation/widgets/title_selection_sheet.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../dex/presentation/pages/iring_dex_page.dart';
@@ -308,21 +312,55 @@ class _HomePageState extends State<_HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Welcome, $name',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Track your daily explorer movement and unlock more feline routes.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Welcome, $name',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Track your daily explorer movement and unlock more feline routes.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      StreamBuilder<ExplorerTitle?>(
+                        stream: AchievementsRepositoryImpl.instance
+                            .watchEquippedTitle(
+                              widget.user.id.isNotEmpty
+                                  ? widget.user.id
+                                  : widget.user.email,
+                            ),
+                        builder: (context, snapshot) {
+                          final title = snapshot.data;
+                          if (title == null) return const SizedBox.shrink();
+                          return EquippedTitleBadge(
+                            title: title,
+                            onTap: () => TitleSelectionSheet.show(
+                              context,
+                              userId: widget.user.id.isNotEmpty
+                                  ? widget.user.id
+                                  : widget.user.email,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   StoriesTray(user: widget.user),
