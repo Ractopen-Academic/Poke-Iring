@@ -7,6 +7,7 @@ class ExplorerTerritory {
   final bool isHomeConfirmed;
   final double? latitude;
   final double? longitude;
+  final DateTime? lockedAt;
 
   const ExplorerTerritory({
     required this.barangay,
@@ -17,6 +18,7 @@ class ExplorerTerritory {
     this.isHomeConfirmed = false,
     this.latitude,
     this.longitude,
+    this.lockedAt,
   });
 
   static const defaultTerritory = ExplorerTerritory(
@@ -28,10 +30,34 @@ class ExplorerTerritory {
     isHomeConfirmed: true,
     latitude: 10.3140,
     longitude: 123.9720,
+    lockedAt: null,
   );
 
   String get shortLabel => '$barangay, $city';
   String get fullLabel => '$barangay, $city, $province';
+
+  bool get isChangeLocked {
+    if (lockedAt == null) return false;
+    final diff = DateTime.now().difference(lockedAt!);
+    return diff.inDays < 365;
+  }
+
+  int get daysUntilChangeAvailable {
+    if (!isChangeLocked || lockedAt == null) return 0;
+    final elapsedDays = DateTime.now().difference(lockedAt!).inDays;
+    return (365 - elapsedDays).clamp(1, 365);
+  }
+
+  DateTime? get nextChangeAvailableDate {
+    if (lockedAt == null) return null;
+    return lockedAt!.add(const Duration(days: 365));
+  }
+
+  String get nextChangeDateFormatted {
+    final next = nextChangeAvailableDate;
+    if (next == null) return 'Available now';
+    return '${next.year}-${next.month.toString().padLeft(2, '0')}-${next.day.toString().padLeft(2, '0')}';
+  }
 
   ExplorerTerritory copyWith({
     String? barangay,
@@ -42,6 +68,7 @@ class ExplorerTerritory {
     bool? isHomeConfirmed,
     double? latitude,
     double? longitude,
+    DateTime? lockedAt,
   }) {
     return ExplorerTerritory(
       barangay: barangay ?? this.barangay,
@@ -52,6 +79,7 @@ class ExplorerTerritory {
       isHomeConfirmed: isHomeConfirmed ?? this.isHomeConfirmed,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      lockedAt: lockedAt ?? this.lockedAt,
     );
   }
 
@@ -65,6 +93,7 @@ class ExplorerTerritory {
       'isHomeConfirmed': isHomeConfirmed,
       'latitude': latitude,
       'longitude': longitude,
+      'lockedAt': lockedAt?.toIso8601String(),
     };
   }
 
@@ -78,6 +107,7 @@ class ExplorerTerritory {
       isHomeConfirmed: map['isHomeConfirmed'] as bool? ?? false,
       latitude: (map['latitude'] as num?)?.toDouble(),
       longitude: (map['longitude'] as num?)?.toDouble(),
+      lockedAt: DateTime.tryParse(map['lockedAt'] as String? ?? ''),
     );
   }
 }

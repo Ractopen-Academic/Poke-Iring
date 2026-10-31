@@ -111,6 +111,10 @@ class TerritoryServiceImpl implements TerritoryService {
           prefs.getString('${_prefKey(userId)}_country') ?? 'Philippines';
       final isConfirmed =
           prefs.getBool('${_prefKey(userId)}_confirmed') ?? false;
+      final lockedAtStr = prefs.getString('${_prefKey(userId)}_lockedAt');
+      final lockedAt = lockedAtStr != null
+          ? DateTime.tryParse(lockedAtStr)
+          : null;
 
       if (barangay != null && city != null) {
         final territory = ExplorerTerritory(
@@ -120,6 +124,7 @@ class TerritoryServiceImpl implements TerritoryService {
           region: region,
           country: country,
           isHomeConfirmed: isConfirmed,
+          lockedAt: lockedAt,
         );
         _cache.putIfAbsent(userId, () => territory);
         return _cache[userId]!;
@@ -149,6 +154,14 @@ class TerritoryServiceImpl implements TerritoryService {
         '${_prefKey(userId)}_confirmed',
         territory.isHomeConfirmed,
       );
+      if (territory.lockedAt != null) {
+        await prefs.setString(
+          '${_prefKey(userId)}_lockedAt',
+          territory.lockedAt!.toIso8601String(),
+        );
+      } else {
+        await prefs.remove('${_prefKey(userId)}_lockedAt');
+      }
     } catch (_) {}
   }
 
@@ -169,6 +182,14 @@ class TerritoryServiceImpl implements TerritoryService {
         '${_prefKey(userId)}_confirmed',
         territory.isHomeConfirmed,
       );
+      if (territory.lockedAt != null) {
+        await prefs.setString(
+          '${_prefKey(userId)}_lockedAt',
+          territory.lockedAt!.toIso8601String(),
+        );
+      } else {
+        await prefs.remove('${_prefKey(userId)}_lockedAt');
+      }
     } catch (_) {}
 
     // Synchronize to Firestore
@@ -218,6 +239,11 @@ class TerritoryServiceImpl implements TerritoryService {
   @override
   Future<ExplorerTerritory?> autoDetectAndSync(String userId) async {
     try {
+      final existing = await getTerritory(userId);
+      if (existing.isChangeLocked) {
+        return existing;
+      }
+
       final loc = await _locationService.getCurrentLocation();
       if (loc == null) {
         return null;
@@ -229,7 +255,8 @@ class TerritoryServiceImpl implements TerritoryService {
       );
 
       final verified = resolved.copyWith(
-        isHomeConfirmed: true,
+        isHomeConfirmed: existing.isHomeConfirmed,
+        lockedAt: existing.lockedAt,
         latitude: loc.latitude,
         longitude: loc.longitude,
       );

@@ -23,6 +23,7 @@ void main() {
               initialCity: 'Lapu-Lapu City',
               initialRegion: 'Central Visayas',
               initialCountry: 'Philippines',
+              promptTerritorySetup: false,
             ),
           ),
         );
@@ -48,6 +49,7 @@ void main() {
           home: LeaderboardPage(
             repository: LeaderboardRepositoryImpl(),
             currentUserId: 'test-user',
+            promptTerritorySetup: false,
           ),
         ),
       );
