@@ -50,6 +50,40 @@ class VaultPhotoEntry {
     return '${mp.toStringAsFixed(1)} MP';
   }
 
+  VaultPhotoEntry copyWith({
+    String? id,
+    String? userId,
+    String? sightingId,
+    String? breedName,
+    String? photoUrl,
+    int? fileSizeBytes,
+    int? resolutionWidth,
+    int? resolutionHeight,
+    DateTime? capturedAt,
+    bool? isRawMaster,
+    int? iso,
+    String? shutterSpeed,
+    String? aperture,
+    String? locationLabel,
+  }) {
+    return VaultPhotoEntry(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      sightingId: sightingId ?? this.sightingId,
+      breedName: breedName ?? this.breedName,
+      photoUrl: photoUrl ?? this.photoUrl,
+      fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
+      resolutionWidth: resolutionWidth ?? this.resolutionWidth,
+      resolutionHeight: resolutionHeight ?? this.resolutionHeight,
+      capturedAt: capturedAt ?? this.capturedAt,
+      isRawMaster: isRawMaster ?? this.isRawMaster,
+      iso: iso ?? this.iso,
+      shutterSpeed: shutterSpeed ?? this.shutterSpeed,
+      aperture: aperture ?? this.aperture,
+      locationLabel: locationLabel ?? this.locationLabel,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

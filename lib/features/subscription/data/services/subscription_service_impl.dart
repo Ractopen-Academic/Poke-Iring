@@ -51,23 +51,7 @@ class SubscriptionServiceImpl implements SubscriptionService {
 
   @override
   Future<SubscriptionStatus> getSubscription(String userId) async {
-    if (_cache.containsKey(userId)) {
-      return _cache[userId]!;
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance().timeout(
-        const Duration(milliseconds: 300),
-      );
-      final raw = prefs.getString(_prefKey(userId));
-      if (raw != null) {
-        final decoded = jsonDecode(raw) as Map<String, dynamic>;
-        final status = SubscriptionStatus.fromMap(decoded);
-        _cache.putIfAbsent(userId, () => status);
-        return _cache[userId]!;
-      }
-    } catch (_) {}
-
+    // 1. Online-First: Try fetching latest subscription status from Cloud Firestore
     if (_isFirebaseAvailable) {
       try {
         final doc = await _db
@@ -79,19 +63,41 @@ class SubscriptionServiceImpl implements SubscriptionService {
           final subData = doc.data()?['subscription'] as Map<String, dynamic>?;
           if (subData != null) {
             final status = SubscriptionStatus.fromMap(subData);
-            _cache.putIfAbsent(userId, () => status);
+            _cache[userId] = status;
             unawaited(_persistLocally(userId, status));
             return status;
           }
         }
       } catch (e) {
-        debugPrint('Firestore fetch subscription error: $e');
+        debugPrint(
+          'Firestore fetch subscription error ($e). Using local cache.',
+        );
       }
     }
 
+    // 2. In-Memory Cache
+    if (_cache.containsKey(userId)) {
+      return _cache[userId]!;
+    }
+
+    // 3. Persistent Local Cache (SharedPreferences)
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      final raw = prefs.getString(_prefKey(userId));
+      if (raw != null) {
+        final decoded = jsonDecode(raw) as Map<String, dynamic>;
+        final status = SubscriptionStatus.fromMap(decoded);
+        _cache[userId] = status;
+        return status;
+      }
+    } catch (_) {}
+
+    // 4. Built-in Fallback (Clean install free tier)
     final defaultFree = SubscriptionStatus.free(userId);
-    _cache.putIfAbsent(userId, () => defaultFree);
-    return _cache[userId]!;
+    _cache[userId] = defaultFree;
+    return defaultFree;
   }
 
   @override

@@ -65,12 +65,36 @@ class TerritoryServiceImpl implements TerritoryService {
 
   @override
   Future<ExplorerTerritory> getTerritory(String userId) async {
+    // 1. Online-First: Try fetching latest territory from Cloud Firestore
+    if (_isFirebaseAvailable) {
+      try {
+        final doc = await _db
+            .collection('users')
+            .doc(userId)
+            .get()
+            .timeout(const Duration(milliseconds: 1500));
+        final rawMap = doc.data()?['territory'] as Map<String, dynamic>?;
+        if (rawMap != null) {
+          final territory = ExplorerTerritory.fromMap(rawMap);
+          _cache[userId] = territory;
+          unawaited(_persistLocally(userId, territory));
+          return territory;
+        }
+      } catch (e) {
+        debugPrint('Firestore read territory error ($e). Using local cache.');
+      }
+    }
+
+    // 2. In-Memory Cache
     if (_cache.containsKey(userId)) {
       return _cache[userId]!;
     }
 
+    // 3. Persistent Local Cache (SharedPreferences)
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
       final barangay = prefs.getString('${_prefKey(userId)}_barangay');
       final city = prefs.getString('${_prefKey(userId)}_city');
       final province =
@@ -96,24 +120,30 @@ class TerritoryServiceImpl implements TerritoryService {
       }
     } catch (_) {}
 
-    // Check Firestore if available
-    if (_isFirebaseAvailable) {
-      try {
-        final doc = await _db.collection('users').doc(userId).get();
-        final rawMap = doc.data()?['territory'] as Map<String, dynamic>?;
-        if (rawMap != null) {
-          final territory = ExplorerTerritory.fromMap(rawMap);
-          _cache.putIfAbsent(userId, () => territory);
-          return territory;
-        }
-      } catch (e) {
-        debugPrint('Firestore read territory error: $e');
-      }
-    }
-
+    // 4. Built-in Fallback (Clean install default territory)
     final defaultTerritory = ExplorerTerritory.defaultTerritory;
     _cache.putIfAbsent(userId, () => defaultTerritory);
     return _cache[userId]!;
+  }
+
+  Future<void> _persistLocally(
+    String userId,
+    ExplorerTerritory territory,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      await prefs.setString('${_prefKey(userId)}_barangay', territory.barangay);
+      await prefs.setString('${_prefKey(userId)}_city', territory.city);
+      await prefs.setString('${_prefKey(userId)}_province', territory.province);
+      await prefs.setString('${_prefKey(userId)}_region', territory.region);
+      await prefs.setString('${_prefKey(userId)}_country', territory.country);
+      await prefs.setBool(
+        '${_prefKey(userId)}_confirmed',
+        territory.isHomeConfirmed,
+      );
+    } catch (_) {}
   }
 
   @override
@@ -177,5 +207,10 @@ class TerritoryServiceImpl implements TerritoryService {
     }
 
     return ExplorerTerritory.defaultTerritory;
+  }
+
+  @visibleForTesting
+  void resetCache() {
+    _cache.clear();
   }
 }

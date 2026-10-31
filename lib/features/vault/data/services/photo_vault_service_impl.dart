@@ -105,25 +105,7 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
 
   @override
   Future<List<VaultPhotoEntry>> getVault(String userId) async {
-    if (_cache.containsKey(userId)) {
-      return _cache[userId]!;
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance().timeout(
-        const Duration(milliseconds: 300),
-      );
-      final rawList = prefs.getStringList(_prefKey(userId));
-      if (rawList != null) {
-        final list = rawList.map((str) {
-          final map = jsonDecode(str) as Map<String, dynamic>;
-          return VaultPhotoEntry.fromMap(map);
-        }).toList();
-        _cache.putIfAbsent(userId, () => list);
-        return list;
-      }
-    } catch (_) {}
-
+    // 1. Online-First: Try fetching latest photos from Cloud Firestore
     if (_isFirebaseAvailable) {
       try {
         final snapshot = await _db
@@ -140,17 +122,41 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
             return VaultPhotoEntry.fromMap(data);
           }).toList();
 
-          _cache.putIfAbsent(userId, () => list);
+          _cache[userId] = list;
           unawaited(_persistLocally(userId, list));
           return list;
         }
       } catch (e) {
-        debugPrint('Firestore fetch vault photos error: $e');
+        debugPrint(
+          'Firestore fetch vault photos error ($e). Using local cache.',
+        );
       }
     }
 
+    // 2. In-Memory Cache
+    if (_cache.containsKey(userId) && _cache[userId]!.isNotEmpty) {
+      return _cache[userId]!;
+    }
+
+    // 3. Persistent Local Cache (SharedPreferences)
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      final rawList = prefs.getStringList(_prefKey(userId));
+      if (rawList != null && rawList.isNotEmpty) {
+        final list = rawList.map((str) {
+          final map = jsonDecode(str) as Map<String, dynamic>;
+          return VaultPhotoEntry.fromMap(map);
+        }).toList();
+        _cache[userId] = list;
+        return list;
+      }
+    } catch (_) {}
+
+    // 4. Built-in Seed Fallback (Clean install offline)
     final seed = defaultSeedPhotos(userId);
-    _cache.putIfAbsent(userId, () => seed);
+    _cache[userId] = seed;
     return seed;
   }
 

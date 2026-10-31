@@ -92,10 +92,34 @@ class EventRepositoryImpl implements EventRepository {
 
   @override
   Future<UserEventWallet> getUserWallet(String userId, String eventId) async {
-    // 1. Try local cache
+    // 1. Online-First: Try fetching latest wallet from Cloud Firestore
+    if (_isFirebaseAvailable) {
+      try {
+        final snap = await _db
+            .collection('users')
+            .doc(userId)
+            .collection('event_wallets')
+            .doc(eventId)
+            .get()
+            .timeout(const Duration(milliseconds: 1500));
+        if (snap.exists && snap.data() != null) {
+          final wallet = UserEventWallet.fromMap(snap.data()!);
+          unawaited(_saveWalletLocally(wallet));
+          return wallet;
+        }
+      } catch (e) {
+        debugPrint(
+          'Firestore fetch event wallet error ($e). Using local cache.',
+        );
+      }
+    }
+
+    // 2. Persistent Local Cache (SharedPreferences)
     SharedPreferences? prefs;
     try {
-      prefs = await SharedPreferences.getInstance();
+      prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
       final raw = prefs.getString('event_wallet_${userId}_$eventId');
       if (raw != null) {
         final map = jsonDecode(raw) as Map<String, dynamic>;
@@ -107,24 +131,7 @@ class EventRepositoryImpl implements EventRepository {
       }
     } catch (_) {}
 
-    // 2. Try Firestore
-    if (_isFirebaseAvailable) {
-      try {
-        final snap = await _db
-            .collection('users')
-            .doc(userId)
-            .collection('event_wallets')
-            .doc(eventId)
-            .get();
-        if (snap.exists && snap.data() != null) {
-          final wallet = UserEventWallet.fromMap(snap.data()!);
-          _saveWalletLocally(wallet);
-          return wallet;
-        }
-      } catch (_) {}
-    }
-
-    // Default new wallet
+    // 3. Built-in Fallback (Clean install zero-balance wallet)
     final defaultWallet = UserEventWallet(
       userId: userId,
       eventId: eventId,
@@ -133,7 +140,7 @@ class EventRepositoryImpl implements EventRepository {
       equippedBorderId: prefs?.getString('user_equipped_border_$userId'),
       completedQuestIds: const [],
     );
-    _saveWalletLocally(defaultWallet);
+    unawaited(_saveWalletLocally(defaultWallet));
     return defaultWallet;
   }
 
