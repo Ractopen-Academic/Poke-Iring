@@ -1,9 +1,6 @@
 import '../../domain/entities/leaderboard_entry.dart';
 
-/// Offline fallback entries and initial Firestore seeding template for leaderboards.
-///
-/// Live rankings are dynamically queried from active user documents in Firestore.
-/// This seed datasource serves as a zero-latency fallback when offline or before initial entries exist.
+// fallback if firestore leaderboard is empty or offline
 class MockLeaderboardDatasource {
   const MockLeaderboardDatasource();
 

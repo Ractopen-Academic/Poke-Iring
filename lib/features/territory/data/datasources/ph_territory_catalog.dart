@@ -50,11 +50,7 @@ class PhCityTerritory {
   }
 }
 
-/// Offline fallback catalog and Firestore seeding template for Philippine territories.
-///
-/// Live territory boundaries are fetched dynamically from the Firestore 'territories'
-/// collection, and GPS coordinates resolve via the Nominatim OpenStreetMap API.
-/// This catalog serves as a zero-latency offline backup and initial database seed.
+// fallback if firestore or nominatim api is offline, also seeds the db
 class PhTerritoryCatalog {
   PhTerritoryCatalog._();
 

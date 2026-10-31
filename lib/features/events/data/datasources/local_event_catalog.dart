@@ -1,10 +1,7 @@
 import '../../domain/entities/feline_event.dart';
 import '../../domain/entities/profile_border.dart';
 
-/// Offline fallback catalog and seeding source for events and profile borders.
-///
-/// Live events and active border rewards synchronize with the Firestore 'events'
-/// collection. This catalog guarantees instant offline access and initial collection defaults.
+// fallback if firestore is offline, also seeds events
 class LocalEventCatalog {
   LocalEventCatalog._();
 

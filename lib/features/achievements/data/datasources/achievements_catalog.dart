@@ -2,10 +2,7 @@ import '../../domain/entities/achievement_tier.dart';
 import '../../domain/entities/explorer_title.dart';
 import '../../domain/entities/tiered_achievement.dart';
 
-/// Offline fallback catalog and Firestore seeding template for achievement tracks.
-///
-/// Live milestones and reward titles synchronize with the Firestore 'achievement_tracks'
-/// collection. This catalog provides instant offline defaults and initial database seeding.
+// fallback if firestore is offline, also seeds achievement_tracks
 class AchievementsCatalog {
   AchievementsCatalog._();
 
