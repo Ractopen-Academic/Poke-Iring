@@ -7,6 +7,9 @@ import '../../domain/entities/leaderboard_query.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
 import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
 import '../../../showcase/services/showcase_service.dart';
+import '../../../territory/data/services/territory_service_impl.dart';
+import '../../../territory/domain/entities/explorer_territory.dart';
+import '../../../territory/presentation/widgets/territory_selection_sheet.dart';
 import '../widgets/leaderboard_tile.dart';
 import '../widgets/podium_card.dart';
 import '../widgets/user_standing_card.dart';
@@ -43,11 +46,65 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   LeaderboardEntry? _userStanding;
   bool _isLoading = true;
 
+  late String _activeBarangay;
+  late String _activeCity;
+  late String _activeRegion;
+  late String _activeCountry;
+
   @override
   void initState() {
     super.initState();
     _repository = widget.repository ?? const LeaderboardRepositoryImpl();
+    _activeBarangay = widget.initialBarangay;
+    _activeCity = widget.initialCity;
+    _activeRegion = widget.initialRegion;
+    _activeCountry = widget.initialCountry;
+
     _loadLeaderboard();
+    _syncTerritory();
+  }
+
+  Future<void> _syncTerritory() async {
+    try {
+      final t = await TerritoryServiceImpl.instance.getTerritory(
+        widget.currentUserId,
+      );
+      if (!mounted) return;
+      if (t.barangay != _activeBarangay || t.city != _activeCity) {
+        setState(() {
+          _activeBarangay = t.barangay;
+          _activeCity = t.city;
+          _activeRegion = t.province;
+          _activeCountry = t.country;
+        });
+        _loadLeaderboard();
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _openTerritoryPicker() async {
+    final current = ExplorerTerritory(
+      barangay: _activeBarangay,
+      city: _activeCity,
+      province: _activeRegion,
+      country: _activeCountry,
+    );
+
+    final updated = await TerritorySelectionSheet.show(
+      context,
+      userId: widget.currentUserId,
+      currentTerritory: current,
+    );
+
+    if (updated != null && mounted) {
+      setState(() {
+        _activeBarangay = updated.barangay;
+        _activeCity = updated.city;
+        _activeRegion = updated.province;
+        _activeCountry = updated.country;
+      });
+      _loadLeaderboard();
+    }
   }
 
   Future<void> _loadLeaderboard() async {
@@ -56,10 +113,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     final filter = LeaderboardFilter(
       category: _category,
       scope: _scope,
-      barangay: widget.initialBarangay,
-      city: widget.initialCity,
-      region: widget.initialRegion,
-      country: widget.initialCountry,
+      barangay: _activeBarangay,
+      city: _activeCity,
+      region: _activeRegion,
+      country: _activeCountry,
       limit: 100,
     );
 
@@ -112,6 +169,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           // Season Notice Banner
           _buildSeasonBanner(),
 
+          // Active Territory Bar
+          _buildTerritoryBar(),
+
           // Category Tabs (Overall / Snaps / Distance)
           _buildCategoryTabs(),
 
@@ -129,6 +189,70 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 : _buildLeaderboardContent(),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTerritoryBar() {
+    return GestureDetector(
+      onTap: _openTerritoryPicker,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.location_on_rounded,
+              size: 16,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(
+                      text: 'Territory: ',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '$_activeBarangay, $_activeCity',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Icon(
+              Icons.tune_rounded,
+              size: 14,
+              color: AppColors.textSecondary,
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              'Change',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -231,13 +355,13 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           final isSelected = _scope == sc;
           String label = sc.label;
           if (sc == LeaderboardScope.barangay) {
-            label = '${widget.initialBarangay} (50)';
+            label = '$_activeBarangay (50)';
           } else if (sc == LeaderboardScope.city) {
-            label = '${widget.initialCity} (150)';
+            label = '$_activeCity (150)';
           } else if (sc == LeaderboardScope.region) {
-            label = '${widget.initialRegion} (300)';
+            label = '$_activeRegion (300)';
           } else if (sc == LeaderboardScope.national) {
-            label = '${widget.initialCountry} (300)';
+            label = '$_activeCountry (300)';
           } else if (sc == LeaderboardScope.global) {
             label = 'Global (500)';
           }
@@ -277,7 +401,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       rank: entry.rank,
       tierTitle: entry.tier.displayName,
       pawPoints: entry.points,
-      territory: '${entry.barangay}, Lapu-Lapu City',
+      territory: '${entry.barangay}, ${entry.city}',
     );
     if (!mounted) return;
     ExplorerShowcaseSheet.show(context, profile);
@@ -301,6 +425,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               standing: _userStanding,
               scope: _scope,
               category: _category,
+              territoryLabel: '$_activeBarangay, $_activeCity',
+              onChangeTerritory: _openTerritoryPicker,
             ),
           ),
         if (first != null)

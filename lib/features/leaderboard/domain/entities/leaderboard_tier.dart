@@ -8,6 +8,9 @@ enum LeaderboardTier {
   territoryAlpha,
   mythicGuardian;
 
+  String get divisionLabel => 'Division ${index + 1}';
+  String get fullTitle => 'Division ${index + 1} • $displayName';
+
   String get displayName {
     switch (this) {
       case LeaderboardTier.sleepyKitten:
