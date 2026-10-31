@@ -12,7 +12,10 @@ import '../../../seasons/domain/entities/season_period.dart';
 import '../../../seasons/presentation/widgets/season_details_sheet.dart';
 import '../../../territory/data/services/territory_service_impl.dart';
 import '../../../territory/domain/entities/explorer_territory.dart';
+import '../../../territory/domain/services/territory_service.dart';
 import '../../../territory/presentation/widgets/territory_selection_sheet.dart';
+import '../../../territory/presentation/widgets/territory_setup_dialog.dart';
+import '../../../territory/presentation/widgets/territory_locked_dialog.dart';
 import '../widgets/leaderboard_tile.dart';
 import '../widgets/podium_card.dart';
 import '../widgets/user_standing_card.dart';
@@ -35,7 +38,14 @@ class LeaderboardPage extends StatefulWidget {
     this.initialRegion = 'Central Visayas',
     this.initialCountry = 'Philippines',
     this.bottomPadding = 0.0,
+    this.isAdmin = false,
+    this.territoryService,
+    this.promptTerritorySetup = true,
   });
+
+  final bool isAdmin;
+  final TerritoryService? territoryService;
+  final bool promptTerritorySetup;
 
   @override
   State<LeaderboardPage> createState() => _LeaderboardPageState();
@@ -43,6 +53,8 @@ class LeaderboardPage extends StatefulWidget {
 
 class _LeaderboardPageState extends State<LeaderboardPage> {
   late final LeaderboardRepository _repository;
+  TerritoryService get _territoryService =>
+      widget.territoryService ?? TerritoryServiceImpl.instance;
   LeaderboardCategory _category = LeaderboardCategory.overall;
   LeaderboardScope _scope = LeaderboardScope.barangay;
   List<LeaderboardEntry> _entries = [];
@@ -65,13 +77,35 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
     _loadLeaderboard();
     _syncTerritory();
+    if (widget.promptTerritorySetup) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _checkFirstTimeTerritorySetup();
+        }
+      });
+    }
+  }
+
+  Future<void> _checkFirstTimeTerritorySetup() async {
+    final updated = await TerritorySetupDialog.checkAndShow(
+      context,
+      userId: widget.currentUserId,
+      territoryService: _territoryService,
+    );
+    if (updated != null && mounted) {
+      setState(() {
+        _activeBarangay = updated.barangay;
+        _activeCity = updated.city;
+        _activeRegion = updated.province;
+        _activeCountry = updated.country;
+      });
+      _loadLeaderboard();
+    }
   }
 
   Future<void> _syncTerritory() async {
     try {
-      final t = await TerritoryServiceImpl.instance.getTerritory(
-        widget.currentUserId,
-      );
+      final t = await _territoryService.getTerritory(widget.currentUserId);
       if (!mounted) return;
       if (t.barangay != _activeBarangay || t.city != _activeCity) {
         setState(() {
@@ -86,13 +120,25 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Future<void> _openTerritoryPicker() async {
-    final current = ExplorerTerritory(
-      barangay: _activeBarangay,
-      city: _activeCity,
-      province: _activeRegion,
-      country: _activeCountry,
+    final territory = await _territoryService.getTerritory(
+      widget.currentUserId,
     );
 
+    if (territory.isChangeLocked) {
+      if (!mounted) return;
+      await TerritoryLockedDialog.show(
+        context,
+        territory: territory,
+        isAdmin: widget.isAdmin,
+        onAdminOverride: () => _showPickerAndLock(territory),
+      );
+      return;
+    }
+
+    await _showPickerAndLock(territory);
+  }
+
+  Future<void> _showPickerAndLock(ExplorerTerritory current) async {
     final updated = await TerritorySelectionSheet.show(
       context,
       userId: widget.currentUserId,
@@ -100,11 +146,17 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     );
 
     if (updated != null && mounted) {
+      final locked = updated.copyWith(
+        isHomeConfirmed: true,
+        lockedAt: DateTime.now(),
+      );
+      await _territoryService.updateTerritory(widget.currentUserId, locked);
+
       setState(() {
-        _activeBarangay = updated.barangay;
-        _activeCity = updated.city;
-        _activeRegion = updated.province;
-        _activeCountry = updated.country;
+        _activeBarangay = locked.barangay;
+        _activeCity = locked.city;
+        _activeRegion = locked.province;
+        _activeCountry = locked.country;
       });
       _loadLeaderboard();
     }

@@ -87,6 +87,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         initialCity: 'Lapu-Lapu City',
         initialCountry: 'Philippines',
         bottomPadding: 84.0,
+        isAdmin: widget.user.isAdminRole,
       ),
       DashboardPage(
         user: widget.user,

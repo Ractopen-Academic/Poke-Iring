@@ -639,6 +639,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         initialCity: territory.city,
                         initialRegion: territory.province,
                         initialCountry: territory.country,
+                        isAdmin: widget.user.isAdminRole,
                       ),
                     ),
                   );
