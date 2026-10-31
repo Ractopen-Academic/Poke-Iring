@@ -28,6 +28,7 @@ import '../../../territory/data/services/territory_service_impl.dart';
 import '../../../events/presentation/widgets/event_banner_card.dart';
 import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../../territory/domain/entities/explorer_territory.dart';
+import '../../../territory/domain/services/territory_service.dart';
 import '../../../territory/presentation/widgets/territory_selection_sheet.dart';
 import '../../../vault/presentation/pages/raw_photo_vault_page.dart';
 
@@ -35,12 +36,14 @@ class DashboardPage extends StatefulWidget {
   final AuthUser user;
   final AuthRepository authRepository;
   final VoidCallback? onOpenMap;
+  final TerritoryService? territoryService;
 
   const DashboardPage({
     super.key,
     required this.user,
     required this.authRepository,
     this.onOpenMap,
+    this.territoryService,
   });
 
   @override
@@ -50,12 +53,33 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   bool _isLoggingOut = false;
   bool _isPublicShowcase = true;
+  bool _isAutoDetectingTerritory = false;
+
+  TerritoryService get _territoryService =>
+      widget.territoryService ?? TerritoryServiceImpl.instance;
 
   @override
   void initState() {
     super.initState();
     ExplorerHealthService.instance.start();
     _isPublicShowcase = ShowcaseService.instance.isPublicShowcaseEnabled;
+    _runAutoTerritorySync(showSpinner: false);
+  }
+
+  Future<void> _runAutoTerritorySync({bool showSpinner = false}) async {
+    final userId =
+        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+    if (userId.isEmpty) return;
+
+    if (showSpinner && mounted) {
+      setState(() => _isAutoDetectingTerritory = true);
+    }
+    try {
+      await _territoryService.autoDetectAndSync(userId);
+    } catch (_) {}
+    if (showSpinner && mounted) {
+      setState(() => _isAutoDetectingTerritory = false);
+    }
   }
 
   Future<void> _handleSignOut() async {
@@ -187,7 +211,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 14),
               StreamBuilder<ExplorerTerritory>(
-                stream: TerritoryServiceImpl.instance.watchTerritory(
+                stream: _territoryService.watchTerritory(
                   widget.user.id.isNotEmpty
                       ? widget.user.id
                       : widget.user.email,
@@ -222,49 +246,105 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         const SizedBox(width: 14),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Home Territory',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textSecondary,
+                          child: InkWell(
+                            onTap: () {
+                              TerritorySelectionSheet.show(
+                                context,
+                                userId: widget.user.id.isNotEmpty
+                                    ? widget.user.id
+                                    : widget.user.email,
+                                currentTerritory: territory,
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Active Territory',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 1.5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: territory.isHomeConfirmed
+                                            ? const Color(0xFFDCFCE7)
+                                            : const Color(0xFFFEF3C7),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        territory.isHomeConfirmed
+                                            ? 'GPS Verified'
+                                            : 'Default Area',
+                                        style: TextStyle(
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: territory.isHomeConfirmed
+                                              ? const Color(0xFF166534)
+                                              : const Color(0xFF92400E),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${territory.barangay}, ${territory.city}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${territory.barangay}, ${territory.city}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                '${territory.province}, ${territory.country}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.textSecondary,
+                                Text(
+                                  '${territory.province}, ${territory.country}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                        OutlinedButton(
-                          onPressed: () {
-                            TerritorySelectionSheet.show(
-                              context,
-                              userId: widget.user.id.isNotEmpty
-                                  ? widget.user.id
-                                  : widget.user.email,
-                              currentTerritory: territory,
-                            );
-                          },
+                        OutlinedButton.icon(
+                          onPressed: _isAutoDetectingTerritory
+                              ? null
+                              : () => _runAutoTerritorySync(showSpinner: true),
+                          icon: _isAutoDetectingTerritory
+                              ? const SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.primary,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.my_location_rounded,
+                                  size: 14,
+                                  color: AppColors.primary,
+                                ),
+                          label: Text(
+                            _isAutoDetectingTerritory ? 'Syncing...' : 'Auto-Sync',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
+                              horizontal: 10,
                               vertical: 6,
                             ),
                             minimumSize: Size.zero,
@@ -272,14 +352,6 @@ class _DashboardPageState extends State<DashboardPage> {
                             side: const BorderSide(color: AppColors.primary),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Edit',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
                             ),
                           ),
                         ),

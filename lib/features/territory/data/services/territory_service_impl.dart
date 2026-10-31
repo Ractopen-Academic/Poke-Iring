@@ -17,6 +17,12 @@ class TerritoryServiceImpl implements TerritoryService {
   static TerritoryServiceImpl get instance =>
       _instance ??= TerritoryServiceImpl();
 
+  @visibleForTesting
+  static set instance(TerritoryServiceImpl value) => _instance = value;
+
+  @visibleForTesting
+  static void resetInstance() => _instance = null;
+
   final LocationService _locationService;
   final ReverseGeocodingService _geocodingService;
   final FirebaseTerritoryDataSource _territoryDataSource;
@@ -207,6 +213,33 @@ class TerritoryServiceImpl implements TerritoryService {
     }
 
     return ExplorerTerritory.defaultTerritory;
+  }
+
+  @override
+  Future<ExplorerTerritory?> autoDetectAndSync(String userId) async {
+    try {
+      final loc = await _locationService.getCurrentLocation();
+      if (loc == null) {
+        return null;
+      }
+
+      final resolved = await _geocodingService.resolveCoordinates(
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+      );
+
+      final verified = resolved.copyWith(
+        isHomeConfirmed: true,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+      );
+
+      await updateTerritory(userId, verified);
+      return verified;
+    } catch (e) {
+      debugPrint('autoDetectAndSync error: $e');
+      return null;
+    }
   }
 
   @visibleForTesting
