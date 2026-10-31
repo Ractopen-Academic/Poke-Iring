@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/subscription_tier.dart';
@@ -11,10 +14,24 @@ class SubscriptionServiceImpl implements SubscriptionService {
   static SubscriptionServiceImpl get instance =>
       _instance ??= SubscriptionServiceImpl();
 
+  final FirebaseFirestore? firestore;
+
   final Map<String, StreamController<SubscriptionStatus>> _controllers = {};
   final Map<String, SubscriptionStatus> _cache = {};
 
   String _prefKey(String userId) => 'subscription_status_v1_$userId';
+
+  SubscriptionServiceImpl({this.firestore});
+
+  bool get _isFirebaseAvailable {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  FirebaseFirestore get _db => firestore ?? FirebaseFirestore.instance;
 
   @override
   Stream<SubscriptionStatus> watchSubscription(String userId) {
@@ -39,7 +56,9 @@ class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
       final raw = prefs.getString(_prefKey(userId));
       if (raw != null) {
         final decoded = jsonDecode(raw) as Map<String, dynamic>;
@@ -48,6 +67,27 @@ class SubscriptionServiceImpl implements SubscriptionService {
         return _cache[userId]!;
       }
     } catch (_) {}
+
+    if (_isFirebaseAvailable) {
+      try {
+        final doc = await _db
+            .collection('users')
+            .doc(userId)
+            .get()
+            .timeout(const Duration(milliseconds: 1500));
+        if (doc.exists) {
+          final subData = doc.data()?['subscription'] as Map<String, dynamic>?;
+          if (subData != null) {
+            final status = SubscriptionStatus.fromMap(subData);
+            _cache.putIfAbsent(userId, () => status);
+            unawaited(_persistLocally(userId, status));
+            return status;
+          }
+        }
+      } catch (e) {
+        debugPrint('Firestore fetch subscription error: $e');
+      }
+    }
 
     final defaultFree = SubscriptionStatus.free(userId);
     _cache.putIfAbsent(userId, () => defaultFree);
@@ -74,11 +114,8 @@ class SubscriptionServiceImpl implements SubscriptionService {
     );
 
     _cache[userId] = upgraded;
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_prefKey(userId), jsonEncode(upgraded.toMap()));
-    } catch (_) {}
+    unawaited(_persistLocally(userId, upgraded));
+    unawaited(_syncToCloud(userId, upgraded));
 
     if (_controllers[userId]?.isClosed == false) {
       _controllers[userId]?.add(upgraded);
@@ -96,16 +133,41 @@ class SubscriptionServiceImpl implements SubscriptionService {
     );
 
     _cache[userId] = cancelled;
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_prefKey(userId), jsonEncode(cancelled.toMap()));
-    } catch (_) {}
+    unawaited(_persistLocally(userId, cancelled));
+    unawaited(_syncToCloud(userId, cancelled));
 
     if (_controllers[userId]?.isClosed == false) {
       _controllers[userId]?.add(cancelled);
     }
 
     return cancelled;
+  }
+
+  Future<void> _persistLocally(String userId, SubscriptionStatus status) async {
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      await prefs.setString(_prefKey(userId), jsonEncode(status.toMap()));
+    } catch (_) {}
+  }
+
+  Future<void> _syncToCloud(String userId, SubscriptionStatus status) async {
+    if (!_isFirebaseAvailable) return;
+
+    try {
+      await _db.collection('users').doc(userId).set({
+        'subscription': status.toMap(),
+        'isClubMember': status.isClubMember,
+        'lastActive': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('Firestore sync subscription error: $e');
+    }
+  }
+
+  @visibleForTesting
+  void resetCache() {
+    _cache.clear();
   }
 }

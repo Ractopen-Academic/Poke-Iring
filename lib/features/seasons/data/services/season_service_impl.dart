@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/season_period.dart';
 import '../../domain/entities/season_prestige_record.dart';
 import '../../domain/services/season_service.dart';
+import '../datasources/firebase_seasons_datasource.dart';
 
 class SeasonServiceImpl implements SeasonService {
   static SeasonServiceImpl? _instance;
   static SeasonServiceImpl get instance => _instance ??= SeasonServiceImpl();
+
+  final FirebaseSeasonsDataSource _dataSource;
 
   final StreamController<SeasonPeriod> _seasonController =
       StreamController<SeasonPeriod>.broadcast();
@@ -17,13 +21,20 @@ class SeasonServiceImpl implements SeasonService {
   final Map<String, StreamController<List<SeasonPrestigeRecord>>>
   _historyControllers = {};
 
-  SeasonPeriod? _cachedSeason;
   final Map<String, int> _cachedPrestige = {};
   final Map<String, List<SeasonPrestigeRecord>> _cachedHistory = {};
 
-  static const String _seasonPrefKey = 'active_season_period_v1';
   String _prestigePrefKey(String userId) => 'mythic_prestige_$userId';
   String _historyPrefKey(String userId) => 'season_history_$userId';
+
+  SeasonServiceImpl({FirebaseSeasonsDataSource? dataSource})
+    : _dataSource = dataSource ?? FirebaseSeasonsDataSource.instance {
+    _dataSource.watchActiveSeason().listen((season) {
+      if (!_seasonController.isClosed) {
+        _seasonController.add(season);
+      }
+    });
+  }
 
   @override
   Stream<SeasonPeriod> watchCurrentSeason() {
@@ -40,22 +51,7 @@ class SeasonServiceImpl implements SeasonService {
 
   @override
   Future<SeasonPeriod> getCurrentSeason() async {
-    if (_cachedSeason != null) return _cachedSeason!;
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString(_seasonPrefKey);
-      if (raw != null) {
-        final decoded = jsonDecode(raw) as Map<String, dynamic>;
-        final season = SeasonPeriod.fromMap(decoded);
-        _cachedSeason = season;
-        return season;
-      }
-    } catch (_) {}
-
-    final defaultSeason = SeasonPeriod.defaultSeason1();
-    _cachedSeason = defaultSeason;
-    return defaultSeason;
+    return _dataSource.getActiveSeason();
   }
 
   @override
@@ -81,11 +77,22 @@ class SeasonServiceImpl implements SeasonService {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final pts = prefs.getInt(_prestigePrefKey(userId)) ?? 0;
-      _cachedPrestige.putIfAbsent(userId, () => pts);
-      return _cachedPrestige[userId]!;
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      final pts = prefs.getInt(_prestigePrefKey(userId));
+      if (pts != null) {
+        _cachedPrestige.putIfAbsent(userId, () => pts);
+        return pts;
+      }
     } catch (_) {}
+
+    final cloudPts = await _dataSource.fetchUserPrestige(userId);
+    if (cloudPts != null) {
+      _cachedPrestige.putIfAbsent(userId, () => cloudPts);
+      unawaited(_persistPrestigeLocally(userId, cloudPts));
+      return cloudPts;
+    }
 
     _cachedPrestige.putIfAbsent(userId, () => 0);
     return _cachedPrestige[userId]!;
@@ -115,7 +122,9 @@ class SeasonServiceImpl implements SeasonService {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
       final rawList = prefs.getStringList(_historyPrefKey(userId));
       if (rawList != null) {
         final records = rawList.map((str) {
@@ -123,9 +132,16 @@ class SeasonServiceImpl implements SeasonService {
           return SeasonPrestigeRecord.fromMap(map);
         }).toList();
         _cachedHistory.putIfAbsent(userId, () => records);
-        return _cachedHistory[userId]!;
+        return records;
       }
     } catch (_) {}
+
+    final cloudHistory = await _dataSource.fetchUserSeasonHistory(userId);
+    if (cloudHistory != null && cloudHistory.isNotEmpty) {
+      _cachedHistory.putIfAbsent(userId, () => cloudHistory);
+      unawaited(_persistHistoryLocally(userId, cloudHistory));
+      return cloudHistory;
+    }
 
     _cachedHistory.putIfAbsent(userId, () => <SeasonPrestigeRecord>[]);
     return _cachedHistory[userId]!;
@@ -159,20 +175,19 @@ class SeasonServiceImpl implements SeasonService {
     int bonus = 50;
     SeasonTrophyCrest crest = SeasonTrophyCrest.participant;
 
-    if (currentRank > 0 && currentRank <= 3) {
+    if (currentRank <= 3) {
       bonus = 1000;
       crest = SeasonTrophyCrest.goldMythic;
-    } else if ((currentRank > 0 && currentRank <= 10) ||
-        currentPoints >= 3000) {
+    } else if (currentRank <= 10) {
       bonus = 500;
       crest = SeasonTrophyCrest.silverMythic;
-    } else if ((currentRank > 0 && currentRank <= 25) || currentPoints >= 700) {
-      bonus = 250;
+    } else if (currentRank <= 50) {
+      bonus = 200;
       crest = SeasonTrophyCrest.bronzeMythic;
     }
 
-    final totalPrestige = currentPoints + bonus;
-    final placementPts = calculatePlacementPoints(currentPoints);
+    final placementPoints = calculatePlacementPoints(currentPoints);
+    final placementLabel = _placementDivisionLabel(placementPoints);
 
     return SeasonPrestigeRecord(
       seasonId: season.id,
@@ -181,11 +196,11 @@ class SeasonServiceImpl implements SeasonService {
       finalPoints: currentPoints,
       finalRank: currentRank,
       finalDivision: divisionTitle,
-      prestigeEarned: totalPrestige,
+      prestigeEarned: currentPoints + bonus,
       trophyCrest: crest,
       completedAt: DateTime.now(),
-      startingPlacementDivision: _placementDivisionLabel(placementPts),
-      startingPlacementPoints: placementPts,
+      startingPlacementDivision: placementLabel,
+      startingPlacementPoints: placementPoints,
     );
   }
 
@@ -218,14 +233,12 @@ class SeasonServiceImpl implements SeasonService {
     ];
     _cachedHistory[userId] = updatedHistory;
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(_prestigePrefKey(userId), newPrestige);
-      final rawHistory = updatedHistory
-          .map((r) => jsonEncode(r.toMap()))
-          .toList();
-      await prefs.setStringList(_historyPrefKey(userId), rawHistory);
-    } catch (_) {}
+    unawaited(_persistPrestigeLocally(userId, newPrestige));
+    unawaited(_persistHistoryLocally(userId, updatedHistory));
+
+    // Cloud sync to Firestore
+    unawaited(_dataSource.syncUserPrestige(userId, newPrestige));
+    unawaited(_dataSource.syncUserSeasonHistory(userId, updatedHistory));
 
     // 3. Advance Season
     final nextNumber = season.number + 1;
@@ -240,16 +253,9 @@ class SeasonServiceImpl implements SeasonService {
       status: SeasonStatus.active,
     );
 
-    _cachedSeason = nextSeason;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_seasonPrefKey, jsonEncode(nextSeason.toMap()));
-    } catch (_) {}
+    await _dataSource.updateActiveSeason(nextSeason);
 
     // 4. Notify streams
-    if (!_seasonController.isClosed) {
-      _seasonController.add(nextSeason);
-    }
     if (_prestigeControllers[userId]?.isClosed == false) {
       _prestigeControllers[userId]?.add(newPrestige);
     }
@@ -267,28 +273,40 @@ class SeasonServiceImpl implements SeasonService {
       endsAt: DateTime.now().subtract(const Duration(minutes: 1)),
       status: SeasonStatus.completed,
     );
-    _cachedSeason = ended;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_seasonPrefKey, jsonEncode(ended.toMap()));
-    } catch (_) {}
-
-    if (!_seasonController.isClosed) {
-      _seasonController.add(ended);
-    }
+    await _dataSource.updateActiveSeason(ended);
   }
 
   @override
   Future<void> resetToSeason1() async {
     final s1 = SeasonPeriod.defaultSeason1();
-    _cachedSeason = s1;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_seasonPrefKey, jsonEncode(s1.toMap()));
-    } catch (_) {}
+    await _dataSource.updateActiveSeason(s1);
+  }
 
-    if (!_seasonController.isClosed) {
-      _seasonController.add(s1);
-    }
+  Future<void> _persistPrestigeLocally(String userId, int pts) async {
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      await prefs.setInt(_prestigePrefKey(userId), pts);
+    } catch (_) {}
+  }
+
+  Future<void> _persistHistoryLocally(
+    String userId,
+    List<SeasonPrestigeRecord> history,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      final rawHistory = history.map((r) => jsonEncode(r.toMap())).toList();
+      await prefs.setStringList(_historyPrefKey(userId), rawHistory);
+    } catch (_) {}
+  }
+
+  @visibleForTesting
+  void resetLocalCache() {
+    _cachedPrestige.clear();
+    _cachedHistory.clear();
   }
 }
