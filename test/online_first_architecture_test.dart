@@ -30,9 +30,7 @@ void main() {
         expect(seeds.first.userId, equals('user-clean'));
 
         // Seed local prefs with custom photo
-        final custom = seeds.first.copyWith(
-          id: 'cached-photo-1',
-        );
+        final custom = seeds.first.copyWith(id: 'cached-photo-1');
         final prefs = await SharedPreferences.getInstance();
         await prefs.setStringList('feline_club_raw_vault_user-offline', [
           jsonEncode(custom.toMap()),
@@ -135,26 +133,14 @@ void main() {
 
       // Seed local prefs
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        'territory_user-cached-t_barangay',
-        'Lahug',
-      );
-      await prefs.setString(
-        'territory_user-cached-t_city',
-        'Cebu City',
-      );
-      await prefs.setString(
-        'territory_user-cached-t_province',
-        'Cebu',
-      );
+      await prefs.setString('territory_user-cached-t_barangay', 'Lahug');
+      await prefs.setString('territory_user-cached-t_city', 'Cebu City');
+      await prefs.setString('territory_user-cached-t_province', 'Cebu');
       await prefs.setString(
         'territory_user-cached-t_region',
         'Central Visayas',
       );
-      await prefs.setString(
-        'territory_user-cached-t_country',
-        'Philippines',
-      );
+      await prefs.setString('territory_user-cached-t_country', 'Philippines');
       await prefs.setBool('territory_user-cached-t_confirmed', true);
 
       territoryService.resetCache();
