@@ -58,6 +58,103 @@ class LeaderboardEntry {
     }
   }
 
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'rank': rank,
+      'userId': userId,
+      'displayName': displayName,
+      'avatarColorIndex': avatarColorIndex,
+      'barangay': barangay,
+      'city': city,
+      'region': region,
+      'country': country,
+      'points': points,
+      'catsSnapped': catsSnapped,
+      'distanceKm': distanceKm,
+      'mythicPaws': mythicPaws,
+      'isCurrentUser': isCurrentUser,
+    };
+  }
+
+  factory LeaderboardEntry.fromMap(Map<String, dynamic> map) {
+    return LeaderboardEntry(
+      id: map['id'] as String? ?? '',
+      rank: (map['rank'] as num?)?.toInt() ?? 0,
+      userId: map['userId'] as String? ?? '',
+      displayName: map['displayName'] as String? ?? 'Explorer',
+      avatarColorIndex: (map['avatarColorIndex'] as num?)?.toInt() ?? 0,
+      barangay: map['barangay'] as String? ?? '',
+      city: map['city'] as String? ?? '',
+      region: map['region'] as String? ?? 'Central Visayas',
+      country: map['country'] as String? ?? 'Philippines',
+      points: (map['points'] as num?)?.toInt() ?? 0,
+      catsSnapped: (map['catsSnapped'] as num?)?.toInt() ?? 0,
+      distanceKm: (map['distanceKm'] as num?)?.toDouble() ?? 0.0,
+      mythicPaws: (map['mythicPaws'] as num?)?.toInt() ?? 0,
+      isCurrentUser: map['isCurrentUser'] as bool? ?? false,
+    );
+  }
+
+  factory LeaderboardEntry.fromFirestore(
+    String id,
+    Map<String, dynamic> data, {
+    String? currentUserId,
+  }) {
+    final territory = data['territory'] as Map<String, dynamic>?;
+    final barangay =
+        (data['barangay'] as String?) ??
+        (territory?['barangay'] as String?) ??
+        'Bankal';
+    final city =
+        (data['city'] as String?) ??
+        (territory?['city'] as String?) ??
+        'Lapu-Lapu City';
+    final region =
+        (data['region'] as String?) ??
+        (territory?['region'] as String?) ??
+        'Central Visayas';
+    final country =
+        (data['country'] as String?) ??
+        (territory?['country'] as String?) ??
+        'Philippines';
+
+    final points =
+        (data['totalPawPoints'] as num?)?.toInt() ??
+        (data['pawPoints'] as num?)?.toInt() ??
+        0;
+    final snaps =
+        (data['totalSnaps'] as num?)?.toInt() ??
+        (data['catsSnapped'] as num?)?.toInt() ??
+        0;
+    final distanceMeters =
+        (data['totalDistanceMeters'] as num?)?.toDouble() ?? 0.0;
+    final distanceKm =
+        (data['distanceKm'] as num?)?.toDouble() ?? (distanceMeters / 1000.0);
+    final mythicPaws = (data['mythicPaws'] as num?)?.toInt() ?? 0;
+    final displayName =
+        (data['displayName'] as String?) ??
+        (data['name'] as String?) ??
+        'Explorer ${id.substring(0, id.length > 5 ? 5 : id.length)}';
+
+    return LeaderboardEntry(
+      id: id,
+      rank: 0,
+      userId: id,
+      displayName: displayName,
+      avatarColorIndex: (data['avatarColorIndex'] as num?)?.toInt() ?? 0,
+      barangay: barangay,
+      city: city,
+      region: region,
+      country: country,
+      points: points,
+      catsSnapped: snaps,
+      distanceKm: distanceKm,
+      mythicPaws: mythicPaws,
+      isCurrentUser: currentUserId != null && id == currentUserId,
+    );
+  }
+
   LeaderboardEntry copyWith({
     String? id,
     int? rank,

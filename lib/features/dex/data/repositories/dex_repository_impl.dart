@@ -3,12 +3,17 @@ import '../../../scanner/domain/entities/cat_sighting.dart';
 import '../../domain/entities/feline_dex_species.dart';
 import '../../domain/entities/iring_dex_entry.dart';
 import '../../domain/repositories/dex_repository.dart';
+import '../datasources/firebase_dex_datasource.dart';
 
 class DexRepositoryImpl implements DexRepository {
   final FirebaseSightingsDataSource _dataSource;
+  final FirebaseDexDataSource _dexDataSource;
 
-  DexRepositoryImpl({FirebaseSightingsDataSource? dataSource})
-    : _dataSource = dataSource ?? FirebaseSightingsDataSource();
+  DexRepositoryImpl({
+    FirebaseSightingsDataSource? dataSource,
+    FirebaseDexDataSource? dexDataSource,
+  }) : _dataSource = dataSource ?? FirebaseSightingsDataSource(),
+       _dexDataSource = dexDataSource ?? FirebaseDexDataSource.instance;
 
   @override
   Stream<List<CatSighting>> watchUserSightings(String userId) {
@@ -21,20 +26,39 @@ class DexRepositoryImpl implements DexRepository {
   }
 
   @override
+  Stream<List<FelineDexSpecies>> watchSpecies() {
+    return _dexDataSource.watchSpecies();
+  }
+
+  @override
+  Future<List<FelineDexSpecies>> getSpecies() {
+    return _dexDataSource.getSpecies();
+  }
+
+  @override
   Stream<List<IringDexEntry>> watchDexEntries(String userId) {
-    return _dataSource.watchSightingsByUser(userId).map((sightings) {
-      return _buildEntries(sightings);
+    return _dataSource.watchSightingsByUser(userId).asyncMap((sightings) async {
+      final speciesList = await _dexDataSource.getSpecies();
+      return _buildEntries(sightings, speciesList);
     });
   }
 
   @override
   Future<List<IringDexEntry>> getDexEntries(String userId) async {
     final sightings = await getUserSightings(userId);
-    return _buildEntries(sightings);
+    final speciesList = await _dexDataSource.getSpecies();
+    return _buildEntries(sightings, speciesList);
   }
 
-  List<IringDexEntry> _buildEntries(List<CatSighting> sightings) {
-    return FelineDexSpecies.canonicalSpecies.map((species) {
+  List<IringDexEntry> _buildEntries(
+    List<CatSighting> sightings, [
+    List<FelineDexSpecies>? speciesList,
+  ]) {
+    final effectiveSpecies = (speciesList != null && speciesList.isNotEmpty)
+        ? speciesList
+        : FelineDexSpecies.canonicalSpecies;
+
+    return effectiveSpecies.map((species) {
       final matches = sightings
           .where((s) => _matchesSpecies(species, s))
           .toList();
@@ -130,6 +154,9 @@ class DexRepositoryImpl implements DexRepository {
       }
     }
 
-    return specCommon.contains(sBreed) || specName.contains(sBreed);
+    return specCommon.contains(sBreed) ||
+        specName.contains(sBreed) ||
+        sBreed.contains(specName) ||
+        (specCoat.isNotEmpty && sCoat.contains(specCoat));
   }
 }

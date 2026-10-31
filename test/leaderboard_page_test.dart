@@ -4,14 +4,18 @@ import 'package:pokeiring/features/leaderboard/data/repositories/leaderboard_rep
 import 'package:pokeiring/features/leaderboard/presentation/pages/leaderboard_page.dart';
 import 'package:pokeiring/features/leaderboard/presentation/widgets/podium_card.dart';
 import 'package:pokeiring/features/leaderboard/presentation/widgets/user_standing_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
   group('LeaderboardPage Widget', () {
     testWidgets(
       'renders season banner, category tabs, podium and standing card',
       (tester) async {
         await tester.pumpWidget(
-          const MaterialApp(
+          MaterialApp(
             home: LeaderboardPage(
               repository: LeaderboardRepositoryImpl(),
               currentUserId: 'test-user',
@@ -40,7 +44,7 @@ void main() {
 
     testWidgets('switching category tab updates view', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: LeaderboardPage(
             repository: LeaderboardRepositoryImpl(),
             currentUserId: 'test-user',

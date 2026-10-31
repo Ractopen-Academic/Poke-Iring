@@ -57,6 +57,78 @@ class FelineDexSpecies {
 
   String get formattedNumber => '#${dexNumber.toString().padLeft(3, '0')}';
 
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'dexNumber': dexNumber,
+      'name': name,
+      'commonName': commonName,
+      'coatPattern': coatPattern,
+      'rarity': rarity.name,
+      'description': description,
+      'habitat': habitat,
+      'defaultSeed': defaultSeed,
+    };
+  }
+
+  factory FelineDexSpecies.fromMap(Map<String, dynamic> map) {
+    return FelineDexSpecies(
+      id: map['id'] as String? ?? 'dex_001',
+      dexNumber: (map['dexNumber'] as num?)?.toInt() ?? 1,
+      name: map['name'] as String? ?? 'Domestic Shorthair',
+      commonName: map['commonName'] as String? ?? 'Classic Tabby Puspin',
+      coatPattern: map['coatPattern'] as String? ?? 'Tabby',
+      rarity: _parseRarity(map['rarity'] as String?),
+      description: map['description'] as String? ?? '',
+      habitat: map['habitat'] as String? ?? '',
+      defaultSeed: map['defaultSeed'] as String? ?? 'Tabby Puspin 1',
+    );
+  }
+
+  static FelineRarityTier _parseRarity(String? raw) {
+    if (raw == null) return FelineRarityTier.common;
+    for (final tier in FelineRarityTier.values) {
+      if (tier.name.toLowerCase() == raw.toLowerCase()) {
+        return tier;
+      }
+    }
+    return FelineRarityTier.common;
+  }
+
+  FelineDexSpecies copyWith({
+    String? id,
+    int? dexNumber,
+    String? name,
+    String? commonName,
+    String? coatPattern,
+    FelineRarityTier? rarity,
+    String? description,
+    String? habitat,
+    String? defaultSeed,
+  }) {
+    return FelineDexSpecies(
+      id: id ?? this.id,
+      dexNumber: dexNumber ?? this.dexNumber,
+      name: name ?? this.name,
+      commonName: commonName ?? this.commonName,
+      coatPattern: coatPattern ?? this.coatPattern,
+      rarity: rarity ?? this.rarity,
+      description: description ?? this.description,
+      habitat: habitat ?? this.habitat,
+      defaultSeed: defaultSeed ?? this.defaultSeed,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FelineDexSpecies &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   static const List<FelineDexSpecies> canonicalSpecies = [
     FelineDexSpecies(
       id: 'dex_001',
