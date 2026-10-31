@@ -25,6 +25,8 @@ import '../../../subscription/data/services/subscription_service_impl.dart';
 import '../../../subscription/domain/entities/subscription_tier.dart';
 import '../../../subscription/presentation/widgets/feline_club_paywall_sheet.dart';
 import '../../../territory/data/services/territory_service_impl.dart';
+import '../../../events/presentation/widgets/event_banner_card.dart';
+import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../../territory/domain/entities/explorer_territory.dart';
 import '../../../territory/presentation/widgets/territory_selection_sheet.dart';
 import '../../../vault/presentation/pages/raw_photo_vault_page.dart';
@@ -113,13 +115,19 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 child: Row(
                   children: [
-                    FelineAvatar(
-                      photoUrl: widget.user.photoUrl,
-                      seed: displayName,
+                    ProfileBorderAvatar(
+                      userId: widget.user.id.isNotEmpty
+                          ? widget.user.id
+                          : widget.user.email,
                       radius: 28,
-                      showBorder: true,
-                      borderColor: AppColors.primary.withAlpha(50),
-                      borderWidth: 2,
+                      child: FelineAvatar(
+                        photoUrl: widget.user.photoUrl,
+                        seed: displayName,
+                        radius: 28,
+                        showBorder: true,
+                        borderColor: AppColors.primary.withAlpha(50),
+                        borderWidth: 2,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -409,7 +417,15 @@ class _DashboardPageState extends State<DashboardPage> {
                   );
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 14),
+              EventBannerCard(
+                userId: widget.user.id.isNotEmpty
+                    ? widget.user.id
+                    : widget.user.email,
+                userDisplayName: displayName,
+                userPhotoUrl: widget.user.photoUrl,
+              ),
+              const SizedBox(height: 18),
               const Text(
                 'Explorer State',
                 style: TextStyle(

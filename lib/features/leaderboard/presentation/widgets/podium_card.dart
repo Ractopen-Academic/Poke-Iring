@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
 
@@ -142,29 +143,33 @@ class _PodiumStep extends StatelessWidget {
             clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
-              Container(
-                width: avatarSize,
-                height: avatarSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: Border.all(
-                    color: accentColor,
-                    width: rank == 1 ? 2.5 : 1.8,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: accentColor.withAlpha(45),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+              ProfileBorderAvatar(
+                userId: entry.userId,
+                radius: avatarSize / 2,
+                child: Container(
+                  width: avatarSize,
+                  height: avatarSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    border: Border.all(
+                      color: accentColor,
+                      width: rank == 1 ? 2.5 : 1.8,
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.pets,
-                    size: rank == 1 ? 22 : 18,
-                    color: accentColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withAlpha(45),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.pets,
+                      size: rank == 1 ? 22 : 18,
+                      color: accentColor,
+                    ),
                   ),
                 ),
               ),
