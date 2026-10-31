@@ -167,4 +167,39 @@ class TieredAchievement {
       milestones: milestones ?? this.milestones,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'category': category.name,
+      'currentProgress': currentProgress,
+      'unit': unit,
+      'milestones': milestones.map((m) => m.toMap()).toList(),
+    };
+  }
+
+  factory TieredAchievement.fromMap(Map<String, dynamic> map) {
+    return TieredAchievement(
+      id: map['id'] as String? ?? '',
+      title: map['title'] as String? ?? '',
+      description: map['description'] as String? ?? '',
+      category: AchievementCategory.values.firstWhere(
+        (c) =>
+            c.name.toLowerCase() ==
+            (map['category'] as String? ?? '').toLowerCase(),
+        orElse: () => AchievementCategory.movement,
+      ),
+      currentProgress: (map['currentProgress'] as num?)?.toDouble() ?? 0.0,
+      unit: map['unit'] as String? ?? '',
+      milestones:
+          (map['milestones'] as List<dynamic>?)
+              ?.map(
+                (m) => AchievementMilestone.fromMap(m as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+    );
+  }
 }

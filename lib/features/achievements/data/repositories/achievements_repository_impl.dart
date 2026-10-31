@@ -10,7 +10,7 @@ import '../../domain/entities/achievement_tier.dart';
 import '../../domain/entities/explorer_title.dart';
 import '../../domain/entities/tiered_achievement.dart';
 import '../../domain/repositories/achievements_repository.dart';
-import '../datasources/achievements_catalog.dart';
+import '../datasources/firebase_achievements_datasource.dart';
 
 class AchievementsRepositoryImpl implements AchievementsRepository {
   static final AchievementsRepositoryImpl _instance =
@@ -19,7 +19,10 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
   static AchievementsRepositoryImpl get instance => _instance;
 
   final FirebaseFirestore? _firestore;
+  final FirebaseAchievementsDataSource _dataSource;
   StreamSubscription<ExplorerHealthSnapshot>? _healthSubscription;
+  final Map<String, StreamSubscription<List<TieredAchievement>>>
+  _catalogSubscriptions = {};
 
   final Map<String, StreamController<List<TieredAchievement>>>
   _achievementsControllers = {};
@@ -28,14 +31,20 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
   final Map<String, StreamController<ExplorerTitle?>>
   _equippedTitleControllers = {};
 
-  factory AchievementsRepositoryImpl({FirebaseFirestore? firestore}) {
-    if (firestore != null) {
-      return AchievementsRepositoryImpl._internal(firestore);
+  factory AchievementsRepositoryImpl({
+    FirebaseFirestore? firestore,
+    FirebaseAchievementsDataSource? dataSource,
+  }) {
+    if (firestore != null || dataSource != null) {
+      return AchievementsRepositoryImpl._internal(firestore, dataSource);
     }
     return _instance;
   }
 
-  AchievementsRepositoryImpl._internal([this._firestore]);
+  AchievementsRepositoryImpl._internal([
+    this._firestore,
+    FirebaseAchievementsDataSource? dataSource,
+  ]) : _dataSource = dataSource ?? FirebaseAchievementsDataSource.instance;
 
   bool get _isFirebaseAvailable {
     try {
@@ -53,9 +62,17 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
     }
 
     _listenToHealthService(userId);
+    _listenToCatalogUpdates(userId);
     _emitState(userId);
 
     return _achievementsControllers[userId]!.stream;
+  }
+
+  void _listenToCatalogUpdates(String userId) {
+    _catalogSubscriptions[userId]?.cancel();
+    _catalogSubscriptions[userId] = _dataSource.watchCatalog().listen((_) {
+      _emitState(userId);
+    });
   }
 
   @override
@@ -103,8 +120,10 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
 
   Future<void> _emitState(String userId) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final catalog = AchievementsCatalog.getInitialCatalog();
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      final catalog = await _dataSource.getCatalog();
 
       final equippedTitleId =
           prefs.getString('user_equipped_title_$userId') ??
@@ -194,7 +213,9 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
     required double incrementBy,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
       final progressKey = 'achievement_progress_${userId}_$metricKey';
       final current = prefs.getDouble(progressKey) ?? 0.0;
       await prefs.setDouble(progressKey, current + incrementBy);
@@ -209,7 +230,9 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
     required double value,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
       final progressKey = 'achievement_progress_${userId}_$metricKey';
       final current = prefs.getDouble(progressKey) ?? 0.0;
       if (value > current) {
@@ -225,7 +248,9 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
     required String achievementId,
     required AchievementTier tier,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance().timeout(
+      const Duration(milliseconds: 300),
+    );
     final claimedKey =
         'achievement_claimed_${userId}_${achievementId}_${tier.name}';
 
@@ -234,7 +259,7 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
       return 0;
     }
 
-    final catalog = AchievementsCatalog.getInitialCatalog();
+    final catalog = await _dataSource.getCatalog();
     final track = catalog.firstWhere(
       (t) => t.id == achievementId,
       orElse: () => throw ArgumentError('Track not found: $achievementId'),
@@ -277,7 +302,9 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
     required String userId,
     required String titleId,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance().timeout(
+      const Duration(milliseconds: 300),
+    );
     await prefs.setString('user_equipped_title_$userId', titleId);
 
     if (_isFirebaseAvailable) {

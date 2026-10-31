@@ -4,6 +4,7 @@ import 'package:pokeiring/features/leaderboard/domain/entities/leaderboard_query
 import 'package:pokeiring/features/leaderboard/domain/entities/leaderboard_tier.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('LeaderboardTier', () {
     test('fromPoints evaluates proper tiers', () {
       expect(
