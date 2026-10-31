@@ -20,6 +20,9 @@ import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
 import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
 import '../../../showcase/services/showcase_service.dart';
+import '../../../territory/data/services/territory_service_impl.dart';
+import '../../../territory/domain/entities/explorer_territory.dart';
+import '../../../territory/presentation/widgets/territory_selection_sheet.dart';
 
 class DashboardPage extends StatefulWidget {
   final AuthUser user;
@@ -169,6 +172,109 @@ class _DashboardPageState extends State<DashboardPage> {
                   ],
                 ),
               ),
+              const SizedBox(height: 14),
+              StreamBuilder<ExplorerTerritory>(
+                stream: TerritoryServiceImpl.instance.watchTerritory(
+                  widget.user.id.isNotEmpty
+                      ? widget.user.id
+                      : widget.user.email,
+                ),
+                initialData: ExplorerTerritory.defaultTerritory,
+                builder: (context, snapshot) {
+                  final territory =
+                      snapshot.data ?? ExplorerTerritory.defaultTerritory;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withAlpha(20),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.location_on_rounded,
+                            size: 20,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Home Territory',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${territory.barangay}, ${territory.city}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              Text(
+                                '${territory.province}, ${territory.country}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {
+                            TerritorySelectionSheet.show(
+                              context,
+                              userId: widget.user.id.isNotEmpty
+                                  ? widget.user.id
+                                  : widget.user.email,
+                              currentTerritory: territory,
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            side: const BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            'Edit',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
               const Text(
                 'Explorer State',
@@ -226,16 +332,24 @@ class _DashboardPageState extends State<DashboardPage> {
                 icon: Icons.leaderboard_outlined,
                 title: 'Leaderboard',
                 subtitle: 'Seasonal territory standings and rankings',
-                onTap: () {
+                onTap: () async {
+                  final territory = await TerritoryServiceImpl.instance
+                      .getTerritory(
+                        widget.user.id.isNotEmpty
+                            ? widget.user.id
+                            : widget.user.email,
+                      );
+                  if (!context.mounted) return;
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => LeaderboardPage(
                         currentUserId: widget.user.id.isNotEmpty
                             ? widget.user.id
                             : widget.user.email,
-                        initialBarangay: 'Bankal',
-                        initialCity: 'Lapu-Lapu City',
-                        initialCountry: 'Philippines',
+                        initialBarangay: territory.barangay,
+                        initialCity: territory.city,
+                        initialRegion: territory.province,
+                        initialCountry: territory.country,
                       ),
                     ),
                   );

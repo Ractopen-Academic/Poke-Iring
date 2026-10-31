@@ -8,12 +8,16 @@ class UserStandingCard extends StatelessWidget {
   final LeaderboardEntry? standing;
   final LeaderboardScope scope;
   final LeaderboardCategory category;
+  final String? territoryLabel;
+  final VoidCallback? onChangeTerritory;
 
   const UserStandingCard({
     super.key,
     required this.standing,
     required this.scope,
     required this.category,
+    this.territoryLabel,
+    this.onChangeTerritory,
   });
 
   @override
@@ -79,17 +83,42 @@ class UserStandingCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 3),
-                    Text(
-                      '${scope.label} pool of ${scope.poolCapacity} explorers',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            territoryLabel != null
+                                ? '$territoryLabel • ${scope.label} (${scope.poolCapacity} explorers)'
+                                : '${scope.label} pool of ${scope.poolCapacity} explorers',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        if (onChangeTerritory != null) ...[
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: onChangeTerritory,
+                            child: const Text(
+                              'Change',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -103,13 +132,27 @@ class UserStandingCard extends StatelessWidget {
                     width: 1.2,
                   ),
                 ),
-                child: Text(
-                  tier.displayName,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: tier.color,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      tier.divisionLabel,
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w700,
+                        color: tier.color.withAlpha(180),
+                      ),
+                    ),
+                    Text(
+                      tier.displayName,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: tier.color,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -129,7 +172,7 @@ class UserStandingCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Level ${tier.index + 1} / 6: ${tier.displayName}',
+                '${tier.divisionLabel} of 6: ${tier.displayName}',
                 style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w700,
@@ -138,7 +181,7 @@ class UserStandingCard extends StatelessWidget {
               ),
               Text(
                 nextThreshold != null
-                    ? '$ptsToNext pts to level up'
+                    ? '$ptsToNext pts to next division'
                     : 'Max Tier Achieved',
                 style: const TextStyle(
                   fontSize: 10.5,
