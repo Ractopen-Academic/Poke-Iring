@@ -195,6 +195,50 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                 ),
               ),
             ),
+            if (profile.mythicPrestigePoints > 0)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF8E1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFFFD54F)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.workspace_premium_rounded,
+                        size: 18,
+                        color: Color(0xFFFFA000),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Lifetime Mythic Prestige: ${profile.mythicPrestigePoints} pts',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF5D4037),
+                          ),
+                        ),
+                      ),
+                      if (profile.completedSeasonsCount > 0)
+                        Text(
+                          '${profile.completedSeasonsCount} Seasons',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF8D6E63),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             const SizedBox(height: 20),
 
             // Privacy Guard / Showcase Section

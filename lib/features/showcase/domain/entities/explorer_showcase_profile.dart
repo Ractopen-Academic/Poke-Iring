@@ -14,6 +14,8 @@ class ExplorerShowcaseProfile {
   final int totalBoops;
   final String territory;
   final bool isPublic;
+  final int mythicPrestigePoints;
+  final int completedSeasonsCount;
   final List<CatSighting> showcaseCards;
 
   const ExplorerShowcaseProfile({
@@ -28,6 +30,8 @@ class ExplorerShowcaseProfile {
     this.totalBoops = 0,
     this.territory = 'Bankal, Lapu-Lapu City',
     this.isPublic = true,
+    this.mythicPrestigePoints = 0,
+    this.completedSeasonsCount = 0,
     this.showcaseCards = const [],
   });
 
@@ -45,6 +49,8 @@ class ExplorerShowcaseProfile {
     int? totalBoops,
     String? territory,
     bool? isPublic,
+    int? mythicPrestigePoints,
+    int? completedSeasonsCount,
     List<CatSighting>? showcaseCards,
   }) {
     return ExplorerShowcaseProfile(
@@ -59,6 +65,9 @@ class ExplorerShowcaseProfile {
       totalBoops: totalBoops ?? this.totalBoops,
       territory: territory ?? this.territory,
       isPublic: isPublic ?? this.isPublic,
+      mythicPrestigePoints: mythicPrestigePoints ?? this.mythicPrestigePoints,
+      completedSeasonsCount:
+          completedSeasonsCount ?? this.completedSeasonsCount,
       showcaseCards: showcaseCards ?? this.showcaseCards,
     );
   }

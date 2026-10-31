@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../dex/domain/entities/feline_dex_species.dart';
 import '../../scanner/data/datasources/firebase_sightings_datasource.dart';
 import '../../scanner/domain/entities/cat_sighting.dart';
+import '../../seasons/data/services/season_service_impl.dart';
 import '../domain/entities/explorer_showcase_profile.dart';
 
 class ShowcaseService {
@@ -140,6 +141,11 @@ class ShowcaseService {
         totalBoops: pinned.fold<int>(0, (sum, s) => sum + s.boopsCount),
         territory: territory,
         isPublic: _isPublic,
+        mythicPrestigePoints: await SeasonServiceImpl.instance
+            .getMythicPrestige(targetUserId),
+        completedSeasonsCount:
+            (await SeasonServiceImpl.instance.getSeasonHistory(targetUserId))
+                .length,
         showcaseCards: pinned,
       );
     } else {
@@ -172,6 +178,8 @@ class ShowcaseService {
             cards.fold<int>(0, (sum, s) => sum + s.boopsCount) + (rank * 5),
         territory: territory,
         isPublic: isTargetPublic,
+        mythicPrestigePoints: rank <= 3 ? 3200 : (rank <= 10 ? 1400 : 250),
+        completedSeasonsCount: rank <= 5 ? 2 : 1,
         showcaseCards: cards,
       );
     }

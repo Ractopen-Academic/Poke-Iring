@@ -7,6 +7,9 @@ import '../../domain/entities/leaderboard_query.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
 import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
 import '../../../showcase/services/showcase_service.dart';
+import '../../../seasons/data/services/season_service_impl.dart';
+import '../../../seasons/domain/entities/season_period.dart';
+import '../../../seasons/presentation/widgets/season_details_sheet.dart';
 import '../../../territory/data/services/territory_service_impl.dart';
 import '../../../territory/domain/entities/explorer_territory.dart';
 import '../../../territory/presentation/widgets/territory_selection_sheet.dart';
@@ -258,42 +261,71 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildSeasonBanner() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withAlpha(20),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primary.withAlpha(50)),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.event_repeat_rounded, size: 20, color: AppColors.primary),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return StreamBuilder<SeasonPeriod>(
+      stream: SeasonServiceImpl.instance.watchCurrentSeason(),
+      builder: (context, snapshot) {
+        final season = snapshot.data ?? SeasonPeriod.defaultSeason1();
+        return GestureDetector(
+          onTap: () {
+            SeasonDetailsSheet.show(
+              context,
+              season: season,
+              userId: widget.currentUserId,
+              userPoints: _userStanding?.points ?? 120,
+              userRank: _userStanding?.rank ?? 4,
+              divisionTitle:
+                  _userStanding?.tier.fullTitle ?? 'Division 2 • Alley Prowler',
+              onRolloverCompleted: _loadLeaderboard,
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withAlpha(20),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.primary.withAlpha(50)),
+            ),
+            child: Row(
               children: [
-                Text(
-                  'Season 1: Sunshine Strays',
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                const Icon(
+                  Icons.event_repeat_rounded,
+                  size: 20,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        season.title,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        '${season.remainingFormatted} • Tap for soft reset & prestige rewards',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  '12 days remaining • Top ranks earn permanent Mythic Paws',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textSecondary,
-                  ),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: AppColors.primary,
                 ),
               ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -18,6 +18,7 @@ import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
+import '../../../seasons/data/services/season_service_impl.dart';
 import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
 import '../../../showcase/services/showcase_service.dart';
 import '../../../territory/data/services/territory_service_impl.dart';
@@ -315,6 +316,70 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                     ],
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              StreamBuilder<int>(
+                stream: SeasonServiceImpl.instance.watchMythicPrestige(
+                  widget.user.id.isNotEmpty
+                      ? widget.user.id
+                      : widget.user.email,
+                ),
+                initialData: 0,
+                builder: (context, snapshot) {
+                  final prestige = snapshot.data ?? 0;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF9C4).withAlpha(120),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFFFD54F)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.workspace_premium_rounded,
+                          size: 22,
+                          color: Color(0xFFFFA000),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Lifetime Mythic Prestige',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF5D4037),
+                                ),
+                              ),
+                              const SizedBox(height: 1),
+                              Text(
+                                '$prestige Points',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF4E342E),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          'Archived prestige',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.brown.shade400,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
