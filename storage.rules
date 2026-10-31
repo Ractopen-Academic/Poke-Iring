@@ -1,0 +1,48 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    // Cat sightings original captures and sticker cutouts
+    match /sightings/{userId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId)
+        && isImage()
+        && request.resource.size <= 15 * 1024 * 1024;
+    }
+
+    // 24-hour community stories media
+    match /stories/{userId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId)
+        && isImage()
+        && request.resource.size <= 15 * 1024 * 1024;
+    }
+
+    // Private raw photo vault captures
+    match /vault/{userId}/{fileName} {
+      allow read, write: if isOwner(userId)
+        && isImage()
+        && request.resource.size <= 30 * 1024 * 1024;
+    }
+
+    // User avatar and profile media
+    match /users/{userId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId)
+        && isImage()
+        && request.resource.size <= 10 * 1024 * 1024;
+    }
+  }
+}
