@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
 
@@ -63,20 +64,24 @@ class LeaderboardTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Cute Avatar
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: tier.color.withAlpha(30),
-                    border: Border.all(
-                      color: tier.color.withAlpha(80),
-                      width: 1.5,
+                // Cute Avatar with Profile Border
+                ProfileBorderAvatar(
+                  userId: entry.userId,
+                  radius: 19,
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: tier.color.withAlpha(30),
+                      border: Border.all(
+                        color: tier.color.withAlpha(80),
+                        width: 1.5,
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: Icon(Icons.pets, size: 18, color: tier.color),
+                    child: Center(
+                      child: Icon(Icons.pets, size: 18, color: tier.color),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
