@@ -1,0 +1,98 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isBoopUpdate() {
+      return isAuthenticated()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['boopsCount', 'boopedBy'])
+        && request.resource.data.boopsCount == resource.data.boopsCount + 1
+        && request.resource.data.boopedBy.hasAll(resource.data.boopedBy);
+    }
+
+    function isPointsIncrement() {
+      return isAuthenticated()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['totalPawPoints'])
+        && request.resource.data.totalPawPoints == resource.data.totalPawPoints + 5;
+    }
+
+    // User profiles and private subcollections
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isPointsIncrement();
+      allow delete: if isOwner(userId);
+
+      // Private user photo vault
+      match /vault_photos/{photoId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Private user seasonal event wallet
+      match /event_wallets/{walletId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Cat sightings shared across the map and leaderboard
+    match /sightings/{sightingId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId) || isBoopUpdate();
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    // 24-hour temporary community stories
+    match /stories/{storyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId)
+        || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['boops', 'boopedBy', 'reactions']));
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    // Real-time map pins
+    match /live_sightings/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Shared catalogs (readable by all players, writable for seeding)
+    match /dex_species/{speciesId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /territories/{territoryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /quest_pool/{questId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /achievement_tracks/{trackId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /seasons/{seasonId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+  }
+}
