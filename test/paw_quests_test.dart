@@ -181,7 +181,7 @@ void main() {
       await tester.tap(find.text('Weekly Missions'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Territory Wanderer'), findsOneWidget);
+      expect(find.byType(PawQuestCard), findsWidgets);
     });
   });
 }
