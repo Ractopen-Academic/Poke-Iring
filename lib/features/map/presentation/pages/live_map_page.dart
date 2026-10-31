@@ -338,10 +338,14 @@ class _LiveMapPageState extends State<LiveMapPage>
                     ) {
                       return Marker(
                         point: LatLng(sighting.latitude, sighting.longitude),
-                        width: 58,
-                        height: 66,
+                        width: 68,
+                        height: 88,
                         child: CatMarkerAvatar.fromSighting(
                           sighting: sighting,
+                          onBoop: () => _scannerRepository.boopSighting(
+                            sightingId: sighting.id,
+                            userId: widget.currentUserId,
+                          ),
                           onTap: () {
                             CatSightingDetailSheet.show(
                               context: context,

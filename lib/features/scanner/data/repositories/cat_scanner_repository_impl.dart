@@ -50,10 +50,12 @@ class CatScannerRepositoryImpl implements CatScannerRepository {
   Future<Uint8List> generateStickerCutout({
     required Uint8List imageBytes,
     required CatScanResult scanResult,
+    bool asSilhouette = false,
   }) {
     return _stickerGenerator.generateSticker(
       imageBytes: imageBytes,
       scanResult: scanResult,
+      asSilhouette: asSilhouette,
     );
   }
 
