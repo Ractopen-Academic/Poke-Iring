@@ -25,7 +25,7 @@ import '../../../subscription/data/services/subscription_service_impl.dart';
 import '../../../subscription/domain/entities/subscription_tier.dart';
 import '../../../subscription/presentation/widgets/feline_club_paywall_sheet.dart';
 import '../../../territory/data/services/territory_service_impl.dart';
-import '../../../events/presentation/widgets/event_banner_card.dart';
+import '../../../events/presentation/widgets/active_events_carousel.dart';
 import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../../territory/domain/entities/explorer_territory.dart';
 import '../../../territory/domain/services/territory_service.dart';
@@ -67,8 +67,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _runAutoTerritorySync({bool showSpinner = false}) async {
-    final userId =
-        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+    final userId = widget.user.id.isNotEmpty
+        ? widget.user.id
+        : widget.user.email;
     if (userId.isEmpty) return;
 
     if (showSpinner && mounted) {
@@ -335,7 +336,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   color: AppColors.primary,
                                 ),
                           label: Text(
-                            _isAutoDetectingTerritory ? 'Syncing...' : 'Auto-Sync',
+                            _isAutoDetectingTerritory
+                                ? 'Syncing...'
+                                : 'Auto-Sync',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -490,7 +493,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
               const SizedBox(height: 14),
-              EventBannerCard(
+              ActiveEventsCarousel(
                 userId: widget.user.id.isNotEmpty
                     ? widget.user.id
                     : widget.user.email,

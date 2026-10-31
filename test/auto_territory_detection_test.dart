@@ -167,7 +167,8 @@ void main() {
       final service = TerritoryServiceImpl(
         locationService: mockLocation,
         geocodingService: ReverseGeocodingService(
-          customResolver: (lat, lon) async => ExplorerTerritory.defaultTerritory,
+          customResolver: (lat, lon) async =>
+              ExplorerTerritory.defaultTerritory,
         ),
       );
 

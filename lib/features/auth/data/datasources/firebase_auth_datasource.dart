@@ -102,12 +102,17 @@ class FirebaseAuthDatasource {
         email == 'test.explorer@pokeiring.app' ||
         email.endsWith('@pokeiring.app') ||
         email.startsWith('test.');
+    final isAdmin =
+        email == 'admin@pokeiring.app' ||
+        email == 'admin@iring.ph' ||
+        email.endsWith('@iring.ph');
     return AuthUser(
       id: user.uid,
       email: user.email ?? '',
       displayName: user.displayName ?? '',
       photoUrl: user.photoURL ?? '',
       emailVerified: user.emailVerified || isPreVerifiedTestUser,
+      isAdmin: isAdmin,
     );
   }
 }

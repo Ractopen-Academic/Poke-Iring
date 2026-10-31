@@ -59,6 +59,13 @@ class FelineEvent {
   final int accentColorValue;
   final List<EventQuestItem> quests;
   final List<ProfileBorder> borders;
+  final bool isFeaturedInCarousel;
+  final bool showPopupOnLaunch;
+  final String eventType; // 'festival', 'partnership', 'charity', 'spotlight'
+  final String? partnerName;
+  final String? externalLink;
+  final int priority;
+  final String? bannerImageUrl;
 
   const FelineEvent({
     required this.id,
@@ -73,6 +80,13 @@ class FelineEvent {
     required this.accentColorValue,
     required this.quests,
     required this.borders,
+    this.isFeaturedInCarousel = true,
+    this.showPopupOnLaunch = false,
+    this.eventType = 'festival',
+    this.partnerName,
+    this.externalLink,
+    this.priority = 0,
+    this.bannerImageUrl,
   });
 
   Color get bannerColor => Color(bannerColorValue);
@@ -81,6 +95,9 @@ class FelineEvent {
   bool get isExpired => DateTime.now().isAfter(endDate);
   bool get isUpcoming => DateTime.now().isBefore(startDate);
   bool get isActive => !isExpired && !isUpcoming;
+  bool get isPartnership =>
+      eventType == 'partnership' ||
+      (partnerName != null && partnerName!.isNotEmpty);
 
   String get remainingFormatted {
     final now = DateTime.now();
@@ -99,6 +116,50 @@ class FelineEvent {
     return '${diff.inMinutes}m left';
   }
 
+  FelineEvent copyWith({
+    String? id,
+    String? title,
+    String? subtitle,
+    String? description,
+    String? currencyName,
+    String? currencyCode,
+    DateTime? startDate,
+    DateTime? endDate,
+    int? bannerColorValue,
+    int? accentColorValue,
+    List<EventQuestItem>? quests,
+    List<ProfileBorder>? borders,
+    bool? isFeaturedInCarousel,
+    bool? showPopupOnLaunch,
+    String? eventType,
+    String? partnerName,
+    String? externalLink,
+    int? priority,
+    String? bannerImageUrl,
+  }) {
+    return FelineEvent(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      description: description ?? this.description,
+      currencyName: currencyName ?? this.currencyName,
+      currencyCode: currencyCode ?? this.currencyCode,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      bannerColorValue: bannerColorValue ?? this.bannerColorValue,
+      accentColorValue: accentColorValue ?? this.accentColorValue,
+      quests: quests ?? this.quests,
+      borders: borders ?? this.borders,
+      isFeaturedInCarousel: isFeaturedInCarousel ?? this.isFeaturedInCarousel,
+      showPopupOnLaunch: showPopupOnLaunch ?? this.showPopupOnLaunch,
+      eventType: eventType ?? this.eventType,
+      partnerName: partnerName ?? this.partnerName,
+      externalLink: externalLink ?? this.externalLink,
+      priority: priority ?? this.priority,
+      bannerImageUrl: bannerImageUrl ?? this.bannerImageUrl,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -113,6 +174,13 @@ class FelineEvent {
       'accentColorValue': accentColorValue,
       'quests': quests.map((q) => q.toMap()).toList(),
       'borders': borders.map((b) => b.toMap()).toList(),
+      'isFeaturedInCarousel': isFeaturedInCarousel,
+      'showPopupOnLaunch': showPopupOnLaunch,
+      'eventType': eventType,
+      'partnerName': partnerName,
+      'externalLink': externalLink,
+      'priority': priority,
+      'bannerImageUrl': bannerImageUrl,
     };
   }
 
@@ -142,6 +210,13 @@ class FelineEvent {
               ?.map((b) => ProfileBorder.fromMap(b as Map<String, dynamic>))
               .toList() ??
           ProfileBorder.defaultBorders(),
+      isFeaturedInCarousel: map['isFeaturedInCarousel'] as bool? ?? true,
+      showPopupOnLaunch: map['showPopupOnLaunch'] as bool? ?? false,
+      eventType: map['eventType'] as String? ?? 'festival',
+      partnerName: map['partnerName'] as String?,
+      externalLink: map['externalLink'] as String?,
+      priority: map['priority'] as int? ?? 0,
+      bannerImageUrl: map['bannerImageUrl'] as String?,
     );
   }
 
@@ -158,6 +233,10 @@ class FelineEvent {
       endDate: now.add(const Duration(days: 12)),
       bannerColorValue: 0xFF4C1D95, // Deep violet
       accentColorValue: 0xFFF59E0B, // Amber gold
+      isFeaturedInCarousel: true,
+      showPopupOnLaunch: true,
+      eventType: 'festival',
+      priority: 10,
       quests: const [
         EventQuestItem(
           id: 'eq_golden_hour_spot',
@@ -194,6 +273,47 @@ class FelineEvent {
           targetValue: 2.0,
           type: 'scans',
           targetBreed: 'Tabby',
+        ),
+      ],
+      borders: ProfileBorder.defaultBorders(),
+    );
+  }
+
+  static FelineEvent defaultPartnershipEvent() {
+    final now = DateTime.now();
+    return FelineEvent(
+      id: 'event_cebu_shelter_partnership_2026',
+      title: 'Cebu Sanctuary Care Drive',
+      subtitle: 'Community Partnership Initiative',
+      description: 'Partnering with Island Rescue Organization to provide food, spay/neuter support, and shelter medical kits for neighborhood colony cats.',
+      currencyName: 'Rescue Stars',
+      currencyCode: 'STR',
+      startDate: now.subtract(const Duration(days: 2)),
+      endDate: now.add(const Duration(days: 20)),
+      bannerColorValue: 0xFF0D9488, // Deep teal
+      accentColorValue: 0xFF14B8A6,
+      isFeaturedInCarousel: true,
+      showPopupOnLaunch: false,
+      eventType: 'partnership',
+      partnerName: 'Island Rescue Org (IRO)',
+      priority: 8,
+      quests: const [
+        EventQuestItem(
+          id: 'eq_sanctuary_feeding',
+          title: 'Colony Caretaker',
+          description: 'Document 3 cat health logs in your assigned territory.',
+          rewardCoins: 75,
+          targetValue: 3.0,
+          type: 'scans',
+        ),
+        EventQuestItem(
+          id: 'eq_sanctuary_steps',
+          title: 'Rescue Route March',
+          description:
+              'Cover 5,000 steps along community welfare patrol lines.',
+          rewardCoins: 90,
+          targetValue: 5000.0,
+          type: 'steps',
         ),
       ],
       borders: ProfileBorder.defaultBorders(),
