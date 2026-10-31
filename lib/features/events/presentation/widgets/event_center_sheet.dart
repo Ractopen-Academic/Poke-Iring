@@ -15,6 +15,7 @@ class EventCenterSheet extends StatefulWidget {
   final String userDisplayName;
   final String? userPhotoUrl;
   final EventRepository? repository;
+  final FelineEvent? event;
 
   const EventCenterSheet({
     super.key,
@@ -22,6 +23,7 @@ class EventCenterSheet extends StatefulWidget {
     required this.userDisplayName,
     this.userPhotoUrl,
     this.repository,
+    this.event,
   });
 
   static Future<void> show(
@@ -30,6 +32,7 @@ class EventCenterSheet extends StatefulWidget {
     required String userDisplayName,
     String? userPhotoUrl,
     EventRepository? repository,
+    FelineEvent? event,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -40,6 +43,7 @@ class EventCenterSheet extends StatefulWidget {
         userDisplayName: userDisplayName,
         userPhotoUrl: userPhotoUrl,
         repository: repository,
+        event: event,
       ),
     );
   }
@@ -146,7 +150,10 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
     return StreamBuilder<FelineEvent>(
       stream: _repository.watchActiveEvent(),
       builder: (context, eventSnapshot) {
-        final event = eventSnapshot.data ?? LocalEventCatalog.activeFestival;
+        final event =
+            widget.event ??
+            eventSnapshot.data ??
+            LocalEventCatalog.activeFestival;
 
         return StreamBuilder<UserEventWallet>(
           stream: _repository.watchUserWallet(widget.userId, event.id),

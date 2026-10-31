@@ -22,6 +22,8 @@ class EventRepositoryImpl implements EventRepository {
   final Map<String, StreamController<String?>> _equippedBorderControllers = {};
   final StreamController<FelineEvent> _eventController =
       StreamController<FelineEvent>.broadcast();
+  final StreamController<List<FelineEvent>> _eventsListController =
+      StreamController<List<FelineEvent>>.broadcast();
 
   factory EventRepositoryImpl({FirebaseFirestore? firestore}) {
     if (firestore != null) {
@@ -57,17 +59,46 @@ class EventRepositoryImpl implements EventRepository {
 
   @override
   Future<FelineEvent> getActiveEvent() async {
-    if (_isFirebaseAvailable) {
-      try {
-        final doc = await _db.collection('events').doc('active_festival').get();
-        if (doc.exists && doc.data() != null) {
-          return FelineEvent.fromMap({...doc.data()!, 'id': doc.id});
-        }
-      } catch (e) {
-        debugPrint('Firestore getActiveEvent skipped: $e');
-      }
+    final events = await getActiveEvents();
+    if (events.isNotEmpty) {
+      return events.first;
     }
     return LocalEventCatalog.activeFestival;
+  }
+
+  @override
+  Stream<List<FelineEvent>> watchActiveEvents() {
+    _emitActiveEvents();
+    return _eventsListController.stream;
+  }
+
+  Future<void> _emitActiveEvents() async {
+    final events = await getActiveEvents();
+    if (!_eventsListController.isClosed) {
+      _eventsListController.add(events);
+    }
+  }
+
+  @override
+  Future<List<FelineEvent>> getActiveEvents() async {
+    if (_isFirebaseAvailable) {
+      try {
+        final querySnapshot = await _db.collection('events').get();
+        if (querySnapshot.docs.isNotEmpty) {
+          final list = querySnapshot.docs
+              .map((doc) => FelineEvent.fromMap({...doc.data(), 'id': doc.id}))
+              .where((e) => !e.isExpired)
+              .toList();
+          if (list.isNotEmpty) {
+            list.sort((a, b) => b.priority.compareTo(a.priority));
+            return list;
+          }
+        }
+      } catch (e) {
+        debugPrint('Firestore getActiveEvents skipped: $e');
+      }
+    }
+    return LocalEventCatalog.defaultActiveEvents;
   }
 
   @override

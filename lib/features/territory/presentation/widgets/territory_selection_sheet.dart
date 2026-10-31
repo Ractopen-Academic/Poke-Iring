@@ -122,7 +122,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
     setState(() => _isDetecting = true);
     final detected =
         await TerritoryServiceImpl.instance.autoDetectAndSync(widget.userId) ??
-            await TerritoryServiceImpl.instance.detectFromGps();
+        await TerritoryServiceImpl.instance.detectFromGps();
     if (!mounted) return;
 
     setState(() {

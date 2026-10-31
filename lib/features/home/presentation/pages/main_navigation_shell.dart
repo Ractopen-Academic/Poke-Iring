@@ -16,6 +16,8 @@ import '../../../achievements/presentation/widgets/title_selection_sheet.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../dex/presentation/pages/iring_dex_page.dart';
+import '../../../events/presentation/widgets/active_events_carousel.dart';
+import '../../../events/presentation/widgets/event_popup_modal.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
@@ -247,6 +249,20 @@ class _HomePageState extends State<_HomePage> {
   void initState() {
     super.initState();
     ExplorerHealthService.instance.start();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        EventPopupModal.checkAndShow(
+          context,
+          userId: widget.user.id.isNotEmpty
+              ? widget.user.id
+              : widget.user.email,
+          userDisplayName: widget.user.displayName.isNotEmpty
+              ? widget.user.displayName
+              : widget.user.email.split('@').first,
+          userPhotoUrl: widget.user.photoUrl,
+        );
+      }
+    });
   }
 
   @override
@@ -440,11 +456,20 @@ class _HomePageState extends State<_HomePage> {
                         HomeLeaderboardPreview(
                           onTap: widget.onOpenLeaderboard ?? () {},
                         ),
+                        const SizedBox(height: 20),
+                        ActiveEventsCarousel(
+                          userId: widget.user.id.isNotEmpty
+                              ? widget.user.id
+                              : widget.user.email,
+                          userDisplayName: name,
+                          userPhotoUrl: widget.user.photoUrl,
+                        ),
                         const SizedBox(height: 24),
                         PawQuestsSection(
                           userId: widget.user.id.isNotEmpty
                               ? widget.user.id
                               : widget.user.email,
+                          isAdmin: widget.user.isAdminRole,
                         ),
                       ],
                     ),

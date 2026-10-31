@@ -10,8 +10,14 @@ import 'quest_pool_editor_sheet.dart';
 class PawQuestsSection extends StatefulWidget {
   final String userId;
   final PawQuestsRepository? repository;
+  final bool isAdmin;
 
-  const PawQuestsSection({super.key, required this.userId, this.repository});
+  const PawQuestsSection({
+    super.key,
+    required this.userId,
+    this.repository,
+    this.isAdmin = false,
+  });
 
   @override
   State<PawQuestsSection> createState() => _PawQuestsSectionState();
@@ -115,21 +121,23 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.tune_rounded,
-                        size: 20,
-                        color: AppColors.textSecondary,
+                    if (widget.isAdmin) ...[
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.tune_rounded,
+                          size: 20,
+                          color: AppColors.textSecondary,
+                        ),
+                        tooltip: 'Quest Pool Settings (Admin)',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                        onPressed: () => QuestPoolEditorSheet.show(context),
                       ),
-                      tooltip: 'Quest Pool Settings',
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 32,
-                        minHeight: 32,
-                      ),
-                      onPressed: () => QuestPoolEditorSheet.show(context),
-                    ),
+                    ],
                   ],
                 ),
               ],

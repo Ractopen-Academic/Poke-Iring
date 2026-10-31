@@ -16,4 +16,9 @@ class LocalEventCatalog {
   }
 
   static FelineEvent get activeFestival => FelineEvent.defaultFestival();
+
+  static List<FelineEvent> get defaultActiveEvents => [
+    FelineEvent.defaultFestival(),
+    FelineEvent.defaultPartnershipEvent(),
+  ];
 }
