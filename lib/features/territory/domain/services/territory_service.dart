@@ -5,4 +5,5 @@ abstract class TerritoryService {
   Future<ExplorerTerritory> getTerritory(String userId);
   Future<void> updateTerritory(String userId, ExplorerTerritory territory);
   Future<ExplorerTerritory> detectFromGps();
+  Future<ExplorerTerritory?> autoDetectAndSync(String userId);
 }

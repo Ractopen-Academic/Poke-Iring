@@ -120,7 +120,9 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
 
   Future<void> _handleGpsDetect() async {
     setState(() => _isDetecting = true);
-    final detected = await TerritoryServiceImpl.instance.detectFromGps();
+    final detected =
+        await TerritoryServiceImpl.instance.autoDetectAndSync(widget.userId) ??
+            await TerritoryServiceImpl.instance.detectFromGps();
     if (!mounted) return;
 
     setState(() {
@@ -152,55 +154,8 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
         }
       }
     });
-  }
 
-  Future<void> _promptAddCustomBarangay() async {
-    final textController = TextEditingController();
-    final newBarangay = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add Neighborhood Barangay'),
-        content: TextField(
-          controller: textController,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: 'Barangay Name',
-            hintText: 'e.g. San Roque',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(null),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              final val = textController.text.trim();
-              if (val.isNotEmpty) {
-                Navigator.of(ctx).pop(val);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-
-    if (newBarangay != null && mounted) {
-      await _dataSource.registerBarangay(
-        cityName: _selectedCity,
-        barangayName: newBarangay,
-      );
-      await _loadTerritories();
-      setState(() {
-        _selectedBarangay = newBarangay;
-      });
-    }
+    widget.onTerritorySaved?.call(detected);
   }
 
   Future<void> _saveTerritory() async {
@@ -425,7 +380,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 ),
                 const SizedBox(height: 14),
 
-                // Barangay Picker & Add Custom Action
+                // Barangay Picker
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -437,26 +392,12 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: _promptAddCustomBarangay,
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.add_circle_outline_rounded,
-                            size: 14,
-                            color: AppColors.primary,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Add Barangay',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
+                    Text(
+                      '${availableBarangays.length} verified zones',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],

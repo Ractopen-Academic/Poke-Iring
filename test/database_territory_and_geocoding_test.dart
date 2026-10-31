@@ -228,7 +228,7 @@ void main() {
       expect(find.text('Home Neighborhood'), findsOneWidget);
       expect(find.textContaining('cities in database'), findsOneWidget);
       expect(find.text('Detect Neighborhood from GPS'), findsOneWidget);
-      expect(find.text('Add Barangay'), findsOneWidget);
+      expect(find.textContaining('verified zones'), findsOneWidget);
 
       // Save
       await tester.tap(find.text('Set as Home Territory'));
