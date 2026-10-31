@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/vault_photo_entry.dart';
@@ -11,10 +14,24 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
   static PhotoVaultServiceImpl get instance =>
       _instance ??= PhotoVaultServiceImpl();
 
+  final FirebaseFirestore? firestore;
+
   final Map<String, StreamController<List<VaultPhotoEntry>>> _controllers = {};
   final Map<String, List<VaultPhotoEntry>> _cache = {};
 
   String _prefKey(String userId) => 'feline_club_raw_vault_$userId';
+
+  PhotoVaultServiceImpl({this.firestore});
+
+  bool get _isFirebaseAvailable {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  FirebaseFirestore get _db => firestore ?? FirebaseFirestore.instance;
 
   static List<VaultPhotoEntry> defaultSeedPhotos(String userId) {
     final now = DateTime.now();
@@ -93,7 +110,9 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
       final rawList = prefs.getStringList(_prefKey(userId));
       if (rawList != null) {
         final list = rawList.map((str) {
@@ -101,13 +120,38 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
           return VaultPhotoEntry.fromMap(map);
         }).toList();
         _cache.putIfAbsent(userId, () => list);
-        return _cache[userId]!;
+        return list;
       }
     } catch (_) {}
 
+    if (_isFirebaseAvailable) {
+      try {
+        final snapshot = await _db
+            .collection('users')
+            .doc(userId)
+            .collection('vault_photos')
+            .get()
+            .timeout(const Duration(milliseconds: 1500));
+
+        if (snapshot.docs.isNotEmpty) {
+          final list = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return VaultPhotoEntry.fromMap(data);
+          }).toList();
+
+          _cache.putIfAbsent(userId, () => list);
+          unawaited(_persistLocally(userId, list));
+          return list;
+        }
+      } catch (e) {
+        debugPrint('Firestore fetch vault photos error: $e');
+      }
+    }
+
     final seed = defaultSeedPhotos(userId);
     _cache.putIfAbsent(userId, () => seed);
-    return _cache[userId]!;
+    return seed;
   }
 
   @override
@@ -116,11 +160,8 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
     final updated = [photo, ...list.where((p) => p.id != photo.id)];
     _cache[photo.userId] = updated;
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final rawList = updated.map((p) => jsonEncode(p.toMap())).toList();
-      await prefs.setStringList(_prefKey(photo.userId), rawList);
-    } catch (_) {}
+    unawaited(_persistLocally(photo.userId, updated));
+    unawaited(_syncPhotoToCloud(photo));
 
     if (_controllers[photo.userId]?.isClosed == false) {
       _controllers[photo.userId]?.add(updated);
@@ -135,11 +176,8 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
     final updated = list.where((p) => p.id != photoId).toList();
     _cache[userId] = updated;
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final rawList = updated.map((p) => jsonEncode(p.toMap())).toList();
-      await prefs.setStringList(_prefKey(userId), rawList);
-    } catch (_) {}
+    unawaited(_persistLocally(userId, updated));
+    unawaited(_removePhotoFromCloud(userId, photoId));
 
     if (_controllers[userId]?.isClosed == false) {
       _controllers[userId]?.add(updated);
@@ -149,6 +187,54 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
   @override
   Future<int> getTotalVaultBytes(String userId) async {
     final list = await getVault(userId);
-    return list.fold<int>(0, (sum, p) => sum + p.fileSizeBytes);
+    return list.fold<int>(0, (total, p) => total + p.fileSizeBytes);
+  }
+
+  Future<void> _persistLocally(
+    String userId,
+    List<VaultPhotoEntry> photos,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(milliseconds: 300),
+      );
+      final rawList = photos.map((p) => jsonEncode(p.toMap())).toList();
+      await prefs.setStringList(_prefKey(userId), rawList);
+    } catch (_) {}
+  }
+
+  Future<void> _syncPhotoToCloud(VaultPhotoEntry photo) async {
+    if (!_isFirebaseAvailable) return;
+
+    try {
+      await _db
+          .collection('users')
+          .doc(photo.userId)
+          .collection('vault_photos')
+          .doc(photo.id)
+          .set(photo.toMap(), SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('Firestore sync vault photo error: $e');
+    }
+  }
+
+  Future<void> _removePhotoFromCloud(String userId, String photoId) async {
+    if (!_isFirebaseAvailable) return;
+
+    try {
+      await _db
+          .collection('users')
+          .doc(userId)
+          .collection('vault_photos')
+          .doc(photoId)
+          .delete();
+    } catch (e) {
+      debugPrint('Firestore delete vault photo error: $e');
+    }
+  }
+
+  @visibleForTesting
+  void resetCache() {
+    _cache.clear();
   }
 }

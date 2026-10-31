@@ -3,10 +3,10 @@ class AppVersion {
 
   // Major remains locked at 0 during pre-release until full functional stability
   static const int major = 0;
-  static const int feature = 22;
+  static const int feature = 23;
   static const int patch = 0;
   static const String flag = 'f'; // f = feature, b = bugfix, r = refactor
-  static const int iteration = 28;
+  static const int iteration = 29;
   static const String stage = 'Pre-Alpha';
   static const String buildDate = '2026.10.31';
 
@@ -14,5 +14,5 @@ class AppVersion {
   static String get releaseTag => 'v$semanticVersion-$flag$iteration';
   static String get badgeDisplay => '$releaseTag ($stage)';
   static String get buildSubtitle =>
-      'Build $buildDate • Database-Driven Achievements Catalog & Title Sync';
+      'Build $buildDate • Cloud Seasons, Subscriptions & Photo Vault';
 }
