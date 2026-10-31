@@ -195,7 +195,8 @@ class _LiveMapPageState extends State<LiveMapPage>
         : widget.initialCenter;
 
     final now = DateTime.now();
-    final isConsecutiveTap = _lastRecenterTapTime != null &&
+    final isConsecutiveTap =
+        _lastRecenterTapTime != null &&
         now.difference(_lastRecenterTapTime!).inMilliseconds <= 3000;
 
     final distanceMeters = const Distance().distance(startCenter, targetCenter);

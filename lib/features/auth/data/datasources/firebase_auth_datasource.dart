@@ -98,7 +98,8 @@ class FirebaseAuthDatasource {
   AuthUser? _mapFirebaseUser(User? user) {
     if (user == null) return null;
     final email = (user.email ?? '').toLowerCase();
-    final isPreVerifiedTestUser = email == 'test.explorer@pokeiring.app' ||
+    final isPreVerifiedTestUser =
+        email == 'test.explorer@pokeiring.app' ||
         email.endsWith('@pokeiring.app') ||
         email.startsWith('test.');
     return AuthUser(

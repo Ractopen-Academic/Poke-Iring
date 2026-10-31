@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 class ResponsiveWebShell extends StatelessWidget {
   final Widget child;
   static const double mobileBreakpoint = 500.0;
-  static const double s25FeWidth = 412.0;
-  static const double s25FeHeight = 892.0;
+  static const double maxPhoneWidth = 440.0;
+  static const double minPhoneWidth = 380.0;
+  static const double standardPhoneHeight = 892.0;
 
   const ResponsiveWebShell({super.key, required this.child});
 
@@ -21,15 +22,19 @@ class ResponsiveWebShell extends StatelessWidget {
           return child;
         }
 
-        final targetHeight = constraints.maxHeight < s25FeHeight + 40
+        final targetWidth = (constraints.maxWidth * 0.92).clamp(
+          minPhoneWidth,
+          maxPhoneWidth,
+        );
+        final targetHeight = constraints.maxHeight < standardPhoneHeight + 40
             ? constraints.maxHeight * 0.96
-            : s25FeHeight;
+            : standardPhoneHeight;
 
         return Scaffold(
           backgroundColor: const Color(0xFF141416),
           body: Center(
             child: Container(
-              width: s25FeWidth,
+              width: targetWidth,
               height: targetHeight,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(36),
@@ -50,7 +55,7 @@ class ResponsiveWebShell extends StatelessWidget {
                     Positioned.fill(
                       child: MediaQuery(
                         data: MediaQuery.of(context)
-                            .copyWith(size: Size(s25FeWidth, targetHeight)),
+                            .copyWith(size: Size(targetWidth, targetHeight)),
                         child: child,
                       ),
                     ),

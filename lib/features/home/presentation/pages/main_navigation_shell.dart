@@ -279,19 +279,34 @@ class _HomePageState extends State<_HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Text(
-                              'Welcome, $name',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Welcome back,',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textSecondary,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.textPrimary,
+                                    height: 1.15,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -305,13 +320,16 @@ class _HomePageState extends State<_HomePage> {
                             builder: (context, snapshot) {
                               final title = snapshot.data;
                               if (title == null) return const SizedBox.shrink();
-                              return EquippedTitleBadge(
-                                title: title,
-                                onTap: () => TitleSelectionSheet.show(
-                                  context,
-                                  userId: widget.user.id.isNotEmpty
-                                      ? widget.user.id
-                                      : widget.user.email,
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: EquippedTitleBadge(
+                                  title: title,
+                                  onTap: () => TitleSelectionSheet.show(
+                                    context,
+                                    userId: widget.user.id.isNotEmpty
+                                        ? widget.user.id
+                                        : widget.user.email,
+                                  ),
                                 ),
                               );
                             },

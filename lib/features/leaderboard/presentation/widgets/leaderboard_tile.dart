@@ -127,11 +127,15 @@ class LeaderboardTile extends StatelessWidget {
                       const SizedBox(height: 3),
                       Row(
                         children: [
-                          Text(
-                            '${entry.barangay}, ${entry.city}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textSecondary,
+                          Flexible(
+                            child: Text(
+                              '${entry.barangay}, ${entry.city}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -157,7 +161,7 @@ class LeaderboardTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 // Score and Mythic badge
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -171,25 +175,35 @@ class LeaderboardTile extends StatelessWidget {
                       ),
                     ),
                     if (entry.mythicPaws > 0) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.star_rounded,
-                            size: 13,
-                            color: Color(0xFFFFA000),
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            '${entry.mythicPaws} mythic',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFFFA000),
+                      const SizedBox(height: 3),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFA000).withAlpha(24),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.star_rounded,
+                              size: 11,
+                              color: Color(0xFFD97706),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 3),
+                            Text(
+                              '${entry.mythicPaws} mythic',
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFB45309),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ],
