@@ -125,7 +125,28 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
       );
       final catalog = await _dataSource.getCatalog();
 
-      final equippedTitleId =
+      String? equippedTitleId;
+      if (_isFirebaseAvailable) {
+        try {
+          final db = _firestore ?? FirebaseFirestore.instance;
+          final userDoc = await db
+              .collection('users')
+              .doc(userId)
+              .get()
+              .timeout(const Duration(milliseconds: 1500));
+          if (userDoc.exists) {
+            final cloudTitle = userDoc.data()?['equippedTitleId'] as String?;
+            if (cloudTitle != null && cloudTitle.isNotEmpty) {
+              equippedTitleId = cloudTitle;
+              unawaited(
+                prefs.setString('user_equipped_title_$userId', cloudTitle),
+              );
+            }
+          }
+        } catch (_) {}
+      }
+
+      equippedTitleId ??=
           prefs.getString('user_equipped_title_$userId') ??
           'title_novice_scout';
 

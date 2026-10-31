@@ -72,30 +72,34 @@ class SeasonServiceImpl implements SeasonService {
 
   @override
   Future<int> getMythicPrestige(String userId) async {
+    // 1. Online-First: Try fetching user prestige directly from Cloud Firestore
+    final cloudPts = await _dataSource.fetchUserPrestige(userId);
+    if (cloudPts != null) {
+      _cachedPrestige[userId] = cloudPts;
+      unawaited(_persistPrestigeLocally(userId, cloudPts));
+      return cloudPts;
+    }
+
+    // 2. In-Memory Cache
     if (_cachedPrestige.containsKey(userId)) {
       return _cachedPrestige[userId]!;
     }
 
+    // 3. Persistent Local Cache (SharedPreferences)
     try {
       final prefs = await SharedPreferences.getInstance().timeout(
         const Duration(milliseconds: 300),
       );
       final pts = prefs.getInt(_prestigePrefKey(userId));
       if (pts != null) {
-        _cachedPrestige.putIfAbsent(userId, () => pts);
+        _cachedPrestige[userId] = pts;
         return pts;
       }
     } catch (_) {}
 
-    final cloudPts = await _dataSource.fetchUserPrestige(userId);
-    if (cloudPts != null) {
-      _cachedPrestige.putIfAbsent(userId, () => cloudPts);
-      unawaited(_persistPrestigeLocally(userId, cloudPts));
-      return cloudPts;
-    }
-
-    _cachedPrestige.putIfAbsent(userId, () => 0);
-    return _cachedPrestige[userId]!;
+    // 4. Built-in Fallback (Clean install 0 prestige)
+    _cachedPrestige[userId] = 0;
+    return 0;
   }
 
   @override
@@ -117,33 +121,38 @@ class SeasonServiceImpl implements SeasonService {
 
   @override
   Future<List<SeasonPrestigeRecord>> getSeasonHistory(String userId) async {
-    if (_cachedHistory.containsKey(userId)) {
+    // 1. Online-First: Try fetching season rollover history from Cloud Firestore
+    final cloudHistory = await _dataSource.fetchUserSeasonHistory(userId);
+    if (cloudHistory != null && cloudHistory.isNotEmpty) {
+      _cachedHistory[userId] = cloudHistory;
+      unawaited(_persistHistoryLocally(userId, cloudHistory));
+      return cloudHistory;
+    }
+
+    // 2. In-Memory Cache
+    if (_cachedHistory.containsKey(userId) &&
+        _cachedHistory[userId]!.isNotEmpty) {
       return _cachedHistory[userId]!;
     }
 
+    // 3. Persistent Local Cache (SharedPreferences)
     try {
       final prefs = await SharedPreferences.getInstance().timeout(
         const Duration(milliseconds: 300),
       );
       final rawList = prefs.getStringList(_historyPrefKey(userId));
-      if (rawList != null) {
+      if (rawList != null && rawList.isNotEmpty) {
         final records = rawList.map((str) {
           final map = jsonDecode(str) as Map<String, dynamic>;
           return SeasonPrestigeRecord.fromMap(map);
         }).toList();
-        _cachedHistory.putIfAbsent(userId, () => records);
+        _cachedHistory[userId] = records;
         return records;
       }
     } catch (_) {}
 
-    final cloudHistory = await _dataSource.fetchUserSeasonHistory(userId);
-    if (cloudHistory != null && cloudHistory.isNotEmpty) {
-      _cachedHistory.putIfAbsent(userId, () => cloudHistory);
-      unawaited(_persistHistoryLocally(userId, cloudHistory));
-      return cloudHistory;
-    }
-
-    _cachedHistory.putIfAbsent(userId, () => <SeasonPrestigeRecord>[]);
+    // 4. Built-in Fallback (Clean install empty history)
+    _cachedHistory[userId] = <SeasonPrestigeRecord>[];
     return _cachedHistory[userId]!;
   }
 
