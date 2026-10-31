@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../data/datasources/firebase_leaderboard_datasource.dart';
 import '../../data/datasources/mock_leaderboard_datasource.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 
@@ -16,7 +17,7 @@ class HomeLeaderboardPreview extends StatefulWidget {
 class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
     with SingleTickerProviderStateMixin {
   late final AnimationController _floatController;
-  late final List<LeaderboardEntry> _topThree;
+  List<LeaderboardEntry> _topThree = [];
 
   @override
   void initState() {
@@ -30,6 +31,16 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
     final sorted = List<LeaderboardEntry>.from(seeds)
       ..sort((a, b) => b.points.compareTo(a.points));
     _topThree = sorted.take(3).toList();
+
+    FirebaseLeaderboardDataSource.instance.fetchEntries().then((entries) {
+      if (mounted && entries.isNotEmpty) {
+        final sortedLive = List<LeaderboardEntry>.from(entries)
+          ..sort((a, b) => b.points.compareTo(a.points));
+        setState(() {
+          _topThree = sortedLive.take(3).toList();
+        });
+      }
+    });
   }
 
   @override

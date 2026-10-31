@@ -57,7 +57,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   @override
   void initState() {
     super.initState();
-    _repository = widget.repository ?? const LeaderboardRepositoryImpl();
+    _repository = widget.repository ?? LeaderboardRepositoryImpl();
     _activeBarangay = widget.initialBarangay;
     _activeCity = widget.initialCity;
     _activeRegion = widget.initialRegion;

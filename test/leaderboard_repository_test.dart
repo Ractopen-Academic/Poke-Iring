@@ -59,7 +59,7 @@ void main() {
   });
 
   group('LeaderboardRepositoryImpl', () {
-    const repository = LeaderboardRepositoryImpl();
+    final repository = LeaderboardRepositoryImpl();
 
     test('filters entries strictly by barangay scope', () async {
       final entries = await repository.getLeaderboard(

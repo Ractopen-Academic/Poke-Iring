@@ -1,21 +1,25 @@
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
+import '../datasources/firebase_leaderboard_datasource.dart';
 import '../datasources/mock_leaderboard_datasource.dart';
 
 class LeaderboardRepositoryImpl implements LeaderboardRepository {
   final MockLeaderboardDatasource datasource;
+  final FirebaseLeaderboardDataSource firebaseDatasource;
 
-  const LeaderboardRepositoryImpl({
+  LeaderboardRepositoryImpl({
     this.datasource = const MockLeaderboardDatasource(),
-  });
+    FirebaseLeaderboardDataSource? firebaseDatasource,
+  }) : firebaseDatasource =
+           firebaseDatasource ?? FirebaseLeaderboardDataSource.instance;
 
   @override
   Future<List<LeaderboardEntry>> getLeaderboard({
     required LeaderboardFilter filter,
     required String currentUserId,
   }) async {
-    final allEntries = _getAllEntries(currentUserId, filter);
+    final allEntries = await _getAllEntries(currentUserId, filter);
     final filtered = _filterByScope(allEntries, filter);
     final sorted = _sortByCategory(filtered, filter.category);
     final ranked = _assignRanks(sorted);
@@ -34,7 +38,7 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
     required String userId,
     required LeaderboardFilter filter,
   }) async {
-    final allEntries = _getAllEntries(userId, filter);
+    final allEntries = await _getAllEntries(userId, filter);
     final filtered = _filterByScope(allEntries, filter);
     final sorted = _sortByCategory(filtered, filter.category);
     final ranked = _assignRanks(sorted);
@@ -46,15 +50,21 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
     }
   }
 
-  List<LeaderboardEntry> _getAllEntries(
+  Future<List<LeaderboardEntry>> _getAllEntries(
     String currentUserId,
     LeaderboardFilter filter,
-  ) {
-    final seeds = datasource.getSeedEntries();
-    final hasUser = seeds.any((e) => e.userId == currentUserId);
+  ) async {
+    final liveEntries = await firebaseDatasource.fetchEntries(
+      currentUserId: currentUserId,
+    );
+    final entries = liveEntries.isNotEmpty
+        ? liveEntries
+        : datasource.getSeedEntries();
+
+    final hasUser = entries.any((e) => e.userId == currentUserId);
 
     if (hasUser) {
-      return seeds
+      return entries
           .map((e) => e.copyWith(isCurrentUser: e.userId == currentUserId))
           .toList();
     }
@@ -76,7 +86,7 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
       isCurrentUser: true,
     );
 
-    return [...seeds, currentUserEntry];
+    return [...entries, currentUserEntry];
   }
 
   List<LeaderboardEntry> _filterByScope(

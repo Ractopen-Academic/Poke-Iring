@@ -187,7 +187,10 @@ class _IringDexPageState extends State<IringDexPage> {
                           children: [
                             DexProgressHeader(entries: entries),
                             const SizedBox(height: 16),
-                            _buildSegmentedTab(sightings.length),
+                            _buildSegmentedTab(
+                              sightings.length,
+                              entries.length,
+                            ),
                             if (_viewMode != DexViewMode.heatmap) ...[
                               const SizedBox(height: 12),
                               _buildFilterChips(),
@@ -219,7 +222,7 @@ class _IringDexPageState extends State<IringDexPage> {
     );
   }
 
-  Widget _buildSegmentedTab(int sightingsCount) {
+  Widget _buildSegmentedTab(int sightingsCount, int totalSpecies) {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -231,7 +234,7 @@ class _IringDexPageState extends State<IringDexPage> {
           Expanded(
             child: _TabButton(
               title: 'Species Catalog',
-              subtitle: '16 Total',
+              subtitle: '$totalSpecies Total',
               isSelected: _viewMode == DexViewMode.catalog,
               onTap: () => setState(() => _viewMode = DexViewMode.catalog),
             ),
