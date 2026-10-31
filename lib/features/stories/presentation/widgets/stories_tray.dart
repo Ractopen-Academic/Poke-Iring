@@ -62,7 +62,7 @@ class _StoriesTrayState extends State<StoriesTray> {
           height: 94,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: 1 + stories.length,
             itemBuilder: (context, index) {
               if (index == 0) {

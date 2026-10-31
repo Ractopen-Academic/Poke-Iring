@@ -271,170 +271,183 @@ class _HomePageState extends State<_HomePage> {
             final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Welcome back,',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textSecondary,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary,
-                                    height: 1.15,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          StreamBuilder<ExplorerTitle?>(
-                            stream: AchievementsRepositoryImpl.instance
-                                .watchEquippedTitle(
-                                  widget.user.id.isNotEmpty
-                                      ? widget.user.id
-                                      : widget.user.email,
-                                ),
-                            builder: (context, snapshot) {
-                              final title = snapshot.data;
-                              if (title == null) return const SizedBox.shrink();
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: EquippedTitleBadge(
-                                  title: title,
-                                  onTap: () => TitleSelectionSheet.show(
-                                    context,
-                                    userId: widget.user.id.isNotEmpty
-                                        ? widget.user.id
-                                        : widget.user.email,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Track your daily explorer movement and unlock more feline routes.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  StoriesTray(user: widget.user),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.border),
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withAlpha(25),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.directions_walk_rounded,
-                                color: AppColors.primary,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Welcome back,',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textSecondary,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    name,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.textPrimary,
+                                      height: 1.15,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Text(
-                                'Explorer Health',
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
+                            const SizedBox(width: 8),
+                            StreamBuilder<ExplorerTitle?>(
+                              stream: AchievementsRepositoryImpl.instance
+                                  .watchEquippedTitle(
+                                    widget.user.id.isNotEmpty
+                                        ? widget.user.id
+                                        : widget.user.email,
+                                  ),
+                              builder: (context, snapshot) {
+                                final title = snapshot.data;
+                                if (title == null) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: EquippedTitleBadge(
+                                    title: title,
+                                    onTap: () => TitleSelectionSheet.show(
+                                      context,
+                                      userId: widget.user.id.isNotEmpty
+                                          ? widget.user.id
+                                          : widget.user.email,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
-                        const SizedBox(height: 18),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _MiniMetric(
-                                label: 'Steps',
-                                value: '${health.stepsToday}',
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _MiniMetric(
-                                label: 'Distance',
-                                value:
-                                    '${health.distanceKm.toStringAsFixed(2)} km',
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _MiniMetric(
-                                label: 'Calories',
-                                value:
-                                    '${health.caloriesBurned.toStringAsFixed(0)} kcal',
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _MiniMetric(
-                                label: 'Active',
-                                value: '${health.activeMinutes} min',
-                              ),
-                            ),
-                          ],
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Track your daily explorer movement and unlock more feline routes.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  HomeLeaderboardPreview(
-                    onTap: widget.onOpenLeaderboard ?? () {},
-                  ),
-                  const SizedBox(height: 24),
-                  PawQuestsSection(
-                    userId: widget.user.id.isNotEmpty
-                        ? widget.user.id
-                        : widget.user.email,
+                  const SizedBox(height: 16),
+                  StoriesTray(user: widget.user),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withAlpha(25),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.directions_walk_rounded,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Expanded(
+                                    child: Text(
+                                      'Explorer Health',
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _MiniMetric(
+                                      label: 'Steps',
+                                      value: '${health.stepsToday}',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _MiniMetric(
+                                      label: 'Distance',
+                                      value:
+                                          '${health.distanceKm.toStringAsFixed(2)} km',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _MiniMetric(
+                                      label: 'Calories',
+                                      value:
+                                          '${health.caloriesBurned.toStringAsFixed(0)} kcal',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _MiniMetric(
+                                      label: 'Active',
+                                      value: '${health.activeMinutes} min',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        HomeLeaderboardPreview(
+                          onTap: widget.onOpenLeaderboard ?? () {},
+                        ),
+                        const SizedBox(height: 24),
+                        PawQuestsSection(
+                          userId: widget.user.id.isNotEmpty
+                              ? widget.user.id
+                              : widget.user.email,
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 96),
                 ],
