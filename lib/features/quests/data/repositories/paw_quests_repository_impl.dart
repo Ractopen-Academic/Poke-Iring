@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,7 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../domain/entities/paw_quest.dart';
+import '../../domain/entities/quest_template.dart';
 import '../../domain/repositories/paw_quests_repository.dart';
+import '../datasources/firebase_quest_datasource.dart';
 
 class PawQuestsRepositoryImpl implements PawQuestsRepository {
   static final PawQuestsRepositoryImpl _instance =
@@ -17,18 +20,31 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
   static PawQuestsRepositoryImpl get instance => _instance;
 
   final FirebaseFirestore? _firestore;
+  final FirebaseQuestDataSource _questDataSource;
   StreamSubscription<ExplorerHealthSnapshot>? _healthSubscription;
 
   final Map<String, StreamController<List<PawQuest>>> _userControllers = {};
 
-  factory PawQuestsRepositoryImpl({FirebaseFirestore? firestore}) {
-    if (firestore != null) {
-      return PawQuestsRepositoryImpl._internal(firestore);
+  factory PawQuestsRepositoryImpl({
+    FirebaseFirestore? firestore,
+    FirebaseQuestDataSource? questDataSource,
+  }) {
+    if (firestore != null || questDataSource != null) {
+      return PawQuestsRepositoryImpl._internal(firestore, questDataSource);
     }
     return _instance;
   }
 
-  PawQuestsRepositoryImpl._internal([this._firestore]);
+  PawQuestsRepositoryImpl._internal([
+    this._firestore,
+    FirebaseQuestDataSource? questDataSource,
+  ]) : _questDataSource = questDataSource ?? FirebaseQuestDataSource.instance {
+    _questDataSource.watchQuestPool().listen((_) {
+      for (final uid in _userControllers.keys) {
+        _emitQuests(uid);
+      }
+    });
+  }
 
   bool get _isFirebaseAvailable {
     try {
@@ -89,12 +105,19 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
       prefs = await SharedPreferences.getInstance();
     } catch (_) {}
 
-    // 1. Midnight expiration for daily quests
+    // 1. Fetch active pool from datasource
+    final pool = await _questDataSource.getQuestPool();
+    final activeTemplates = pool.where((t) => t.isActive).toList();
+    final effectivePool = activeTemplates.isNotEmpty
+        ? activeTemplates
+        : QuestTemplate.defaultCatalog();
+
+    // 2. Midnight expiration for daily quests
     final midnightToday = DateTime(now.year, now.month, now.day, 23, 59, 59);
     final dateKey =
         '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
 
-    // 2. Sunday midnight expiration for weekly quests
+    // 3. Sunday midnight expiration for weekly quests
     final daysUntilSunday = DateTime.sunday - now.weekday;
     final sundayMidnight = DateTime(
       now.year,
@@ -108,86 +131,128 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
         .ceil();
     final weekKey = '${now.year}_w$weekNumber';
 
-    final dailyDefs = [
-      _QuestDef(
-        id: 'daily_steps_$dateKey',
-        title: 'Morning Prowl',
-        description: 'Walk 1,500 steps today to map neighborhood cat spots.',
-        category: QuestCategory.daily,
-        type: QuestType.steps,
-        targetValue: 1500,
-        rewardPawPoints: 40,
-        expiresAt: midnightToday,
-      ),
-      _QuestDef(
-        id: 'daily_dist_$dateKey',
-        title: 'Cartographer Step',
-        description: 'Cover 1.2 km exploring local feline territory.',
-        category: QuestCategory.daily,
-        type: QuestType.distance,
-        targetValue: 1.2,
-        rewardPawPoints: 60,
-        expiresAt: midnightToday,
-      ),
-      _QuestDef(
-        id: 'daily_bounty_$dateKey',
-        title: 'Puspin Discovery',
-        description: 'Photograph and catalog a native Puspin or Calico cat.',
-        category: QuestCategory.daily,
-        type: QuestType.scanBreed,
-        targetValue: 1,
-        rewardPawPoints: 50,
-        expiresAt: midnightToday,
-        targetBreed: 'Puspin',
-      ),
-    ];
+    // Seeded selection for daily quests
+    final activeDaily = effectivePool
+        .where((t) => t.category == QuestCategory.daily)
+        .toList();
+    final dailyRandom = Random(dateKey.hashCode);
+    activeDaily.shuffle(dailyRandom);
 
-    final weeklyDefs = [
-      _QuestDef(
-        id: 'weekly_steps_$weekKey',
-        title: 'Territory Wanderer',
-        description: 'Accumulate 10,000 steps during your weekly patrols.',
-        category: QuestCategory.weekly,
-        type: QuestType.steps,
-        targetValue: 10000,
-        rewardPawPoints: 200,
-        expiresAt: sundayMidnight,
-      ),
-      _QuestDef(
-        id: 'weekly_boop_$weekKey',
-        title: 'Friendly Neighbor',
-        description: 'Boop 5 community cat sighting pins on the live map.',
-        category: QuestCategory.weekly,
-        type: QuestType.boopSightings,
-        targetValue: 5,
-        rewardPawPoints: 150,
-        expiresAt: sundayMidnight,
-      ),
-    ];
+    final stepsTpl = activeDaily.firstWhere(
+      (t) => t.type == QuestType.steps,
+      orElse: () => QuestTemplate.defaultCatalog()[0],
+    );
+    final distTpl = activeDaily.firstWhere(
+      (t) => t.type == QuestType.distance && t.id != stepsTpl.id,
+      orElse: () => QuestTemplate.defaultCatalog()[3],
+    );
+    final encounterTpl = activeDaily.firstWhere(
+      (t) => t.id != stepsTpl.id && t.id != distTpl.id,
+      orElse: () => QuestTemplate.defaultCatalog()[6],
+    );
 
-    final allDefs = [...dailyDefs, ...weeklyDefs];
+    final selectedDaily = [stepsTpl, distTpl, encounterTpl];
+
+    // Seeded selection for weekly quests
+    final activeWeekly = effectivePool
+        .where((t) => t.category == QuestCategory.weekly)
+        .toList();
+    final weeklyRandom = Random(weekKey.hashCode);
+    activeWeekly.shuffle(weeklyRandom);
+    final selectedWeekly = activeWeekly.take(2).toList();
+
     final quests = <PawQuest>[];
 
-    for (final def in allDefs) {
-      final progressKey = 'quest_progress_${userId}_${def.id}';
-      final claimedKey = 'quest_claimed_${userId}_${def.id}';
+    // Build Daily Quests
+    for (final tpl in selectedDaily) {
+      final instanceId = '${tpl.id}_$dateKey';
+      final legacyStepsKey = tpl.type == QuestType.steps
+          ? 'daily_steps_$dateKey'
+          : null;
+      final legacyDistKey = tpl.type == QuestType.distance
+          ? 'daily_dist_$dateKey'
+          : null;
+      final legacyBountyKey = tpl.type == QuestType.scanBreed
+          ? 'daily_bounty_$dateKey'
+          : null;
 
-      final progress = prefs?.getDouble(progressKey) ?? 0.0;
-      final isClaimed = prefs?.getBool(claimedKey) ?? false;
+      final progress =
+          prefs?.getDouble('quest_progress_${userId}_$instanceId') ??
+          (legacyStepsKey != null
+              ? prefs?.getDouble('quest_progress_${userId}_$legacyStepsKey')
+              : null) ??
+          (legacyDistKey != null
+              ? prefs?.getDouble('quest_progress_${userId}_$legacyDistKey')
+              : null) ??
+          (legacyBountyKey != null
+              ? prefs?.getDouble('quest_progress_${userId}_$legacyBountyKey')
+              : null) ??
+          0.0;
+
+      final isClaimed =
+          prefs?.getBool('quest_claimed_${userId}_$instanceId') ??
+          (legacyStepsKey != null
+              ? prefs?.getBool('quest_claimed_${userId}_$legacyStepsKey')
+              : null) ??
+          false;
 
       quests.add(
         PawQuest(
-          id: def.id,
-          title: def.title,
-          description: def.description,
-          category: def.category,
-          type: def.type,
-          targetValue: def.targetValue,
+          id: instanceId,
+          title: tpl.title,
+          description: tpl.description,
+          category: tpl.category,
+          type: tpl.type,
+          targetValue: tpl.targetValue,
           currentValue: progress,
-          rewardPawPoints: def.rewardPawPoints,
+          rewardPawPoints: tpl.rewardPawPoints,
           isClaimed: isClaimed,
-          expiresAt: def.expiresAt,
-          targetBreed: def.targetBreed,
+          expiresAt: midnightToday,
+          targetBreed: tpl.targetBreed,
+        ),
+      );
+    }
+
+    // Build Weekly Quests
+    for (final tpl in selectedWeekly) {
+      final instanceId = '${tpl.id}_$weekKey';
+      final legacyStepsKey = tpl.type == QuestType.steps
+          ? 'weekly_steps_$weekKey'
+          : null;
+      final legacyBoopKey = tpl.type == QuestType.boopSightings
+          ? 'weekly_boop_$weekKey'
+          : null;
+
+      final progress =
+          prefs?.getDouble('quest_progress_${userId}_$instanceId') ??
+          (legacyStepsKey != null
+              ? prefs?.getDouble('quest_progress_${userId}_$legacyStepsKey')
+              : null) ??
+          (legacyBoopKey != null
+              ? prefs?.getDouble('quest_progress_${userId}_$legacyBoopKey')
+              : null) ??
+          0.0;
+
+      final isClaimed =
+          prefs?.getBool('quest_claimed_${userId}_$instanceId') ??
+          (legacyStepsKey != null
+              ? prefs?.getBool('quest_claimed_${userId}_$legacyStepsKey')
+              : null) ??
+          false;
+
+      quests.add(
+        PawQuest(
+          id: instanceId,
+          title: tpl.title,
+          description: tpl.description,
+          category: tpl.category,
+          type: tpl.type,
+          targetValue: tpl.targetValue,
+          currentValue: progress,
+          rewardPawPoints: tpl.rewardPawPoints,
+          isClaimed: isClaimed,
+          expiresAt: sundayMidnight,
+          targetBreed: tpl.targetBreed,
         ),
       );
     }
@@ -221,11 +286,35 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
         distanceKm,
       );
 
-      // Weekly Steps (capped at stepsToday if local mock, or cumulative)
+      // Weekly Steps
       final weeklyKey = 'quest_progress_${userId}_weekly_steps_$weekKey';
       final currentWeekly = prefs.getDouble(weeklyKey) ?? 0.0;
       if (stepsToday.toDouble() > currentWeekly) {
         await prefs.setDouble(weeklyKey, stepsToday.toDouble());
+      }
+
+      // Also update matching quest instances
+      final quests = await _generateQuests(userId);
+      for (final q in quests) {
+        if (q.category == QuestCategory.daily && q.type == QuestType.steps) {
+          await prefs.setDouble(
+            'quest_progress_${userId}_${q.id}',
+            stepsToday.toDouble(),
+          );
+        } else if (q.category == QuestCategory.daily &&
+            q.type == QuestType.distance) {
+          await prefs.setDouble('quest_progress_${userId}_${q.id}', distanceKm);
+        } else if (q.category == QuestCategory.weekly &&
+            q.type == QuestType.steps) {
+          final cur =
+              prefs.getDouble('quest_progress_${userId}_${q.id}') ?? 0.0;
+          if (stepsToday.toDouble() > cur) {
+            await prefs.setDouble(
+              'quest_progress_${userId}_${q.id}',
+              stepsToday.toDouble(),
+            );
+          }
+        }
       }
 
       await _emitQuests(userId);
@@ -247,6 +336,22 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
       final current = prefs.getDouble(bountyKey) ?? 0.0;
       await prefs.setDouble(bountyKey, current + 1.0);
 
+      final quests = await _generateQuests(userId);
+      for (final q in quests) {
+        if (q.type == QuestType.scanBreed || q.type == QuestType.scanCat) {
+          if (q.targetBreed == null ||
+              q.targetBreed!.toLowerCase() == breed.toLowerCase() ||
+              breed.toLowerCase().contains(q.targetBreed!.toLowerCase())) {
+            final cur =
+                prefs.getDouble('quest_progress_${userId}_${q.id}') ?? 0.0;
+            await prefs.setDouble(
+              'quest_progress_${userId}_${q.id}',
+              cur + 1.0,
+            );
+          }
+        }
+      }
+
       await _emitQuests(userId);
     } catch (_) {}
   }
@@ -263,6 +368,15 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
 
       final current = prefs.getDouble(boopKey) ?? 0.0;
       await prefs.setDouble(boopKey, current + 1.0);
+
+      final quests = await _generateQuests(userId);
+      for (final q in quests) {
+        if (q.type == QuestType.boopSightings) {
+          final cur =
+              prefs.getDouble('quest_progress_${userId}_${q.id}') ?? 0.0;
+          await prefs.setDouble('quest_progress_${userId}_${q.id}', cur + 1.0);
+        }
+      }
 
       await _emitQuests(userId);
     } catch (_) {}
@@ -283,7 +397,17 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
 
     final quests = await _generateQuests(userId);
     final quest = quests.firstWhere(
-      (q) => q.id == questId,
+      (q) =>
+          q.id == questId ||
+          (questId.startsWith('daily_steps_') &&
+              q.category == QuestCategory.daily &&
+              q.type == QuestType.steps) ||
+          (questId.startsWith('daily_dist_') &&
+              q.category == QuestCategory.daily &&
+              q.type == QuestType.distance) ||
+          (questId.startsWith('weekly_steps_') &&
+              q.category == QuestCategory.weekly &&
+              q.type == QuestType.steps),
       orElse: () => throw ArgumentError('Quest not found: $questId'),
     );
 
@@ -293,6 +417,7 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
 
     // 1. Mark claimed locally
     await prefs.setBool(claimedKey, true);
+    await prefs.setBool('quest_claimed_${userId}_${quest.id}', true);
 
     unawaited(
       AchievementsRepositoryImpl.instance.recordProgressMetric(
@@ -325,28 +450,4 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
     await _emitQuests(userId);
     return quest.rewardPawPoints;
   }
-}
-
-class _QuestDef {
-  final String id;
-  final String title;
-  final String description;
-  final QuestCategory category;
-  final QuestType type;
-  final double targetValue;
-  final int rewardPawPoints;
-  final DateTime expiresAt;
-  final String? targetBreed;
-
-  const _QuestDef({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.category,
-    required this.type,
-    required this.targetValue,
-    required this.rewardPawPoints,
-    required this.expiresAt,
-    this.targetBreed,
-  });
 }
