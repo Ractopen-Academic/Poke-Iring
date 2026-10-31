@@ -94,23 +94,24 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
                           AppStrings.appName,
+                          textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
@@ -118,250 +119,229 @@ class _LoginPageState extends State<LoginPage> {
                             letterSpacing: -0.5,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withAlpha(20),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: AppColors.primary.withAlpha(50),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            AppVersion.releaseTag,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      _isSignUp
-                          ? 'Create an account to start cataloging'
-                          : AppStrings.tagline,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    if (_errorMessage != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.red.shade200),
-                        ),
-                        child: Text(
-                          _errorMessage!,
-                          style: TextStyle(
-                            color: Colors.red.shade800,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                    const Text(
-                      'Manual Sign In',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    AppTextField(
-                      controller: _emailController,
-                      label: 'Email Address',
-                      hint: 'name@example.com',
-                      keyboardType: TextInputType.emailAddress,
-                      prefixIcon: Icons.email_outlined,
-                      validator: (val) {
-                        if (val == null || val.trim().isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!val.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-                    AppTextField(
-                      controller: _passwordController,
-                      label: 'Password',
-                      obscureText: _obscurePassword,
-                      prefixIcon: Icons.lock_outline,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: AppColors.textSecondary,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        if (val.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    if (!_isSignUp) ...[
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () => ForgotPasswordDialog.show(
-                                  context,
-                                  widget.authRepository,
-                                ),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 8,
-                            ),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: const Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.secondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ] else ...[
-                      const SizedBox(height: 16),
-                    ],
-                    AppButton(
-                      text: _isSignUp ? 'Create Account' : 'Sign In',
-                      isLoading: _isLoading,
-                      onPressed: _handleManualAuth,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                        const SizedBox(height: 6),
                         Text(
                           _isSignUp
-                              ? 'Already have an account? '
-                              : 'Do not have an account? ',
+                              ? 'Create an account to start cataloging'
+                              : AppStrings.tagline,
+                          textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 13,
+                            fontSize: 14,
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: _isLoading
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _isSignUp = !_isSignUp;
-                                    _errorMessage = null;
-                                  });
-                                },
-                          child: Text(
-                            _isSignUp ? 'Sign In' : 'Sign Up',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
+                        const SizedBox(height: 32),
+                        if (_errorMessage != null) ...[
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(
+                                color: Colors.red.shade800,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
+                          const SizedBox(height: 20),
+                        ],
+                        const Text(
+                          'Manual Sign In',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textSecondary,
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 28),
-                    const Row(
-                      children: [
-                        Expanded(child: Divider(color: AppColors.border)),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            'or passwordless',
-                            style: TextStyle(
-                              fontSize: 12,
+                        const SizedBox(height: 12),
+                        AppTextField(
+                          controller: _emailController,
+                          label: 'Email Address',
+                          hint: 'name@example.com',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixIcon: Icons.email_outlined,
+                          validator: (val) {
+                            if (val == null || val.trim().isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            if (!val.contains('@')) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 14),
+                        AppTextField(
+                          controller: _passwordController,
+                          label: 'Password',
+                          obscureText: _obscurePassword,
+                          prefixIcon: Icons.lock_outline,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
                               color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                          validator: (val) {
+                            if (val == null || val.isEmpty) {
+                              return 'Please enter your password';
+                            }
+                            if (val.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        if (!_isSignUp) ...[
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => ForgotPasswordDialog.show(
+                                      context,
+                                      widget.authRepository,
+                                    ),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 8,
+                                ),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
                             ),
                           ),
+                          const SizedBox(height: 12),
+                        ] else ...[
+                          const SizedBox(height: 16),
+                        ],
+                        AppButton(
+                          text: _isSignUp ? 'Create Account' : 'Sign In',
+                          isLoading: _isLoading,
+                          onPressed: _handleManualAuth,
                         ),
-                        Expanded(child: Divider(color: AppColors.border)),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _isSignUp
+                                  ? 'Already have an account? '
+                                  : 'Do not have an account? ',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: _isLoading
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        _isSignUp = !_isSignUp;
+                                        _errorMessage = null;
+                                      });
+                                    },
+                              child: Text(
+                                _isSignUp ? 'Sign In' : 'Sign Up',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 28),
+                        const Row(
+                          children: [
+                            Expanded(child: Divider(color: AppColors.border)),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                'or passwordless',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Expanded(child: Divider(color: AppColors.border)),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        AppButton(
+                          text: 'Continue with Google',
+                          isOutlined: true,
+                          isLoading: _isLoading,
+                          icon: const Icon(
+                            Icons.account_circle_outlined,
+                            size: 20,
+                            color: AppColors.textPrimary,
+                          ),
+                          onPressed: _handleGoogleAuth,
+                        ),
+                        const SizedBox(height: 12),
+                        AppButton(
+                          text: 'Quick Test Login',
+                          isOutlined: true,
+                          isLoading: _isLoading,
+                          icon: const Icon(
+                            Icons.developer_mode_outlined,
+                            size: 20,
+                            color: AppColors.secondary,
+                          ),
+                          onPressed: () {
+                            _emailController.text =
+                                'test.explorer@pokeiring.app';
+                            _passwordController.text = 'PokeIring2026!';
+                            _isSignUp = false;
+                            _handleManualAuth();
+                          },
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    AppButton(
-                      text: 'Continue with Google',
-                      isOutlined: true,
-                      isLoading: _isLoading,
-                      icon: const Icon(
-                        Icons.account_circle_outlined,
-                        size: 20,
-                        color: AppColors.textPrimary,
-                      ),
-                      onPressed: _handleGoogleAuth,
-                    ),
-                    const SizedBox(height: 12),
-                    AppButton(
-                      text: 'Quick Test Login',
-                      isOutlined: true,
-                      isLoading: _isLoading,
-                      icon: const Icon(
-                        Icons.developer_mode_outlined,
-                        size: 20,
-                        color: AppColors.secondary,
-                      ),
-                      onPressed: () {
-                        _emailController.text = 'test.explorer@pokeiring.app';
-                        _passwordController.text = 'PokeIring2026!';
-                        _isSignUp = false;
-                        _handleManualAuth();
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      '${AppStrings.appName} • ${AppVersion.badgeDisplay}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary.withAlpha(160),
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+            Positioned(
+              left: 16,
+              bottom: 12,
+              child: Text(
+                AppVersion.releaseTag,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary.withAlpha(140),
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
