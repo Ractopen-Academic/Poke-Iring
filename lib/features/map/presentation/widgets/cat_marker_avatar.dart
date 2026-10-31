@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,15 +8,17 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
 import '../../domain/entities/live_sighting.dart';
 
-class CatMarkerAvatar extends StatelessWidget {
+class CatMarkerAvatar extends StatefulWidget {
   final CatSighting? catSighting;
   final LiveSighting? liveSighting;
   final VoidCallback onTap;
+  final VoidCallback? onBoop;
 
   const CatMarkerAvatar({
     super.key,
     required LiveSighting sighting,
     required this.onTap,
+    this.onBoop,
   }) : liveSighting = sighting,
        catSighting = null;
 
@@ -23,41 +26,154 @@ class CatMarkerAvatar extends StatelessWidget {
     super.key,
     required CatSighting sighting,
     required this.onTap,
+    this.onBoop,
   }) : catSighting = sighting,
        liveSighting = null;
 
+  @override
+  State<CatMarkerAvatar> createState() => _CatMarkerAvatarState();
+}
+
+class _CatMarkerAvatarState extends State<CatMarkerAvatar>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _bounceController;
+  late Animation<double> _scaleAnimation;
+  int _localBoops = 0;
+  bool _showBoopPlus = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _localBoops = widget.catSighting?.boopsCount ?? 0;
+    _bounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 1.35,
+        ).chain(CurveTween(curve: Curves.easeOutBack)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.35,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeInQuad)),
+        weight: 50,
+      ),
+    ]).animate(_bounceController);
+  }
+
+  @override
+  void didUpdateWidget(covariant CatMarkerAvatar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final currentBoops = widget.catSighting?.boopsCount ?? 0;
+    final oldBoops = oldWidget.catSighting?.boopsCount ?? 0;
+    if (currentBoops > oldBoops) {
+      _localBoops = currentBoops;
+      _triggerBoopAnimation();
+    }
+  }
+
+  Timer? _hideBoopTimer;
+
+  @override
+  void dispose() {
+    _hideBoopTimer?.cancel();
+    _bounceController.dispose();
+    super.dispose();
+  }
+
+  void _triggerBoopAnimation() {
+    if (!mounted) return;
+    setState(() {
+      _showBoopPlus = true;
+    });
+    _bounceController.forward(from: 0.0);
+    _hideBoopTimer?.cancel();
+    _hideBoopTimer = Timer(const Duration(milliseconds: 900), () {
+      if (mounted) {
+        setState(() {
+          _showBoopPlus = false;
+        });
+      }
+    });
+  }
+
+  void _handleDirectBoop() {
+    if (widget.onBoop == null) {
+      widget.onTap();
+      return;
+    }
+    setState(() {
+      _localBoops++;
+    });
+    _triggerBoopAnimation();
+    widget.onBoop!();
+  }
+
   bool get _isSilhouette {
-    if (catSighting != null) return catSighting!.isSilhouettePhase;
-    if (liveSighting != null) return liveSighting!.isSilhouettePhase;
+    if (widget.catSighting != null) {
+      return widget.catSighting!.isSilhouettePhase;
+    }
+    if (widget.liveSighting != null) {
+      return widget.liveSighting!.isSilhouettePhase;
+    }
     return false;
   }
 
   double get _opacity {
-    if (catSighting != null) return catSighting!.spawnOpacity;
-    if (liveSighting != null) return liveSighting!.markerOpacity;
+    if (widget.catSighting != null) return widget.catSighting!.spawnOpacity;
+    if (widget.liveSighting != null) {
+      return widget.liveSighting!.markerOpacity;
+    }
     return 1.0;
   }
 
   String get _metallicTier {
-    if (catSighting != null) return catSighting!.metallicTier;
-    if (liveSighting != null) return liveSighting!.metallicTier;
+    if (widget.catSighting != null) return widget.catSighting!.metallicTier;
+    if (widget.liveSighting != null) return widget.liveSighting!.metallicTier;
     return 'bronze';
   }
 
+  double get _rarityMultiplier {
+    if (widget.catSighting != null) {
+      return widget.catSighting!.rarityMultiplier;
+    }
+    if (widget.liveSighting != null) {
+      switch (widget.liveSighting!.metallicTier.toLowerCase()) {
+        case 'gold':
+          return 2.0;
+        case 'silver':
+          return 1.5;
+        default:
+          return 1.0;
+      }
+    }
+    return 1.0;
+  }
+
   String get _remainingLabel {
-    if (catSighting != null) return catSighting!.remainingFormatted;
-    if (liveSighting != null) return liveSighting!.remainingFormatted;
+    if (widget.catSighting != null) {
+      return widget.catSighting!.remainingFormatted;
+    }
+    if (widget.liveSighting != null) {
+      return widget.liveSighting!.remainingFormatted;
+    }
     return '10m';
   }
 
   String get _imageUri {
-    if (catSighting != null) {
-      return catSighting!.stickerUrl.isNotEmpty
-          ? catSighting!.stickerUrl
-          : catSighting!.photoUrl;
+    if (widget.catSighting != null) {
+      return widget.catSighting!.stickerUrl.isNotEmpty
+          ? widget.catSighting!.stickerUrl
+          : widget.catSighting!.photoUrl;
     }
-    if (liveSighting != null) {
-      return liveSighting!.thumbnailUrl;
+    if (widget.liveSighting != null) {
+      return widget.liveSighting!.thumbnailUrl;
     }
     return '';
   }
@@ -92,80 +208,255 @@ class CatMarkerAvatar extends StatelessWidget {
     final glowColor = _getMetallicGlowColor(_metallicTier);
     final isSilhouette = _isSilhouette;
     final opacity = _opacity;
+    final multiplierText = '${_rarityMultiplier.toStringAsFixed(1)}x';
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Opacity(
         opacity: opacity,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSilhouette ? const Color(0xFF1E272C) : Colors.white,
-                border: Border.all(
-                  color: borderColor,
-                  width: _metallicTier == 'gold' ? 3.2 : 2.6,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: glowColor,
-                    blurRadius: _metallicTier == 'gold' ? 10 : 6,
-                    spreadRadius: _metallicTier == 'gold' ? 1.5 : 0.5,
-                    offset: const Offset(0, 2),
+        child: SizedBox(
+          width: 68,
+          height: 88,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.topCenter,
+            children: [
+              // Top Rarity Multiplier Tag
+              Positioned(
+                top: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1.5,
                   ),
-                ],
-              ),
-              child: ClipOval(
-                child: isSilhouette
-                    ? _buildSilhouetteAvatar()
-                    : _buildVibrantAvatar(),
-              ),
-            ),
-            const SizedBox(height: 3),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-              decoration: BoxDecoration(
-                color: isSilhouette
-                    ? const Color(0xFF1A1A1A).withAlpha(220)
-                    : Colors.black.withAlpha(200),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: borderColor.withAlpha(isSilhouette ? 180 : 100),
-                  width: 0.8,
+                  decoration: BoxDecoration(
+                    color: isSilhouette
+                        ? const Color(0xFF1E272C)
+                        : Colors.black.withAlpha(210),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: borderColor, width: 1.2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: glowColor,
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 4.5,
+                        height: 4.5,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: borderColor,
+                        ),
+                      ),
+                      const SizedBox(width: 3.5),
+                      Text(
+                        multiplierText,
+                        style: TextStyle(
+                          color: borderColor,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_metallicTier == 'gold') ...[
+
+              // Center Die-Cut Sticker Frame
+              Positioned(
+                top: 17,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Container(
-                      width: 5,
-                      height: 5,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFFFFD700),
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: isSilhouette
+                            ? const Color(0xFF14191C)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSilhouette
+                              ? const Color(0xFF263238)
+                              : Colors.white,
+                          width: 2.8,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(
+                              isSilhouette ? 70 : 50,
+                            ),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                          BoxShadow(
+                            color: glowColor,
+                            blurRadius: _metallicTier == 'gold' ? 8 : 4,
+                            spreadRadius: 0.5,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(11),
+                        child: isSilhouette
+                            ? _buildSilhouetteAvatar()
+                            : _buildVibrantAvatar(),
                       ),
                     ),
-                    const SizedBox(width: 3),
+
+                    // Pointer Tip Triangle
+                    CustomPaint(
+                      size: const Size(8, 4),
+                      painter: _TrianglePointerPainter(
+                        color: isSilhouette
+                            ? const Color(0xFF263238)
+                            : Colors.white,
+                      ),
+                    ),
                   ],
-                  Text(
-                    isSilhouette ? 'Shadow $_remainingLabel' : _remainingLabel,
-                    style: TextStyle(
-                      color: isSilhouette
-                          ? const Color(0xFFFFD700)
-                          : Colors.white,
-                      fontSize: 8.5,
-                      fontWeight: FontWeight.w700,
+                ),
+              ),
+
+              // Animated Community Boop Counter Badge
+              Positioned(
+                top: 44,
+                right: 0,
+                child: GestureDetector(
+                  onTap: _handleDirectBoop,
+                  behavior: HitTestBehavior.opaque,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4.5,
+                        vertical: 1.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF5252),
+                        borderRadius: BorderRadius.circular(9),
+                        border: Border.all(color: Colors.white, width: 1.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF5252).withAlpha(120),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.favorite,
+                            size: 8,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '$_localBoops',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+
+              // Floating "+5" Boop Reward Indicator
+              if (_showBoopPlus)
+                Positioned(
+                  top: 28,
+                  right: 2,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFD700),
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(40),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: const Text(
+                      '+5',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 8,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Bottom Remaining Countdown Label
+              Positioned(
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 1.5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSilhouette
+                        ? const Color(0xFF1A1A1A).withAlpha(230)
+                        : Colors.black.withAlpha(200),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: borderColor.withAlpha(isSilhouette ? 180 : 100),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_metallicTier == 'gold') ...[
+                        Container(
+                          width: 4,
+                          height: 4,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFFFD700),
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                      ],
+                      Text(
+                        isSilhouette
+                            ? 'Shadow $_remainingLabel'
+                            : _remainingLabel,
+                        style: TextStyle(
+                          color: isSilhouette
+                              ? const Color(0xFFFFD700)
+                              : Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -234,7 +525,7 @@ class CatMarkerAvatar extends StatelessWidget {
     return Container(
       color: const Color(0xFF1E272C),
       alignment: Alignment.center,
-      child: const Icon(Icons.pets, size: 22, color: Color(0xFF101416)),
+      child: const Icon(Icons.pets, size: 20, color: Color(0xFF101416)),
     );
   }
 
@@ -242,7 +533,33 @@ class CatMarkerAvatar extends StatelessWidget {
     return Container(
       color: Colors.white,
       alignment: Alignment.center,
-      child: Icon(Icons.pets, size: 22, color: color),
+      child: Icon(Icons.pets, size: 20, color: color),
     );
+  }
+}
+
+class _TrianglePointerPainter extends CustomPainter {
+  final Color color;
+
+  const _TrianglePointerPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width / 2, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TrianglePointerPainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }

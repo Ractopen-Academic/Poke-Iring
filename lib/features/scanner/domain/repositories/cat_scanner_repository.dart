@@ -9,6 +9,7 @@ abstract class CatScannerRepository {
   Future<Uint8List> generateStickerCutout({
     required Uint8List imageBytes,
     required CatScanResult scanResult,
+    bool asSilhouette = false,
   });
 
   Future<CatSighting> saveSighting({

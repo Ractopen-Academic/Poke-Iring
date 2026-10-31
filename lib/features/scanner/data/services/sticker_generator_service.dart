@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
@@ -5,13 +7,16 @@ import '../../domain/entities/cat_scan_result.dart';
 
 class StickerGeneratorService {
   static const int _targetSize = 320;
+  static const double _borderThickness = 8.0;
 
   Future<Uint8List> generateSticker({
     required Uint8List imageBytes,
     required CatScanResult scanResult,
+    bool asSilhouette = false,
   }) async {
     return compute(_processStickerIsolate, {
       'bytes': imageBytes,
+      'asSilhouette': asSilhouette,
       'box': scanResult.boundingBox != null
           ? [
               scanResult.boundingBox!.left,
@@ -25,6 +30,7 @@ class StickerGeneratorService {
 
   static Uint8List _processStickerIsolate(Map<String, dynamic> params) {
     final bytes = params['bytes'] as Uint8List;
+    final asSilhouette = params['asSilhouette'] as bool? ?? false;
     final boxList = params['box'] as List<double>?;
 
     final original = img.decodeImage(bytes);
@@ -42,9 +48,9 @@ class StickerGeneratorService {
       final boxWidth = (rightNorm - leftNorm) * original.width;
       final boxHeight = (bottomNorm - topNorm) * original.height;
 
-      // Add 12% padding margin around the bounding box
-      final marginX = (boxWidth * 0.12).round();
-      final marginY = (boxHeight * 0.12).round();
+      // Add 14% safety padding margin around the bounding box
+      final marginX = (boxWidth * 0.14).round();
+      final marginY = (boxHeight * 0.14).round();
 
       final x = ((leftNorm * original.width) - marginX)
           .clamp(0, original.width - 1)
@@ -73,6 +79,52 @@ class StickerGeneratorService {
       interpolation: img.Interpolation.linear,
     );
 
-    return Uint8List.fromList(img.encodePng(resized));
+    // Create die-cut sticker canvas with alpha channel
+    final sticker = img.Image(
+      width: _targetSize,
+      height: _targetSize,
+      numChannels: 4,
+    );
+
+    const cx = _targetSize / 2.0;
+    const cy = _targetSize / 2.0;
+    const cornerR = _targetSize * 0.22;
+    const halfW = (_targetSize / 2.0) - 8.0;
+    const halfH = (_targetSize / 2.0) - 8.0;
+
+    for (var y = 0; y < _targetSize; y++) {
+      for (var x = 0; x < _targetSize; x++) {
+        final qx = (x - cx).abs() - (halfW - cornerR);
+        final qy = (y - cy).abs() - (halfH - cornerR);
+        final dx = math.max(0.0, qx);
+        final dy = math.max(0.0, qy);
+        final dist = math.sqrt(dx * dx + dy * dy) - cornerR;
+
+        if (dist > 0.0) {
+          // Transparent background outside sticker die-cut boundary
+          sticker.setPixelRgba(x, y, 0, 0, 0, 0);
+        } else if (dist > -_borderThickness) {
+          // White die-cut vinyl sticker border
+          sticker.setPixelRgba(x, y, 255, 255, 255, 255);
+        } else {
+          if (asSilhouette) {
+            // Dark mystery silhouette color
+            sticker.setPixelRgba(x, y, 26, 34, 40, 255);
+          } else {
+            final pixel = resized.getPixel(x, y);
+            sticker.setPixelRgba(
+              x,
+              y,
+              pixel.r.toInt(),
+              pixel.g.toInt(),
+              pixel.b.toInt(),
+              255,
+            );
+          }
+        }
+      }
+    }
+
+    return Uint8List.fromList(img.encodePng(sticker));
   }
 }
