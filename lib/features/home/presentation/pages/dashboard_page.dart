@@ -21,9 +21,13 @@ import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
 import '../../../seasons/data/services/season_service_impl.dart';
 import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
 import '../../../showcase/services/showcase_service.dart';
+import '../../../subscription/data/services/subscription_service_impl.dart';
+import '../../../subscription/domain/entities/subscription_tier.dart';
+import '../../../subscription/presentation/widgets/feline_club_paywall_sheet.dart';
 import '../../../territory/data/services/territory_service_impl.dart';
 import '../../../territory/domain/entities/explorer_territory.dart';
 import '../../../territory/presentation/widgets/territory_selection_sheet.dart';
+import '../../../vault/presentation/pages/raw_photo_vault_page.dart';
 
 class DashboardPage extends StatefulWidget {
   final AuthUser user;
@@ -276,6 +280,135 @@ class _DashboardPageState extends State<DashboardPage> {
                   );
                 },
               ),
+              const SizedBox(height: 12),
+              StreamBuilder<SubscriptionStatus>(
+                stream: SubscriptionServiceImpl.instance.watchSubscription(
+                  widget.user.id.isNotEmpty
+                      ? widget.user.id
+                      : widget.user.email,
+                ),
+                initialData: SubscriptionStatus.free(
+                  widget.user.id.isNotEmpty
+                      ? widget.user.id
+                      : widget.user.email,
+                ),
+                builder: (context, snapshot) {
+                  final status =
+                      snapshot.data ??
+                      SubscriptionStatus.free(
+                        widget.user.id.isNotEmpty
+                            ? widget.user.id
+                            : widget.user.email,
+                      );
+                  final isClub = status.isClubMember;
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isClub ? const Color(0xFFFFF8E1) : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isClub
+                            ? const Color(0xFFFFB300)
+                            : AppColors.border,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isClub
+                                ? const Color(0xFFFF8F00).withAlpha(30)
+                                : AppColors.primary.withAlpha(20),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            isClub
+                                ? Icons.workspace_premium_rounded
+                                : Icons.card_membership_rounded,
+                            size: 20,
+                            color: isClub
+                                ? const Color(0xFFE65100)
+                                : AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isClub
+                                    ? 'Feline Club Member'
+                                    : 'Feline Club Membership',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: isClub
+                                      ? const Color(0xFF4E342E)
+                                      : AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                isClub
+                                    ? 'RAW Photo Vault Unlocked • Auto-renews'
+                                    : 'Unlock uncompressed RAW photo vault archiving',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isClub
+                                      ? const Color(0xFF6D4C41)
+                                      : AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {
+                            FelineClubPaywallSheet.show(
+                              context,
+                              userId: widget.user.id.isNotEmpty
+                                  ? widget.user.id
+                                  : widget.user.email,
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            side: BorderSide(
+                              color: isClub
+                                  ? const Color(0xFFFF8F00)
+                                  : AppColors.primary,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            isClub ? 'Manage' : 'Upgrade',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: isClub
+                                  ? const Color(0xFFE65100)
+                                  : AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
               const Text(
                 'Explorer State',
@@ -502,6 +635,24 @@ class _DashboardPageState extends State<DashboardPage> {
                 title: 'AI Vision Settings',
                 subtitle: 'Configure Gemini API key for cat recognition',
                 onTap: () => AiVisionSettingsSheet.show(context),
+              ),
+              const SizedBox(height: 10),
+              _ModuleTile(
+                icon: Icons.photo_library_outlined,
+                title: 'RAW Photo Vault',
+                subtitle: 'Uncompressed master cat photographs',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RawPhotoVaultPage(
+                        userId: widget.user.id.isNotEmpty
+                            ? widget.user.id
+                            : widget.user.email,
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 24),
               const Text(
