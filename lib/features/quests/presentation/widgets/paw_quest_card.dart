@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../domain/entities/paw_quest.dart';
 
 class PawQuestCard extends StatelessWidget {
@@ -29,28 +30,17 @@ class PawQuestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCompleted = quest.isCompleted;
     final isClaimed = quest.isClaimed;
+    final clampedProgress = quest.progressFraction.clamp(0.0, 1.0);
 
-    return Container(
+    return CalicoSpotCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isCompleted && !isClaimed
-              ? AppColors.primary.withAlpha(120)
-              : AppColors.border,
-          width: isCompleted && !isClaimed ? 1.5 : 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: isCompleted && !isClaimed
-                ? AppColors.primary.withAlpha(20)
-                : Colors.black.withAlpha(10),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      borderRadius: 18,
+      backgroundColor: isCompleted && !isClaimed
+          ? const Color(0xFFFFFCF8)
+          : Colors.white,
+      borderColor: isCompleted && !isClaimed
+          ? AppColors.primary.withAlpha(170)
+          : AppColors.border,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -58,19 +48,24 @@ class PawQuestCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
                   color: isCompleted
-                      ? AppColors.primary.withAlpha(25)
-                      : const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(10),
+                      ? AppColors.calicoBlack
+                      : AppColors.creamSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isCompleted
+                        ? AppColors.primary.withAlpha(90)
+                        : AppColors.gingerBorder,
+                  ),
                 ),
                 child: Icon(
                   _getTypeIcon(quest.type),
                   size: 20,
                   color: isCompleted
                       ? AppColors.primary
-                      : AppColors.textSecondary,
+                      : AppColors.primaryDark,
                 ),
               ),
               const SizedBox(width: 12),
@@ -100,11 +95,11 @@ class PawQuestCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF8E1),
+                  color: AppColors.gingerSoft,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFFE082)),
+                  border: Border.all(color: AppColors.gingerBorder),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -112,7 +107,7 @@ class PawQuestCard extends StatelessWidget {
                     const Icon(
                       Icons.star_rounded,
                       size: 14,
-                      color: Color(0xFFFFA000),
+                      color: AppColors.primary,
                     ),
                     const SizedBox(width: 3),
                     Text(
@@ -120,7 +115,7 @@ class PawQuestCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFFB78103),
+                        color: AppColors.primaryDark,
                       ),
                     ),
                   ],
@@ -128,7 +123,7 @@ class PawQuestCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 13),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -138,29 +133,52 @@ class PawQuestCard extends StatelessWidget {
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
                   color: isCompleted
-                      ? AppColors.primary
+                      ? AppColors.primaryDark
                       : AppColors.textSecondary,
                 ),
               ),
               Text(
-                '${(quest.progressFraction * 100).toInt()}%',
-                style: const TextStyle(
+                '${(clampedProgress * 100).toInt()}%',
+                style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w800,
+                  color: isCompleted
+                      ? AppColors.primaryDark
+                      : AppColors.textSecondary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: quest.progressFraction,
-              backgroundColor: const Color(0xFFE5E7EB),
-              color: isCompleted ? AppColors.primary : const Color(0xFFFB923C),
-              minHeight: 6,
-            ),
+          const SizedBox(height: 7),
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0.0, end: clampedProgress),
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
+            builder: (context, animatedValue, _) {
+              return Container(
+                height: 8,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppColors.creamSurface,
+                  borderRadius: BorderRadius.circular(99),
+                  border: Border.all(color: AppColors.border, width: 0.8),
+                ),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: animatedValue.clamp(0.0, 1.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(99),
+                      gradient: LinearGradient(
+                        colors: isCompleted
+                            ? const [AppColors.primary, AppColors.primaryDark]
+                            : const [Color(0xFFFFAD42), AppColors.primary],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
           if (isCompleted) ...[
             const SizedBox(height: 12),
@@ -169,28 +187,34 @@ class PawQuestCard extends StatelessWidget {
               child: isClaimed
                   ? OutlinedButton.icon(
                       onPressed: null,
-                      icon: const Icon(Icons.check_circle, size: 16),
+                      icon: const Icon(Icons.check_circle_rounded, size: 16),
                       label: const Text('Reward Claimed'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF2E7D32),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        side: const BorderSide(color: Color(0xFFA5D6A7)),
+                        padding: const EdgeInsets.symmetric(vertical: 9),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     )
-                  : ElevatedButton.icon(
-                      onPressed: onClaim,
-                      icon: const Icon(Icons.card_giftcard, size: 16),
-                      label: Text('Claim +${quest.rewardPawPoints} Paw Points'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 9),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  : CalicoPressable(
+                      child: ElevatedButton.icon(
+                        onPressed: onClaim,
+                        icon: const Icon(Icons.card_giftcard_rounded, size: 16),
+                        label: Text(
+                          'Claim +${quest.rewardPawPoints} Paw Points',
+                          style: const TextStyle(fontWeight: FontWeight.w800),
                         ),
-                        elevation: 0,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
                     ),
             ),

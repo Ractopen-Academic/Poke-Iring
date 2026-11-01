@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
 
 class PeekingCatRecenterButton extends StatefulWidget {
   final VoidCallback onTap;
+  final bool isOffCenter;
 
-  const PeekingCatRecenterButton({super.key, required this.onTap});
+  const PeekingCatRecenterButton({
+    super.key,
+    required this.onTap,
+    this.isOffCenter = false,
+  });
 
   @override
   State<PeekingCatRecenterButton> createState() =>
@@ -23,20 +29,20 @@ class _PeekingCatRecenterButtonState extends State<PeekingCatRecenterButton>
     super.initState();
     _bounceController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 320),
+      duration: const Duration(milliseconds: 340),
     );
 
     _peekAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 0.0,
-          end: -8.0,
+          end: -9.0,
         ).chain(CurveTween(curve: Curves.easeOutCubic)),
         weight: 40,
       ),
       TweenSequenceItem(
         tween: Tween<double>(
-          begin: -8.0,
+          begin: -9.0,
           end: 0.0,
         ).chain(CurveTween(curve: Curves.elasticOut)),
         weight: 60,
@@ -47,18 +53,26 @@ class _PeekingCatRecenterButtonState extends State<PeekingCatRecenterButton>
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.0,
-          end: 1.12,
+          end: 1.13,
         ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 35,
       ),
       TweenSequenceItem(
         tween: Tween<double>(
-          begin: 1.12,
+          begin: 1.13,
           end: 1.0,
         ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 65,
       ),
     ]).animate(_bounceController);
+  }
+
+  @override
+  void didUpdateWidget(covariant PeekingCatRecenterButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isOffCenter != oldWidget.isOffCenter) {
+      _bounceController.forward(from: 0.0);
+    }
   }
 
   @override
@@ -68,6 +82,7 @@ class _PeekingCatRecenterButtonState extends State<PeekingCatRecenterButton>
   }
 
   void _handleTap() {
+    HapticFeedback.lightImpact();
     _bounceController.forward(from: 0.0);
     widget.onTap();
   }
@@ -76,18 +91,28 @@ class _PeekingCatRecenterButtonState extends State<PeekingCatRecenterButton>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _handleTap,
-      child: AnimatedBuilder(
-        animation: _bounceController,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: SizedBox(
-              width: 58,
-              height: 64,
-              child: CustomPaint(
-                painter: _PeekingCatPainter(peekOffset: _peekAnimation.value),
-              ),
-            ),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(end: widget.isOffCenter ? -4.5 : 0.0),
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOutBack,
+        builder: (context, restingLift, _) {
+          return AnimatedBuilder(
+            animation: _bounceController,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _scaleAnimation.value,
+                child: SizedBox(
+                  width: 58,
+                  height: 66,
+                  child: CustomPaint(
+                    painter: _PeekingCalicoCatPainter(
+                      peekOffset: restingLift + _peekAnimation.value,
+                      isAlert: widget.isOffCenter,
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -95,190 +120,215 @@ class _PeekingCatRecenterButtonState extends State<PeekingCatRecenterButton>
   }
 }
 
-class _PeekingCatPainter extends CustomPainter {
+class _PeekingCalicoCatPainter extends CustomPainter {
   final double peekOffset;
+  final bool isAlert;
 
-  const _PeekingCatPainter({required this.peekOffset});
+  const _PeekingCalicoCatPainter({
+    required this.peekOffset,
+    required this.isAlert,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
 
-    // Shadow under the entire post
     final shadowPaint = Paint()
-      ..color = Colors.black.withAlpha(40)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
+      ..color = AppColors.calicoBlack.withAlpha(65)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(w * 0.12, h * 0.36 + 3, w * 0.76, h * 0.58),
+        Rect.fromLTWH(w * 0.12, h * 0.37 + 3, w * 0.76, h * 0.56),
         const Radius.circular(16),
       ),
       shadowPaint,
     );
 
-    // 1. Cat peeking behind the post (shifted by peekOffset)
     canvas.save();
     canvas.translate(0, peekOffset);
 
-    final catOrange = AppColors.primary;
-    final catPaint = Paint()
-      ..color = catOrange
+    final gingerPaint = Paint()
+      ..color = AppColors.primary
       ..style = PaintingStyle.fill;
+    final obsidianPaint = Paint()
+      ..color = AppColors.calicoBlack
+      ..style = PaintingStyle.fill;
+    final creamPaint = Paint()
+      ..color = const Color(0xFFFFFAF4)
+      ..style = PaintingStyle.fill;
+    final headOutline = Paint()
+      ..color = AppColors.calicoCharcoal
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
 
-    // Cat ears
+    // Left Ear (Obsidian Calico)
     final leftEar = Path()
-      ..moveTo(w * 0.25, h * 0.28)
-      ..lineTo(w * 0.20, h * 0.08)
-      ..lineTo(w * 0.38, h * 0.18)
+      ..moveTo(w * 0.25, h * 0.29)
+      ..lineTo(w * 0.19, h * 0.09)
+      ..lineTo(w * 0.38, h * 0.19)
       ..close();
-    canvas.drawPath(leftEar, catPaint);
+    canvas.drawPath(leftEar, obsidianPaint);
 
+    // Right Ear (Marmalade Ginger)
     final rightEar = Path()
-      ..moveTo(w * 0.75, h * 0.28)
-      ..lineTo(w * 0.80, h * 0.08)
-      ..lineTo(w * 0.62, h * 0.18)
+      ..moveTo(w * 0.75, h * 0.29)
+      ..lineTo(w * 0.81, h * 0.09)
+      ..lineTo(w * 0.62, h * 0.19)
       ..close();
-    canvas.drawPath(rightEar, catPaint);
+    canvas.drawPath(rightEar, gingerPaint);
 
-    // Inner pink ears
     final pinkPaint = Paint()
-      ..color = const Color(0xFFFFCDD2)
+      ..color = AppColors.calicoPink
       ..style = PaintingStyle.fill;
 
     final innerLeftEar = Path()
-      ..moveTo(w * 0.26, h * 0.25)
-      ..lineTo(w * 0.23, h * 0.12)
-      ..lineTo(w * 0.34, h * 0.19)
+      ..moveTo(w * 0.26, h * 0.26)
+      ..lineTo(w * 0.22, h * 0.13)
+      ..lineTo(w * 0.34, h * 0.20)
       ..close();
     canvas.drawPath(innerLeftEar, pinkPaint);
 
     final innerRightEar = Path()
-      ..moveTo(w * 0.74, h * 0.25)
-      ..lineTo(w * 0.77, h * 0.12)
-      ..lineTo(w * 0.66, h * 0.19)
+      ..moveTo(w * 0.74, h * 0.26)
+      ..lineTo(w * 0.78, h * 0.13)
+      ..lineTo(w * 0.66, h * 0.20)
       ..close();
     canvas.drawPath(innerRightEar, pinkPaint);
 
-    // Cat head
-    canvas.drawCircle(Offset(w * 0.50, h * 0.30), w * 0.26, catPaint);
+    // Calico Head Base + Tri-Color Spots
+    final headCircle = Path()
+      ..addOval(
+        Rect.fromCircle(center: Offset(w * 0.50, h * 0.31), radius: w * 0.26),
+      );
+    canvas.drawPath(headCircle, creamPaint);
 
-    // Cat eyes (happy arcs ^ ^)
-    final facePaint = Paint()
-      ..color = const Color(0xFF42210B)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.8
-      ..strokeCap = StrokeCap.round;
+    canvas.save();
+    canvas.clipPath(headCircle);
+    canvas.drawCircle(Offset(w * 0.32, h * 0.22), w * 0.18, obsidianPaint);
+    canvas.drawCircle(Offset(w * 0.70, h * 0.23), w * 0.19, gingerPaint);
+    canvas.restore();
+    canvas.drawPath(headCircle, headOutline);
 
-    final leftEye = Path()
-      ..moveTo(w * 0.40, h * 0.28)
-      ..quadraticBezierTo(w * 0.43, h * 0.24, w * 0.46, h * 0.28);
-    canvas.drawPath(leftEye, facePaint);
+    if (isAlert) {
+      final glint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(w * 0.42, h * 0.28), 2.3, obsidianPaint);
+      canvas.drawCircle(Offset(w * 0.58, h * 0.28), 2.3, obsidianPaint);
+      canvas.drawCircle(Offset(w * 0.41, h * 0.27), 0.9, glint);
+      canvas.drawCircle(Offset(w * 0.57, h * 0.27), 0.9, glint);
+    } else {
+      final facePaint = Paint()
+        ..color = AppColors.calicoBlack
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..strokeCap = StrokeCap.round;
 
-    final rightEye = Path()
-      ..moveTo(w * 0.54, h * 0.28)
-      ..quadraticBezierTo(w * 0.57, h * 0.24, w * 0.60, h * 0.28);
-    canvas.drawPath(rightEye, facePaint);
+      final leftEye = Path()
+        ..moveTo(w * 0.39, h * 0.29)
+        ..quadraticBezierTo(w * 0.425, h * 0.25, w * 0.46, h * 0.29);
+      canvas.drawPath(leftEye, facePaint);
 
-    // Nose
+      final rightEye = Path()
+        ..moveTo(w * 0.54, h * 0.29)
+        ..quadraticBezierTo(w * 0.575, h * 0.25, w * 0.61, h * 0.29);
+      canvas.drawPath(rightEye, facePaint);
+    }
+
     final nosePaint = Paint()
       ..color = const Color(0xFFE57373)
       ..style = PaintingStyle.fill;
     final nosePath = Path()
-      ..moveTo(w * 0.50, h * 0.31)
-      ..lineTo(w * 0.47, h * 0.30)
-      ..lineTo(w * 0.53, h * 0.30)
+      ..moveTo(w * 0.50, h * 0.32)
+      ..lineTo(w * 0.47, h * 0.305)
+      ..lineTo(w * 0.53, h * 0.305)
       ..close();
     canvas.drawPath(nosePath, nosePaint);
 
     canvas.restore();
 
-    // 2. The Post / Signboard in front of the cat
-    final postRect = Rect.fromLTWH(w * 0.12, h * 0.34, w * 0.76, h * 0.60);
+    // Obsidian Calico Signboard Post
+    final postRect = Rect.fromLTWH(w * 0.12, h * 0.36, w * 0.76, h * 0.57);
     final postRRect = RRect.fromRectAndRadius(
       postRect,
       const Radius.circular(16),
     );
 
-    // Post body
     final postPaint = Paint()
-      ..color = Colors.white
+      ..color = AppColors.calicoBlack
       ..style = PaintingStyle.fill;
     canvas.drawRRect(postRRect, postPaint);
 
-    // Post border
     final postBorderPaint = Paint()
-      ..color = const Color(0xFFFFD180)
+      ..color = isAlert ? AppColors.primary : AppColors.primary.withAlpha(150)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = 1.8;
     canvas.drawRRect(postRRect, postBorderPaint);
 
-    // Crosshair / location icon on the post
     final targetCenter = Offset(w * 0.50, h * 0.66);
     final targetPaint = Paint()
       ..color = AppColors.primary
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
-    canvas.drawCircle(targetCenter, 9.0, targetPaint);
+    canvas.drawCircle(targetCenter, 8.5, targetPaint);
 
     final centerDotPaint = Paint()
-      ..color = AppColors.primary
+      ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(targetCenter, 3.5, centerDotPaint);
+    canvas.drawCircle(targetCenter, 3.2, centerDotPaint);
 
-    // Mini crosshair ticks
     canvas.drawLine(
-      Offset(targetCenter.dx - 13, targetCenter.dy),
+      Offset(targetCenter.dx - 12.5, targetCenter.dy),
       Offset(targetCenter.dx - 8, targetCenter.dy),
       targetPaint,
     );
     canvas.drawLine(
       Offset(targetCenter.dx + 8, targetCenter.dy),
-      Offset(targetCenter.dx + 13, targetCenter.dy),
+      Offset(targetCenter.dx + 12.5, targetCenter.dy),
       targetPaint,
     );
     canvas.drawLine(
-      Offset(targetCenter.dx, targetCenter.dy - 13),
+      Offset(targetCenter.dx, targetCenter.dy - 12.5),
       Offset(targetCenter.dx, targetCenter.dy - 8),
       targetPaint,
     );
     canvas.drawLine(
       Offset(targetCenter.dx, targetCenter.dy + 8),
-      Offset(targetCenter.dx, targetCenter.dy + 13),
+      Offset(targetCenter.dx, targetCenter.dy + 12.5),
       targetPaint,
     );
 
-    // 3. Cat paws resting over the top edge of the post
+    // Cream & Ginger Paws Resting Over Post
     final pawPaint = Paint()
-      ..color = Colors.white
+      ..color = const Color(0xFFFFFAF4)
       ..style = PaintingStyle.fill;
     final pawOutline = Paint()
-      ..color = const Color(0xFFFFB74D)
+      ..color = AppColors.primary
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 
-    // Left paw
     final leftPawRect = Rect.fromCenter(
-      center: Offset(w * 0.33, h * 0.36 + (peekOffset * 0.4)),
+      center: Offset(w * 0.33, h * 0.37 + (peekOffset * 0.4)),
       width: w * 0.18,
-      height: h * 0.13,
+      height: h * 0.125,
     );
     canvas.drawOval(leftPawRect, pawPaint);
     canvas.drawOval(leftPawRect, pawOutline);
 
-    // Right paw
     final rightPawRect = Rect.fromCenter(
-      center: Offset(w * 0.67, h * 0.36 + (peekOffset * 0.4)),
+      center: Offset(w * 0.67, h * 0.37 + (peekOffset * 0.4)),
       width: w * 0.18,
-      height: h * 0.13,
+      height: h * 0.125,
     );
     canvas.drawOval(rightPawRect, pawPaint);
     canvas.drawOval(rightPawRect, pawOutline);
   }
 
   @override
-  bool shouldRepaint(covariant _PeekingCatPainter oldDelegate) {
-    return oldDelegate.peekOffset != peekOffset;
+  bool shouldRepaint(covariant _PeekingCalicoCatPainter oldDelegate) {
+    return oldDelegate.peekOffset != peekOffset ||
+        oldDelegate.isAlert != isAlert;
   }
 }

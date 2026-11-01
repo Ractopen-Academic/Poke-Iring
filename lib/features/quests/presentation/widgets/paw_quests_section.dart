@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../data/repositories/paw_quests_repository_impl.dart';
 import '../../domain/entities/paw_quest.dart';
 import '../../domain/repositories/paw_quests_repository.dart';
@@ -41,9 +43,10 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
       );
 
       if (points > 0 && mounted) {
+        HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: AppColors.primary,
+            backgroundColor: AppColors.calicoBlack,
             content: Text(
               'Claimed +$points Paw Points for "${quest.title}"!',
               style: const TextStyle(fontWeight: FontWeight.w700),
@@ -97,9 +100,9 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: AppColors.creamSurface,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                        border: Border.all(color: AppColors.gingerBorder),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -107,7 +110,7 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                           const Icon(
                             Icons.access_time_rounded,
                             size: 13,
-                            color: AppColors.textSecondary,
+                            color: AppColors.primaryDark,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -144,10 +147,11 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(3.5),
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: const Color(0xFFEFF1F5),
-                borderRadius: BorderRadius.circular(12),
+                color: AppColors.calicoBlack,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primary.withAlpha(55)),
               ),
               child: Row(
                 children: [
@@ -174,14 +178,10 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             ),
             const SizedBox(height: 14),
             if (filteredQuests.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: const Text(
+              const CalicoSpotCard(
+                padding: EdgeInsets.all(20),
+                borderRadius: 18,
+                child: Text(
                   'No active quests right now. Check back at the next cycle!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -221,34 +221,43 @@ class _CategoryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(9),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withAlpha(10),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+                    color: AppColors.primary.withAlpha(40),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ]
               : null,
         ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-              color: isSelected
-                  ? AppColors.textPrimary
-                  : AppColors.textSecondary,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CalicoAnimatedBar(isActive: isSelected, activeWidth: 18),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: isSelected
+                    ? AppColors.calicoBlack
+                    : AppColors.calicoMuted,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

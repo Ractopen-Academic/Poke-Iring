@@ -8,6 +8,7 @@ import '../../../../core/network/network_info.dart';
 import '../../../../core/network/network_info_impl.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
+import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../achievements/domain/entities/explorer_title.dart';
@@ -55,9 +56,16 @@ class MainNavigationShell extends StatefulWidget {
   State<MainNavigationShell> createState() => _MainNavigationShellState();
 }
 
-class _MainNavigationShellState extends State<MainNavigationShell> {
+class _MainNavigationShellState extends State<MainNavigationShell>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   bool _isShowingMap = false;
+  bool _keepMapVisibleDuringExit = false;
+  Timer? _mapExitTimer;
+
+  late final AnimationController _tabEnterController;
+  late final Animation<double> _tabFade;
+  late final Animation<Offset> _tabSlide;
 
   late final NetworkInfo _networkInfo;
   late final LocationService _locationService;
@@ -73,11 +81,25 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   @override
   void initState() {
     super.initState();
+    _tabEnterController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 240),
+      value: 1.0,
+    );
+    _tabFade = CurvedAnimation(
+      parent: _tabEnterController,
+      curve: Curves.easeOutCubic,
+    );
+    _tabSlide = Tween<Offset>(begin: const Offset(0, 0.025), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _tabEnterController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+
     _pages = [
-      _HomePage(
-        user: widget.user,
-        onOpenLeaderboard: () => setState(() => _currentIndex = 2),
-      ),
+      _HomePage(user: widget.user, onOpenLeaderboard: () => _selectTab(2)),
       IringDexPage(user: widget.user),
       LeaderboardPage(
         currentUserId: widget.user.id.isNotEmpty
@@ -86,15 +108,13 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         initialBarangay: 'Bankal',
         initialCity: 'Lapu-Lapu City',
         initialCountry: 'Philippines',
-        bottomPadding: 84.0,
+        bottomPadding: 108.0,
         isAdmin: widget.user.isAdminRole,
       ),
       DashboardPage(
         user: widget.user,
         authRepository: widget.authRepository,
-        onOpenMap: () => setState(() {
-          _isShowingMap = true;
-        }),
+        onOpenMap: () => _setMapVisible(true),
       ),
     ];
     _networkInfo = widget.networkInfo ?? NetworkInfoImpl();
@@ -126,15 +146,50 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   @override
   void dispose() {
+    _mapExitTimer?.cancel();
+    _tabEnterController.dispose();
     _networkSubscription?.cancel();
     _locationSubscription?.cancel();
     super.dispose();
   }
 
-  void _handleIringCenterTap() {
+  void _setMapVisible(bool show) {
+    if (_isShowingMap == show) return;
+    _mapExitTimer?.cancel();
+    if (show) {
+      setState(() {
+        _isShowingMap = true;
+        _keepMapVisibleDuringExit = true;
+      });
+    } else {
+      setState(() {
+        _isShowingMap = false;
+        _keepMapVisibleDuringExit = true;
+      });
+      _tabEnterController.forward(from: 0.0);
+      _mapExitTimer = Timer(const Duration(milliseconds: 240), () {
+        if (mounted && !_isShowingMap) {
+          setState(() => _keepMapVisibleDuringExit = false);
+        }
+      });
+    }
+  }
+
+  void _selectTab(int index) {
+    final changed = _currentIndex != index || _isShowingMap;
+    if (_isShowingMap) {
+      _setMapVisible(false);
+    }
     setState(() {
-      _isShowingMap = !_isShowingMap;
+      _currentIndex = index;
     });
+    if (changed) {
+      _tabEnterController.forward(from: 0.0);
+    }
+  }
+
+  void _handleIringCenterTap() {
+    _setMapVisible(!_isShowingMap);
   }
 
   void _openQuickSnapCamera() {
@@ -155,28 +210,62 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     final showOffline = !_isOnline && !_dismissedOfflineBanner;
     final showGpsDisabled =
         !_isLocationServiceEnabled && !_dismissedGpsBanner && !showOffline;
+    final mapOnStage = _isShowingMap || _keepMapVisibleDuringExit;
 
     return Scaffold(
       extendBody: true,
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           Offstage(
-            offstage: _isShowingMap,
-            child: IndexedStack(index: _currentIndex, children: _pages),
+            offstage: _isShowingMap && !_keepMapVisibleDuringExit,
+            child: IgnorePointer(
+              ignoring: _isShowingMap,
+              child: AnimatedScale(
+                scale: _isShowingMap ? 0.95 : 1.0,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                child: AnimatedOpacity(
+                  opacity: _isShowingMap ? 0.0 : 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: FadeTransition(
+                    opacity: _tabFade,
+                    child: SlideTransition(
+                      position: _tabSlide,
+                      child: IndexedStack(
+                        index: _currentIndex,
+                        children: _pages,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
           Offstage(
-            offstage: !_isShowingMap,
-            child: TickerMode(
-              enabled: _isShowingMap,
-              child: LiveMapPage(
-                locationService: _locationService,
-                isMapActive: _isShowingMap,
-                currentUserId: widget.user.id.isNotEmpty
-                    ? widget.user.id
-                    : widget.user.email,
-                onClose: () => setState(() {
-                  _isShowingMap = false;
-                }),
+            offstage: !mapOnStage,
+            child: IgnorePointer(
+              ignoring: !_isShowingMap,
+              child: AnimatedSlide(
+                offset: _isShowingMap ? Offset.zero : const Offset(0, 0.03),
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                child: AnimatedOpacity(
+                  opacity: _isShowingMap ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  child: TickerMode(
+                    enabled: _isShowingMap,
+                    child: LiveMapPage(
+                      locationService: _locationService,
+                      isMapActive: _isShowingMap,
+                      currentUserId: widget.user.id.isNotEmpty
+                          ? widget.user.id
+                          : widget.user.email,
+                      onClose: () => _setMapVisible(false),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -216,20 +305,18 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                 ),
               ),
             ),
-          if (_currentIndex == 0 && !_isShowingMap)
+          if (_currentIndex == 0 || _isShowingMap)
             FloatingSnapIringButton(onTap: _openQuickSnapCamera),
         ],
       ),
-      floatingActionButton: IringCenterButton(onTap: _handleIringCenterTap),
+      floatingActionButton: IringCenterButton(
+        onTap: _handleIringCenterTap,
+        isMapOpen: _isShowingMap,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _isShowingMap ? -1 : _currentIndex,
-        onTabSelected: (index) {
-          setState(() {
-            _isShowingMap = false;
-            _currentIndex = index;
-          });
-        },
+        onTabSelected: _selectTab,
       ),
     );
   }
@@ -275,8 +362,31 @@ class _HomePageState extends State<_HomePage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text(AppStrings.appName),
-        backgroundColor: Colors.white,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.calicoBlack,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(AppStrings.appName),
+          ],
+        ),
+        backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
       ),
@@ -288,7 +398,7 @@ class _HomePageState extends State<_HomePage> {
             final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 24),
+              padding: const EdgeInsets.only(top: 12, bottom: 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -304,25 +414,47 @@ class _HomePageState extends State<_HomePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Welcome back,',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textSecondary,
-                                      letterSpacing: 0.3,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 9,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.calicoBlack,
+                                      borderRadius: BorderRadius.circular(99),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.pets_rounded,
+                                          size: 11,
+                                          color: AppColors.primary,
+                                        ),
+                                        SizedBox(width: 5),
+                                        Text(
+                                          'Welcome back,',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                            letterSpacing: 0.25,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(height: 2),
+                                  const SizedBox(height: 6),
                                   Text(
                                     name,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w800,
+                                      fontSize: 23,
+                                      fontWeight: FontWeight.w900,
                                       color: AppColors.textPrimary,
                                       height: 1.15,
+                                      letterSpacing: -0.4,
                                     ),
                                   ),
                                 ],
@@ -357,7 +489,7 @@ class _HomePageState extends State<_HomePage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 5),
                         const Text(
                           'Track your daily explorer movement and unlock more feline routes.',
                           style: TextStyle(
@@ -376,13 +508,8 @@ class _HomePageState extends State<_HomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Container(
+                        CalicoSpotCard(
                           padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: AppColors.border),
-                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -391,34 +518,51 @@ class _HomePageState extends State<_HomePage> {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary.withAlpha(25),
-                                      borderRadius: BorderRadius.circular(12),
+                                      color: AppColors.calicoBlack,
+                                      borderRadius: BorderRadius.circular(13),
                                     ),
                                     child: const Icon(
                                       Icons.directions_walk_rounded,
                                       color: AppColors.primary,
+                                      size: 20,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   const Expanded(
-                                    child: Text(
-                                      'Explorer Health',
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.textPrimary,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Explorer Health',
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w800,
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Daily paw-patrol telemetry',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 18),
+                              const SizedBox(height: 16),
                               Row(
                                 children: [
                                   Expanded(
                                     child: _MiniMetric(
                                       label: 'Steps',
                                       value: '${health.stepsToday}',
+                                      icon: Icons.pets_rounded,
+                                      accent: AppColors.primary,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -427,6 +571,8 @@ class _HomePageState extends State<_HomePage> {
                                       label: 'Distance',
                                       value:
                                           '${health.distanceKm.toStringAsFixed(2)} km',
+                                      icon: Icons.route_rounded,
+                                      accent: AppColors.calicoCharcoal,
                                     ),
                                   ),
                                 ],
@@ -439,6 +585,8 @@ class _HomePageState extends State<_HomePage> {
                                       label: 'Calories',
                                       value:
                                           '${health.caloriesBurned.toStringAsFixed(0)} kcal',
+                                      icon: Icons.local_fire_department_rounded,
+                                      accent: AppColors.primaryDark,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -446,6 +594,8 @@ class _HomePageState extends State<_HomePage> {
                                     child: _MiniMetric(
                                       label: 'Active',
                                       value: '${health.activeMinutes} min',
+                                      icon: Icons.bolt_rounded,
+                                      accent: AppColors.calicoCharcoal,
                                     ),
                                   ),
                                 ],
@@ -475,7 +625,7 @@ class _HomePageState extends State<_HomePage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 96),
+                  const SizedBox(height: 112),
                 ],
               ),
             );
@@ -489,35 +639,53 @@ class _HomePageState extends State<_HomePage> {
 class _MiniMetric extends StatelessWidget {
   final String label;
   final String value;
+  final IconData icon;
+  final Color accent;
 
-  const _MiniMetric({required this.label, required this.value});
+  const _MiniMetric({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.accent,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.creamSurface.withAlpha(160),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.textSecondary,
-            ),
+          Row(
+            children: [
+              Icon(icon, size: 13, color: accent),
+              const SizedBox(width: 5),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+          const SizedBox(height: 5),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            child: Text(
+              value,
+              key: ValueKey<String>(value),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
         ],
