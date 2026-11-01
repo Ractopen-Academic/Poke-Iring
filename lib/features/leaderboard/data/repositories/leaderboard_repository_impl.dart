@@ -57,6 +57,20 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
     final liveEntries = await firebaseDatasource.fetchEntries(
       currentUserId: currentUserId,
     );
+
+    if (firebaseDatasource.isCloudConnected) {
+      if (liveEntries.isEmpty) {
+        return const <LeaderboardEntry>[];
+      }
+      final hasLiveUser = liveEntries.any((e) => e.userId == currentUserId);
+      if (hasLiveUser || currentUserId.isEmpty) {
+        return liveEntries
+            .map((e) => e.copyWith(isCurrentUser: e.userId == currentUserId))
+            .toList();
+      }
+      return liveEntries;
+    }
+
     final entries = liveEntries.isNotEmpty
         ? liveEntries
         : datasource.getSeedEntries();

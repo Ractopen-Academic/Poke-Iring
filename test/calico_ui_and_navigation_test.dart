@@ -8,6 +8,8 @@ import 'package:pokeiring/core/services/location_service.dart';
 import 'package:pokeiring/core/widgets/calico_ui_kit.dart';
 import 'package:pokeiring/features/auth/domain/entities/auth_user.dart';
 import 'package:pokeiring/features/auth/domain/repositories/auth_repository.dart';
+import 'package:pokeiring/features/auth/presentation/pages/login_page.dart';
+import 'package:pokeiring/features/auth/presentation/widgets/calico_login_mascot.dart';
 import 'package:pokeiring/features/events/data/repositories/event_repository_impl.dart';
 import 'package:pokeiring/features/events/presentation/widgets/event_popup_modal.dart';
 import 'package:pokeiring/features/home/presentation/pages/main_navigation_shell.dart';
@@ -312,6 +314,110 @@ void main() {
         await tester.pump(const Duration(milliseconds: 300));
 
         expect(find.byType(FloatingSnapIringButton), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'LoginPage renders interactive CalicoLoginMascot without dev Quick Test Login',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: LoginPage(
+              authRepository: const _FakeAuthRepository(testUser),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(CalicoLoginMascot), findsOneWidget);
+        expect(find.text('Quick Test Login'), findsNothing);
+        expect(find.text('Enter Territory'), findsOneWidget);
+
+        await tester.enterText(
+          find.byType(TextFormField).first,
+          'calico@iring.ph',
+        );
+        await tester.pump(const Duration(milliseconds: 250));
+
+        await tester.tap(find.byType(TextFormField).last);
+        await tester.pump(const Duration(milliseconds: 300));
+
+        await tester.tap(find.byTooltip('Show password'));
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.byTooltip('Hide password'), findsOneWidget);
+
+        await tester.tap(find.text('Sign Up'));
+        await tester.pumpAndSettle();
+        expect(find.text('Create Explorer Account'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'MainNavigationShell sequences TerritorySetupDialog before EventPopupModal without overlap',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({});
+        TerritoryServiceImpl.instance.resetCache();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: MainNavigationShell(
+              user: const AuthUser(
+                id: 'fresh-explorer-seq',
+                email: 'fresh@example.com',
+                displayName: 'FreshPaws',
+                emailVerified: true,
+              ),
+              authRepository: const _FakeAuthRepository(testUser),
+              networkInfo: _FakeNetworkInfo(),
+              locationService: _FakeLocationService(),
+              initialOnline: true,
+              initialLocationStatus: LocationAccessStatus.granted,
+            ),
+          ),
+        );
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 350));
+
+        expect(find.textContaining('Lock'), findsWidgets);
+        expect(find.byType(EventPopupModal), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'FloatingSnapIringButton stays strictly above PeekingCatRecenterButton on LiveMapPage',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: MainNavigationShell(
+              user: testUser,
+              authRepository: const _FakeAuthRepository(testUser),
+              networkInfo: _FakeNetworkInfo(),
+              locationService: _FakeLocationService(),
+              initialOnline: true,
+              initialLocationStatus: LocationAccessStatus.granted,
+            ),
+          ),
+        );
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        await tester.tap(find.byType(IringCenterButton));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 350));
+
+        final cameraPainterFinder = find.descendant(
+          of: find.byType(FloatingSnapIringButton),
+          matching: find.byType(SizedBox),
+        );
+        final recenterFinder = find.byType(PeekingCatRecenterButton);
+
+        final cameraRect = tester.getRect(cameraPainterFinder.first);
+        final recenterRect = tester.getRect(recenterFinder);
+
+        expect(cameraRect.overlaps(recenterRect), isFalse);
+        expect(cameraRect.bottom, lessThanOrEqualTo(recenterRect.top));
       },
     );
   });

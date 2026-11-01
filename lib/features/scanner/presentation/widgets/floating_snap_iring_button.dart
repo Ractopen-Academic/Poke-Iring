@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../data/services/quick_snap_position_service_impl.dart';
@@ -7,11 +9,13 @@ import 'cute_cat_camera_painter.dart';
 class FloatingSnapIringButton extends StatefulWidget {
   final VoidCallback onTap;
   final QuickSnapPositionService? positionService;
+  final double bottomSafeMargin;
 
   const FloatingSnapIringButton({
     super.key,
     required this.onTap,
     this.positionService,
+    this.bottomSafeMargin = 128.0,
   });
 
   @override
@@ -26,9 +30,11 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
   Animation<Offset>? _snapAnimation;
 
   static const double _buttonSize = 58.0;
-  static const double _margin = 12.0;
+  static const double _margin = 14.0;
 
   Offset? _currentOffset;
+  Size? _lastParentSize;
+  EdgeInsets? _lastPadding;
   bool _isDragging = false;
   bool _isInitialized = false;
   double _totalDragDistance = 0.0;
@@ -52,6 +58,25 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
   }
 
   @override
+  void didUpdateWidget(covariant FloatingSnapIringButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.bottomSafeMargin != oldWidget.bottomSafeMargin &&
+        _currentOffset != null &&
+        _lastParentSize != null) {
+      final minY = (_lastPadding?.top ?? 0) + 60.0;
+      final maxY = math.max(
+        minY,
+        _lastParentSize!.height -
+            (_lastPadding?.bottom ?? 0) -
+            widget.bottomSafeMargin,
+      );
+      if (_currentOffset!.dy > maxY) {
+        _currentOffset = Offset(_currentOffset!.dx, maxY);
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _snapController.dispose();
     super.dispose();
@@ -65,9 +90,12 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
     if (!mounted) return;
 
     final minX = _margin;
-    final maxX = screenSize.width - _buttonSize - _margin;
+    final maxX = math.max(minX, screenSize.width - _buttonSize - _margin);
     final minY = padding.top + 60.0;
-    final maxY = screenSize.height - padding.bottom - 120.0;
+    final maxY = math.max(
+      minY,
+      screenSize.height - padding.bottom - widget.bottomSafeMargin,
+    );
 
     final initialX = saved.xFraction <= 0.5 ? minX : maxX;
     final initialY = (saved.yFraction * screenSize.height).clamp(minY, maxY);
@@ -93,9 +121,12 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
       _isDragging = true;
       final current = _currentOffset ?? Offset.zero;
       final minX = _margin;
-      final maxX = screenSize.width - _buttonSize - _margin;
+      final maxX = math.max(minX, screenSize.width - _buttonSize - _margin);
       final minY = padding.top + 60.0;
-      final maxY = screenSize.height - padding.bottom - 120.0;
+      final maxY = math.max(
+        minY,
+        screenSize.height - padding.bottom - widget.bottomSafeMargin,
+      );
 
       final newX = (current.dx + details.delta.dx).clamp(minX, maxX);
       final newY = (current.dy + details.delta.dy).clamp(minY, maxY);
@@ -112,11 +143,13 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
 
     final current = _currentOffset ?? Offset.zero;
     final minX = _margin;
-    final maxX = screenSize.width - _buttonSize - _margin;
+    final maxX = math.max(minX, screenSize.width - _buttonSize - _margin);
     final minY = padding.top + 60.0;
-    final maxY = screenSize.height - padding.bottom - 120.0;
+    final maxY = math.max(
+      minY,
+      screenSize.height - padding.bottom - widget.bottomSafeMargin,
+    );
 
-    // Snap to nearest edge (left or right)
     final targetX = (current.dx + _buttonSize / 2 < screenSize.width / 2)
         ? minX
         : maxX;
@@ -138,7 +171,6 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
     _snapAnimation!.addListener(listener);
     _snapController.forward(from: 0.0).then((_) {
       _snapAnimation?.removeListener(listener);
-      // Persist normalized coordinates
       final xFraction = targetX == minX ? 0.0 : 1.0;
       final yFraction = (targetY / screenSize.height).clamp(0.0, 1.0);
       _positionService.savePosition(
@@ -163,24 +195,36 @@ class _FloatingSnapIringButtonState extends State<FloatingSnapIringButton>
           final parentSize = Size(parentWidth, parentHeight);
           final padding = MediaQuery.paddingOf(context);
 
+          _lastParentSize = parentSize;
+          _lastPadding = padding;
+
           if (!_isInitialized) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _initPosition(parentSize, padding);
             });
           }
 
-          final defaultOffset = Offset(
-            parentSize.width - _buttonSize - _margin,
-            parentSize.height * 0.65,
+          final minY = padding.top + 60.0;
+          final maxY = math.max(
+            minY,
+            parentSize.height - padding.bottom - widget.bottomSafeMargin,
           );
-          final offset = _currentOffset ?? defaultOffset;
+          final defaultOffset = Offset(
+            math.max(_margin, parentSize.width - _buttonSize - _margin),
+            (parentSize.height * 0.62).clamp(minY, maxY),
+          );
+          final rawOffset = _currentOffset ?? defaultOffset;
+          final clampedOffset = Offset(
+            rawOffset.dx,
+            rawOffset.dy.clamp(minY, maxY),
+          );
 
           return Stack(
             clipBehavior: Clip.none,
             children: [
               Positioned(
-                left: offset.dx,
-                top: offset.dy,
+                left: clampedOffset.dx,
+                top: clampedOffset.dy,
                 child: GestureDetector(
                   onPanStart: _onPanStart,
                   onPanUpdate: (details) =>

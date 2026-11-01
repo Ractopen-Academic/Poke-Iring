@@ -157,7 +157,7 @@ void main() {
       expect(resolvedDisabled, isEmpty);
 
       final resolvedUnseeded = EventRepositoryImpl.resolveCloudEvents(const []);
-      expect(resolvedUnseeded, isNotEmpty);
+      expect(resolvedUnseeded, isEmpty);
     });
   });
 

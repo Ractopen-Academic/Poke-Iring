@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -19,7 +21,9 @@ class HomeLeaderboardPreview extends StatefulWidget {
 class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
     with SingleTickerProviderStateMixin {
   late final AnimationController _floatController;
+  StreamSubscription<List<LeaderboardEntry>>? _entriesSubscription;
   List<LeaderboardEntry> _topThree = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -29,31 +33,166 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
 
-    final seeds = const MockLeaderboardDatasource().getSeedEntries();
-    final sorted = List<LeaderboardEntry>.from(seeds)
-      ..sort((a, b) => b.points.compareTo(a.points));
-    _topThree = sorted.take(3).toList();
-
-    FirebaseLeaderboardDataSource.instance.fetchEntries().then((entries) {
-      if (mounted && entries.isNotEmpty) {
+    final datasource = FirebaseLeaderboardDataSource.instance;
+    if (datasource.isCloudConnected) {
+      _isLoading = true;
+      _entriesSubscription = datasource.watchEntries().listen((entries) {
+        if (!mounted) return;
         final sortedLive = List<LeaderboardEntry>.from(entries)
           ..sort((a, b) => b.points.compareTo(a.points));
         setState(() {
           _topThree = sortedLive.take(3).toList();
+          _isLoading = false;
         });
-      }
-    });
+      });
+    } else {
+      final seeds = const MockLeaderboardDatasource().getSeedEntries();
+      final sorted = List<LeaderboardEntry>.from(seeds)
+        ..sort((a, b) => b.points.compareTo(a.points));
+      _topThree = sorted.take(3).toList();
+    }
   }
 
   @override
   void dispose() {
+    _entriesSubscription?.cancel();
     _floatController.dispose();
     super.dispose();
   }
 
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.calicoBlack,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primary.withAlpha(90)),
+              ),
+              child: const Icon(
+                Icons.emoji_events_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Territory Champions',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  'Top explorers this season',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: AppColors.gingerSoft,
+            borderRadius: BorderRadius.circular(99),
+            border: Border.all(color: AppColors.gingerBorder),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'View Ranks',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primaryDark,
+                ),
+              ),
+              SizedBox(width: 4),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 10,
+                color: AppColors.primaryDark,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_topThree.isEmpty) return const SizedBox.shrink();
+    if (_topThree.isEmpty) {
+      if (_isLoading) {
+        return const SizedBox.shrink();
+      }
+      return CalicoSpotCard(
+        onTap: widget.onTap,
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.creamSurface.withAlpha(180),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.workspace_premium_rounded,
+                    size: 22,
+                    color: AppColors.primary,
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Season Podium Open',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Log your first neighborhood cat sighting to claim the #1 explorer spot.',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: AppColors.textSecondary,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     final first = _topThree[0];
     final second = _topThree.length > 1 ? _topThree[1] : null;
@@ -65,81 +204,7 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.calicoBlack,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primary.withAlpha(90),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.emoji_events_rounded,
-                      size: 18,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Territory Champions',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        'Top explorers this season',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.gingerSoft,
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: AppColors.gingerBorder),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'View Ranks',
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.primaryDark,
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 10,
-                      color: AppColors.primaryDark,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          _buildHeader(),
           const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

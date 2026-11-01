@@ -28,6 +28,7 @@ import '../../../quests/presentation/widgets/paw_quests_section.dart';
 import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
 import '../../../stories/presentation/widgets/stories_tray.dart';
+import '../../../territory/presentation/widgets/territory_setup_dialog.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/iring_center_button.dart';
 import 'dashboard_page.dart';
@@ -110,6 +111,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         initialCountry: 'Philippines',
         bottomPadding: 108.0,
         isAdmin: widget.user.isAdminRole,
+        promptTerritorySetup: false,
       ),
       DashboardPage(
         user: widget.user,
@@ -142,6 +144,32 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         });
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _runStartupModalsSequentially();
+    });
+  }
+
+  Future<void> _runStartupModalsSequentially() async {
+    if (!mounted) return;
+    final userId = widget.user.id.isNotEmpty
+        ? widget.user.id
+        : widget.user.email;
+
+    await TerritorySetupDialog.checkAndShow(context, userId: userId);
+    if (!mounted || _isShowingMap) return;
+
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    if (!mounted || _isShowingMap) return;
+
+    await EventPopupModal.checkAndShow(
+      context,
+      userId: userId,
+      userDisplayName: widget.user.displayName.isNotEmpty
+          ? widget.user.displayName
+          : widget.user.email.split('@').first,
+      userPhotoUrl: widget.user.photoUrl,
+    );
   }
 
   @override
@@ -306,7 +334,10 @@ class _MainNavigationShellState extends State<MainNavigationShell>
               ),
             ),
           if (_currentIndex == 0 || _isShowingMap)
-            FloatingSnapIringButton(onTap: _openQuickSnapCamera),
+            FloatingSnapIringButton(
+              onTap: _openQuickSnapCamera,
+              bottomSafeMargin: _isShowingMap ? 246.0 : 128.0,
+            ),
         ],
       ),
       floatingActionButton: IringCenterButton(
@@ -337,20 +368,6 @@ class _HomePageState extends State<_HomePage> {
   void initState() {
     super.initState();
     ExplorerHealthService.instance.start();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        EventPopupModal.checkAndShow(
-          context,
-          userId: widget.user.id.isNotEmpty
-              ? widget.user.id
-              : widget.user.email,
-          userDisplayName: widget.user.displayName.isNotEmpty
-              ? widget.user.displayName
-              : widget.user.email.split('@').first,
-          userPhotoUrl: widget.user.photoUrl,
-        );
-      }
-    });
   }
 
   @override

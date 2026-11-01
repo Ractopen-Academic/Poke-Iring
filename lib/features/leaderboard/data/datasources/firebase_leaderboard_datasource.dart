@@ -32,12 +32,15 @@ class FirebaseLeaderboardDataSource {
   FirebaseLeaderboardDataSource._internal([this._firestore]);
 
   bool get _isFirebaseAvailable {
+    if (_firestore != null) return true;
     try {
       return Firebase.apps.isNotEmpty;
     } catch (_) {
       return false;
     }
   }
+
+  bool get isCloudConnected => _isFirebaseAvailable;
 
   FirebaseFirestore get _db => _firestore ?? FirebaseFirestore.instance;
 
@@ -61,37 +64,31 @@ class FirebaseLeaderboardDataSource {
                 unawaited(_persistLocalCache(entries));
                 return entries;
               }
-              return _getFallbackEntries(currentUserId);
+              _cachedEntries = const [];
+              unawaited(_clearLocalCache());
+              return const <LeaderboardEntry>[];
             })
             .handleError((err) {
               debugPrint('Firestore leaderboard stream error: $err');
-              return _getFallbackEntries(currentUserId);
+              return _cachedEntries ?? const <LeaderboardEntry>[];
             });
       } catch (e) {
         debugPrint('Failed to attach Firestore leaderboard stream: $e');
       }
+      return Stream.value(_cachedEntries ?? const <LeaderboardEntry>[]);
     }
 
     return Stream.value(_getFallbackEntries(currentUserId));
   }
 
   Future<List<LeaderboardEntry>> fetchEntries({String? currentUserId}) async {
-    if (_cachedEntries != null && _cachedEntries!.isNotEmpty) {
-      return _markCurrentUser(_cachedEntries!, currentUserId);
-    }
-
-    final localCached = await _loadLocalCache();
-    if (localCached.isNotEmpty) {
-      _cachedEntries = localCached;
-    }
-
     if (_isFirebaseAvailable) {
       try {
         final snapshot = await _db
             .collection(_collectionName)
             .limit(100)
             .get()
-            .timeout(const Duration(milliseconds: 1500));
+            .timeout(const Duration(milliseconds: 2000));
         if (snapshot.docs.isNotEmpty) {
           final entries = snapshot.docs.map((doc) {
             return LeaderboardEntry.fromFirestore(
@@ -104,12 +101,20 @@ class FirebaseLeaderboardDataSource {
           _cachedEntries = entries;
           unawaited(_persistLocalCache(entries));
           return entries;
-        } else {
-          await seedDefaultUsersIfEmpty();
         }
+        _cachedEntries = const [];
+        unawaited(_clearLocalCache());
+        return const <LeaderboardEntry>[];
       } catch (e) {
-        debugPrint(
-          'Firestore fetch users error ($e), fallback to cached/seeds',
+        debugPrint('Firestore fetch users error ($e), reading local cache');
+        final localCached = await _loadLocalCache();
+        if (localCached.isNotEmpty) {
+          _cachedEntries = localCached;
+          return _markCurrentUser(localCached, currentUserId);
+        }
+        return _markCurrentUser(
+          _cachedEntries ?? const <LeaderboardEntry>[],
+          currentUserId,
         );
       }
     }
@@ -118,47 +123,13 @@ class FirebaseLeaderboardDataSource {
       return _markCurrentUser(_cachedEntries!, currentUserId);
     }
 
-    return _getFallbackEntries(currentUserId);
-  }
-
-  Future<void> seedDefaultUsersIfEmpty() async {
-    if (!_isFirebaseAvailable) return;
-
-    try {
-      final snapshot = await _db.collection(_collectionName).limit(1).get();
-      if (snapshot.docs.isEmpty) {
-        debugPrint('Seeding default leaderboard users to Firestore...');
-        final seeds = _mockDatasource.getSeedEntries();
-        final batch = _db.batch();
-
-        for (final seed in seeds) {
-          final docRef = _db.collection(_collectionName).doc(seed.userId);
-          batch.set(docRef, {
-            'displayName': seed.displayName,
-            'avatarColorIndex': seed.avatarColorIndex,
-            'totalPawPoints': seed.points,
-            'totalSnaps': seed.catsSnapped,
-            'distanceKm': seed.distanceKm,
-            'mythicPaws': seed.mythicPaws,
-            'barangay': seed.barangay,
-            'city': seed.city,
-            'region': seed.region,
-            'country': seed.country,
-            'territory': {
-              'barangay': seed.barangay,
-              'city': seed.city,
-              'region': seed.region,
-              'country': seed.country,
-            },
-          });
-        }
-
-        await batch.commit();
-        debugPrint('Successfully seeded ${seeds.length} leaderboard users');
-      }
-    } catch (e) {
-      debugPrint('Failed to seed default leaderboard users: $e');
+    final localCached = await _loadLocalCache();
+    if (localCached.isNotEmpty) {
+      _cachedEntries = localCached;
+      return _markCurrentUser(localCached, currentUserId);
     }
+
+    return _getFallbackEntries(currentUserId);
   }
 
   List<LeaderboardEntry> _getFallbackEntries(String? currentUserId) {
@@ -186,6 +157,13 @@ class FirebaseLeaderboardDataSource {
     } catch (e) {
       debugPrint('Failed to cache leaderboard locally: $e');
     }
+  }
+
+  Future<void> _clearLocalCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_localCacheKey);
+    } catch (_) {}
   }
 
   Future<List<LeaderboardEntry>> _loadLocalCache() async {

@@ -292,7 +292,7 @@ class _LiveMapPageState extends State<LiveMapPage>
         : widget.initialCenter;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           Listener(
@@ -327,23 +327,47 @@ class _LiveMapPageState extends State<LiveMapPage>
                 },
               ),
               children: [
-                TileLayer(
-                  urlTemplate:
-                      'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-                  subdomains: const ['a', 'b', 'c'],
-                  userAgentPackageName: 'com.ryme.pokeiring',
-                  tileProvider: _tileProvider,
-                  panBuffer: 1,
-                  keepBuffer: 2,
-                  evictErrorTileStrategy: EvictErrorTileStrategy.none,
-                  errorTileCallback: (tile, error, stackTrace) {
-                    if (!_hasTileError && mounted) {
-                      setState(() {
-                        _hasTileError = true;
-                      });
-                      widget.onTileError?.call();
-                    }
-                  },
+                ColorFiltered(
+                  colorFilter: const ColorFilter.matrix(<double>[
+                    0.98,
+                    0.02,
+                    0.00,
+                    0,
+                    4,
+                    0.02,
+                    0.95,
+                    0.00,
+                    0,
+                    1,
+                    0.00,
+                    0.02,
+                    0.88,
+                    0,
+                    -4,
+                    0.00,
+                    0.00,
+                    0.00,
+                    1,
+                    0,
+                  ]),
+                  child: TileLayer(
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                    subdomains: const ['a', 'b', 'c'],
+                    userAgentPackageName: 'com.ryme.pokeiring',
+                    tileProvider: _tileProvider,
+                    panBuffer: 1,
+                    keepBuffer: 2,
+                    evictErrorTileStrategy: EvictErrorTileStrategy.none,
+                    errorTileCallback: (tile, error, stackTrace) {
+                      if (!_hasTileError && mounted) {
+                        setState(() {
+                          _hasTileError = true;
+                        });
+                        widget.onTileError?.call();
+                      }
+                    },
+                  ),
                 ),
                 MarkerLayer(
                   markers: [

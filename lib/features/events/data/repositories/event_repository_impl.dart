@@ -53,7 +53,7 @@ class EventRepositoryImpl implements EventRepository {
     List<Map<String, dynamic>> rawDocs,
   ) {
     if (rawDocs.isEmpty) {
-      return LocalEventCatalog.defaultActiveEvents;
+      return const <FelineEvent>[];
     }
     final list = rawDocs
         .map(FelineEvent.fromMap)
