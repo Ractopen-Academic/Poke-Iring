@@ -34,6 +34,17 @@ class _FakeEventRepository implements EventRepository {
   Stream<List<FelineEvent>> watchActiveEvents() => Stream.value(events);
 
   @override
+  Future<double> getActiveMultiplier() async {
+    var highest = 1.0;
+    for (final e in events) {
+      if (e.isActive && e.multiplier > highest) {
+        highest = e.multiplier;
+      }
+    }
+    return highest.clamp(1.0, 5.0).toDouble();
+  }
+
+  @override
   Future<UserEventWallet> getUserWallet(String userId, String eventId) async {
     return UserEventWallet(
       userId: userId,
@@ -221,6 +232,55 @@ void main() {
 
         expect(find.text('Cebu Sanctuary Care Drive'), findsOneWidget);
         expect(find.text('Island Rescue Org (IRO)'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'hides carousel when all cloud events are disabled via admin toggle',
+      (tester) async {
+        final disabledFestival = sampleFestival.copyWith(isEnabled: false);
+        final fakeRepo = _FakeEventRepository([disabledFestival]);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ActiveEventsCarousel(
+                userId: 'u_test',
+                userDisplayName: 'Tester',
+                repository: fakeRepo,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('Moonlit Strays Festival'), findsNothing);
+        expect(find.byType(PageView), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'displays active points multiplier badge when multiplier exceeds 1.0',
+      (tester) async {
+        final boostedEvent = sampleFestival.copyWith(multiplier: 2.0);
+        final fakeRepo = _FakeEventRepository([boostedEvent]);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ActiveEventsCarousel(
+                userId: 'u_test',
+                userDisplayName: 'Tester',
+                repository: fakeRepo,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('2x Points'), findsOneWidget);
       },
     );
   });

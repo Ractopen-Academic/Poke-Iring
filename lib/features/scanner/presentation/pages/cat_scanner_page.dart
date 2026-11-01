@@ -9,6 +9,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../auth/domain/entities/auth_user.dart';
+import '../../../events/data/repositories/event_repository_impl.dart';
+import '../../../events/domain/repositories/event_repository.dart';
 import '../../data/repositories/cat_scanner_repository_impl.dart';
 import '../../domain/entities/cat_scan_result.dart';
 import '../../domain/entities/cat_sighting.dart';
@@ -20,6 +22,7 @@ import '../widgets/paw_points_guide_sheet.dart';
 class CatScannerPage extends StatefulWidget {
   final AuthUser user;
   final CatScannerRepository? repository;
+  final EventRepository? eventRepository;
   final LocationService? locationService;
   final double currentLatitude;
   final double currentLongitude;
@@ -32,6 +35,7 @@ class CatScannerPage extends StatefulWidget {
     super.key,
     required this.user,
     this.repository,
+    this.eventRepository,
     this.locationService,
     this.currentLatitude = 10.3140,
     this.currentLongitude = 123.9720,
@@ -47,6 +51,7 @@ class CatScannerPage extends StatefulWidget {
 
 class _CatScannerPageState extends State<CatScannerPage> {
   late final CatScannerRepository _repository;
+  late final EventRepository _eventRepository;
   late final LocationService _locationService;
   final ImagePicker _picker = ImagePicker();
 
@@ -57,6 +62,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
   Timer? _asyncNoticeTimer;
   String _selectedFilter = 'normal';
   String _selectedZoom = '1x';
+  double _activeEventMultiplier = 1.0;
 
   Uint8List? _capturedImageBytes;
   Uint8List? _stickerBytes;
@@ -70,10 +76,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
   void initState() {
     super.initState();
     _repository = widget.repository ?? CatScannerRepositoryImpl();
+    _eventRepository = widget.eventRepository ?? EventRepositoryImpl.instance;
     _locationService = widget.locationService ?? LocationServiceImpl();
     _lockedLatitude = widget.currentLatitude;
     _lockedLongitude = widget.currentLongitude;
     _acquireCurrentLocation();
+    _refreshEventMultiplier();
 
     if (widget.autoLaunchCamera) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -82,6 +90,28 @@ class _CatScannerPageState extends State<CatScannerPage> {
         }
       });
     }
+  }
+
+  Future<void> _refreshEventMultiplier() async {
+    try {
+      final multiplier = await _eventRepository.getActiveMultiplier();
+      if (mounted) {
+        setState(() {
+          _activeEventMultiplier = multiplier;
+        });
+      }
+    } catch (_) {}
+  }
+
+  int _effectivePawPoints(CatScanResult result) {
+    return (result.totalPawPoints * _activeEventMultiplier).round();
+  }
+
+  String _formatMultiplier(double value) {
+    if (value == value.roundToDouble()) {
+      return '${value.toInt()}x';
+    }
+    return '${value.toStringAsFixed(1)}x';
   }
 
   @override
@@ -153,6 +183,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
     });
 
     try {
+      await _refreshEventMultiplier();
       final result = await _repository.scanImage(bytes);
       _asyncNoticeTimer?.cancel();
 
@@ -206,6 +237,8 @@ class _CatScannerPageState extends State<CatScannerPage> {
       final stickerDataUri =
           'data:image/png;base64,${base64Encode(_stickerBytes!)}';
 
+      final awardedPoints = _effectivePawPoints(_scanResult!);
+
       final sighting = CatSighting(
         id: 'sighting_${DateTime.now().millisecondsSinceEpoch}',
         userId: widget.user.id.isNotEmpty ? widget.user.id : widget.user.email,
@@ -225,7 +258,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
         coatPattern: _scanResult!.coatPattern,
         dominantColor: _scanResult!.dominantColor,
         rarityMultiplier: _scanResult!.rarityMultiplier,
-        pawPoints: _scanResult!.totalPawPoints,
+        pawPoints: awardedPoints,
         quirk: _scanResult!.quirk,
         createdAt: DateTime.now(),
       );
@@ -241,7 +274,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
           SnackBar(
             backgroundColor: AppColors.primary,
             content: Text(
-              'Spawned on map! +${_scanResult!.totalPawPoints} Paw Points registered.',
+              'Spawned on map! +$awardedPoints Paw Points registered.',
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
@@ -1053,6 +1086,11 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   'Rarity Multiplier',
                   '${result.rarityMultiplier}x',
                 ),
+                if (_activeEventMultiplier > 1.0)
+                  _buildMatrixRow(
+                    'Active Event Bonus',
+                    _formatMultiplier(_activeEventMultiplier),
+                  ),
                 const Divider(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1066,7 +1104,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                       ),
                     ),
                     Text(
-                      '+${result.totalPawPoints} pts',
+                      '+${_effectivePawPoints(result)} pts',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,

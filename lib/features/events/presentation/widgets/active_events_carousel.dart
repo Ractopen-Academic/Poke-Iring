@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../data/datasources/local_event_catalog.dart';
 import '../../data/repositories/event_repository_impl.dart';
 import '../../domain/entities/feline_event.dart';
 import '../../domain/repositories/event_repository.dart';
@@ -69,18 +68,25 @@ class _ActiveEventsCarouselState extends State<ActiveEventsCarousel> {
     return StreamBuilder<List<FelineEvent>>(
       stream: _repository.watchActiveEvents(),
       builder: (context, snapshot) {
-        final allEvents =
-            snapshot.data ?? LocalEventCatalog.defaultActiveEvents;
-        final carouselEvents = allEvents
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final displayEvents = snapshot.data!
             .where((e) => e.isFeaturedInCarousel && e.isActive)
             .toList();
 
-        final displayEvents = carouselEvents.isNotEmpty
-            ? carouselEvents
-            : LocalEventCatalog.defaultActiveEvents;
+        if (displayEvents.isEmpty) {
+          _autoScrollTimer?.cancel();
+          _itemCount = 0;
+          return const SizedBox.shrink();
+        }
 
         if (_itemCount != displayEvents.length) {
           _itemCount = displayEvents.length;
+          if (_currentPage >= displayEvents.length) {
+            _currentPage = 0;
+          }
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _startAutoScroll(_itemCount);
           });
@@ -301,6 +307,27 @@ class _CarouselEventCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (event.multiplier > 1.0) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(35),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '${event.formattedMultiplier} Points',
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
                 const Spacer(),
                 const Text(
                   'View Event',
