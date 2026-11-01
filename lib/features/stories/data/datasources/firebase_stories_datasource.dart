@@ -16,7 +16,9 @@ class FirebaseStoriesDataSource {
       StreamController<List<IringStory>>.broadcast();
 
   FirebaseStoriesDataSource({this.firestore, this.storage}) {
-    _initLocalSeedStories();
+    if (!_isFirebaseAvailable) {
+      _initLocalSeedStories();
+    }
   }
 
   bool get _isFirebaseAvailable {
@@ -149,8 +151,7 @@ class FirebaseStoriesDataSource {
                 return IringStory.fromMap(data);
               }).toList();
 
-              if (list.isNotEmpty) return list;
-              return List.unmodifiable(_localStories);
+              return list;
             });
         return;
       } catch (e) {

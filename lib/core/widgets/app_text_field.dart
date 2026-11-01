@@ -11,6 +11,8 @@ class AppTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
+  final FocusNode? focusNode;
+  final ValueChanged<String>? onChanged;
 
   const AppTextField({
     super.key,
@@ -22,12 +24,16 @@ class AppTextField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.validator,
+    this.focusNode,
+    this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
+      onChanged: onChanged,
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,

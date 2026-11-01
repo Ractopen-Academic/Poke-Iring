@@ -169,16 +169,18 @@ class _CarouselEventCard extends StatelessWidget {
       onTap: onTap,
       child: EventBannerSurface(
         bannerColor: event.bannerColor,
+        accentColor: event.accentColor,
         bannerImageUrl: event.bannerImageUrl,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: event.accentColor.withAlpha(95), width: 1.3),
         boxShadow: [
           BoxShadow(
-            color: event.bannerColor.withAlpha(55),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppColors.calicoBlack.withAlpha(38),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
           ),
         ],
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

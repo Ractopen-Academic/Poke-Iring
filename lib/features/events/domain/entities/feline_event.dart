@@ -250,9 +250,9 @@ class FelineEvent {
         now.add(const Duration(days: 14)),
       ),
       bannerColorValue:
-          (map['bannerColorValue'] as num?)?.toInt() ?? 0xFF6D28D9,
+          (map['bannerColorValue'] as num?)?.toInt() ?? 0xFF231A16,
       accentColorValue:
-          (map['accentColorValue'] as num?)?.toInt() ?? 0xFFF59E0B,
+          (map['accentColorValue'] as num?)?.toInt() ?? 0xFFFF8C1A,
       quests:
           (map['quests'] as List<dynamic>?)
               ?.map((q) => EventQuestItem.fromMap(q as Map<String, dynamic>))
@@ -290,8 +290,8 @@ class FelineEvent {
       currencyCode: 'MLT',
       startDate: now.subtract(const Duration(days: 1)),
       endDate: now.add(const Duration(days: 12)),
-      bannerColorValue: 0xFF4C1D95, // Deep violet
-      accentColorValue: 0xFFF59E0B, // Amber gold
+      bannerColorValue: 0xFF231A16,
+      accentColorValue: 0xFFFF8C1A,
       isFeaturedInCarousel: true,
       showPopupOnLaunch: true,
       eventType: 'festival',
@@ -349,8 +349,8 @@ class FelineEvent {
       currencyCode: 'STR',
       startDate: now.subtract(const Duration(days: 2)),
       endDate: now.add(const Duration(days: 20)),
-      bannerColorValue: 0xFF0D9488, // Deep teal
-      accentColorValue: 0xFF14B8A6,
+      bannerColorValue: 0xFF5C2D16,
+      accentColorValue: 0xFFFFB04F,
       isFeaturedInCarousel: true,
       showPopupOnLaunch: false,
       eventType: 'partnership',

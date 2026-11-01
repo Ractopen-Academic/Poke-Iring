@@ -39,7 +39,9 @@ class FirebaseSightingsDataSource {
   }
 
   FirebaseSightingsDataSource._internal({this.firestore, this.storage}) {
-    _initLocalSeedData();
+    if (!_isFirebaseAvailable) {
+      _initLocalSeedData();
+    }
     _loadPersistedSightings();
   }
 
@@ -336,8 +338,7 @@ class FirebaseSightingsDataSource {
                 return CatSighting.fromMap(data);
               }).toList();
 
-              if (list.isNotEmpty) return list;
-              return List.unmodifiable(_localSightings);
+              return list;
             });
         return;
       } catch (e) {
@@ -372,8 +373,7 @@ class FirebaseSightingsDataSource {
                 return CatSighting.fromMap(data);
               }).toList();
 
-              if (list.isNotEmpty) return list;
-              return _filterLocalByUser(userId);
+              return list;
             });
         return;
       } catch (e) {

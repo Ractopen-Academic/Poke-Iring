@@ -160,7 +160,12 @@ class _PeekingCalicoCatPainter extends CustomPainter {
     final headOutline = Paint()
       ..color = AppColors.calicoCharcoal
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
+      ..strokeWidth = 1.4;
+    final creamHaloOutline = Paint()
+      ..color = const Color(0xFFFFFAF4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.6
+      ..strokeJoin = StrokeJoin.round;
 
     // Left Ear (Obsidian Calico)
     final leftEar = Path()
@@ -168,6 +173,7 @@ class _PeekingCalicoCatPainter extends CustomPainter {
       ..lineTo(w * 0.19, h * 0.09)
       ..lineTo(w * 0.38, h * 0.19)
       ..close();
+    canvas.drawPath(leftEar, creamHaloOutline);
     canvas.drawPath(leftEar, obsidianPaint);
 
     // Right Ear (Marmalade Ginger)
@@ -176,6 +182,7 @@ class _PeekingCalicoCatPainter extends CustomPainter {
       ..lineTo(w * 0.81, h * 0.09)
       ..lineTo(w * 0.62, h * 0.19)
       ..close();
+    canvas.drawPath(rightEar, creamHaloOutline);
     canvas.drawPath(rightEar, gingerPaint);
 
     final pinkPaint = Paint()

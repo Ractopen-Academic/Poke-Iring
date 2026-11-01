@@ -1,4 +1,9 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../domain/entities/auth_user.dart';
@@ -31,7 +36,9 @@ class FirebaseAuthDatasource {
     if (user == null) {
       throw Exception('Authentication failed');
     }
-    return _mapFirebaseUser(user)!;
+    final mapped = _mapFirebaseUser(user)!;
+    unawaited(_ensureFirestoreProfile(mapped));
+    return mapped;
   }
 
   Future<AuthUser> registerWithEmailPassword(
@@ -47,10 +54,24 @@ class FirebaseAuthDatasource {
       throw Exception('Registration failed');
     }
     await user.sendEmailVerification();
-    return _mapFirebaseUser(user)!;
+    final mapped = _mapFirebaseUser(user)!;
+    unawaited(_ensureFirestoreProfile(mapped, isNewRegistration: true));
+    return mapped;
   }
 
   Future<AuthUser> signInWithGoogle() async {
+    if (kIsWeb) {
+      final provider = GoogleAuthProvider();
+      final userCredential = await _firebaseAuth.signInWithPopup(provider);
+      final user = userCredential.user;
+      if (user == null) {
+        throw Exception('Google authentication failed');
+      }
+      final mapped = _mapFirebaseUser(user)!;
+      unawaited(_ensureFirestoreProfile(mapped));
+      return mapped;
+    }
+
     final googleUser = await _googleSignIn.signIn();
     if (googleUser == null) {
       throw Exception('Google sign-in was cancelled');
@@ -68,7 +89,50 @@ class FirebaseAuthDatasource {
       throw Exception('Google authentication failed');
     }
 
-    return _mapFirebaseUser(user)!;
+    final mapped = _mapFirebaseUser(user)!;
+    unawaited(_ensureFirestoreProfile(mapped));
+    return mapped;
+  }
+
+  Future<void> _ensureFirestoreProfile(
+    AuthUser user, {
+    bool isNewRegistration = false,
+  }) async {
+    if (Firebase.apps.isEmpty || user.id.isEmpty) return;
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.id);
+      final snap = await docRef.get();
+      final fallbackName = user.displayName.isNotEmpty
+          ? user.displayName
+          : user.email.split('@').first;
+
+      if (!snap.exists || isNewRegistration) {
+        await docRef.set({
+          'email': user.email,
+          'displayName': fallbackName,
+          'photoUrl': user.photoUrl,
+          'role': user.isAdmin ? 'admin' : 'player',
+          'status': 'active',
+          'totalPawPoints': 0,
+          'totalSnaps': 0,
+          'distanceKm': 0.0,
+          'mythicPaws': 0,
+          'createdAt': FieldValue.serverTimestamp(),
+          'lastActive': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } else {
+        await docRef.set({
+          'email': user.email,
+          if (user.displayName.isNotEmpty) 'displayName': user.displayName,
+          if (user.photoUrl.isNotEmpty) 'photoUrl': user.photoUrl,
+          'lastActive': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+    } catch (e) {
+      debugPrint('Ensure Firestore profile skipped: $e');
+    }
   }
 
   Future<void> sendPasswordReset(String email) async {
@@ -92,16 +156,17 @@ class FirebaseAuthDatasource {
   }
 
   Future<void> signOut() async {
-    await Future.wait([_firebaseAuth.signOut(), _googleSignIn.signOut()]);
+    await Future.wait([
+      _firebaseAuth.signOut(),
+      if (!kIsWeb) _googleSignIn.signOut(),
+    ]);
   }
 
   AuthUser? _mapFirebaseUser(User? user) {
     if (user == null) return null;
     final email = (user.email ?? '').toLowerCase();
-    final isPreVerifiedTestUser =
-        email == 'test.explorer@pokeiring.app' ||
-        email.endsWith('@pokeiring.app') ||
-        email.startsWith('test.');
+    final isPreVerifiedDomain =
+        email.endsWith('@pokeiring.app') || email.endsWith('@iring.ph');
     final isAdmin =
         email == 'admin@pokeiring.app' ||
         email == 'admin@iring.ph' ||
@@ -111,7 +176,7 @@ class FirebaseAuthDatasource {
       email: user.email ?? '',
       displayName: user.displayName ?? '',
       photoUrl: user.photoURL ?? '',
-      emailVerified: user.emailVerified || isPreVerifiedTestUser,
+      emailVerified: user.emailVerified || isPreVerifiedDomain,
       isAdmin: isAdmin,
     );
   }

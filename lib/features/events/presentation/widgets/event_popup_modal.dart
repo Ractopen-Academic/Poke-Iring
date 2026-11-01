@@ -120,19 +120,20 @@ class _EventPopupModalState extends State<EventPopupModal> {
         : (isPartnership ? 'Partnership Spotlight' : 'Seasonal Gala');
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 0,
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.gingerBorder, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(45),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: AppColors.calicoBlack.withAlpha(65),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
             ),
           ],
         ),
@@ -144,6 +145,7 @@ class _EventPopupModalState extends State<EventPopupModal> {
             // Header Banner
             EventBannerSurface(
               bannerColor: event.bannerColor,
+              accentColor: event.accentColor,
               bannerImageUrl: event.bannerImageUrl,
               borderRadius: BorderRadius.zero,
               padding: const EdgeInsets.fromLTRB(20, 20, 14, 20),
@@ -411,9 +413,9 @@ class _EventPopupModalState extends State<EventPopupModal> {
                         child: ElevatedButton(
                           onPressed: _openEventCenter,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: event.bannerColor,
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(vertical: 12.5),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -423,7 +425,7 @@ class _EventPopupModalState extends State<EventPopupModal> {
                             'Explore Event',
                             style: TextStyle(
                               fontSize: 13.5,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
