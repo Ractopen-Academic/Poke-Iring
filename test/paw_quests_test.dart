@@ -92,9 +92,10 @@ void main() {
       expect(dailySteps.category, equals(QuestCategory.daily));
 
       // Sync health progress
+      final completedSteps = dailySteps.targetValue.toInt() + 100;
       await repo.syncHealthProgress(
         userId: userId,
-        stepsToday: 1600,
+        stepsToday: completedSteps,
         distanceKm: 1.5,
       );
 
@@ -103,7 +104,7 @@ void main() {
         (q) => q.id == dailySteps.id,
       );
 
-      expect(updatedSteps.currentValue, equals(1600.0));
+      expect(updatedSteps.currentValue, equals(completedSteps.toDouble()));
       expect(updatedSteps.isCompleted, isTrue);
 
       // Claim reward

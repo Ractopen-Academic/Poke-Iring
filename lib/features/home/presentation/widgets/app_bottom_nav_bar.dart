@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/calico_ui_kit.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -14,54 +16,74 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8,
-      color: Colors.white,
-      elevation: 6,
-      padding: EdgeInsets.zero,
-      child: SizedBox(
-        height: 60,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavBarItem(
-              icon: Icons.home_outlined,
-              activeIcon: Icons.home,
-              label: 'Home',
-              isSelected: currentIndex == 0,
-              onTap: () => onTabSelected(0),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: Container(
+          height: 66,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: AppColors.calicoBlack.withAlpha(242),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: AppColors.primary.withAlpha(65),
+              width: 1.2,
             ),
-            _NavBarItem(
-              icon: Icons.collections_bookmark_outlined,
-              activeIcon: Icons.collections_bookmark,
-              label: 'Dex',
-              isSelected: currentIndex == 1,
-              onTap: () => onTabSelected(1),
-            ),
-            const SizedBox(width: 56),
-            _NavBarItem(
-              icon: Icons.leaderboard_outlined,
-              activeIcon: Icons.leaderboard,
-              label: 'Ranks',
-              isSelected: currentIndex == 2,
-              onTap: () => onTabSelected(2),
-            ),
-            _NavBarItem(
-              icon: Icons.person_outline,
-              activeIcon: Icons.person,
-              label: 'Account',
-              isSelected: currentIndex == 3,
-              onTap: () => onTabSelected(3),
-            ),
-          ],
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.calicoBlack.withAlpha(95),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: AppColors.primary.withAlpha(28),
+                blurRadius: 14,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _NavBarItem(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home_rounded,
+                label: 'Home',
+                isSelected: currentIndex == 0,
+                onTap: () => onTabSelected(0),
+              ),
+              _NavBarItem(
+                icon: Icons.auto_awesome_mosaic_outlined,
+                activeIcon: Icons.auto_awesome_mosaic_rounded,
+                label: 'Dex',
+                isSelected: currentIndex == 1,
+                onTap: () => onTabSelected(1),
+              ),
+              const SizedBox(width: 64),
+              _NavBarItem(
+                icon: Icons.emoji_events_outlined,
+                activeIcon: Icons.emoji_events_rounded,
+                label: 'Ranks',
+                isSelected: currentIndex == 2,
+                onTap: () => onTabSelected(2),
+              ),
+              _NavBarItem(
+                icon: Icons.pets_outlined,
+                activeIcon: Icons.pets_rounded,
+                label: 'Account',
+                isSelected: currentIndex == 3,
+                onTap: () => onTabSelected(3),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _NavBarItem extends StatelessWidget {
+class _NavBarItem extends StatefulWidget {
   final IconData icon;
   final IconData activeIcon;
   final String label;
@@ -77,26 +99,124 @@ class _NavBarItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final color = isSelected ? AppColors.primary : AppColors.textSecondary;
+  State<_NavBarItem> createState() => _NavBarItemState();
+}
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+class _NavBarItemState extends State<_NavBarItem>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _triggerController;
+  late final Animation<double> _scaleAnim;
+  late final Animation<double> _tiltAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _triggerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 340),
+    );
+    _scaleAnim = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 1.24,
+        ).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 40,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.24,
+          end: 0.94,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0.94,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOutBack)),
+        weight: 30,
+      ),
+    ]).animate(_triggerController);
+
+    _tiltAnim = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: -0.12),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: -0.12, end: 0.10),
+        weight: 35,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.10, end: 0.0),
+        weight: 35,
+      ),
+    ]).animate(_triggerController);
+  }
+
+  @override
+  void didUpdateWidget(covariant _NavBarItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isSelected && !oldWidget.isSelected) {
+      _triggerController.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _triggerController.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    HapticFeedback.selectionClick();
+    _triggerController.forward(from: 0.0);
+    widget.onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = widget.isSelected;
+    final iconColor = isSelected ? AppColors.primary : AppColors.calicoMuted;
+    final labelColor = isSelected ? Colors.white : AppColors.calicoMuted;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _handleTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(isSelected ? activeIcon : icon, size: 22, color: color),
-            const SizedBox(height: 3),
+            CalicoAnimatedBar(isActive: isSelected, activeWidth: 20),
+            AnimatedBuilder(
+              animation: _triggerController,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: _tiltAnim.value,
+                  child: Transform.scale(scale: _scaleAnim.value, child: child),
+                );
+              },
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 180),
+                opacity: isSelected ? 1.0 : 0.72,
+                child: Icon(
+                  isSelected ? widget.activeIcon : widget.icon,
+                  size: 22,
+                  color: iconColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 2),
             Text(
-              label,
+              widget.label,
               style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: color,
+                fontSize: 10.5,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: labelColor,
+                letterSpacing: 0.15,
               ),
             ),
           ],

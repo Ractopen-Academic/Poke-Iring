@@ -10,16 +10,15 @@ class CuteCatCameraPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // 1. Soft base shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withAlpha(50)
+      ..color = AppColors.calicoBlack.withAlpha(65)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
-    canvas.drawCircle(Offset(w * 0.50, h * 0.52), w * 0.44, shadowPaint);
+    canvas.drawCircle(Offset(w * 0.50, h * 0.53), w * 0.44, shadowPaint);
 
-    // Circular badge backdrop
+    // Warm Cream & Soft Marmalade Badge Backdrop
     final bgPaint = Paint()
       ..shader =
-          const RadialGradient(colors: [Color(0xFFFFF8E7), Color(0xFFFFECB3)])
+          const RadialGradient(colors: [Color(0xFFFFFBF6), Color(0xFFFFE8CC)])
               .createShader(
                 Rect.fromCircle(
                   center: Offset(w * 0.50, h * 0.50),
@@ -27,46 +26,49 @@ class CuteCatCameraPainter extends CustomPainter {
                 ),
               );
     final bgBorder = Paint()
-      ..color = AppColors.primary
+      ..color = AppColors.calicoBlack
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4;
+      ..strokeWidth = 2.2;
 
     canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.47, bgPaint);
     canvas.drawCircle(Offset(w * 0.50, h * 0.50), w * 0.47, bgBorder);
 
-    // 2. Cat Head & Ears
-    final catOrange = AppColors.primary;
-    final catPaint = Paint()
-      ..color = catOrange
+    final gingerPaint = Paint()
+      ..color = AppColors.primary
+      ..style = PaintingStyle.fill;
+    final obsidianPaint = Paint()
+      ..color = AppColors.calicoBlack
+      ..style = PaintingStyle.fill;
+    final creamPaint = Paint()
+      ..color = const Color(0xFFFFFAF4)
       ..style = PaintingStyle.fill;
     final catBorder = Paint()
-      ..color = const Color(0xFFD66A00)
+      ..color = AppColors.calicoCharcoal
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
-    // Left Ear
+    // Left Ear (Obsidian Calico)
     final leftEar = Path()
       ..moveTo(w * 0.26, h * 0.26)
       ..lineTo(w * 0.18, h * 0.08)
       ..lineTo(w * 0.38, h * 0.15)
       ..close();
-    canvas.drawPath(leftEar, catPaint);
+    canvas.drawPath(leftEar, obsidianPaint);
     canvas.drawPath(leftEar, catBorder);
 
-    // Right Ear
+    // Right Ear (Marmalade Ginger)
     final rightEar = Path()
       ..moveTo(w * 0.74, h * 0.26)
       ..lineTo(w * 0.82, h * 0.08)
       ..lineTo(w * 0.62, h * 0.15)
       ..close();
-    canvas.drawPath(rightEar, catPaint);
+    canvas.drawPath(rightEar, gingerPaint);
     canvas.drawPath(rightEar, catBorder);
 
-    // Inner Pink Ears
     final pinkPaint = Paint()
-      ..color = const Color(0xFFFFCDD2)
+      ..color = AppColors.calicoPink
       ..style = PaintingStyle.fill;
 
     final leftInner = Path()
@@ -83,18 +85,24 @@ class CuteCatCameraPainter extends CustomPainter {
       ..close();
     canvas.drawPath(rightInner, pinkPaint);
 
-    // Head
+    // Calico Head Base + Clipped Tri-Color Patches
     final headRect = Rect.fromCenter(
       center: Offset(w * 0.50, h * 0.28),
       width: w * 0.52,
       height: h * 0.34,
     );
-    canvas.drawOval(headRect, catPaint);
-    canvas.drawOval(headRect, catBorder);
+    final headPath = Path()..addOval(headRect);
+    canvas.drawPath(headPath, creamPaint);
 
-    // Happy eyes (^ ^)
+    canvas.save();
+    canvas.clipPath(headPath);
+    canvas.drawCircle(Offset(w * 0.34, h * 0.19), w * 0.17, obsidianPaint);
+    canvas.drawCircle(Offset(w * 0.67, h * 0.20), w * 0.18, gingerPaint);
+    canvas.restore();
+    canvas.drawPath(headPath, catBorder);
+
     final facePaint = Paint()
-      ..color = const Color(0xFF3E1F07)
+      ..color = AppColors.calicoBlack
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.6
       ..strokeCap = StrokeCap.round;
@@ -109,7 +117,6 @@ class CuteCatCameraPainter extends CustomPainter {
       ..quadraticBezierTo(w * 0.58, h * 0.21, w * 0.61, h * 0.25);
     canvas.drawPath(rightEye, facePaint);
 
-    // Nose
     final nosePaint = Paint()
       ..color = const Color(0xFFE57373)
       ..style = PaintingStyle.fill;
@@ -120,16 +127,14 @@ class CuteCatCameraPainter extends CustomPainter {
       ..close();
     canvas.drawPath(nose, nosePaint);
 
-    // Blushing cheeks
     final blushPaint = Paint()
-      ..color = const Color(0xFFFFAB91).withAlpha(160)
+      ..color = AppColors.calicoPink.withAlpha(160)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(w * 0.33, h * 0.27), w * 0.045, blushPaint);
     canvas.drawCircle(Offset(w * 0.67, h * 0.27), w * 0.045, blushPaint);
 
-    // Whiskers
     final whiskerPaint = Paint()
-      ..color = const Color(0xFF6D4C41)
+      ..color = AppColors.calicoCharcoal
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
     canvas.drawLine(
@@ -153,75 +158,77 @@ class CuteCatCameraPainter extends CustomPainter {
       whiskerPaint,
     );
 
-    // 3. The Camera Body
+    // Obsidian Calico Camera Body
     final cameraRRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(w * 0.16, h * 0.38, w * 0.68, h * 0.46),
       const Radius.circular(10),
     );
 
-    final cameraPaint = Paint()
-      ..color = const Color(0xFF263238)
-      ..style = PaintingStyle.fill;
-    final cameraBorder = Paint()
-      ..color = const Color(0xFF455A64)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6;
+    canvas.drawRRect(cameraRRect, obsidianPaint);
+    canvas.drawRRect(
+      cameraRRect,
+      Paint()
+        ..color = AppColors.primary.withAlpha(140)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4,
+    );
 
-    canvas.drawRRect(cameraRRect, cameraPaint);
-    canvas.drawRRect(cameraRRect, cameraBorder);
-
-    // Camera Top Plate
     final topPlate = RRect.fromRectAndCorners(
       Rect.fromLTWH(w * 0.16, h * 0.38, w * 0.68, h * 0.12),
       topLeft: const Radius.circular(10),
       topRight: const Radius.circular(10),
     );
-    final platePaint = Paint()
-      ..color = const Color(0xFF37474F)
-      ..style = PaintingStyle.fill;
-    canvas.drawRRect(topPlate, platePaint);
+    canvas.drawRRect(
+      topPlate,
+      Paint()
+        ..color = AppColors.calicoCharcoal
+        ..style = PaintingStyle.fill,
+    );
 
-    // Shutter button on camera
-    final shutterPaint = Paint()
-      ..color = AppColors.primary
-      ..style = PaintingStyle.fill;
+    // Marmalade Shutter Button
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(w * 0.22, h * 0.34, w * 0.12, h * 0.06),
         const Radius.circular(3),
       ),
-      shutterPaint,
+      gingerPaint,
     );
 
-    // Flash light
-    final flashPaint = Paint()
-      ..color = const Color(0xFFFFD54F)
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(w * 0.74, h * 0.44), w * 0.035, flashPaint);
+    // Warm Amber Flash
+    canvas.drawCircle(
+      Offset(w * 0.74, h * 0.44),
+      w * 0.035,
+      Paint()
+        ..color = const Color(0xFFFFD54F)
+        ..style = PaintingStyle.fill,
+    );
 
-    // 4. Camera Lens
+    // Lens
     final lensCenter = Offset(w * 0.50, h * 0.62);
-    final outerLensPaint = Paint()
-      ..color = const Color(0xFF1E272C)
-      ..style = PaintingStyle.fill;
-    final outerLensBorder = Paint()
-      ..color = AppColors.primary
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+    canvas.drawCircle(
+      lensCenter,
+      w * 0.19,
+      Paint()
+        ..color = const Color(0xFF120E0D)
+        ..style = PaintingStyle.fill,
+    );
+    canvas.drawCircle(
+      lensCenter,
+      w * 0.19,
+      Paint()
+        ..color = AppColors.primary
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0,
+    );
 
-    canvas.drawCircle(lensCenter, w * 0.19, outerLensPaint);
-    canvas.drawCircle(lensCenter, w * 0.19, outerLensBorder);
-
-    // Inner Glass
     final glassPaint = Paint()
       ..shader = const RadialGradient(
-        colors: [Color(0xFF29B6F6), Color(0xFF0D47A1)],
+        colors: [Color(0xFFFFAB40), Color(0xFF4E2600)],
       ).createShader(Rect.fromCircle(center: lensCenter, radius: w * 0.14));
     canvas.drawCircle(lensCenter, w * 0.14, glassPaint);
 
-    // Lens Reflection Arc
     final reflectionPaint = Paint()
-      ..color = Colors.white.withAlpha(200)
+      ..color = Colors.white.withAlpha(210)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.8
       ..strokeCap = StrokeCap.round;
@@ -233,40 +240,34 @@ class CuteCatCameraPainter extends CustomPainter {
       reflectionPaint,
     );
 
-    // Center Mini Paw on Lens
     final miniPawPaint = Paint()
-      ..color = Colors.white.withAlpha(210)
+      ..color = Colors.white.withAlpha(220)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(w * 0.50, h * 0.63), w * 0.035, miniPawPaint);
     canvas.drawCircle(Offset(w * 0.46, h * 0.59), w * 0.016, miniPawPaint);
     canvas.drawCircle(Offset(w * 0.50, h * 0.57), w * 0.018, miniPawPaint);
     canvas.drawCircle(Offset(w * 0.54, h * 0.59), w * 0.016, miniPawPaint);
 
-    // 5. Cat Paws Gripping the Camera
-    final pawPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+    // Cream Paws Gripping Camera
     final pawBorder = Paint()
-      ..color = const Color(0xFFFFB74D)
+      ..color = AppColors.primary
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 
-    // Left Paw gripping top left
     final leftPaw = Rect.fromCenter(
       center: Offset(w * 0.22, h * 0.46),
       width: w * 0.16,
       height: h * 0.13,
     );
-    canvas.drawOval(leftPaw, pawPaint);
+    canvas.drawOval(leftPaw, creamPaint);
     canvas.drawOval(leftPaw, pawBorder);
 
-    // Right Paw gripping top right
     final rightPaw = Rect.fromCenter(
       center: Offset(w * 0.78, h * 0.46),
       width: w * 0.16,
       height: h * 0.13,
     );
-    canvas.drawOval(rightPaw, pawPaint);
+    canvas.drawOval(rightPaw, creamPaint);
     canvas.drawOval(rightPaw, pawBorder);
   }
 

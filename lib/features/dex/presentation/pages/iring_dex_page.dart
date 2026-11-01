@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
 import '../../../scanner/presentation/pages/cat_scanner_page.dart';
@@ -131,9 +133,10 @@ class _IringDexPageState extends State<IringDexPage> {
                 'Iring-Dex',
                 style: TextStyle(fontWeight: FontWeight.w800),
               ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
             tooltip: _isSearching ? 'Close Search' : 'Search Dex',
@@ -226,8 +229,9 @@ class _IringDexPageState extends State<IringDexPage> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF1F5),
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.calicoBlack,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withAlpha(55)),
       ),
       child: Row(
         children: [
@@ -282,18 +286,22 @@ class _IringDexPageState extends State<IringDexPage> {
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
-      onSelected: (_) => setState(() => _selectedFilter = tier),
+      onSelected: (_) {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedFilter = tier);
+      },
       backgroundColor: Colors.white,
-      selectedColor: AppColors.primary.withAlpha(30),
+      selectedColor: AppColors.calicoBlack,
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-        color: isSelected ? AppColors.primary : AppColors.textPrimary,
+        color: isSelected ? Colors.white : AppColors.textPrimary,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(99),
         side: BorderSide(
           color: isSelected ? AppColors.primary : AppColors.border,
+          width: isSelected ? 1.4 : 1.0,
         ),
       ),
       showCheckmark: false,
@@ -302,27 +310,33 @@ class _IringDexPageState extends State<IringDexPage> {
 
   Widget _buildCatalogSliver(List<IringDexEntry> filtered) {
     if (filtered.isEmpty) {
-      return SliverToBoxAdapter(
+      return const SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.all(40),
-          child: Column(
-            children: [
-              Icon(
-                Icons.search_off_rounded,
-                size: 48,
-                color: Colors.grey.shade400,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'No matching species found',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Try selecting a different filter category.',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-            ],
+          padding: EdgeInsets.all(32),
+          child: CalicoSpotCard(
+            padding: EdgeInsets.all(28),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.search_off_rounded,
+                  size: 44,
+                  color: AppColors.primary,
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'No matching species found',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Try selecting a different filter category.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -353,25 +367,24 @@ class _IringDexPageState extends State<IringDexPage> {
       return SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.all(32),
-          child: Container(
+          child: CalicoSpotCard(
             padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.border),
-            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(20),
+                    color: AppColors.calicoBlack,
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.primary.withAlpha(110),
+                      width: 1.5,
+                    ),
                   ),
                   child: const Icon(
                     Icons.photo_camera_rounded,
-                    size: 36,
+                    size: 34,
                     color: AppColors.primary,
                   ),
                 ),
@@ -395,17 +408,22 @@ class _IringDexPageState extends State<IringDexPage> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                ElevatedButton.icon(
-                  onPressed: _openCamera,
-                  icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                  label: const Text('Spot a Cat Now'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                CalicoPressable(
+                  child: ElevatedButton.icon(
+                    onPressed: _openCamera,
+                    icon: const Icon(Icons.camera_alt_outlined, size: 16),
+                    label: const Text(
+                      'Spot a Cat Now',
+                      style: TextStyle(fontWeight: FontWeight.w800),
                     ),
-                    elevation: 0,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
                 ),
               ],
@@ -425,7 +443,6 @@ class _IringDexPageState extends State<IringDexPage> {
             child: DexSightingCard(
               sighting: sighting,
               onTap: () {
-                // Find matching dex entry or construct entry
                 final species = FelineDexSpecies.canonicalSpecies.firstWhere(
                   (s) =>
                       s.coatPattern.toLowerCase() ==
@@ -465,18 +482,23 @@ class _TabButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withAlpha(10),
-                    blurRadius: 4,
+                    color: AppColors.primary.withAlpha(45),
+                    blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ]
@@ -484,14 +506,13 @@ class _TabButton extends StatelessWidget {
         ),
         child: Column(
           children: [
+            CalicoAnimatedBar(isActive: isSelected, activeWidth: 16),
             Text(
               title,
               style: TextStyle(
-                fontSize: 12.5,
+                fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
+                color: isSelected ? AppColors.calicoBlack : Colors.white,
               ),
             ),
             const SizedBox(height: 2),
@@ -499,8 +520,10 @@ class _TabButton extends StatelessWidget {
               subtitle,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? AppColors.primary : Colors.grey.shade500,
+                fontWeight: FontWeight.w700,
+                color: isSelected
+                    ? AppColors.primaryDark
+                    : AppColors.calicoMuted,
               ),
             ),
           ],

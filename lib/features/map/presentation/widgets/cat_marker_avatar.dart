@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
@@ -35,8 +36,9 @@ class CatMarkerAvatar extends StatefulWidget {
 }
 
 class _CatMarkerAvatarState extends State<CatMarkerAvatar>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _bounceController;
+  late AnimationController _boopFloatController;
   late Animation<double> _scaleAnimation;
   int _localBoops = 0;
   bool _showBoopPlus = false;
@@ -47,19 +49,23 @@ class _CatMarkerAvatarState extends State<CatMarkerAvatar>
     _localBoops = widget.catSighting?.boopsCount ?? 0;
     _bounceController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 260),
+      duration: const Duration(milliseconds: 280),
+    );
+    _boopFloatController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 680),
     );
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.0,
-          end: 1.35,
+          end: 1.38,
         ).chain(CurveTween(curve: Curves.easeOutBack)),
         weight: 50,
       ),
       TweenSequenceItem(
         tween: Tween<double>(
-          begin: 1.35,
+          begin: 1.38,
           end: 1.0,
         ).chain(CurveTween(curve: Curves.easeInQuad)),
         weight: 50,
@@ -84,6 +90,7 @@ class _CatMarkerAvatarState extends State<CatMarkerAvatar>
   void dispose() {
     _hideBoopTimer?.cancel();
     _bounceController.dispose();
+    _boopFloatController.dispose();
     super.dispose();
   }
 
@@ -93,8 +100,9 @@ class _CatMarkerAvatarState extends State<CatMarkerAvatar>
       _showBoopPlus = true;
     });
     _bounceController.forward(from: 0.0);
+    _boopFloatController.forward(from: 0.0);
     _hideBoopTimer?.cancel();
-    _hideBoopTimer = Timer(const Duration(milliseconds: 900), () {
+    _hideBoopTimer = Timer(const Duration(milliseconds: 700), () {
       if (mounted) {
         setState(() {
           _showBoopPlus = false;
@@ -108,6 +116,7 @@ class _CatMarkerAvatarState extends State<CatMarkerAvatar>
       widget.onTap();
       return;
     }
+    HapticFeedback.lightImpact();
     setState(() {
       _localBoops++;
     });
@@ -378,30 +387,65 @@ class _CatMarkerAvatarState extends State<CatMarkerAvatar>
               // Floating "+5" Boop Reward Indicator
               if (_showBoopPlus)
                 Positioned(
-                  top: 28,
-                  right: 2,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 1,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFD700),
-                      borderRadius: BorderRadius.circular(6),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(40),
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
+                  top: 26,
+                  right: 0,
+                  child: AnimatedBuilder(
+                    animation: _boopFloatController,
+                    builder: (context, child) {
+                      final t = _boopFloatController.value;
+                      final dy = -18.0 * Curves.easeOutCubic.transform(t);
+                      final opacity = t < 0.65
+                          ? 1.0
+                          : (1.0 - ((t - 0.65) / 0.35)).clamp(0.0, 1.0);
+                      final scale = t < 0.25
+                          ? 0.75 + (0.40 * (t / 0.25))
+                          : 1.15 - (0.15 * ((t - 0.25) / 0.75));
+                      return Opacity(
+                        opacity: opacity,
+                        child: Transform.translate(
+                          offset: Offset(0, dy),
+                          child: Transform.scale(scale: scale, child: child),
                         ),
-                      ],
-                    ),
-                    child: const Text(
-                      '+5',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w900,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 1.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.calicoBlack,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.primary,
+                          width: 1.0,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(55),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.pets_rounded,
+                            size: 7.5,
+                            color: AppColors.primary,
+                          ),
+                          SizedBox(width: 2),
+                          Text(
+                            '+5',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

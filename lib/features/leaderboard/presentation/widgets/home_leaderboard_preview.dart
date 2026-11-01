@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/calico_ui_kit.dart';
+import '../../../../core/widgets/feline_avatar.dart';
 import '../../data/datasources/firebase_leaderboard_datasource.dart';
 import '../../data/datasources/mock_leaderboard_datasource.dart';
 import '../../domain/entities/leaderboard_entry.dart';
@@ -57,142 +59,131 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
     final second = _topThree.length > 1 ? _topThree[1] : null;
     final third = _topThree.length > 2 ? _topThree[2] : null;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(8),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+    return CalicoSpotCard(
+      onTap: widget.onTap,
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.calicoBlack,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withAlpha(90),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.emoji_events_rounded,
+                      size: 18,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Territory Champions',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        'Top explorers this season',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.gingerSoft,
+                  borderRadius: BorderRadius.circular(99),
+                  border: Border.all(color: AppColors.gingerBorder),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'View Ranks',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryDark,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 10,
+                      color: AppColors.primaryDark,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (second != null)
+                _MiniPodiumItem(
+                  entry: second,
+                  rank: 2,
+                  pedestalHeight: 46,
+                  accentColor: AppColors.calicoCharcoal,
+                  bgColor: const Color(0xFFF3ECE7),
+                  floatOffset: 0,
+                ),
+              AnimatedBuilder(
+                animation: _floatController,
+                builder: (context, child) {
+                  final dy = -4.0 * _floatController.value;
+                  return Transform.translate(
+                    offset: Offset(0, dy),
+                    child: _MiniPodiumItem(
+                      entry: first,
+                      rank: 1,
+                      pedestalHeight: 62,
+                      accentColor: AppColors.primary,
+                      bgColor: AppColors.gingerSoft,
+                      isChampion: true,
+                      floatOffset: dy,
+                    ),
+                  );
+                },
+              ),
+              if (third != null)
+                _MiniPodiumItem(
+                  entry: third,
+                  rank: 3,
+                  pedestalHeight: 38,
+                  accentColor: const Color(0xFFB86B35),
+                  bgColor: AppColors.creamSurface,
+                  floatOffset: 0,
+                ),
+            ],
           ),
         ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: widget.onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF8E1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.emoji_events_rounded,
-                            size: 18,
-                            color: Color(0xFFFFA000),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Territory Champions',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              'Top explorers this season',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: const [
-                        Text(
-                          'View Ranks',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 11,
-                          color: AppColors.primary,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                // Animated Top 3 Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // 2nd Place
-                    if (second != null)
-                      _MiniPodiumItem(
-                        entry: second,
-                        rank: 2,
-                        pedestalHeight: 46,
-                        accentColor: const Color(0xFF78909C),
-                        bgColor: const Color(0xFFECEFF1),
-                        floatOffset: 0,
-                      ),
-
-                    // 1st Place (with animated floating effect)
-                    AnimatedBuilder(
-                      animation: _floatController,
-                      builder: (context, child) {
-                        final dy = -4.0 * _floatController.value;
-                        return Transform.translate(
-                          offset: Offset(0, dy),
-                          child: _MiniPodiumItem(
-                            entry: first,
-                            rank: 1,
-                            pedestalHeight: 62,
-                            accentColor: const Color(0xFFFFA000),
-                            bgColor: const Color(0xFFFFF8E1),
-                            isChampion: true,
-                            floatOffset: dy,
-                          ),
-                        );
-                      },
-                    ),
-
-                    // 3rd Place
-                    if (third != null)
-                      _MiniPodiumItem(
-                        entry: third,
-                        rank: 3,
-                        pedestalHeight: 38,
-                        accentColor: const Color(0xFF8D6E63),
-                        bgColor: const Color(0xFFEFEBE9),
-                        floatOffset: 0,
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -219,7 +210,7 @@ class _MiniPodiumItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avatarSize = isChampion ? 48.0 : 40.0;
+    final avatarSize = isChampion ? 50.0 : 42.0;
 
     return SizedBox(
       width: 90,
@@ -233,6 +224,7 @@ class _MiniPodiumItem extends StatelessWidget {
               Container(
                 width: avatarSize,
                 height: avatarSize,
+                padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
@@ -242,30 +234,31 @@ class _MiniPodiumItem extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: accentColor.withAlpha(40),
-                      blurRadius: 6,
+                      color: accentColor.withAlpha(45),
+                      blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.pets,
-                    size: isChampion ? 24 : 18,
-                    color: accentColor,
-                  ),
+                child: FelineAvatar(
+                  seed: entry.displayName,
+                  radius: (avatarSize / 2) - 4,
+                  showBorder: false,
                 ),
               ),
               Positioned(
                 bottom: -5,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
+                    horizontal: 6,
                     vertical: 1.5,
                   ),
                   decoration: BoxDecoration(
-                    color: accentColor,
+                    color: isChampion ? AppColors.calicoBlack : accentColor,
                     borderRadius: BorderRadius.circular(8),
+                    border: isChampion
+                        ? Border.all(color: AppColors.primary, width: 1)
+                        : null,
                   ),
                   child: Text(
                     '#$rank',
@@ -307,9 +300,9 @@ class _MiniPodiumItem extends StatelessWidget {
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(10),
+                top: Radius.circular(12),
               ),
-              border: Border.all(color: accentColor.withAlpha(50), width: 1.0),
+              border: Border.all(color: accentColor.withAlpha(65), width: 1.1),
             ),
             child: Center(
               child: Icon(

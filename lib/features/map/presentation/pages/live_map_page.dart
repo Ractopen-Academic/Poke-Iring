@@ -62,6 +62,7 @@ class _LiveMapPageState extends State<LiveMapPage>
   bool _hasCenteredOnUser = false;
 
   final ValueNotifier<double> _rotationNotifier = ValueNotifier<double>(0.0);
+  final ValueNotifier<bool> _offCenterNotifier = ValueNotifier<bool>(false);
   bool _hasTileError = false;
   DateTime? _lastRecenterTapTime;
 
@@ -164,6 +165,7 @@ class _LiveMapPageState extends State<LiveMapPage>
     _pauseLocation();
     _sightingsSubscription?.cancel();
     _rotationNotifier.dispose();
+    _offCenterNotifier.dispose();
     _rotationController.dispose();
     _moveController.dispose();
     _mapController.dispose();
@@ -242,6 +244,7 @@ class _LiveMapPageState extends State<LiveMapPage>
     anim.addListener(listener);
     _moveController.forward(from: 0.0).then((_) {
       anim.removeListener(listener);
+      _offCenterNotifier.value = false;
     });
 
     if (_currentUserLocation == null) {
@@ -309,6 +312,17 @@ class _LiveMapPageState extends State<LiveMapPage>
                 onPositionChanged: (camera, hasGesture) {
                   if (_rotationNotifier.value != camera.rotation) {
                     _rotationNotifier.value = camera.rotation;
+                  }
+                  final target = _currentUserLocation != null
+                      ? LatLng(
+                          _currentUserLocation!.latitude,
+                          _currentUserLocation!.longitude,
+                        )
+                      : widget.initialCenter;
+                  final dist = const Distance().distance(camera.center, target);
+                  final offCenter = dist > 25.0;
+                  if (_offCenterNotifier.value != offCenter) {
+                    _offCenterNotifier.value = offCenter;
                   }
                 },
               ),
@@ -385,13 +399,17 @@ class _LiveMapPageState extends State<LiveMapPage>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.calicoBlack.withAlpha(235),
                       borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: AppColors.primary.withAlpha(85),
+                        width: 1.2,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withAlpha(25),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                          color: Colors.black.withAlpha(55),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -399,11 +417,11 @@ class _LiveMapPageState extends State<LiveMapPage>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
-                          Icons.near_me,
-                          size: 16,
+                          Icons.pets_rounded,
+                          size: 15,
                           color: AppColors.primary,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 7),
                         Text(
                           _currentUserLocation != null
                               ? '${_currentUserLocation!.latitude.toStringAsFixed(4)}, ${_currentUserLocation!.longitude.toStringAsFixed(4)}'
@@ -411,16 +429,21 @@ class _LiveMapPageState extends State<LiveMapPage>
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: Colors.white,
                           ),
                         ),
                       ],
                     ),
                   ),
                   Material(
-                    color: Colors.white,
-                    shape: const CircleBorder(),
-                    elevation: 3,
+                    color: AppColors.calicoBlack.withAlpha(235),
+                    shape: CircleBorder(
+                      side: BorderSide(
+                        color: AppColors.primary.withAlpha(85),
+                        width: 1.2,
+                      ),
+                    ),
+                    elevation: 4,
                     child: InkWell(
                       customBorder: const CircleBorder(),
                       onTap: _resetToNorth,
@@ -435,7 +458,11 @@ class _LiveMapPageState extends State<LiveMapPage>
                             );
                           },
                           child: const RepaintBoundary(
-                            child: CutePawCompassPointer(size: 28),
+                            child: CutePawCompassPointer(
+                              size: 28,
+                              padColor: AppColors.primary,
+                              baseColor: Color(0xFFFFFAF4),
+                            ),
                           ),
                         ),
                       ),
@@ -465,10 +492,18 @@ class _LiveMapPageState extends State<LiveMapPage>
             ),
           Positioned(
             right: 16,
-            bottom: 100,
+            bottom: 108,
             child: Tooltip(
               message: 'Recenter on my location',
-              child: PeekingCatRecenterButton(onTap: _recenter),
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _offCenterNotifier,
+                builder: (context, isOffCenter, _) {
+                  return PeekingCatRecenterButton(
+                    onTap: _recenter,
+                    isOffCenter: isOffCenter,
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -537,28 +572,22 @@ class _UserLocationMarkerState extends State<_UserLocationMarker>
             ),
           ),
         Container(
-          width: 20,
-          height: 20,
+          width: 24,
+          height: 24,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white,
+            color: AppColors.calicoBlack,
+            border: Border.all(color: AppColors.primary, width: 2.2),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withAlpha(45),
-                blurRadius: 5,
+                color: Colors.black.withAlpha(65),
+                blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
-          child: Center(
-            child: Container(
-              width: 13,
-              height: 13,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary,
-              ),
-            ),
+          child: const Center(
+            child: Icon(Icons.pets_rounded, size: 12, color: Color(0xFFFFFAF4)),
           ),
         ),
       ],
