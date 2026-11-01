@@ -110,6 +110,8 @@ void main() {
         'endsAt': now.add(const Duration(days: 3)).toIso8601String(),
         'isActive': false,
         'bannerUrl': 'https://example.com/blitz.png',
+        'logoUrl': 'https://example.com/blitz-logo.webp',
+        'externalLink': 'javascript:alert(1)',
         'priority': 15.0,
       };
 
@@ -121,7 +123,20 @@ void main() {
       expect(parsed.isEnabled, isFalse);
       expect(parsed.isActive, isFalse);
       expect(parsed.bannerImageUrl, equals('https://example.com/blitz.png'));
+      expect(
+        parsed.logoImageUrl,
+        equals('https://example.com/blitz-logo.webp'),
+      );
+      expect(parsed.externalLink, isNull);
       expect(parsed.priority, equals(15));
+
+      final insecureUrls = FelineEvent.fromMap({
+        'id': 'ev_insecure',
+        'bannerImageUrl': 'http://unencrypted.example.com/banner.jpg',
+        'logoImageUrl': 'data:image/svg+xml;base64,PHN2Zz4=',
+      });
+      expect(insecureUrls.bannerImageUrl, isNull);
+      expect(insecureUrls.logoImageUrl, isNull);
     });
 
     test('resolveCloudEvents returns empty list when cloud events are disabled instead of resurrecting defaults', () {

@@ -69,6 +69,7 @@ class FelineEvent {
   final String? externalLink;
   final int priority;
   final String? bannerImageUrl;
+  final String? logoImageUrl;
 
   const FelineEvent({
     required this.id,
@@ -92,6 +93,7 @@ class FelineEvent {
     this.externalLink,
     this.priority = 0,
     this.bannerImageUrl,
+    this.logoImageUrl,
   });
 
   Color get bannerColor => Color(bannerColorValue);
@@ -150,6 +152,7 @@ class FelineEvent {
     String? externalLink,
     int? priority,
     String? bannerImageUrl,
+    String? logoImageUrl,
   }) {
     return FelineEvent(
       id: id ?? this.id,
@@ -173,6 +176,7 @@ class FelineEvent {
       externalLink: externalLink ?? this.externalLink,
       priority: priority ?? this.priority,
       bannerImageUrl: bannerImageUrl ?? this.bannerImageUrl,
+      logoImageUrl: logoImageUrl ?? this.logoImageUrl,
     );
   }
 
@@ -199,6 +203,7 @@ class FelineEvent {
       'externalLink': externalLink,
       'priority': priority,
       'bannerImageUrl': bannerImageUrl,
+      'logoImageUrl': logoImageUrl,
     };
   }
 
@@ -215,13 +220,22 @@ class FelineEvent {
     return fallback;
   }
 
+  static String? _sanitizeHttpsUrl(dynamic raw) {
+    final text = raw?.toString().trim();
+    if (text == null || text.isEmpty || text.length > 2048) {
+      return null;
+    }
+    final uri = Uri.tryParse(text);
+    if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
+      return null;
+    }
+    return text;
+  }
+
   factory FelineEvent.fromMap(Map<String, dynamic> map) {
     final now = DateTime.now();
     final rawMultiplier = (map['multiplier'] as num?)?.toDouble() ?? 1.0;
     final clampedMultiplier = rawMultiplier.clamp(1.0, 5.0).toDouble();
-    final rawBanner = (map['bannerImageUrl'] ?? map['bannerUrl'])
-        ?.toString()
-        .trim();
 
     return FelineEvent(
       id: map['id'] as String? ?? 'event_default',
@@ -256,11 +270,12 @@ class FelineEvent {
       showPopupOnLaunch: map['showPopupOnLaunch'] as bool? ?? false,
       eventType: map['eventType'] as String? ?? 'festival',
       partnerName: map['partnerName'] as String?,
-      externalLink: map['externalLink'] as String?,
+      externalLink: _sanitizeHttpsUrl(map['externalLink']),
       priority: (map['priority'] as num?)?.toInt() ?? 0,
-      bannerImageUrl: (rawBanner != null && rawBanner.isNotEmpty)
-          ? rawBanner
-          : null,
+      bannerImageUrl: _sanitizeHttpsUrl(
+        map['bannerImageUrl'] ?? map['bannerUrl'],
+      ),
+      logoImageUrl: _sanitizeHttpsUrl(map['logoImageUrl'] ?? map['logoUrl']),
     );
   }
 

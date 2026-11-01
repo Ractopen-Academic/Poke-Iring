@@ -44,5 +44,11 @@ service firebase.storage {
         && isImage()
         && request.resource.size <= 10 * 1024 * 1024;
     }
+
+    // Event banners and partner logos uploaded via Firebase Admin SDK
+    match /events/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }

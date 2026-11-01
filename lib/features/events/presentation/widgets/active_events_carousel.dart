@@ -7,6 +7,7 @@ import '../../data/repositories/event_repository_impl.dart';
 import '../../domain/entities/feline_event.dart';
 import '../../domain/repositories/event_repository.dart';
 import 'event_center_sheet.dart';
+import 'event_media_widgets.dart';
 
 class ActiveEventsCarousel extends StatefulWidget {
   final String userId;
@@ -166,25 +167,17 @@ class _CarouselEventCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              event.bannerColor,
-              Color.lerp(event.bannerColor, Colors.black, 0.3)!,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: EventBannerSurface(
+        bannerColor: event.bannerColor,
+        bannerImageUrl: event.bannerImageUrl,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: event.bannerColor.withAlpha(55),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: event.bannerColor.withAlpha(55),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+        ],
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,12 +197,17 @@ class _CarouselEventCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        isPartnership
-                            ? Icons.handshake_rounded
-                            : Icons.celebration_rounded,
-                        size: 13,
-                        color: Colors.white,
+                      EventLogoEmblem(
+                        logoImageUrl: event.logoImageUrl,
+                        size: 15,
+                        borderRadius: 4,
+                        fallback: Icon(
+                          isPartnership
+                              ? Icons.handshake_rounded
+                              : Icons.celebration_rounded,
+                          size: 13,
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Text(
