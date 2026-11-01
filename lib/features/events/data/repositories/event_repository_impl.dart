@@ -25,6 +25,10 @@ class EventRepositoryImpl implements EventRepository {
   final StreamController<List<FelineEvent>> _eventsListController =
       StreamController<List<FelineEvent>>.broadcast();
 
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _eventsSubscription;
+  List<FelineEvent>? _cachedActiveEvents;
+  bool _hasSyncedCloudEvents = false;
+
   factory EventRepositoryImpl({FirebaseFirestore? firestore}) {
     if (firestore != null) {
       return EventRepositoryImpl._internal(firestore);
@@ -35,6 +39,7 @@ class EventRepositoryImpl implements EventRepository {
   EventRepositoryImpl._internal([this._firestore]);
 
   bool get _isFirebaseAvailable {
+    if (_firestore != null) return true;
     try {
       return Firebase.apps.isNotEmpty;
     } catch (_) {
@@ -44,17 +49,67 @@ class EventRepositoryImpl implements EventRepository {
 
   FirebaseFirestore get _db => _firestore ?? FirebaseFirestore.instance;
 
-  @override
-  Stream<FelineEvent> watchActiveEvent() {
-    _emitActiveEvent();
-    return _eventController.stream;
+  static List<FelineEvent> resolveCloudEvents(
+    List<Map<String, dynamic>> rawDocs,
+  ) {
+    if (rawDocs.isEmpty) {
+      return LocalEventCatalog.defaultActiveEvents;
+    }
+    final list = rawDocs
+        .map(FelineEvent.fromMap)
+        .where((e) => e.isEnabled && !e.isExpired)
+        .toList();
+    list.sort((a, b) => b.priority.compareTo(a.priority));
+    return list;
   }
 
-  Future<void> _emitActiveEvent() async {
-    final event = await getActiveEvent();
-    if (!_eventController.isClosed) {
-      _eventController.add(event);
+  void _ensureFirestoreEventsListener() {
+    if (_eventsSubscription != null || !_isFirebaseAvailable) {
+      return;
     }
+    try {
+      _eventsSubscription = _db
+          .collection('events')
+          .snapshots()
+          .listen(
+            (snapshot) {
+              final rawDocs = snapshot.docs
+                  .map((doc) => {...doc.data(), 'id': doc.id})
+                  .toList();
+              final resolved = resolveCloudEvents(rawDocs);
+              _cachedActiveEvents = resolved;
+              _hasSyncedCloudEvents = true;
+
+              if (!_eventsListController.isClosed) {
+                _eventsListController.add(resolved);
+              }
+              if (!_eventController.isClosed) {
+                _eventController.add(
+                  resolved.isNotEmpty
+                      ? resolved.first
+                      : LocalEventCatalog.activeFestival,
+                );
+              }
+            },
+            onError: (Object error) {
+              debugPrint('Firestore watchActiveEvents error: $error');
+              final fallback =
+                  _cachedActiveEvents ?? LocalEventCatalog.defaultActiveEvents;
+              if (!_eventsListController.isClosed) {
+                _eventsListController.add(fallback);
+              }
+            },
+          );
+    } catch (e) {
+      debugPrint('Firestore events listener skipped: $e');
+    }
+  }
+
+  @override
+  Stream<FelineEvent> watchActiveEvent() async* {
+    _ensureFirestoreEventsListener();
+    yield await getActiveEvent();
+    yield* _eventController.stream;
   }
 
   @override
@@ -67,38 +122,48 @@ class EventRepositoryImpl implements EventRepository {
   }
 
   @override
-  Stream<List<FelineEvent>> watchActiveEvents() {
-    _emitActiveEvents();
-    return _eventsListController.stream;
-  }
-
-  Future<void> _emitActiveEvents() async {
-    final events = await getActiveEvents();
-    if (!_eventsListController.isClosed) {
-      _eventsListController.add(events);
-    }
+  Stream<List<FelineEvent>> watchActiveEvents() async* {
+    _ensureFirestoreEventsListener();
+    yield await getActiveEvents();
+    yield* _eventsListController.stream;
   }
 
   @override
   Future<List<FelineEvent>> getActiveEvents() async {
+    if (_hasSyncedCloudEvents && _cachedActiveEvents != null) {
+      return _cachedActiveEvents!;
+    }
+
     if (_isFirebaseAvailable) {
       try {
-        final querySnapshot = await _db.collection('events').get();
-        if (querySnapshot.docs.isNotEmpty) {
-          final list = querySnapshot.docs
-              .map((doc) => FelineEvent.fromMap({...doc.data(), 'id': doc.id}))
-              .where((e) => !e.isExpired)
-              .toList();
-          if (list.isNotEmpty) {
-            list.sort((a, b) => b.priority.compareTo(a.priority));
-            return list;
-          }
-        }
+        final querySnapshot = await _db
+            .collection('events')
+            .get()
+            .timeout(const Duration(milliseconds: 2000));
+        final rawDocs = querySnapshot.docs
+            .map((doc) => {...doc.data(), 'id': doc.id})
+            .toList();
+        final resolved = resolveCloudEvents(rawDocs);
+        _cachedActiveEvents = resolved;
+        _hasSyncedCloudEvents = true;
+        return resolved;
       } catch (e) {
         debugPrint('Firestore getActiveEvents skipped: $e');
       }
     }
     return LocalEventCatalog.defaultActiveEvents;
+  }
+
+  @override
+  Future<double> getActiveMultiplier() async {
+    final events = await getActiveEvents();
+    var highest = 1.0;
+    for (final event in events) {
+      if (event.isActive && event.multiplier > highest) {
+        highest = event.multiplier;
+      }
+    }
+    return highest.clamp(1.0, 5.0).toDouble();
   }
 
   @override

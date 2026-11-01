@@ -10,6 +10,7 @@ import 'package:pokeiring/features/events/domain/entities/profile_border.dart';
 import 'package:pokeiring/features/events/domain/entities/user_event_wallet.dart';
 import 'package:pokeiring/features/events/domain/repositories/event_repository.dart';
 import 'package:pokeiring/features/events/presentation/widgets/active_events_carousel.dart';
+import 'package:pokeiring/features/events/presentation/widgets/event_media_widgets.dart';
 import 'package:pokeiring/features/events/presentation/widgets/event_popup_modal.dart';
 import 'package:pokeiring/features/quests/domain/entities/paw_quest.dart';
 import 'package:pokeiring/features/quests/domain/repositories/paw_quests_repository.dart';
@@ -32,6 +33,17 @@ class _FakeEventRepository implements EventRepository {
 
   @override
   Stream<List<FelineEvent>> watchActiveEvents() => Stream.value(events);
+
+  @override
+  Future<double> getActiveMultiplier() async {
+    var highest = 1.0;
+    for (final e in events) {
+      if (e.isActive && e.multiplier > highest) {
+        highest = e.multiplier;
+      }
+    }
+    return highest.clamp(1.0, 5.0).toDouble();
+  }
 
   @override
   Future<UserEventWallet> getUserWallet(String userId, String eventId) async {
@@ -221,6 +233,92 @@ void main() {
 
         expect(find.text('Cebu Sanctuary Care Drive'), findsOneWidget);
         expect(find.text('Island Rescue Org (IRO)'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'hides carousel when all cloud events are disabled via admin toggle',
+      (tester) async {
+        final disabledFestival = sampleFestival.copyWith(isEnabled: false);
+        final fakeRepo = _FakeEventRepository([disabledFestival]);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ActiveEventsCarousel(
+                userId: 'u_test',
+                userDisplayName: 'Tester',
+                repository: fakeRepo,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('Moonlit Strays Festival'), findsNothing);
+        expect(find.byType(PageView), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'displays active points multiplier badge when multiplier exceeds 1.0',
+      (tester) async {
+        final boostedEvent = sampleFestival.copyWith(multiplier: 2.0);
+        final fakeRepo = _FakeEventRepository([boostedEvent]);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ActiveEventsCarousel(
+                userId: 'u_test',
+                userDisplayName: 'Tester',
+                repository: fakeRepo,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('2x Points'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'renders custom bannerImageUrl and logoImageUrl surfaces with safe offline fallback',
+      (tester) async {
+        final brandedEvent = samplePartnership.copyWith(
+          bannerImageUrl: 'https://firebasestorage.googleapis.com/v0/b/demo/o/events%2Fbanners%2Fcare.webp?alt=media',
+          logoImageUrl: 'https://firebasestorage.googleapis.com/v0/b/demo/o/events%2Flogos%2Firo.png?alt=media',
+          showPopupOnLaunch: true,
+        );
+        final fakeRepo = _FakeEventRepository([brandedEvent]);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ActiveEventsCarousel(
+                userId: 'u_test',
+                userDisplayName: 'Tester',
+                repository: fakeRepo,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.byType(EventBannerSurface), findsOneWidget);
+        expect(find.byType(EventLogoEmblem), findsOneWidget);
+        expect(find.text('Cebu Sanctuary Care Drive'), findsOneWidget);
+
+        await tester.tap(find.text('Cebu Sanctuary Care Drive'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Festival Quests'), findsOneWidget);
+        expect(find.byType(EventBannerSurface), findsWidgets);
+        expect(find.byType(EventLogoEmblem), findsWidgets);
       },
     );
   });

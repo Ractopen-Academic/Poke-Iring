@@ -6,6 +6,7 @@ import '../../domain/entities/feline_event.dart';
 import '../../domain/entities/user_event_wallet.dart';
 import '../../domain/repositories/event_repository.dart';
 import 'event_center_sheet.dart';
+import 'event_media_widgets.dart';
 
 class EventBannerCard extends StatelessWidget {
   final String userId;
@@ -44,27 +45,20 @@ class EventBannerCard extends StatelessWidget {
                 userPhotoUrl: userPhotoUrl,
                 repository: repo,
               ),
-              child: Container(
+              child: EventBannerSurface(
+                bannerColor: event.bannerColor,
+                bannerImageUrl: event.bannerImageUrl,
+                darkenFactor: 0.25,
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      event.bannerColor,
-                      Color.lerp(event.bannerColor, Colors.black, 0.25)!,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: event.bannerColor.withAlpha(50),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: event.bannerColor.withAlpha(50),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                ],
                 child: Row(
                   children: [
                     Container(
@@ -73,10 +67,15 @@ class EventBannerCard extends StatelessWidget {
                         color: Colors.white.withAlpha(35),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
-                        Icons.palette_outlined,
-                        color: Colors.white,
+                      child: EventLogoEmblem(
+                        logoImageUrl: event.logoImageUrl,
                         size: 22,
+                        borderRadius: 6,
+                        fallback: const Icon(
+                          Icons.palette_outlined,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),

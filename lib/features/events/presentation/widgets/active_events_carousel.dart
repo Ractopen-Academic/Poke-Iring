@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../data/datasources/local_event_catalog.dart';
 import '../../data/repositories/event_repository_impl.dart';
 import '../../domain/entities/feline_event.dart';
 import '../../domain/repositories/event_repository.dart';
 import 'event_center_sheet.dart';
+import 'event_media_widgets.dart';
 
 class ActiveEventsCarousel extends StatefulWidget {
   final String userId;
@@ -69,18 +69,25 @@ class _ActiveEventsCarouselState extends State<ActiveEventsCarousel> {
     return StreamBuilder<List<FelineEvent>>(
       stream: _repository.watchActiveEvents(),
       builder: (context, snapshot) {
-        final allEvents =
-            snapshot.data ?? LocalEventCatalog.defaultActiveEvents;
-        final carouselEvents = allEvents
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final displayEvents = snapshot.data!
             .where((e) => e.isFeaturedInCarousel && e.isActive)
             .toList();
 
-        final displayEvents = carouselEvents.isNotEmpty
-            ? carouselEvents
-            : LocalEventCatalog.defaultActiveEvents;
+        if (displayEvents.isEmpty) {
+          _autoScrollTimer?.cancel();
+          _itemCount = 0;
+          return const SizedBox.shrink();
+        }
 
         if (_itemCount != displayEvents.length) {
           _itemCount = displayEvents.length;
+          if (_currentPage >= displayEvents.length) {
+            _currentPage = 0;
+          }
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _startAutoScroll(_itemCount);
           });
@@ -160,25 +167,17 @@ class _CarouselEventCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              event.bannerColor,
-              Color.lerp(event.bannerColor, Colors.black, 0.3)!,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: EventBannerSurface(
+        bannerColor: event.bannerColor,
+        bannerImageUrl: event.bannerImageUrl,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: event.bannerColor.withAlpha(55),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: event.bannerColor.withAlpha(55),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+        ],
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,12 +197,17 @@ class _CarouselEventCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        isPartnership
-                            ? Icons.handshake_rounded
-                            : Icons.celebration_rounded,
-                        size: 13,
-                        color: Colors.white,
+                      EventLogoEmblem(
+                        logoImageUrl: event.logoImageUrl,
+                        size: 15,
+                        borderRadius: 4,
+                        fallback: Icon(
+                          isPartnership
+                              ? Icons.handshake_rounded
+                              : Icons.celebration_rounded,
+                          size: 13,
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -301,6 +305,27 @@ class _CarouselEventCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (event.multiplier > 1.0) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(35),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '${event.formattedMultiplier} Points',
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
                 const Spacer(),
                 const Text(
                   'View Event',

@@ -85,6 +85,7 @@ void main() {
       expect(text.contains('match /stories/{userId}/{fileName}'), isTrue);
       expect(text.contains('match /vault/{userId}/{fileName}'), isTrue);
       expect(text.contains('match /users/{userId}/{fileName}'), isTrue);
+      expect(text.contains('match /events/{allPaths=**}'), isTrue);
 
       // Constraints
       expect(text.contains('15 * 1024 * 1024'), isTrue);

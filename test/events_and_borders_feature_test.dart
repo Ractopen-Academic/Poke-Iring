@@ -97,6 +97,68 @@ void main() {
       expect(expired.isExpired, isTrue);
       expect(expired.remainingFormatted, equals('Concluded'));
     });
+
+    test('parses admin console dual-key schema, clamps multiplier, and respects isActive flag', () {
+      final now = DateTime.now();
+      final adminPayload = {
+        'id': 'event_admin_blitz',
+        'title': 'Weekend Territory Blitz',
+        'description': 'Double points across city rings',
+        'eventType': 'double_points',
+        'multiplier': 9.5,
+        'startsAt': now.subtract(const Duration(hours: 2)).toIso8601String(),
+        'endsAt': now.add(const Duration(days: 3)).toIso8601String(),
+        'isActive': false,
+        'bannerUrl': 'https://example.com/blitz.png',
+        'logoUrl': 'https://example.com/blitz-logo.webp',
+        'externalLink': 'javascript:alert(1)',
+        'priority': 15.0,
+      };
+
+      final parsed = FelineEvent.fromMap(adminPayload);
+      expect(parsed.id, equals('event_admin_blitz'));
+      expect(parsed.subtitle, equals('Limited-Time Event'));
+      expect(parsed.multiplier, equals(5.0));
+      expect(parsed.formattedMultiplier, equals('5x'));
+      expect(parsed.isEnabled, isFalse);
+      expect(parsed.isActive, isFalse);
+      expect(parsed.bannerImageUrl, equals('https://example.com/blitz.png'));
+      expect(
+        parsed.logoImageUrl,
+        equals('https://example.com/blitz-logo.webp'),
+      );
+      expect(parsed.externalLink, isNull);
+      expect(parsed.priority, equals(15));
+
+      final insecureUrls = FelineEvent.fromMap({
+        'id': 'ev_insecure',
+        'bannerImageUrl': 'http://unencrypted.example.com/banner.jpg',
+        'logoImageUrl': 'data:image/svg+xml;base64,PHN2Zz4=',
+      });
+      expect(insecureUrls.bannerImageUrl, isNull);
+      expect(insecureUrls.logoImageUrl, isNull);
+    });
+
+    test('resolveCloudEvents returns empty list when cloud events are disabled instead of resurrecting defaults', () {
+      final now = DateTime.now();
+      final disabledCloudDocs = [
+        {
+          'id': 'ev_disabled_1',
+          'title': 'Paused Event',
+          'startDate': now.subtract(const Duration(days: 1)).toIso8601String(),
+          'endDate': now.add(const Duration(days: 5)).toIso8601String(),
+          'isActive': false,
+        },
+      ];
+
+      final resolvedDisabled = EventRepositoryImpl.resolveCloudEvents(
+        disabledCloudDocs,
+      );
+      expect(resolvedDisabled, isEmpty);
+
+      final resolvedUnseeded = EventRepositoryImpl.resolveCloudEvents(const []);
+      expect(resolvedUnseeded, isNotEmpty);
+    });
   });
 
   group('EventRepositoryImpl Economy & Quests', () {

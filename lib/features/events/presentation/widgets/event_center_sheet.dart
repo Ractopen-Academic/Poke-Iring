@@ -8,6 +8,7 @@ import '../../domain/entities/feline_event.dart';
 import '../../domain/entities/profile_border.dart';
 import '../../domain/entities/user_event_wallet.dart';
 import '../../domain/repositories/event_repository.dart';
+import 'event_media_widgets.dart';
 import 'profile_border_avatar.dart';
 
 class EventCenterSheet extends StatefulWidget {
@@ -206,30 +207,23 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                   ),
 
                   // Festival Hero Banner
-                  Container(
+                  EventBannerSurface(
+                    bannerColor: event.bannerColor,
+                    bannerImageUrl: event.bannerImageUrl,
+                    darkenFactor: 0.22,
                     margin: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 6,
                     ),
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          event.bannerColor,
-                          event.bannerColor.withAlpha(200),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: event.bannerColor.withAlpha(50),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: event.bannerColor.withAlpha(50),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
+                    ],
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -305,13 +299,29 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          event.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
+                        Row(
+                          children: [
+                            if (event.logoImageUrl != null &&
+                                event.logoImageUrl!.isNotEmpty) ...[
+                              EventLogoEmblem(
+                                logoImageUrl: event.logoImageUrl,
+                                size: 32,
+                                borderRadius: 8,
+                                fallback: const SizedBox.shrink(),
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                            Expanded(
+                              child: Text(
+                                event.title,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(

@@ -10,6 +10,8 @@ abstract class EventRepository {
 
   Future<List<FelineEvent>> getActiveEvents();
 
+  Future<double> getActiveMultiplier();
+
   Stream<UserEventWallet> watchUserWallet(String userId, String eventId);
 
   Future<UserEventWallet> getUserWallet(String userId, String eventId);

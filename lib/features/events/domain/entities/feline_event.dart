@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'profile_border.dart';
@@ -59,6 +60,8 @@ class FelineEvent {
   final int accentColorValue;
   final List<EventQuestItem> quests;
   final List<ProfileBorder> borders;
+  final bool isEnabled;
+  final double multiplier;
   final bool isFeaturedInCarousel;
   final bool showPopupOnLaunch;
   final String eventType; // 'festival', 'partnership', 'charity', 'spotlight'
@@ -66,6 +69,7 @@ class FelineEvent {
   final String? externalLink;
   final int priority;
   final String? bannerImageUrl;
+  final String? logoImageUrl;
 
   const FelineEvent({
     required this.id,
@@ -80,6 +84,8 @@ class FelineEvent {
     required this.accentColorValue,
     required this.quests,
     required this.borders,
+    this.isEnabled = true,
+    this.multiplier = 1.0,
     this.isFeaturedInCarousel = true,
     this.showPopupOnLaunch = false,
     this.eventType = 'festival',
@@ -87,6 +93,7 @@ class FelineEvent {
     this.externalLink,
     this.priority = 0,
     this.bannerImageUrl,
+    this.logoImageUrl,
   });
 
   Color get bannerColor => Color(bannerColorValue);
@@ -94,10 +101,17 @@ class FelineEvent {
 
   bool get isExpired => DateTime.now().isAfter(endDate);
   bool get isUpcoming => DateTime.now().isBefore(startDate);
-  bool get isActive => !isExpired && !isUpcoming;
+  bool get isActive => isEnabled && !isExpired && !isUpcoming;
   bool get isPartnership =>
       eventType == 'partnership' ||
       (partnerName != null && partnerName!.isNotEmpty);
+
+  String get formattedMultiplier {
+    if (multiplier == multiplier.roundToDouble()) {
+      return '${multiplier.toInt()}x';
+    }
+    return '${multiplier.toStringAsFixed(1)}x';
+  }
 
   String get remainingFormatted {
     final now = DateTime.now();
@@ -129,6 +143,8 @@ class FelineEvent {
     int? accentColorValue,
     List<EventQuestItem>? quests,
     List<ProfileBorder>? borders,
+    bool? isEnabled,
+    double? multiplier,
     bool? isFeaturedInCarousel,
     bool? showPopupOnLaunch,
     String? eventType,
@@ -136,6 +152,7 @@ class FelineEvent {
     String? externalLink,
     int? priority,
     String? bannerImageUrl,
+    String? logoImageUrl,
   }) {
     return FelineEvent(
       id: id ?? this.id,
@@ -150,6 +167,8 @@ class FelineEvent {
       accentColorValue: accentColorValue ?? this.accentColorValue,
       quests: quests ?? this.quests,
       borders: borders ?? this.borders,
+      isEnabled: isEnabled ?? this.isEnabled,
+      multiplier: multiplier ?? this.multiplier,
       isFeaturedInCarousel: isFeaturedInCarousel ?? this.isFeaturedInCarousel,
       showPopupOnLaunch: showPopupOnLaunch ?? this.showPopupOnLaunch,
       eventType: eventType ?? this.eventType,
@@ -157,6 +176,7 @@ class FelineEvent {
       externalLink: externalLink ?? this.externalLink,
       priority: priority ?? this.priority,
       bannerImageUrl: bannerImageUrl ?? this.bannerImageUrl,
+      logoImageUrl: logoImageUrl ?? this.logoImageUrl,
     );
   }
 
@@ -174,6 +194,8 @@ class FelineEvent {
       'accentColorValue': accentColorValue,
       'quests': quests.map((q) => q.toMap()).toList(),
       'borders': borders.map((b) => b.toMap()).toList(),
+      'isActive': isEnabled,
+      'multiplier': multiplier,
       'isFeaturedInCarousel': isFeaturedInCarousel,
       'showPopupOnLaunch': showPopupOnLaunch,
       'eventType': eventType,
@@ -181,25 +203,56 @@ class FelineEvent {
       'externalLink': externalLink,
       'priority': priority,
       'bannerImageUrl': bannerImageUrl,
+      'logoImageUrl': logoImageUrl,
     };
   }
 
+  static DateTime _parseDateTime(dynamic raw, DateTime fallback) {
+    if (raw is Timestamp) {
+      return raw.toDate();
+    }
+    if (raw is DateTime) {
+      return raw;
+    }
+    if (raw is String && raw.isNotEmpty) {
+      return DateTime.tryParse(raw) ?? fallback;
+    }
+    return fallback;
+  }
+
+  static String? _sanitizeHttpsUrl(dynamic raw) {
+    final text = raw?.toString().trim();
+    if (text == null || text.isEmpty || text.length > 2048) {
+      return null;
+    }
+    final uri = Uri.tryParse(text);
+    if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) {
+      return null;
+    }
+    return text;
+  }
+
   factory FelineEvent.fromMap(Map<String, dynamic> map) {
+    final now = DateTime.now();
+    final rawMultiplier = (map['multiplier'] as num?)?.toDouble() ?? 1.0;
+    final clampedMultiplier = rawMultiplier.clamp(1.0, 5.0).toDouble();
+
     return FelineEvent(
       id: map['id'] as String? ?? 'event_default',
       title: map['title'] as String? ?? 'Moonlit Strays Gala',
-      subtitle: map['subtitle'] as String? ?? 'Limited-Time Festival',
+      subtitle: map['subtitle'] as String? ?? 'Limited-Time Event',
       description: map['description'] as String? ?? '',
       currencyName: map['currencyName'] as String? ?? 'Moonlit Tokens',
       currencyCode: map['currencyCode'] as String? ?? 'MLT',
-      startDate:
-          DateTime.tryParse(map['startDate'] as String? ?? '') ??
-          DateTime.now(),
-      endDate:
-          DateTime.tryParse(map['endDate'] as String? ?? '') ??
-          DateTime.now().add(const Duration(days: 14)),
-      bannerColorValue: map['bannerColorValue'] as int? ?? 0xFF6D28D9,
-      accentColorValue: map['accentColorValue'] as int? ?? 0xFFF59E0B,
+      startDate: _parseDateTime(map['startDate'] ?? map['startsAt'], now),
+      endDate: _parseDateTime(
+        map['endDate'] ?? map['endsAt'],
+        now.add(const Duration(days: 14)),
+      ),
+      bannerColorValue:
+          (map['bannerColorValue'] as num?)?.toInt() ?? 0xFF6D28D9,
+      accentColorValue:
+          (map['accentColorValue'] as num?)?.toInt() ?? 0xFFF59E0B,
       quests:
           (map['quests'] as List<dynamic>?)
               ?.map((q) => EventQuestItem.fromMap(q as Map<String, dynamic>))
@@ -210,13 +263,19 @@ class FelineEvent {
               ?.map((b) => ProfileBorder.fromMap(b as Map<String, dynamic>))
               .toList() ??
           ProfileBorder.defaultBorders(),
+      isEnabled:
+          (map['isActive'] as bool?) ?? (map['isEnabled'] as bool?) ?? true,
+      multiplier: clampedMultiplier,
       isFeaturedInCarousel: map['isFeaturedInCarousel'] as bool? ?? true,
       showPopupOnLaunch: map['showPopupOnLaunch'] as bool? ?? false,
       eventType: map['eventType'] as String? ?? 'festival',
       partnerName: map['partnerName'] as String?,
-      externalLink: map['externalLink'] as String?,
-      priority: map['priority'] as int? ?? 0,
-      bannerImageUrl: map['bannerImageUrl'] as String?,
+      externalLink: _sanitizeHttpsUrl(map['externalLink']),
+      priority: (map['priority'] as num?)?.toInt() ?? 0,
+      bannerImageUrl: _sanitizeHttpsUrl(
+        map['bannerImageUrl'] ?? map['bannerUrl'],
+      ),
+      logoImageUrl: _sanitizeHttpsUrl(map['logoImageUrl'] ?? map['logoUrl']),
     );
   }
 

@@ -6,6 +6,7 @@ import '../../data/repositories/event_repository_impl.dart';
 import '../../domain/entities/feline_event.dart';
 import '../../domain/repositories/event_repository.dart';
 import 'event_center_sheet.dart';
+import 'event_media_widgets.dart';
 
 class EventPopupModal extends StatefulWidget {
   final FelineEvent event;
@@ -141,18 +142,11 @@ class _EventPopupModalState extends State<EventPopupModal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Header Banner
-            Container(
+            EventBannerSurface(
+              bannerColor: event.bannerColor,
+              bannerImageUrl: event.bannerImageUrl,
+              borderRadius: BorderRadius.zero,
               padding: const EdgeInsets.fromLTRB(20, 20, 14, 20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    event.bannerColor,
-                    Color.lerp(event.bannerColor, Colors.black, 0.3)!,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -172,12 +166,17 @@ class _EventPopupModalState extends State<EventPopupModal> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              isPartnership
-                                  ? Icons.handshake_rounded
-                                  : Icons.campaign_rounded,
-                              size: 14,
-                              color: Colors.white,
+                            EventLogoEmblem(
+                              logoImageUrl: event.logoImageUrl,
+                              size: 16,
+                              borderRadius: 4,
+                              fallback: Icon(
+                                isPartnership
+                                    ? Icons.handshake_rounded
+                                    : Icons.campaign_rounded,
+                                size: 14,
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(width: 5),
                             Text(
