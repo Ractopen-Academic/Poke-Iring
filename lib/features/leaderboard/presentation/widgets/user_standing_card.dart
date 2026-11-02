@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
 
@@ -24,6 +25,7 @@ class UserStandingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (standing == null) return const SizedBox.shrink();
 
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final user = standing!;
     final tier = user.tier;
     final nextThreshold = tier.nextThreshold;
@@ -32,12 +34,17 @@ class UserStandingCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isGirly ? GirlyColors.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withAlpha(50), width: 1.2),
+        border: Border.all(
+          color:
+              (isGirly ? GirlyColors.primary : AppColors.primary).withAlpha(50),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withAlpha(12),
+            color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                .withAlpha(12),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -58,25 +65,31 @@ class UserStandingCard extends StatelessWidget {
                   children: [
                     Text.rich(
                       TextSpan(
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textPrimary,
+                          color: isGirly
+                              ? GirlyColors.textPrimary
+                              : AppColors.textPrimary,
                         ),
                         children: [
                           const TextSpan(text: 'You are at '),
                           TextSpan(
                             text: 'Rank #${user.rank}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w800,
-                              color: AppColors.primary,
+                              color: isGirly
+                                  ? GirlyColors.primaryDark
+                                  : AppColors.primary,
                             ),
                           ),
                           const TextSpan(text: ' with '),
                           TextSpan(
                             text: user.formattedScore(category),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w800,
-                              color: AppColors.primary,
+                              color: isGirly
+                                  ? GirlyColors.primaryDark
+                                  : AppColors.primary,
                             ),
                           ),
                         ],
@@ -92,10 +105,12 @@ class UserStandingCard extends StatelessWidget {
                                 : '${scope.label} pool of ${scope.poolCapacity} explorers',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
+                              color: isGirly
+                                  ? GirlyColors.textSecondary
+                                  : AppColors.textSecondary,
                             ),
                           ),
                         ),
@@ -103,12 +118,14 @@ class UserStandingCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           GestureDetector(
                             onTap: onChangeTerritory,
-                            child: const Text(
+                            child: Text(
                               'Change',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
+                                color: isGirly
+                                    ? GirlyColors.primaryDark
+                                    : AppColors.primary,
                               ),
                             ),
                           ),
@@ -163,7 +180,7 @@ class UserStandingCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 7,
-              backgroundColor: AppColors.border,
+              backgroundColor: isGirly ? GirlyColors.border : AppColors.border,
               valueColor: AlwaysStoppedAnimation<Color>(tier.color),
             ),
           ),
@@ -183,10 +200,12 @@ class UserStandingCard extends StatelessWidget {
                 nextThreshold != null
                     ? '$ptsToNext pts to next division'
                     : 'Max Tier Achieved',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: isGirly
+                      ? GirlyColors.textSecondary
+                      : AppColors.textSecondary,
                 ),
               ),
             ],

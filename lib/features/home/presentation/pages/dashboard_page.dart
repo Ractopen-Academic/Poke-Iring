@@ -68,9 +68,8 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _runAutoTerritorySync({bool showSpinner = false}) async {
-    final userId = widget.user.id.isNotEmpty
-        ? widget.user.id
-        : widget.user.email;
+    final userId =
+        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
     if (userId.isEmpty) return;
 
     if (showSpinner && mounted) {
@@ -182,13 +181,12 @@ class _DashboardPageState extends State<DashboardPage> {
                           StreamBuilder<ExplorerTitle?>(
                             stream: AchievementsRepositoryImpl.instance
                                 .watchEquippedTitle(
-                                  widget.user.id.isNotEmpty
-                                      ? widget.user.id
-                                      : widget.user.email,
-                                ),
+                              widget.user.id.isNotEmpty
+                                  ? widget.user.id
+                                  : widget.user.email,
+                            ),
                             builder: (context, snapshot) {
-                              final equipped =
-                                  snapshot.data ??
+                              final equipped = snapshot.data ??
                                   const ExplorerTitle(
                                     id: 'title_novice_scout',
                                     name: 'Novice Scout',
@@ -379,8 +377,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       : widget.user.email,
                 ),
                 builder: (context, snapshot) {
-                  final status =
-                      snapshot.data ??
+                  final status = snapshot.data ??
                       SubscriptionStatus.free(
                         widget.user.id.isNotEmpty
                             ? widget.user.id
@@ -657,12 +654,12 @@ class _DashboardPageState extends State<DashboardPage> {
                 title: 'Leaderboard',
                 subtitle: 'Seasonal territory standings and rankings',
                 onTap: () async {
-                  final territory = await TerritoryServiceImpl.instance
-                      .getTerritory(
-                        widget.user.id.isNotEmpty
-                            ? widget.user.id
-                            : widget.user.email,
-                      );
+                  final territory =
+                      await TerritoryServiceImpl.instance.getTerritory(
+                    widget.user.id.isNotEmpty
+                        ? widget.user.id
+                        : widget.user.email,
+                  );
                   if (!context.mounted) return;
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -700,8 +697,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 icon: Icons.map_outlined,
                 title: 'Live Sightings Map',
                 subtitle: 'Real-time 10-minute cat discoveries nearby',
-                onTap:
-                    widget.onOpenMap ??
+                onTap: widget.onOpenMap ??
                     () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -843,12 +839,12 @@ class _DashboardPageState extends State<DashboardPage> {
                           onPressed: () async {
                             final profile = await ShowcaseService.instance
                                 .getProfileForUser(
-                                  userId: widget.user.id.isNotEmpty
-                                      ? widget.user.id
-                                      : widget.user.email,
-                                  displayName: displayName,
-                                  avatarUrl: widget.user.photoUrl,
-                                );
+                              userId: widget.user.id.isNotEmpty
+                                  ? widget.user.id
+                                  : widget.user.email,
+                              displayName: displayName,
+                              avatarUrl: widget.user.photoUrl,
+                            );
                             if (context.mounted) {
                               ExplorerShowcaseSheet.show(context, profile);
                             }
@@ -973,6 +969,7 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       decoration: BoxDecoration(
@@ -987,10 +984,10 @@ class _StatCard extends StatelessWidget {
             child: Text(
               value,
               maxLines: 1,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
-                color: AppColors.primary,
+                color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
               ),
             ),
           ),
@@ -1027,37 +1024,48 @@ class _ModuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Material(
-      color: Colors.white,
+      color: isGirly ? GirlyColors.surface : Colors.white,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.border),
+        side:
+            BorderSide(color: isGirly ? GirlyColors.border : AppColors.border),
       ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withAlpha(25),
+            color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                .withAlpha(25),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: AppColors.primary, size: 22),
+          child: Icon(
+            icon,
+            color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
+            size: 22,
+          ),
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(
+            fontSize: 12,
+            color:
+                isGirly ? GirlyColors.textSecondary : AppColors.textSecondary,
+          ),
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.chevron_right,
-          color: AppColors.textSecondary,
+          color: isGirly ? GirlyColors.textSecondary : AppColors.textSecondary,
           size: 20,
         ),
         onTap: onTap,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../domain/entities/iring_dex_entry.dart';
 
 class DexProgressHeader extends StatelessWidget {
@@ -10,6 +11,7 @@ class DexProgressHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final total = entries.length;
     final discovered = entries.where((e) => e.isDiscovered).length;
     final ratio = total > 0 ? (discovered / total) : 0.0;
@@ -31,7 +33,9 @@ class DexProgressHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: isGirly ? GirlyColors.border : AppColors.border,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -43,21 +47,25 @@ class DexProgressHeader extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Iring-Dex Progress',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
+                      color: isGirly
+                          ? GirlyColors.textPrimary
+                          : AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '$discovered of $total Species Cataloged ($percentage%)',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                      color: isGirly
+                          ? GirlyColors.textSecondary
+                          : AppColors.textSecondary,
                     ),
                   ),
                 ],
@@ -68,16 +76,21 @@ class DexProgressHeader extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(20),
+                  color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                      .withAlpha(20),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.primary.withAlpha(50)),
+                  border: Border.all(
+                    color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                        .withAlpha(50),
+                  ),
                 ),
                 child: Text(
                   rankTitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
+                    color:
+                        isGirly ? GirlyColors.primaryDark : AppColors.primary,
                   ),
                 ),
               ),
@@ -89,9 +102,10 @@ class DexProgressHeader extends StatelessWidget {
             child: LinearProgressIndicator(
               value: ratio,
               minHeight: 10,
-              backgroundColor: const Color(0xFFEEEEF2),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                AppColors.primary,
+              backgroundColor:
+                  isGirly ? GirlyColors.creamSurface : const Color(0xFFEEEEF2),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                isGirly ? GirlyColors.primaryDark : AppColors.primary,
               ),
             ),
           ),
@@ -135,34 +149,44 @@ class _MetricPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
+        color: isGirly ? GirlyColors.primaryLight : const Color(0xFFF8F9FA),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: isGirly ? GirlyColors.border : AppColors.border,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppColors.primary),
+          Icon(
+            icon,
+            size: 14,
+            color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
+          ),
           const SizedBox(width: 6),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 9.5,
-                  color: AppColors.textSecondary,
+                  color: isGirly
+                      ? GirlyColors.textSecondary
+                      : AppColors.textSecondary,
                 ),
               ),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color:
+                      isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
                 ),
               ),
             ],

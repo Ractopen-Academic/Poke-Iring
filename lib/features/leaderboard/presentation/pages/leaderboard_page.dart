@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../data/repositories/leaderboard_repository_impl.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
@@ -208,15 +209,17 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isGirly ? GirlyColors.background : AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Explorer Leaderboard',
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: isGirly ? GirlyColors.background : Colors.white,
+        foregroundColor:
+            isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
         elevation: 0,
       ),
       body: Column(
@@ -233,15 +236,18 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           // Scope Filter Pills (Barangay / City / Region / National / Global)
           _buildScopeFilterPills(),
 
-          const Divider(height: 1, color: AppColors.border),
+          Divider(
+            height: 1,
+            color: isGirly ? GirlyColors.border : AppColors.border,
+          ),
 
           // Main List / Podium & Standing
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
                 : _entries.isEmpty
-                ? _buildEmptyState()
-                : _buildLeaderboardContent(),
+                    ? _buildEmptyState()
+                    : _buildLeaderboardContent(),
           ),
         ],
       ),
@@ -249,41 +255,48 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildTerritoryBar() {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return GestureDetector(
       onTap: _openTerritoryPicker,
       child: Container(
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isGirly ? GirlyColors.surface : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(
+            color: isGirly ? GirlyColors.border : AppColors.border,
+          ),
         ),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.location_on_rounded,
               size: 16,
-              color: AppColors.primary,
+              color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text.rich(
                 TextSpan(
                   children: [
-                    const TextSpan(
+                    TextSpan(
                       text: 'Territory: ',
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: isGirly
+                            ? GirlyColors.textSecondary
+                            : AppColors.textSecondary,
                       ),
                     ),
                     TextSpan(
                       text: '$_activeBarangay, $_activeCity',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: isGirly
+                            ? GirlyColors.textPrimary
+                            : AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -292,18 +305,19 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(
+            Icon(
               Icons.tune_rounded,
               size: 14,
-              color: AppColors.textSecondary,
+              color:
+                  isGirly ? GirlyColors.textSecondary : AppColors.textSecondary,
             ),
             const SizedBox(width: 4),
-            const Text(
+            Text(
               'Change',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+                color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
               ),
             ),
           ],
@@ -313,6 +327,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildSeasonBanner() {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return StreamBuilder<SeasonPeriod>(
       stream: SeasonServiceImpl.instance.watchCurrentSeason(),
       builder: (context, snapshot) {
@@ -334,16 +349,20 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(20),
+              color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                  .withAlpha(20),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.primary.withAlpha(50)),
+              border: Border.all(
+                color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                    .withAlpha(50),
+              ),
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.event_repeat_rounded,
                   size: 20,
-                  color: AppColors.primary,
+                  color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -352,26 +371,30 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                     children: [
                       Text(
                         season.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: isGirly
+                              ? GirlyColors.textPrimary
+                              : AppColors.textPrimary,
                         ),
                       ),
                       Text(
                         '${season.remainingFormatted} • Tap for soft reset & prestige rewards',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.textSecondary,
+                          color: isGirly
+                              ? GirlyColors.textSecondary
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
                   size: 18,
-                  color: AppColors.primary,
+                  color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
                 ),
               ],
             ),
@@ -382,10 +405,11 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildCategoryTabs() {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFEEEEEE),
+        color: isGirly ? GirlyColors.creamSurface : const Color(0xFFEEEEEE),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.all(3),
@@ -399,7 +423,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.transparent,
+                  color: isSelected
+                      ? (isGirly ? GirlyColors.surface : Colors.white)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: isSelected
                       ? [
@@ -418,8 +444,12 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                     color: isSelected
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
+                        ? (isGirly
+                            ? GirlyColors.primaryDark
+                            : AppColors.primary)
+                        : (isGirly
+                            ? GirlyColors.textSecondary
+                            : AppColors.textSecondary),
                   ),
                 ),
               ),
@@ -431,6 +461,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildScopeFilterPills() {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -455,17 +486,24 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             child: ChoiceChip(
               label: Text(label),
               selected: isSelected,
-              selectedColor: AppColors.primary,
-              backgroundColor: Colors.white,
+              selectedColor:
+                  isGirly ? GirlyColors.primaryDark : AppColors.primary,
+              backgroundColor: isGirly ? GirlyColors.surface : Colors.white,
               labelStyle: TextStyle(
                 fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.textPrimary,
+                color: isSelected
+                    ? Colors.white
+                    : (isGirly
+                        ? GirlyColors.textPrimary
+                        : AppColors.textPrimary),
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
                 side: BorderSide(
-                  color: isSelected ? AppColors.primary : AppColors.border,
+                  color: isSelected
+                      ? (isGirly ? GirlyColors.primaryDark : AppColors.primary)
+                      : (isGirly ? GirlyColors.border : AppColors.border),
                 ),
               ),
               onSelected: (_) => _onScopeChanged(sc),
@@ -495,9 +533,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     final first = _entries.isNotEmpty ? _entries[0] : null;
     final second = _entries.length > 1 ? _entries[1] : null;
     final third = _entries.length > 2 ? _entries[2] : null;
-    final rest = _entries.length > 3
-        ? _entries.sublist(3)
-        : <LeaderboardEntry>[];
+    final rest =
+        _entries.length > 3 ? _entries.sublist(3) : <LeaderboardEntry>[];
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
@@ -559,6 +596,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 
   Widget _buildEmptyState() {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -569,27 +607,35 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(20),
+                color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                    .withAlpha(20),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.pets, size: 32, color: AppColors.primary),
+              child: Icon(
+                Icons.pets,
+                size: 32,
+                color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
+              ),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Territory Unclaimed',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color:
+                    isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               'No explorers active in ${_scope.label} yet. Be the first to scan a local cat and claim the #1 spot in this ${_scope.poolCapacity}-player pool.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: isGirly
+                    ? GirlyColors.textSecondary
+                    : AppColors.textSecondary,
               ),
             ),
           ],

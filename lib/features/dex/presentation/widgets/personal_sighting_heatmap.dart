@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../map/data/datasources/cached_tile_provider.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
@@ -96,10 +97,10 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
     );
   }
 
-  Color _getMetallicBorderColor(String tier) {
+  Color _getMetallicBorderColor(String tier, {required bool isGirly}) {
     switch (tier.toLowerCase()) {
       case 'gold':
-        return const Color(0xFFFFD700);
+        return isGirly ? GirlyColors.primaryDark : const Color(0xFFFFD700);
       case 'silver':
         return const Color(0xFFCFD8DC);
       case 'bronze':
@@ -110,6 +111,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final activeSightings = _filteredSightings;
     final hasSightings = widget.sightings.isNotEmpty;
 
@@ -157,7 +159,10 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       point: LatLng(s.latitude, s.longitude),
                       radius: 52,
                       useRadiusInMeter: true,
-                      color: const Color(0xFFE65100).withAlpha(35),
+                      color: (isGirly
+                              ? GirlyColors.primaryDark
+                              : const Color(0xFFE65100))
+                          .withAlpha(35),
                       borderStrokeWidth: 0,
                     ),
                     // Mid-layer heat glow
@@ -165,7 +170,10 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       point: LatLng(s.latitude, s.longitude),
                       radius: 28,
                       useRadiusInMeter: true,
-                      color: const Color(0xFFFF9800).withAlpha(70),
+                      color: (isGirly
+                              ? GirlyColors.primary
+                              : const Color(0xFFFF9800))
+                          .withAlpha(70),
                       borderStrokeWidth: 0,
                     ),
                     // High-density core
@@ -173,7 +181,10 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       point: LatLng(s.latitude, s.longitude),
                       radius: 12,
                       useRadiusInMeter: true,
-                      color: const Color(0xFFFFD54F).withAlpha(140),
+                      color: (isGirly
+                              ? GirlyColors.highlightPink
+                              : const Color(0xFFFFD54F))
+                          .withAlpha(140),
                       borderStrokeWidth: 0,
                     ),
                     // Thermal epicenter
@@ -181,7 +192,10 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       point: LatLng(s.latitude, s.longitude),
                       radius: 4,
                       useRadiusInMeter: true,
-                      color: const Color(0xFFFF3D00).withAlpha(200),
+                      color: (isGirly
+                              ? GirlyColors.primaryDark
+                              : const Color(0xFFFF3D00))
+                          .withAlpha(200),
                       borderStrokeWidth: 0,
                     ),
                   ],
@@ -244,9 +258,11 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                           Container(
                             width: 8,
                             height: 8,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Color(0xFFFF5722),
+                              color: isGirly
+                                  ? GirlyColors.primaryDark
+                                  : const Color(0xFFFF5722),
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -290,7 +306,9 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       _tierFilterChip(
                         'Gold Tier',
                         'gold',
-                        const Color(0xFFFFD700),
+                        isGirly
+                            ? GirlyColors.primaryDark
+                            : const Color(0xFFFFD700),
                       ),
                       const SizedBox(width: 6),
                       _tierFilterChip(
@@ -436,7 +454,11 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
   }
 
   Widget _buildHeatmapPin(CatSighting sighting) {
-    final borderColor = _getMetallicBorderColor(sighting.metallicTier);
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final borderColor = _getMetallicBorderColor(
+      sighting.metallicTier,
+      isGirly: isGirly,
+    );
     final imageUri = sighting.stickerUrl.isNotEmpty
         ? sighting.stickerUrl
         : sighting.photoUrl;

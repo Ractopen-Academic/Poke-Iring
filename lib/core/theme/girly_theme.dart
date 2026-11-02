@@ -137,12 +137,11 @@ class GirlyThemeProvider extends StatefulWidget {
     return state!;
   }
 
-  /// Returns true if girly theme is active. Registers a rebuild dependency.
+  /// Returns true if girly theme is active, or false outside a provider.
   static bool isGirly(BuildContext context) {
     final inherited =
         context.dependOnInheritedWidgetOfExactType<_GirlyInherited>();
-    assert(inherited != null, 'GirlyThemeProvider not found in widget tree');
-    return inherited!.notifier!.value;
+    return inherited?.notifier?.value ?? false;
   }
 }
 

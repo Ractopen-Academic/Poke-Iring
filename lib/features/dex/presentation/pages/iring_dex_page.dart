@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
@@ -80,11 +81,11 @@ class _IringDexPageState extends State<IringDexPage> {
         final query = _searchQuery.toLowerCase().trim();
         final matchName = entry.species.name.toLowerCase().contains(query);
         final matchCommon = entry.species.commonName.toLowerCase().contains(
-          query,
-        );
+              query,
+            );
         final matchPattern = entry.species.coatPattern.toLowerCase().contains(
-          query,
-        );
+              query,
+            );
         return matchName || matchCommon || matchPattern;
       }
 
@@ -115,8 +116,9 @@ class _IringDexPageState extends State<IringDexPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isGirly ? GirlyColors.background : AppColors.background,
       appBar: AppBar(
         title: _isSearching
             ? TextField(
@@ -133,8 +135,10 @@ class _IringDexPageState extends State<IringDexPage> {
                 'Iring-Dex',
                 style: TextStyle(fontWeight: FontWeight.w800),
               ),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor:
+            isGirly ? GirlyColors.background : AppColors.background,
+        foregroundColor:
+            isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         actions: [
@@ -166,8 +170,7 @@ class _IringDexPageState extends State<IringDexPage> {
         child: StreamBuilder<List<IringDexEntry>>(
           stream: _repository.watchDexEntries(_effectiveUserId),
           builder: (context, dexSnapshot) {
-            final entries =
-                dexSnapshot.data ??
+            final entries = dexSnapshot.data ??
                 FelineDexSpecies.canonicalSpecies
                     .map((s) => IringDexEntry.undiscovered(s))
                     .toList();
@@ -226,12 +229,16 @@ class _IringDexPageState extends State<IringDexPage> {
   }
 
   Widget _buildSegmentedTab(int sightingsCount, int totalSpecies) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.calicoBlack,
+        color: isGirly ? GirlyColors.navBarBg : AppColors.calicoBlack,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withAlpha(55)),
+        border: Border.all(
+          color:
+              (isGirly ? GirlyColors.primary : AppColors.primary).withAlpha(55),
+        ),
       ),
       child: Row(
         children: [
@@ -283,6 +290,7 @@ class _IringDexPageState extends State<IringDexPage> {
 
   Widget _filterChip({required String label, required DexFilterTier tier}) {
     final isSelected = _selectedFilter == tier;
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
@@ -290,17 +298,21 @@ class _IringDexPageState extends State<IringDexPage> {
         HapticFeedback.selectionClick();
         setState(() => _selectedFilter = tier);
       },
-      backgroundColor: Colors.white,
-      selectedColor: AppColors.calicoBlack,
+      backgroundColor: isGirly ? GirlyColors.surface : Colors.white,
+      selectedColor: isGirly ? GirlyColors.primaryDark : AppColors.calicoBlack,
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-        color: isSelected ? Colors.white : AppColors.textPrimary,
+        color: isSelected
+            ? Colors.white
+            : (isGirly ? GirlyColors.textPrimary : AppColors.textPrimary),
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(99),
         side: BorderSide(
-          color: isSelected ? AppColors.primary : AppColors.border,
+          color: isSelected
+              ? (isGirly ? GirlyColors.primaryDark : AppColors.primary)
+              : (isGirly ? GirlyColors.border : AppColors.border),
           width: isSelected ? 1.4 : 1.0,
         ),
       ),
@@ -309,8 +321,9 @@ class _IringDexPageState extends State<IringDexPage> {
   }
 
   Widget _buildCatalogSliver(List<IringDexEntry> filtered) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     if (filtered.isEmpty) {
-      return const SliverToBoxAdapter(
+      return SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.all(32),
           child: CalicoSpotCard(
@@ -320,7 +333,7 @@ class _IringDexPageState extends State<IringDexPage> {
                 Icon(
                   Icons.search_off_rounded,
                   size: 44,
-                  color: AppColors.primary,
+                  color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
                 ),
                 SizedBox(height: 12),
                 Text(
@@ -332,7 +345,9 @@ class _IringDexPageState extends State<IringDexPage> {
                   'Try selecting a different filter category.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: isGirly
+                        ? GirlyColors.textSecondary
+                        : AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -363,6 +378,7 @@ class _IringDexPageState extends State<IringDexPage> {
   }
 
   Widget _buildAlbumSliver(List<CatSighting> sightings) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     if (sightings.isEmpty) {
       return SliverToBoxAdapter(
         child: Padding(
@@ -375,35 +391,43 @@ class _IringDexPageState extends State<IringDexPage> {
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: AppColors.calicoBlack,
+                    color: isGirly
+                        ? GirlyColors.creamSurface
+                        : AppColors.calicoBlack,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppColors.primary.withAlpha(110),
+                      color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                          .withAlpha(110),
                       width: 1.5,
                     ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.photo_camera_rounded,
                     size: 34,
-                    color: AppColors.primary,
+                    color:
+                        isGirly ? GirlyColors.primaryDark : AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'No Cat Sightings Yet',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: isGirly
+                        ? GirlyColors.textPrimary
+                        : AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   'Explore your neighborhood, snap local felines with the AI vision camera, and watch your sightings album grow.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12.5,
-                    color: AppColors.textSecondary,
+                    color: isGirly
+                        ? GirlyColors.textSecondary
+                        : AppColors.textSecondary,
                     height: 1.4,
                   ),
                 ),
@@ -417,7 +441,8 @@ class _IringDexPageState extends State<IringDexPage> {
                       style: TextStyle(fontWeight: FontWeight.w800),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor:
+                          isGirly ? GirlyColors.primaryDark : AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -448,8 +473,8 @@ class _IringDexPageState extends State<IringDexPage> {
                       s.coatPattern.toLowerCase() ==
                           sighting.coatPattern.toLowerCase() ||
                       s.name.toLowerCase().contains(
-                        sighting.breed.toLowerCase(),
-                      ),
+                            sighting.breed.toLowerCase(),
+                          ),
                   orElse: () => FelineDexSpecies.canonicalSpecies.first,
                 );
                 final entry = IringDexEntry.fromSightings(
@@ -481,6 +506,7 @@ class _TabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -492,12 +518,15 @@ class _TabButton extends StatelessWidget {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected
+              ? (isGirly ? GirlyColors.surface : Colors.white)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withAlpha(45),
+                    color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                        .withAlpha(45),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -506,13 +535,21 @@ class _TabButton extends StatelessWidget {
         ),
         child: Column(
           children: [
-            CalicoAnimatedBar(isActive: isSelected, activeWidth: 16),
+            CalicoAnimatedBar(
+              isActive: isSelected,
+              activeWidth: 16,
+              activeColor: isGirly ? GirlyColors.primaryDark : null,
+            ),
             Text(
               title,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? AppColors.calicoBlack : Colors.white,
+                color: isSelected
+                    ? (isGirly
+                        ? GirlyColors.textPrimary
+                        : AppColors.calicoBlack)
+                    : Colors.white,
               ),
             ),
             const SizedBox(height: 2),
@@ -522,8 +559,10 @@ class _TabButton extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: isSelected
-                    ? AppColors.primaryDark
-                    : AppColors.calicoMuted,
+                    ? (isGirly
+                        ? GirlyColors.primaryDark
+                        : AppColors.primaryDark)
+                    : (isGirly ? GirlyColors.navMuted : AppColors.calicoMuted),
               ),
             ),
           ],

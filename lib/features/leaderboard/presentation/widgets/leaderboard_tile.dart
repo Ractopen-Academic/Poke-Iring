@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
@@ -20,6 +21,7 @@ class LeaderboardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = entry.isCurrentUser;
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final tier = entry.tier;
 
     return Container(
@@ -32,10 +34,15 @@ class LeaderboardTile extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: isUser ? AppColors.primary.withAlpha(15) : Colors.white,
+              color: isUser
+                  ? (isGirly ? GirlyColors.primary : AppColors.primary)
+                      .withAlpha(15)
+                  : (isGirly ? GirlyColors.surface : Colors.white),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isUser ? AppColors.primary : AppColors.border,
+                color: isUser
+                    ? (isGirly ? GirlyColors.primary : AppColors.primary)
+                    : (isGirly ? GirlyColors.border : AppColors.border),
                 width: isUser ? 1.8 : 1.0,
               ),
               boxShadow: [
@@ -58,8 +65,12 @@ class LeaderboardTile extends StatelessWidget {
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       color: isUser
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
+                          ? (isGirly
+                              ? GirlyColors.primaryDark
+                              : AppColors.primary)
+                          : (isGirly
+                              ? GirlyColors.textSecondary
+                              : AppColors.textSecondary),
                     ),
                   ),
                 ),
@@ -99,10 +110,11 @@ class LeaderboardTile extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: isUser
-                                    ? FontWeight.w800
-                                    : FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                fontWeight:
+                                    isUser ? FontWeight.w800 : FontWeight.w700,
+                                color: isGirly
+                                    ? GirlyColors.textPrimary
+                                    : AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -114,7 +126,9 @@ class LeaderboardTile extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.primary,
+                                color: isGirly
+                                    ? GirlyColors.primaryDark
+                                    : AppColors.primary,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
@@ -137,9 +151,11 @@ class LeaderboardTile extends StatelessWidget {
                               '${entry.barangay}, ${entry.city}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
-                                color: AppColors.textSecondary,
+                                color: isGirly
+                                    ? GirlyColors.textSecondary
+                                    : AppColors.textSecondary,
                               ),
                             ),
                           ),
@@ -147,9 +163,11 @@ class LeaderboardTile extends StatelessWidget {
                           Container(
                             width: 3,
                             height: 3,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.textSecondary,
+                              color: isGirly
+                                  ? GirlyColors.textSecondary
+                                  : AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -173,10 +191,12 @@ class LeaderboardTile extends StatelessWidget {
                   children: [
                     Text(
                       entry.formattedScore(category),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: isGirly
+                            ? GirlyColors.textPrimary
+                            : AppColors.textPrimary,
                       ),
                     ),
                     if (entry.mythicPaws > 0) ...[
@@ -187,24 +207,31 @@ class LeaderboardTile extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFA000).withAlpha(24),
+                          color: (isGirly
+                                  ? GirlyColors.primary
+                                  : const Color(0xFFFFA000))
+                              .withAlpha(24),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.star_rounded,
                               size: 11,
-                              color: Color(0xFFD97706),
+                              color: isGirly
+                                  ? GirlyColors.primaryDark
+                                  : const Color(0xFFD97706),
                             ),
                             const SizedBox(width: 3),
                             Text(
                               '${entry.mythicPaws} mythic',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFFB45309),
+                                color: isGirly
+                                    ? GirlyColors.primaryDark
+                                    : const Color(0xFFB45309),
                               ),
                             ),
                           ],

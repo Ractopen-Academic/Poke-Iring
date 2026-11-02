@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
@@ -23,13 +24,16 @@ class PodiumView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.fromLTRB(12, 14, 12, 0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isGirly ? GirlyColors.surface : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: isGirly ? GirlyColors.border : AppColors.border,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(6),
@@ -40,17 +44,23 @@ class PodiumView extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.stars_rounded, size: 16, color: Color(0xFFFFA000)),
-              SizedBox(width: 6),
+              Icon(
+                Icons.stars_rounded,
+                size: 16,
+                color: isGirly ? GirlyColors.primaryDark : Color(0xFFFFA000),
+              ),
+              const SizedBox(width: 6),
               Text(
                 'Territory Podium',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  color: isGirly
+                      ? GirlyColors.textSecondary
+                      : AppColors.textSecondary,
                   letterSpacing: 0.3,
                 ),
               ),
@@ -81,8 +91,12 @@ class PodiumView extends StatelessWidget {
                   entry: first,
                   rank: 1,
                   stepHeight: 74,
-                  pedestalColor: const Color(0xFFFFF8E1),
-                  accentColor: const Color(0xFFFFA000),
+                  pedestalColor: isGirly
+                      ? GirlyColors.creamSurface
+                      : const Color(0xFFFFF8E1),
+                  accentColor: isGirly
+                      ? GirlyColors.primaryDark
+                      : const Color(0xFFFFA000),
                   category: category,
                   onTap: () => onEntryTap?.call(first),
                 ),
@@ -131,6 +145,7 @@ class _PodiumStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final avatarSize = rank == 1 ? 46.0 : 38.0;
 
     return GestureDetector(
@@ -151,7 +166,7 @@ class _PodiumStep extends StatelessWidget {
                   height: avatarSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white,
+                    color: isGirly ? GirlyColors.surface : Colors.white,
                     border: Border.all(
                       color: accentColor,
                       width: rank == 1 ? 2.5 : 1.8,
@@ -205,7 +220,9 @@ class _PodiumStep extends StatelessWidget {
             style: TextStyle(
               fontSize: rank == 1 ? 12 : 11,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: GirlyThemeProvider.isGirly(context)
+                  ? GirlyColors.textPrimary
+                  : AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 1),

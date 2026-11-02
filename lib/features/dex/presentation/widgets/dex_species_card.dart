@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../domain/entities/feline_dex_species.dart';
 import '../../domain/entities/iring_dex_entry.dart';
@@ -11,7 +12,7 @@ class DexSpeciesCard extends StatelessWidget {
 
   const DexSpeciesCard({super.key, required this.entry, required this.onTap});
 
-  Color _rarityColor(FelineRarityTier rarity) {
+  Color _rarityColor(FelineRarityTier rarity, {required bool isGirly}) {
     switch (rarity) {
       case FelineRarityTier.common:
         return const Color(0xFF4CAF50);
@@ -22,15 +23,16 @@ class DexSpeciesCard extends StatelessWidget {
       case FelineRarityTier.veryRare:
         return const Color(0xFF9C27B0);
       case FelineRarityTier.mythic:
-        return const Color(0xFFFF9800);
+        return isGirly ? GirlyColors.primaryDark : const Color(0xFFFF9800);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final species = entry.species;
     final isDiscovered = entry.isDiscovered;
-    final rarityColor = _rarityColor(species.rarity);
+    final rarityColor = _rarityColor(species.rarity, isGirly: isGirly);
 
     return InkWell(
       onTap: onTap,
@@ -38,12 +40,13 @@ class DexSpeciesCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDiscovered ? Colors.white : const Color(0xFFF6F7F9),
+          color: isDiscovered
+              ? (isGirly ? GirlyColors.surface : Colors.white)
+              : (isGirly ? GirlyColors.primaryLight : const Color(0xFFF6F7F9)),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isDiscovered
-                ? rarityColor.withAlpha(60)
-                : Colors.grey.shade300,
+            color:
+                isDiscovered ? rarityColor.withAlpha(60) : Colors.grey.shade300,
             width: isDiscovered ? 1.5 : 1.0,
           ),
           boxShadow: isDiscovered
@@ -68,7 +71,9 @@ class DexSpeciesCard extends StatelessWidget {
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: isDiscovered
-                        ? AppColors.textSecondary
+                        ? (isGirly
+                            ? GirlyColors.textSecondary
+                            : AppColors.textSecondary)
                         : Colors.grey.shade500,
                   ),
                 ),
@@ -100,7 +105,6 @@ class DexSpeciesCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-
             Center(
               child: isDiscovered
                   ? FelineAvatar(
@@ -131,7 +135,6 @@ class DexSpeciesCard extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 10),
-
             Text(
               isDiscovered ? species.name : '???',
               textAlign: TextAlign.center,
@@ -141,12 +144,13 @@ class DexSpeciesCard extends StatelessWidget {
                 fontSize: 12.5,
                 fontWeight: FontWeight.w800,
                 color: isDiscovered
-                    ? AppColors.textPrimary
+                    ? (isGirly
+                        ? GirlyColors.textPrimary
+                        : AppColors.textPrimary)
                     : Colors.grey.shade600,
               ),
             ),
             const SizedBox(height: 2),
-
             Text(
               isDiscovered
                   ? 'Sighted ${entry.timesSighted}x • +${entry.bestPawPoints} pts'
@@ -157,7 +161,9 @@ class DexSpeciesCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
-                color: isDiscovered ? AppColors.primary : Colors.grey.shade500,
+                color: isDiscovered
+                    ? (isGirly ? GirlyColors.primaryDark : AppColors.primary)
+                    : Colors.grey.shade500,
               ),
             ),
           ],
