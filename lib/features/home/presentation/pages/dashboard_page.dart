@@ -136,9 +136,11 @@ class _DashboardPageState extends State<DashboardPage> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isGirly ? GirlyColors.surface : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(
+                    color: isGirly ? GirlyColors.border : AppColors.border,
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -152,7 +154,9 @@ class _DashboardPageState extends State<DashboardPage> {
                         seed: displayName,
                         radius: 28,
                         showBorder: true,
-                        borderColor: AppColors.primary.withAlpha(50),
+                        borderColor:
+                            (isGirly ? GirlyColors.primary : AppColors.primary)
+                                .withAlpha(50),
                         borderWidth: 2,
                       ),
                     ),
@@ -163,18 +167,22 @@ class _DashboardPageState extends State<DashboardPage> {
                         children: [
                           Text(
                             displayName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: isGirly
+                                  ? GirlyColors.textPrimary
+                                  : AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             widget.user.email,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.textSecondary,
+                              color: isGirly
+                                  ? GirlyColors.textSecondary
+                                  : AppColors.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -228,22 +236,29 @@ class _DashboardPageState extends State<DashboardPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isGirly ? GirlyColors.surface : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(
+                        color: isGirly ? GirlyColors.border : AppColors.border,
+                      ),
                     ),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withAlpha(20),
+                            color: (isGirly
+                                    ? GirlyColors.primary
+                                    : AppColors.primary)
+                                .withAlpha(20),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.location_on_rounded,
                             size: 20,
-                            color: AppColors.primary,
+                            color: isGirly
+                                ? GirlyColors.primaryDark
+                                : AppColors.primary,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -263,12 +278,14 @@ class _DashboardPageState extends State<DashboardPage> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Active Territory',
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.textSecondary,
+                                        color: isGirly
+                                            ? GirlyColors.textSecondary
+                                            : AppColors.textSecondary,
                                       ),
                                     ),
                                     const SizedBox(width: 6),
@@ -278,9 +295,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                         vertical: 1.5,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: territory.isHomeConfirmed
-                                            ? const Color(0xFFDCFCE7)
-                                            : const Color(0xFFFEF3C7),
+                                        color: isGirly
+                                            ? GirlyColors.primaryLight
+                                            : territory.isHomeConfirmed
+                                                ? const Color(0xFFDCFCE7)
+                                                : const Color(0xFFFEF3C7),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
@@ -290,9 +309,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                         style: TextStyle(
                                           fontSize: 9.5,
                                           fontWeight: FontWeight.w700,
-                                          color: territory.isHomeConfirmed
-                                              ? const Color(0xFF166534)
-                                              : const Color(0xFF92400E),
+                                          color: isGirly
+                                              ? GirlyColors.primaryDark
+                                              : territory.isHomeConfirmed
+                                                  ? const Color(0xFF166534)
+                                                  : const Color(0xFF92400E),
                                         ),
                                       ),
                                     ),
@@ -301,17 +322,21 @@ class _DashboardPageState extends State<DashboardPage> {
                                 const SizedBox(height: 2),
                                 Text(
                                   '${territory.barangay}, ${territory.city}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: isGirly
+                                        ? GirlyColors.textPrimary
+                                        : AppColors.textPrimary,
                                   ),
                                 ),
                                 Text(
                                   '${territory.province}, ${territory.country}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
-                                    color: AppColors.textSecondary,
+                                    color: isGirly
+                                        ? GirlyColors.textSecondary
+                                        : AppColors.textSecondary,
                                   ),
                                 ),
                               ],
@@ -323,27 +348,33 @@ class _DashboardPageState extends State<DashboardPage> {
                               ? null
                               : () => _runAutoTerritorySync(showSpinner: true),
                           icon: _isAutoDetectingTerritory
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 12,
                                   height: 12,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: AppColors.primary,
+                                    color: isGirly
+                                        ? GirlyColors.primaryDark
+                                        : AppColors.primary,
                                   ),
                                 )
-                              : const Icon(
+                              : Icon(
                                   Icons.my_location_rounded,
                                   size: 14,
-                                  color: AppColors.primary,
+                                  color: isGirly
+                                      ? GirlyColors.primaryDark
+                                      : AppColors.primary,
                                 ),
                           label: Text(
                             _isAutoDetectingTerritory
                                 ? 'Syncing...'
                                 : 'Auto-Sync',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
+                              color: isGirly
+                                  ? GirlyColors.primaryDark
+                                  : AppColors.primary,
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -353,7 +384,11 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            side: const BorderSide(color: AppColors.primary),
+                            side: BorderSide(
+                              color: isGirly
+                                  ? GirlyColors.primary
+                                  : AppColors.primary,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -426,7 +461,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ? (isGirly
                                     ? GirlyColors.primaryDark
                                     : const Color(0xFFE65100))
-                                : AppColors.primary,
+                                : (isGirly
+                                    ? GirlyColors.primaryDark
+                                    : AppColors.primary),
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -445,7 +482,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                       ? (isGirly
                                           ? GirlyColors.textPrimary
                                           : const Color(0xFF4E342E))
-                                      : AppColors.textPrimary,
+                                      : (isGirly
+                                          ? GirlyColors.textPrimary
+                                          : AppColors.textPrimary),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -459,7 +498,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                       ? (isGirly
                                           ? GirlyColors.textSecondary
                                           : const Color(0xFF6D4C41))
-                                      : AppColors.textSecondary,
+                                      : (isGirly
+                                          ? GirlyColors.textSecondary
+                                          : AppColors.textSecondary),
                                 ),
                               ),
                             ],
@@ -486,7 +527,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ? (isGirly
                                       ? GirlyColors.primary
                                       : const Color(0xFFFF8F00))
-                                  : AppColors.primary,
+                                  : (isGirly
+                                      ? GirlyColors.primary
+                                      : AppColors.primary),
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -501,7 +544,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ? (isGirly
                                       ? GirlyColors.primaryDark
                                       : const Color(0xFFE65100))
-                                  : AppColors.primary,
+                                  : (isGirly
+                                      ? GirlyColors.primaryDark
+                                      : AppColors.primary),
                             ),
                           ),
                         ),
@@ -519,12 +564,13 @@ class _DashboardPageState extends State<DashboardPage> {
                 userPhotoUrl: widget.user.photoUrl,
               ),
               const SizedBox(height: 18),
-              const Text(
+              Text(
                 'Explorer State',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color:
+                      isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -640,12 +686,13 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
               const SizedBox(height: 32),
-              const Text(
+              Text(
                 'Navigation Modules',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color:
+                      isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -778,21 +825,24 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Explorer Showcase & Privacy',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color:
+                      isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isGirly ? GirlyColors.surface : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(
+                    color: isGirly ? GirlyColors.border : AppColors.border,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -802,13 +852,18 @@ class _DashboardPageState extends State<DashboardPage> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withAlpha(20),
+                            color: (isGirly
+                                    ? GirlyColors.primary
+                                    : AppColors.primary)
+                                .withAlpha(20),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.auto_awesome_motion_outlined,
                             size: 20,
-                            color: AppColors.primary,
+                            color: isGirly
+                                ? GirlyColors.primaryDark
+                                : AppColors.primary,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -816,20 +871,24 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'My Explorer Showcase',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: isGirly
+                                      ? GirlyColors.textPrimary
+                                      : AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 '${ShowcaseService.instance.pinnedCount} of 9 slots pinned from Dex',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11.5,
-                                  color: AppColors.textSecondary,
+                                  color: isGirly
+                                      ? GirlyColors.textSecondary
+                                      : AppColors.textSecondary,
                                 ),
                               ),
                             ],
@@ -856,35 +915,46 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            side: const BorderSide(color: AppColors.primary),
+                            side: BorderSide(
+                              color: isGirly
+                                  ? GirlyColors.primary
+                                  : AppColors.primary,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'View',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
+                              color: isGirly
+                                  ? GirlyColors.primaryDark
+                                  : AppColors.primary,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const Divider(height: 24),
+                    Divider(
+                      height: 24,
+                      color: isGirly ? GirlyColors.border : null,
+                    ),
                     Row(
                       children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Public Profile Showcase',
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
+                                  color: isGirly
+                                      ? GirlyColors.textPrimary
+                                      : AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -892,9 +962,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                 _isPublicShowcase
                                     ? 'Visible to other players on leaderboards'
                                     : 'Hidden from other explorers',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: AppColors.textSecondary,
+                                  color: isGirly
+                                      ? GirlyColors.textSecondary
+                                      : AppColors.textSecondary,
                                 ),
                               ),
                             ],
@@ -902,7 +974,9 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         Switch.adaptive(
                           value: _isPublicShowcase,
-                          activeThumbColor: AppColors.primary,
+                          activeThumbColor: isGirly
+                              ? GirlyColors.primaryDark
+                              : AppColors.primary,
                           onChanged: (val) async {
                             await ShowcaseService.instance
                                 .setPublicShowcaseEnabled(val);
@@ -921,10 +995,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 text: 'Sign Out',
                 isOutlined: true,
                 isLoading: _isLoggingOut,
-                icon: const Icon(
+                icon: Icon(
                   Icons.logout,
                   size: 18,
-                  color: AppColors.textPrimary,
+                  color:
+                      isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
                 ),
                 onPressed: _handleSignOut,
               ),
@@ -934,10 +1009,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     Text(
                       'Poke: Iring ${AppVersion.badgeDisplay}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                        color: isGirly
+                            ? GirlyColors.textSecondary
+                            : AppColors.textSecondary,
                         letterSpacing: 0.2,
                       ),
                     ),
@@ -946,7 +1023,10 @@ class _DashboardPageState extends State<DashboardPage> {
                       AppVersion.buildSubtitle,
                       style: TextStyle(
                         fontSize: 10.5,
-                        color: AppColors.textSecondary.withAlpha(160),
+                        color: (isGirly
+                                ? GirlyColors.textSecondary
+                                : AppColors.textSecondary)
+                            .withAlpha(160),
                       ),
                     ),
                   ],
@@ -997,9 +1077,10 @@ class _StatCard extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: AppColors.textSecondary,
+              color:
+                  isGirly ? GirlyColors.textSecondary : AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),

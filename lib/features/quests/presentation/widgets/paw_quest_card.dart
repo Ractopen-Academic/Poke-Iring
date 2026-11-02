@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../domain/entities/paw_quest.dart';
 
@@ -28,6 +29,7 @@ class PawQuestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final isCompleted = quest.isCompleted;
     final isClaimed = quest.isClaimed;
     final clampedProgress = quest.progressFraction.clamp(0.0, 1.0);
@@ -36,11 +38,11 @@ class PawQuestCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: 18,
       backgroundColor: isCompleted && !isClaimed
-          ? const Color(0xFFFFFCF8)
-          : Colors.white,
+          ? (isGirly ? GirlyColors.creamSurface : const Color(0xFFFFFCF8))
+          : (isGirly ? GirlyColors.surface : Colors.white),
       borderColor: isCompleted && !isClaimed
-          ? AppColors.primary.withAlpha(170)
-          : AppColors.border,
+          ? (isGirly ? GirlyColors.primary : AppColors.primary).withAlpha(170)
+          : (isGirly ? GirlyColors.border : AppColors.border),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -51,21 +53,30 @@ class PawQuestCard extends StatelessWidget {
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
                   color: isCompleted
-                      ? AppColors.calicoBlack
-                      : AppColors.creamSurface,
+                      ? (isGirly ? GirlyColors.navBarBg : AppColors.calicoBlack)
+                      : (isGirly
+                          ? GirlyColors.primaryLight
+                          : AppColors.creamSurface),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isCompleted
-                        ? AppColors.primary.withAlpha(90)
-                        : AppColors.gingerBorder,
+                        ? (isGirly ? GirlyColors.primary : AppColors.primary)
+                            .withAlpha(90)
+                        : (isGirly
+                            ? GirlyColors.primary
+                            : AppColors.gingerBorder),
                   ),
                 ),
                 child: Icon(
                   _getTypeIcon(quest.type),
                   size: 20,
                   color: isCompleted
-                      ? AppColors.primary
-                      : AppColors.primaryDark,
+                      ? (isGirly
+                          ? GirlyColors.highlightPink
+                          : AppColors.primary)
+                      : (isGirly
+                          ? GirlyColors.primaryDark
+                          : AppColors.primaryDark),
                 ),
               ),
               const SizedBox(width: 12),
@@ -75,18 +86,22 @@ class PawQuestCard extends StatelessWidget {
                   children: [
                     Text(
                       quest.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 15,
-                        color: AppColors.textPrimary,
+                        color: isGirly
+                            ? GirlyColors.textPrimary
+                            : AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       quest.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: isGirly
+                            ? GirlyColors.textSecondary
+                            : AppColors.textSecondary,
                         height: 1.35,
                       ),
                     ),
@@ -97,25 +112,32 @@ class PawQuestCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.gingerSoft,
+                  color:
+                      isGirly ? GirlyColors.primaryLight : AppColors.gingerSoft,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.gingerBorder),
+                  border: Border.all(
+                    color:
+                        isGirly ? GirlyColors.primary : AppColors.gingerBorder,
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.star_rounded,
                       size: 14,
-                      color: AppColors.primary,
+                      color:
+                          isGirly ? GirlyColors.primaryDark : AppColors.primary,
                     ),
                     const SizedBox(width: 3),
                     Text(
                       '+${quest.rewardPawPoints}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.primaryDark,
+                        color: isGirly
+                            ? GirlyColors.primaryDark
+                            : AppColors.primaryDark,
                       ),
                     ),
                   ],
@@ -133,8 +155,12 @@ class PawQuestCard extends StatelessWidget {
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
                   color: isCompleted
-                      ? AppColors.primaryDark
-                      : AppColors.textSecondary,
+                      ? (isGirly
+                          ? GirlyColors.primaryDark
+                          : AppColors.primaryDark)
+                      : (isGirly
+                          ? GirlyColors.textSecondary
+                          : AppColors.textSecondary),
                 ),
               ),
               Text(
@@ -143,8 +169,12 @@ class PawQuestCard extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: isCompleted
-                      ? AppColors.primaryDark
-                      : AppColors.textSecondary,
+                      ? (isGirly
+                          ? GirlyColors.primaryDark
+                          : AppColors.primaryDark)
+                      : (isGirly
+                          ? GirlyColors.textSecondary
+                          : AppColors.textSecondary),
                 ),
               ),
             ],
@@ -159,9 +189,14 @@ class PawQuestCard extends StatelessWidget {
                 height: 8,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.creamSurface,
+                  color: isGirly
+                      ? GirlyColors.primaryLight
+                      : AppColors.creamSurface,
                   borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: AppColors.border, width: 0.8),
+                  border: Border.all(
+                    color: isGirly ? GirlyColors.border : AppColors.border,
+                    width: 0.8,
+                  ),
                 ),
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,
@@ -171,8 +206,15 @@ class PawQuestCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(99),
                       gradient: LinearGradient(
                         colors: isCompleted
-                            ? const [AppColors.primary, AppColors.primaryDark]
-                            : const [Color(0xFFFFAD42), AppColors.primary],
+                            ? (isGirly
+                                ? [GirlyColors.primary, GirlyColors.primaryDark]
+                                : [AppColors.primary, AppColors.primaryDark])
+                            : (isGirly
+                                ? [
+                                    GirlyColors.highlightPink,
+                                    GirlyColors.primary
+                                  ]
+                                : [const Color(0xFFFFAD42), AppColors.primary]),
                       ),
                     ),
                   ),
@@ -207,7 +249,9 @@ class PawQuestCard extends StatelessWidget {
                           style: const TextStyle(fontWeight: FontWeight.w800),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: isGirly
+                              ? GirlyColors.primaryDark
+                              : AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           shape: RoundedRectangleBorder(

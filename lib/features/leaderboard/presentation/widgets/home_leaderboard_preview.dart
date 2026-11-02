@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../data/datasources/firebase_leaderboard_datasource.dart';
@@ -60,7 +61,8 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
     super.dispose();
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -69,18 +71,21 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.calicoBlack,
+                color: isGirly ? GirlyColors.navBarBg : AppColors.calicoBlack,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primary.withAlpha(90)),
+                border: Border.all(
+                  color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                      .withAlpha(90),
+                ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.emoji_events_rounded,
                 size: 18,
-                color: AppColors.primary,
+                color: isGirly ? GirlyColors.highlightPink : AppColors.primary,
               ),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -88,14 +93,18 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: isGirly
+                        ? GirlyColors.textPrimary
+                        : AppColors.textPrimary,
                   ),
                 ),
                 Text(
                   'Top explorers this season',
                   style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: isGirly
+                        ? GirlyColors.textSecondary
+                        : AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -105,11 +114,13 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: AppColors.gingerSoft,
+            color: isGirly ? GirlyColors.primaryLight : AppColors.gingerSoft,
             borderRadius: BorderRadius.circular(99),
-            border: Border.all(color: AppColors.gingerBorder),
+            border: Border.all(
+              color: isGirly ? GirlyColors.primary : AppColors.gingerBorder,
+            ),
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
@@ -117,14 +128,16 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.primaryDark,
+                  color:
+                      isGirly ? GirlyColors.primaryDark : AppColors.primaryDark,
                 ),
               ),
               SizedBox(width: 4),
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 10,
-                color: AppColors.primaryDark,
+                color:
+                    isGirly ? GirlyColors.primaryDark : AppColors.primaryDark,
               ),
             ],
           ),
@@ -135,6 +148,7 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     if (_topThree.isEmpty) {
       if (_isLoading) {
         return const SizedBox.shrink();
@@ -145,21 +159,27 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.creamSurface.withAlpha(180),
+                color: (isGirly
+                        ? GirlyColors.creamSurface
+                        : AppColors.creamSurface)
+                    .withAlpha(180),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(
+                  color: isGirly ? GirlyColors.border : AppColors.border,
+                ),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(
                     Icons.workspace_premium_rounded,
                     size: 22,
-                    color: AppColors.primary,
+                    color:
+                        isGirly ? GirlyColors.primaryDark : AppColors.primary,
                   ),
                   SizedBox(width: 10),
                   Expanded(
@@ -171,7 +191,9 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: isGirly
+                                ? GirlyColors.textPrimary
+                                : AppColors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 2),
@@ -179,7 +201,9 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                           'Log your first neighborhood cat sighting to claim the #1 explorer spot.',
                           style: TextStyle(
                             fontSize: 11.5,
-                            color: AppColors.textSecondary,
+                            color: isGirly
+                                ? GirlyColors.textSecondary
+                                : AppColors.textSecondary,
                             height: 1.3,
                           ),
                         ),
@@ -204,7 +228,7 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildHeader(),
+          _buildHeader(context),
           const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -215,8 +239,11 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                   entry: second,
                   rank: 2,
                   pedestalHeight: 46,
-                  accentColor: AppColors.calicoCharcoal,
-                  bgColor: const Color(0xFFF3ECE7),
+                  accentColor:
+                      isGirly ? GirlyColors.navMuted : AppColors.calicoCharcoal,
+                  bgColor: isGirly
+                      ? GirlyColors.primaryLight
+                      : const Color(0xFFF3ECE7),
                   floatOffset: 0,
                 ),
               AnimatedBuilder(
@@ -229,8 +256,11 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                       entry: first,
                       rank: 1,
                       pedestalHeight: 62,
-                      accentColor: AppColors.primary,
-                      bgColor: AppColors.gingerSoft,
+                      accentColor:
+                          isGirly ? GirlyColors.primaryDark : AppColors.primary,
+                      bgColor: isGirly
+                          ? GirlyColors.creamSurface
+                          : AppColors.gingerSoft,
                       isChampion: true,
                       floatOffset: dy,
                     ),
@@ -242,8 +272,12 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                   entry: third,
                   rank: 3,
                   pedestalHeight: 38,
-                  accentColor: const Color(0xFFB86B35),
-                  bgColor: AppColors.creamSurface,
+                  accentColor: isGirly
+                      ? GirlyColors.primaryDark
+                      : const Color(0xFFB86B35),
+                  bgColor: isGirly
+                      ? GirlyColors.primaryLight
+                      : AppColors.creamSurface,
                   floatOffset: 0,
                 ),
             ],
@@ -275,6 +309,7 @@ class _MiniPodiumItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final avatarSize = isChampion ? 50.0 : 42.0;
 
     return SizedBox(
@@ -292,7 +327,7 @@ class _MiniPodiumItem extends StatelessWidget {
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
+                  color: isGirly ? GirlyColors.surface : Colors.white,
                   border: Border.all(
                     color: accentColor,
                     width: isChampion ? 2.5 : 1.8,
@@ -319,10 +354,19 @@ class _MiniPodiumItem extends StatelessWidget {
                     vertical: 1.5,
                   ),
                   decoration: BoxDecoration(
-                    color: isChampion ? AppColors.calicoBlack : accentColor,
+                    color: isChampion
+                        ? (isGirly
+                            ? GirlyColors.navBarBg
+                            : AppColors.calicoBlack)
+                        : accentColor,
                     borderRadius: BorderRadius.circular(8),
                     border: isChampion
-                        ? Border.all(color: AppColors.primary, width: 1)
+                        ? Border.all(
+                            color: isGirly
+                                ? GirlyColors.primary
+                                : AppColors.primary,
+                            width: 1,
+                          )
                         : null,
                   ),
                   child: Text(
@@ -346,7 +390,7 @@ class _MiniPodiumItem extends StatelessWidget {
             style: TextStyle(
               fontSize: isChampion ? 11.5 : 10.5,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 1),

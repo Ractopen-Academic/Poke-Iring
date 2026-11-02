@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../data/repositories/paw_quests_repository_impl.dart';
 import '../../domain/entities/paw_quest.dart';
@@ -46,7 +47,9 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
         HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: AppColors.calicoBlack,
+            backgroundColor: GirlyThemeProvider.isGirly(context)
+                ? GirlyColors.navBarBg
+                : AppColors.calicoBlack,
             content: Text(
               'Claimed +$points Paw Points for "${quest.title}"!',
               style: const TextStyle(fontWeight: FontWeight.w700),
@@ -65,13 +68,13 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return StreamBuilder<List<PawQuest>>(
       stream: _repository.watchQuests(widget.userId),
       builder: (context, snapshot) {
         final allQuests = snapshot.data ?? const [];
-        final filteredQuests = allQuests
-            .where((q) => q.category == _selectedCategory)
-            .toList();
+        final filteredQuests =
+            allQuests.where((q) => q.category == _selectedCategory).toList();
 
         final resetTime = filteredQuests.isNotEmpty
             ? filteredQuests.first.remainingFormatted
@@ -83,12 +86,14 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Paw Quests',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: isGirly
+                        ? GirlyColors.textPrimary
+                        : AppColors.textPrimary,
                   ),
                 ),
                 Row(
@@ -100,25 +105,35 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.creamSurface,
+                        color: isGirly
+                            ? GirlyColors.primaryLight
+                            : AppColors.creamSurface,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.gingerBorder),
+                        border: Border.all(
+                          color: isGirly
+                              ? GirlyColors.primary
+                              : AppColors.gingerBorder,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.access_time_rounded,
                             size: 13,
-                            color: AppColors.primaryDark,
+                            color: isGirly
+                                ? GirlyColors.primaryDark
+                                : AppColors.primaryDark,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             'Resets in $resetTime',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textSecondary,
+                              color: isGirly
+                                  ? GirlyColors.textSecondary
+                                  : AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -127,10 +142,12 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                     if (widget.isAdmin) ...[
                       const SizedBox(width: 4),
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.tune_rounded,
                           size: 20,
-                          color: AppColors.textSecondary,
+                          color: isGirly
+                              ? GirlyColors.textSecondary
+                              : AppColors.textSecondary,
                         ),
                         tooltip: 'Quest Pool Settings (Admin)',
                         padding: EdgeInsets.zero,
@@ -149,9 +166,12 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppColors.calicoBlack,
+                color: isGirly ? GirlyColors.navBarBg : AppColors.calicoBlack,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.primary.withAlpha(55)),
+                border: Border.all(
+                  color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                      .withAlpha(55),
+                ),
               ),
               child: Row(
                 children: [
@@ -178,7 +198,7 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             ),
             const SizedBox(height: 14),
             if (filteredQuests.isEmpty)
-              const CalicoSpotCard(
+              CalicoSpotCard(
                 padding: EdgeInsets.all(20),
                 borderRadius: 18,
                 child: Text(
@@ -186,7 +206,9 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: isGirly
+                        ? GirlyColors.textSecondary
+                        : AppColors.textSecondary,
                   ),
                 ),
               )
@@ -220,6 +242,7 @@ class _CategoryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -231,12 +254,15 @@ class _CategoryTab extends StatelessWidget {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected
+              ? (isGirly ? GirlyColors.surface : Colors.white)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withAlpha(40),
+                    color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                        .withAlpha(40),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -246,15 +272,21 @@ class _CategoryTab extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CalicoAnimatedBar(isActive: isSelected, activeWidth: 18),
+            CalicoAnimatedBar(
+              isActive: isSelected,
+              activeWidth: 18,
+              activeColor: isGirly ? GirlyColors.highlightPink : null,
+            ),
             Text(
               label,
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 color: isSelected
-                    ? AppColors.calicoBlack
-                    : AppColors.calicoMuted,
+                    ? (isGirly
+                        ? GirlyColors.textPrimary
+                        : AppColors.calicoBlack)
+                    : (isGirly ? GirlyColors.navMuted : AppColors.calicoMuted),
               ),
             ),
           ],

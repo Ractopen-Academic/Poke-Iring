@@ -93,21 +93,20 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       parent: _tabEnterController,
       curve: Curves.easeOutCubic,
     );
-    _tabSlide = Tween<Offset>(begin: const Offset(0, 0.025), end: Offset.zero)
-        .animate(
-          CurvedAnimation(
-            parent: _tabEnterController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+    _tabSlide =
+        Tween<Offset>(begin: const Offset(0, 0.025), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _tabEnterController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     _pages = [
       _HomePage(user: widget.user, onOpenLeaderboard: () => _selectTab(2)),
       IringDexPage(user: widget.user),
       LeaderboardPage(
-        currentUserId: widget.user.id.isNotEmpty
-            ? widget.user.id
-            : widget.user.email,
+        currentUserId:
+            widget.user.id.isNotEmpty ? widget.user.id : widget.user.email,
         initialBarangay: 'Bankal',
         initialCity: 'Lapu-Lapu City',
         initialCountry: 'Philippines',
@@ -154,9 +153,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   Future<void> _runStartupModalsSequentially() async {
     if (!mounted) return;
-    final userId = widget.user.id.isNotEmpty
-        ? widget.user.id
-        : widget.user.email;
+    final userId =
+        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
 
     await TerritorySetupDialog.checkAndShow(context, userId: userId);
     if (!mounted || _isShowingMap) return;
@@ -308,7 +306,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
               right: 0,
               child: SafeArea(
                 child: FelineStatusBanner(
-                  message: 'Offline mode: exploration is limited to cached territories.',
+                  message:
+                      'Offline mode: exploration is limited to cached territories.',
                   icon: Icons.pets,
                   actionLabel: 'Retry',
                   onAction: () async {
@@ -329,7 +328,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
               right: 0,
               child: SafeArea(
                 child: FelineStatusBanner(
-                  message: 'GPS disabled. Exploration map centered on Bankal default zone.',
+                  message:
+                      'GPS disabled. Exploration map centered on Bankal default zone.',
                   icon: Icons.location_off,
                   actionLabel: 'Enable',
                   onAction: () => _locationService.openLocationSettings(),
@@ -382,7 +382,8 @@ class _HomePageState extends State<_HomePage> {
 
     final isGirly = GirlyThemeProvider.isGirly(context);
     final scaffoldBg = isGirly ? GirlyColors.background : AppColors.background;
-    final titleColor = isGirly ? GirlyColors.textPrimary : AppColors.textPrimary;
+    final titleColor =
+        isGirly ? GirlyColors.textPrimary : AppColors.textPrimary;
     final dot1Color = isGirly ? GirlyColors.primary : AppColors.primary;
     final dot2Color = isGirly ? GirlyColors.accent : AppColors.calicoBlack;
 
@@ -456,16 +457,20 @@ class _HomePageState extends State<_HomePage> {
                                       vertical: 3,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.calicoBlack,
+                                      color: isGirly
+                                          ? GirlyColors.navBarBg
+                                          : AppColors.calicoBlack,
                                       borderRadius: BorderRadius.circular(99),
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
                                           Icons.pets_rounded,
                                           size: 11,
-                                          color: AppColors.primary,
+                                          color: isGirly
+                                              ? GirlyColors.highlightPink
+                                              : AppColors.primary,
                                         ),
                                         SizedBox(width: 5),
                                         Text(
@@ -485,10 +490,12 @@ class _HomePageState extends State<_HomePage> {
                                     name,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 23,
                                       fontWeight: FontWeight.w900,
-                                      color: AppColors.textPrimary,
+                                      color: isGirly
+                                          ? GirlyColors.textPrimary
+                                          : AppColors.textPrimary,
                                       height: 1.15,
                                       letterSpacing: -0.4,
                                     ),
@@ -500,10 +507,10 @@ class _HomePageState extends State<_HomePage> {
                             StreamBuilder<ExplorerTitle?>(
                               stream: AchievementsRepositoryImpl.instance
                                   .watchEquippedTitle(
-                                    widget.user.id.isNotEmpty
-                                        ? widget.user.id
-                                        : widget.user.email,
-                                  ),
+                                widget.user.id.isNotEmpty
+                                    ? widget.user.id
+                                    : widget.user.email,
+                              ),
                               builder: (context, snapshot) {
                                 final title = snapshot.data;
                                 if (title == null) {
@@ -526,11 +533,13 @@ class _HomePageState extends State<_HomePage> {
                           ],
                         ),
                         const SizedBox(height: 5),
-                        const Text(
+                        Text(
                           'Track your daily explorer movement and unlock more feline routes.',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: isGirly
+                                ? GirlyColors.textSecondary
+                                : AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -554,17 +563,21 @@ class _HomePageState extends State<_HomePage> {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: AppColors.calicoBlack,
+                                      color: isGirly
+                                          ? GirlyColors.navBarBg
+                                          : AppColors.calicoBlack,
                                       borderRadius: BorderRadius.circular(13),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.directions_walk_rounded,
-                                      color: AppColors.primary,
+                                      color: isGirly
+                                          ? GirlyColors.highlightPink
+                                          : AppColors.primary,
                                       size: 20,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  const Expanded(
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -574,7 +587,9 @@ class _HomePageState extends State<_HomePage> {
                                           style: TextStyle(
                                             fontSize: 17,
                                             fontWeight: FontWeight.w800,
-                                            color: AppColors.textPrimary,
+                                            color: isGirly
+                                                ? GirlyColors.textPrimary
+                                                : AppColors.textPrimary,
                                           ),
                                         ),
                                         Text(
@@ -582,7 +597,9 @@ class _HomePageState extends State<_HomePage> {
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w600,
-                                            color: AppColors.textSecondary,
+                                            color: isGirly
+                                                ? GirlyColors.textSecondary
+                                                : AppColors.textSecondary,
                                           ),
                                         ),
                                       ],
@@ -598,7 +615,9 @@ class _HomePageState extends State<_HomePage> {
                                       label: 'Steps',
                                       value: '${health.stepsToday}',
                                       icon: Icons.pets_rounded,
-                                      accent: AppColors.primary,
+                                      accent: isGirly
+                                          ? GirlyColors.primaryDark
+                                          : AppColors.primary,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -608,7 +627,9 @@ class _HomePageState extends State<_HomePage> {
                                       value:
                                           '${health.distanceKm.toStringAsFixed(2)} km',
                                       icon: Icons.route_rounded,
-                                      accent: AppColors.calicoCharcoal,
+                                      accent: isGirly
+                                          ? GirlyColors.primary
+                                          : AppColors.calicoCharcoal,
                                     ),
                                   ),
                                 ],
@@ -622,7 +643,9 @@ class _HomePageState extends State<_HomePage> {
                                       value:
                                           '${health.caloriesBurned.toStringAsFixed(0)} kcal',
                                       icon: Icons.local_fire_department_rounded,
-                                      accent: AppColors.primaryDark,
+                                      accent: isGirly
+                                          ? GirlyColors.primaryDark
+                                          : AppColors.primaryDark,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -631,7 +654,9 @@ class _HomePageState extends State<_HomePage> {
                                       label: 'Active',
                                       value: '${health.activeMinutes} min',
                                       icon: Icons.bolt_rounded,
-                                      accent: AppColors.calicoCharcoal,
+                                      accent: isGirly
+                                          ? GirlyColors.primary
+                                          : AppColors.calicoCharcoal,
                                     ),
                                   ),
                                 ],
@@ -710,10 +735,12 @@ class _MiniMetric extends StatelessWidget {
               const SizedBox(width: 5),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  color: isGirly
+                      ? GirlyColors.textSecondary
+                      : AppColors.textSecondary,
                 ),
               ),
             ],
@@ -724,10 +751,11 @@ class _MiniMetric extends StatelessWidget {
             child: Text(
               value,
               key: ValueKey<String>(value),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
+                color:
+                    isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
               ),
             ),
           ),
