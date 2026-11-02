@@ -57,9 +57,8 @@ class EventPopupModal extends StatefulWidget {
   }) async {
     final repo = repository ?? EventRepositoryImpl.instance;
     final events = await repo.getActiveEvents();
-    final eligibleEvents = events
-        .where((e) => e.showPopupOnLaunch && e.isActive)
-        .toList();
+    final eligibleEvents =
+        events.where((e) => e.showPopupOnLaunch && e.isActive).toList();
 
     if (eligibleEvents.isEmpty) return;
 
@@ -116,8 +115,8 @@ class _EventPopupModalState extends State<EventPopupModal> {
     final isPartnership = event.isPartnership;
     final partnerLabel =
         event.partnerName != null && event.partnerName!.isNotEmpty
-        ? event.partnerName!
-        : (isPartnership ? 'Partnership Spotlight' : 'Seasonal Gala');
+            ? event.partnerName!
+            : (isPartnership ? 'Partnership Spotlight' : 'Seasonal Gala');
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -288,7 +287,7 @@ class _EventPopupModalState extends State<EventPopupModal> {
                 children: [
                   Text(
                     event.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.5,
                       color: AppColors.textSecondary,
                       height: 1.45,
@@ -310,7 +309,7 @@ class _EventPopupModalState extends State<EventPopupModal> {
                             color: AppColors.primary.withAlpha(20),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.military_tech_rounded,
                             size: 20,
                             color: AppColors.primary,
@@ -323,14 +322,14 @@ class _EventPopupModalState extends State<EventPopupModal> {
                             children: [
                               Text(
                                 '${event.quests.length} Festival Quests Active',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 2),
-                              const Text(
+                              Text(
                                 'Complete daily tasks to claim exclusive borders',
                                 style: TextStyle(
                                   fontSize: 11,
@@ -371,7 +370,7 @@ class _EventPopupModalState extends State<EventPopupModal> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'Don\'t show this announcement again today',
                           style: TextStyle(
                             fontSize: 11.5,
@@ -392,12 +391,12 @@ class _EventPopupModalState extends State<EventPopupModal> {
                           onPressed: _dismissDialog,
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: const BorderSide(color: AppColors.border),
+                            side: BorderSide(color: AppColors.border),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Later',
                             style: TextStyle(
                               fontSize: 13,

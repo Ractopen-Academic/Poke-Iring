@@ -136,7 +136,7 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
             // Header Banner
             Container(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [AppColors.primary, Color(0xFFE65100)],
                   begin: Alignment.topLeft,
@@ -191,7 +191,7 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'To maintain fair competitive divisions across seasonal leaderboards, your home territory is tied directly to your account and can only be changed once every year (365 days).',
                     style: TextStyle(
                       fontSize: 13,
@@ -214,13 +214,13 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                       children: [
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.location_on_rounded,
                               size: 18,
                               color: AppColors.primary,
                             ),
                             const SizedBox(width: 6),
-                            const Text(
+                            Text(
                               'Selected Division',
                               style: TextStyle(
                                 fontSize: 11.5,
@@ -231,7 +231,7 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                             const Spacer(),
                             GestureDetector(
                               onTap: _pickDifferentTerritory,
-                              child: const Text(
+                              child: Text(
                                 'Change Area',
                                 style: TextStyle(
                                   fontSize: 12,
@@ -245,7 +245,7 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                         const SizedBox(height: 8),
                         Text(
                           _selectedTerritory.shortLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
@@ -254,7 +254,7 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                         const SizedBox(height: 2),
                         Text(
                           '${_selectedTerritory.province}, ${_selectedTerritory.region}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
                             color: AppColors.textSecondary,
                           ),
@@ -309,12 +309,12 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                               : () => Navigator.of(context).pop(null),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: const BorderSide(color: AppColors.border),
+                            side: BorderSide(color: AppColors.border),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Later',
                             style: TextStyle(
                               fontSize: 13,

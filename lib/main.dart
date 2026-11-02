@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'core/constants/app_strings.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/app_theme_mode.dart';
 import 'core/theme/girly_theme.dart';
 import 'core/widgets/responsive_web_shell.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
@@ -20,8 +21,7 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  final isFirebaseSupported =
-      !kIsWeb &&
+  final isFirebaseSupported = !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS ||
           defaultTargetPlatform == TargetPlatform.macOS ||
@@ -54,12 +54,15 @@ class PokeIringApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // isGirly registers a rebuild dependency via InheritedNotifier
-    final isGirly = GirlyThemeProvider.isGirly(context);
+    final mode = GirlyThemeProvider.mode(context);
     return MaterialApp(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
-      theme: isGirly ? GirlyThemeData.build() : AppTheme.lightTheme,
+      theme: switch (mode) {
+        AppThemeMode.normal => AppTheme.lightTheme,
+        AppThemeMode.kawaii => GirlyThemeData.build(),
+        AppThemeMode.dark => DarkThemeData.build(),
+      },
       builder: (context, child) =>
           ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
       home: AuthGate(authRepository: authRepository),

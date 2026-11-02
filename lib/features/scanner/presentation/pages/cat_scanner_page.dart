@@ -334,10 +334,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
         child: _isAnalyzing
             ? _buildAnalyzingState()
             : _isReviewingSnap && _capturedImageBytes != null
-            ? _buildSnapReviewState()
-            : _scanResult != null
-            ? _buildResultView()
-            : _buildCapturePrompt(),
+                ? _buildSnapReviewState()
+                : _scanResult != null
+                    ? _buildResultView()
+                    : _buildCapturePrompt(),
       ),
     );
   }
@@ -355,7 +355,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 color: AppColors.primary.withAlpha(20),
                 shape: BoxShape.circle,
               ),
-              child: const SizedBox(
+              child: SizedBox(
                 width: 48,
                 height: 48,
                 child: CircularProgressIndicator(
@@ -365,7 +365,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Gemini Vision Analyzing Feline',
               style: TextStyle(
                 fontSize: 18,
@@ -485,7 +485,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -807,14 +807,14 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     color: AppColors.primary.withAlpha(25),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.camera_alt_rounded,
                     size: 48,
                     color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Spot a Neighborhood Cat',
                   style: TextStyle(
                     fontSize: 20,
@@ -875,7 +875,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     Icon(
                       Icons.stars_rounded,
@@ -947,7 +947,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 color: Colors.grey,
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'No Feline Detected',
                 style: TextStyle(
                   fontSize: 20,
@@ -957,7 +957,8 @@ class _CatScannerPageState extends State<CatScannerPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                result.rejectionReason ?? 'Our vision model could not identify a cat. Please frame the cat clearly and try again.',
+                result.rejectionReason ??
+                    'Our vision model could not identify a cat. Please frame the cat clearly and try again.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13.5, color: Colors.grey.shade600),
               ),
@@ -1017,7 +1018,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 Text(
                   result.breed,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
@@ -1035,7 +1036,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   ),
                   child: Text(
                     'Pattern: ${result.coatPattern} • ${result.dominantColor}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,
@@ -1068,7 +1069,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Paw Points Earned',
                   style: TextStyle(
                     fontSize: 14,
@@ -1095,7 +1096,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Total Paw Points',
                       style: TextStyle(
                         fontSize: 16,
@@ -1105,7 +1106,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     ),
                     Text(
                       '+${_effectivePawPoints(result)} pts',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                         color: AppColors.primary,
@@ -1127,7 +1128,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.location_on_outlined,
                   size: 18,
                   color: AppColors.primary,

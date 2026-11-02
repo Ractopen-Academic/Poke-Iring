@@ -74,7 +74,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
+                    Text(
                       AppStrings.appName,
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -107,7 +107,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                                   color: AppColors.gingerBorder,
                                 ),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.mark_email_unread_outlined,
                                 size: 28,
                                 color: AppColors.primaryDark,
@@ -115,7 +115,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             'Verify your email',
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -128,7 +128,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                           Text(
                             'We sent a verification link to ${widget.user.email}. Confirm your address to secure your explorer passport.',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13.5,
                               height: 1.45,
                               color: AppColors.textSecondary,
@@ -168,7 +168,8 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                             isLoading: _isLoading,
                             onPressed: () => _runAction(
                               widget.authRepository.reloadCurrentUser,
-                              successMessage: 'Email checked. Open the link in your inbox if it is still pending.',
+                              successMessage:
+                                  'Email checked. Open the link in your inbox if it is still pending.',
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -188,7 +189,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                               onPressed: _isLoading ? null : widget.onSkip,
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primaryDark,
-                                side: const BorderSide(
+                                side: BorderSide(
                                   color: AppColors.gingerBorder,
                                 ),
                                 minimumSize: const Size.fromHeight(48),
@@ -207,7 +208,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                             onPressed: _isLoading
                                 ? null
                                 : widget.authRepository.signOut,
-                            child: const Text(
+                            child: Text(
                               'Sign out',
                               style: TextStyle(
                                 color: AppColors.textSecondary,

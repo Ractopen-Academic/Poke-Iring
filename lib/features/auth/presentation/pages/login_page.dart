@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                                   color: AppColors.primary.withAlpha(110),
                                 ),
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
@@ -191,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             AppStrings.appName,
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -210,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                                   : AppStrings.tagline,
                               key: ValueKey<bool>(_isSignUp),
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.textSecondary,
@@ -359,9 +359,9 @@ class _LoginPageState extends State<LoginPage> {
                                       onPressed: _isLoading
                                           ? null
                                           : () => ForgotPasswordDialog.show(
-                                              context,
-                                              widget.authRepository,
-                                            ),
+                                                context,
+                                                widget.authRepository,
+                                              ),
                                       style: TextButton.styleFrom(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 0,
@@ -371,7 +371,7 @@ class _LoginPageState extends State<LoginPage> {
                                         tapTargetSize:
                                             MaterialTapTargetSize.shrinkWrap,
                                       ),
-                                      child: const Text(
+                                      child: Text(
                                         'Forgot Password?',
                                         style: TextStyle(
                                           fontSize: 12.5,
@@ -393,7 +393,7 @@ class _LoginPageState extends State<LoginPage> {
                                   onPressed: _handleManualAuth,
                                 ),
                                 const SizedBox(height: 20),
-                                const Row(
+                                Row(
                                   children: [
                                     Expanded(
                                       child: Divider(color: AppColors.border),
@@ -431,7 +431,7 @@ class _LoginPageState extends State<LoginPage> {
                                         color: AppColors.gingerBorder,
                                       ),
                                     ),
-                                    child: const Center(
+                                    child: Center(
                                       child: Text(
                                         'G',
                                         style: TextStyle(
@@ -469,7 +469,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   child: Text(
                     AppVersion.releaseTag,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textSecondary,

@@ -152,7 +152,7 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                   ),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -182,25 +182,29 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
             _PerkRow(
               icon: Icons.camera_enhance_rounded,
               title: 'Uncompressed RAW Photo Vault',
-              description: 'Keep original 12MP+ camera masters without lossy WebP compression.',
+              description:
+                  'Keep original 12MP+ camera masters without lossy WebP compression.',
             ),
             const SizedBox(height: 10),
             _PerkRow(
               icon: Icons.military_tech_rounded,
               title: 'Gold Club Member Badge',
-              description: 'Exclusive gold flair displayed beside your name across territory rankings.',
+              description:
+                  'Exclusive gold flair displayed beside your name across territory rankings.',
             ),
             const SizedBox(height: 10),
             _PerkRow(
               icon: Icons.touch_app_rounded,
               title: '2x Daily Boop Allowance',
-              description: 'Double your daily boops to support neighborhood stray sightings.',
+              description:
+                  'Double your daily boops to support neighborhood stray sightings.',
             ),
             const SizedBox(height: 10),
             _PerkRow(
               icon: Icons.file_download_rounded,
               title: 'Lossless Sticker Export',
-              description: 'Download transparent high-resolution stickers of scanned cats.',
+              description:
+                  'Download transparent high-resolution stickers of scanned cats.',
             ),
             const SizedBox(height: 20),
             // Plan Selector Cards
@@ -228,7 +232,7 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
               ],
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Sandbox Payment Method',
               style: TextStyle(
                 fontSize: 12.5,
@@ -251,9 +255,8 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                         horizontal: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFFFFF8E1)
-                            : Colors.white,
+                        color:
+                            isSelected ? const Color(0xFFFFF8E1) : Colors.white,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isSelected
@@ -357,7 +360,7 @@ class _PerkRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -366,7 +369,7 @@ class _PerkRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11.5,
                   color: AppColors.textSecondary,
                   height: 1.3,
@@ -427,7 +430,7 @@ class _PlanOptionCard extends StatelessWidget {
               ),
             Text(
               plan.interval == BillingInterval.annual ? 'Annual' : 'Monthly',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -436,7 +439,7 @@ class _PlanOptionCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               plan.priceFormatted,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
                 color: AppColors.primary,
@@ -492,14 +495,14 @@ class _SandboxCheckoutDialog extends StatelessWidget {
                     children: [
                       Text(
                         method.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
-                      const Text(
+                      Text(
                         'Sandbox Test Environment',
                         style: TextStyle(
                           fontSize: 11,
@@ -525,7 +528,7 @@ class _SandboxCheckoutDialog extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Total Due',
                         style: TextStyle(
                           fontSize: 12,
@@ -534,7 +537,7 @@ class _SandboxCheckoutDialog extends StatelessWidget {
                       ),
                       Text(
                         plan.priceFormatted,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                           color: AppColors.primary,
@@ -546,7 +549,7 @@ class _SandboxCheckoutDialog extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Test Identifier',
                         style: TextStyle(
                           fontSize: 11.5,
@@ -555,7 +558,7 @@ class _SandboxCheckoutDialog extends StatelessWidget {
                       ),
                       Text(
                         method.accountHint,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
@@ -567,7 +570,7 @@ class _SandboxCheckoutDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'This is a local sandbox simulation for feline membership validation. No real financial transaction will take place.',
               style: TextStyle(
                 fontSize: 11,
@@ -583,12 +586,12 @@ class _SandboxCheckoutDialog extends StatelessWidget {
                     onPressed: () => Navigator.of(context).pop(false),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(color: AppColors.border),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Cancel',
                       style: TextStyle(
                         fontSize: 12.5,

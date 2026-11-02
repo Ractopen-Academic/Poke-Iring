@@ -125,7 +125,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
               ),
             ),
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
                 Icon(
                   Icons.psychology_outlined,
@@ -162,7 +162,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.info_outline,
                     size: 18,
                     color: AppColors.primary,
@@ -171,7 +171,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                   Expanded(
                     child: Text(
                       'Status: $_currentStatus',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
@@ -199,7 +199,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
+                    borderSide: BorderSide(
                       color: AppColors.primary,
                       width: 2,
                     ),

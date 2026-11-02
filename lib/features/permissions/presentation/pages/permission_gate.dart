@@ -47,7 +47,8 @@ class _PermissionGateState extends State<PermissionGate> {
       _needsCamera = cameraState != AppPermissionState.granted;
       _isLoading = false;
       if (_needsLocation || _needsCamera) {
-        _message = 'Enable GPS patrol tracking and camera scanning so you can spot neighborhood cats.';
+        _message =
+            'Enable GPS patrol tracking and camera scanning so you can spot neighborhood cats.';
       } else {
         _message = 'Ready to explore.';
       }
@@ -73,7 +74,8 @@ class _PermissionGateState extends State<PermissionGate> {
         _isLoading = false;
         _needsLocation = needsLocation;
         _needsCamera = needsCamera;
-        _message = 'Both camera and location permissions are needed for live cat discovery.';
+        _message =
+            'Both camera and location permissions are needed for live cat discovery.';
       });
       return;
     }
@@ -140,7 +142,7 @@ class _PermissionGateState extends State<PermissionGate> {
                     Flexible(
                       child: Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary,
@@ -164,9 +166,8 @@ class _PermissionGateState extends State<PermissionGate> {
                           granted ? 'Granted' : 'Required',
                           style: TextStyle(
                             fontSize: 10,
-                            color: granted
-                                ? AppColors.primaryDark
-                                : Colors.white,
+                            color:
+                                granted ? AppColors.primaryDark : Colors.white,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -177,7 +178,7 @@ class _PermissionGateState extends State<PermissionGate> {
                 const SizedBox(height: 3),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                     height: 1.3,
@@ -228,7 +229,7 @@ class _PermissionGateState extends State<PermissionGate> {
                           color: AppColors.primary.withAlpha(110),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
@@ -260,7 +261,7 @@ class _PermissionGateState extends State<PermissionGate> {
                       borderColor: AppColors.gingerBorder.withAlpha(150),
                       child: Column(
                         children: [
-                          const Text(
+                          Text(
                             'Before you explore',
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -274,7 +275,7 @@ class _PermissionGateState extends State<PermissionGate> {
                           Text(
                             _message,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13.5,
                               color: AppColors.textSecondary,
                               height: 1.4,
@@ -284,20 +285,22 @@ class _PermissionGateState extends State<PermissionGate> {
                           _buildPermissionTile(
                             icon: Icons.explore_outlined,
                             title: 'Location access',
-                            subtitle: 'Pins nearby street cat sightings and charts your barangay patrol.',
+                            subtitle:
+                                'Pins nearby street cat sightings and charts your barangay patrol.',
                             required: true,
                             granted: !_needsLocation,
                           ),
                           _buildPermissionTile(
                             icon: Icons.photo_camera_outlined,
                             title: 'Camera access',
-                            subtitle: 'Captures cat sightings and classifies coats for your Iring-Dex.',
+                            subtitle:
+                                'Captures cat sightings and classifies coats for your Iring-Dex.',
                             required: true,
                             granted: !_needsCamera,
                           ),
                           const SizedBox(height: 8),
                           if (_isLoading)
-                            const Padding(
+                            Padding(
                               padding: EdgeInsets.symmetric(vertical: 12),
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
@@ -332,7 +335,7 @@ class _PermissionGateState extends State<PermissionGate> {
                             const SizedBox(height: 8),
                             TextButton(
                               onPressed: _openSettings,
-                              child: const Text(
+                              child: Text(
                                 'Open browser or device settings',
                                 style: TextStyle(
                                   fontSize: 12.5,

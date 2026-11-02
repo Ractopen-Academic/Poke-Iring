@@ -90,7 +90,6 @@ class DexSightingCard extends StatelessWidget {
                     aspectRatio: 16 / 10,
                     child: _buildFallbackPhotoHeader(),
                   ),
-
                 Positioned(
                   top: 10,
                   right: 10,
@@ -113,7 +112,6 @@ class DexSightingCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 Positioned(
                   bottom: 8,
                   left: 10,
@@ -138,7 +136,6 @@ class DexSightingCard extends StatelessWidget {
                 ),
               ],
             ),
-
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -150,7 +147,7 @@ class DexSightingCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           sighting.breed,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
@@ -171,7 +168,7 @@ class DexSightingCard extends StatelessWidget {
                         ),
                         child: Text(
                           sighting.coatPattern,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: AppColors.secondary,
@@ -181,10 +178,9 @@ class DexSightingCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 6),
-
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on_outlined,
                         size: 13,
                         color: AppColors.textSecondary,
@@ -193,7 +189,7 @@ class DexSightingCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           '${sighting.barangay}, ${sighting.city}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
                             color: AppColors.textSecondary,
                           ),
@@ -205,7 +201,7 @@ class DexSightingCard extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.touch_app_rounded,
                             size: 13,
                             color: AppColors.primary,
@@ -213,7 +209,7 @@ class DexSightingCard extends StatelessWidget {
                           const SizedBox(width: 2),
                           Text(
                             '${sighting.boopsCount}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w700,
                               color: AppColors.primary,
@@ -223,7 +219,6 @@ class DexSightingCard extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   if (sighting.quirk.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../theme/app_theme_mode.dart';
 import '../theme/girly_theme.dart';
 
-/// A sparkly 🎀 / 🐱 toggle button that lives in the AppBar.
-/// Tap it to switch between the default Calico theme and the Kawaii/Girly theme.
+/// Cycles between the Normal, Kawaii, and Dark app themes.
 class GirlyThemeToggle extends StatefulWidget {
   const GirlyThemeToggle({super.key});
 
@@ -52,13 +52,40 @@ class _GirlyThemeToggleState extends State<GirlyThemeToggle>
     HapticFeedback.mediumImpact();
     await _controller.forward(from: 0.0);
     if (mounted) {
-      GirlyThemeProvider.of(context).toggle();
+      await GirlyThemeProvider.of(context).toggle();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isGirly = GirlyThemeProvider.isGirly(context);
+    final mode = GirlyThemeProvider.mode(context);
+    final isGirly = mode == AppThemeMode.kawaii;
+    final isDark = mode == AppThemeMode.dark;
+    final background = isGirly
+        ? GirlyColors.primaryLight
+        : isDark
+            ? const Color(0xFF29252D)
+            : const Color(0xFFFFEFE0);
+    final border = isGirly
+        ? GirlyColors.primary
+        : isDark
+            ? const Color(0xFF514854)
+            : const Color(0xFFFF8C1A);
+    final foreground = isGirly
+        ? GirlyColors.primaryDark
+        : isDark
+            ? const Color(0xFFFFC28A)
+            : const Color(0xFFE06D00);
+    final icon = isGirly
+        ? '🎀'
+        : isDark
+            ? '🌙'
+            : '🐱';
+    final label = isGirly
+        ? 'Kawaii'
+        : isDark
+            ? 'Dark'
+            : 'Normal';
 
     return AnimatedBuilder(
       animation: _controller,
@@ -79,19 +106,11 @@ class _GirlyThemeToggleState extends State<GirlyThemeToggle>
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: isGirly
-                ? GirlyColors.primaryLight
-                : const Color(0xFFFFEFE0), // ginger soft
-            border: Border.all(
-              color: isGirly
-                  ? GirlyColors.primary
-                  : const Color(0xFFFF8C1A), // AppColors.primary
-              width: 1.4,
-            ),
+            color: background,
+            border: Border.all(color: border, width: 1.4),
             boxShadow: [
               BoxShadow(
-                color: (isGirly ? GirlyColors.primary : const Color(0xFFFF8C1A))
-                    .withAlpha(60),
+                color: border.withAlpha(60),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -107,8 +126,8 @@ class _GirlyThemeToggleState extends State<GirlyThemeToggle>
                   child: child,
                 ),
                 child: Text(
-                  isGirly ? '🎀' : '🐱',
-                  key: ValueKey<bool>(isGirly),
+                  icon,
+                  key: ValueKey<AppThemeMode>(mode),
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
@@ -118,10 +137,10 @@ class _GirlyThemeToggleState extends State<GirlyThemeToggle>
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: isGirly ? GirlyColors.primaryDark : const Color(0xFFE06D00),
+                  color: foreground,
                   letterSpacing: 0.1,
                 ),
-                child: Text(isGirly ? 'Kawaii' : 'Normal'),
+                child: Text(label),
               ),
             ],
           ),

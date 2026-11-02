@@ -133,7 +133,7 @@ class RawPhotoVaultPage extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.camera_alt_outlined,
                                 size: 16,
                                 color: AppColors.textSecondary,
@@ -141,7 +141,7 @@ class RawPhotoVaultPage extends StatelessWidget {
                               const SizedBox(width: 6),
                               Text(
                                 '${photos.length} Master Captures',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
@@ -160,7 +160,7 @@ class RawPhotoVaultPage extends StatelessWidget {
                             ),
                             child: Text(
                               '$totalMb MB Lossless Vault',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.primary,
@@ -174,7 +174,7 @@ class RawPhotoVaultPage extends StatelessWidget {
 
                   // Photos grid
                   if (photos.isEmpty)
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(
                         child: Text(
@@ -193,11 +193,11 @@ class RawPhotoVaultPage extends StatelessWidget {
                       sliver: SliverGrid(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 12,
-                              crossAxisSpacing: 12,
-                              childAspectRatio: 0.82,
-                            ),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.82,
+                        ),
                         delegate: SliverChildBuilderDelegate((context, index) {
                           final photo = photos[index];
                           return _VaultPhotoCard(
@@ -316,7 +316,7 @@ class _VaultPhotoCard extends StatelessWidget {
                     photo.breedName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -325,7 +325,7 @@ class _VaultPhotoCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     photo.megapixelFormatted,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       color: AppColors.textSecondary,
                     ),
@@ -395,7 +395,7 @@ class _VaultPhotoDetailSheet extends StatelessWidget {
               Expanded(
                 child: Text(
                   photo.breedName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
@@ -488,11 +488,11 @@ class _MetaItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,

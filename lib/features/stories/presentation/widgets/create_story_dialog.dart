@@ -102,7 +102,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             backgroundColor: AppColors.primary,
             content: Text(
               'Story published! Live in neighborhood highlights for 24 hours.',
@@ -153,7 +153,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
                 Icon(Icons.auto_awesome, color: AppColors.primary, size: 22),
                 SizedBox(width: 10),

@@ -268,7 +268,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                           const SizedBox(width: 6),
                           Text(
                             '${activeSightings.length} Heatspots',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: AppColors.textPrimary,
@@ -284,7 +284,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       child: InkWell(
                         customBorder: const CircleBorder(),
                         onTap: _recenterView,
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.all(8),
                           child: Icon(
                             Icons.my_location,
@@ -351,7 +351,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
+                    Text(
                       'No Personal Sightings Mapped Yet',
                       style: TextStyle(
                         fontSize: 14,
@@ -360,7 +360,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Photograph roaming cats using the camera to paint your discovery heatmap across the territory.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -479,7 +479,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
       child: ClipOval(
         child: imageUri.isNotEmpty
             ? _buildPinImage(imageUri)
-            : const Icon(Icons.pets, size: 20, color: AppColors.primary),
+            : Icon(Icons.pets, size: 20, color: AppColors.primary),
       ),
     );
   }
@@ -492,7 +492,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
           base64Decode(b64),
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) =>
-              const Icon(Icons.pets, size: 20, color: AppColors.primary),
+              Icon(Icons.pets, size: 20, color: AppColors.primary),
         );
       } catch (_) {}
     } else {
@@ -500,9 +500,9 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
         imageUrl: uri,
         fit: BoxFit.cover,
         errorWidget: (context, url, error) =>
-            const Icon(Icons.pets, size: 20, color: AppColors.primary),
+            Icon(Icons.pets, size: 20, color: AppColors.primary),
       );
     }
-    return const Icon(Icons.pets, size: 20, color: AppColors.primary);
+    return Icon(Icons.pets, size: 20, color: AppColors.primary);
   }
 }

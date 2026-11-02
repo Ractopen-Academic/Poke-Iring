@@ -91,16 +91,16 @@ class _LiveMapPageState extends State<LiveMapPage>
     _sightingsSubscription?.cancel();
     _sightingsSubscription = _scannerRepository
         .watchNearbySightings(
-          latitude: widget.initialCenter.latitude,
-          longitude: widget.initialCenter.longitude,
-        )
+      latitude: widget.initialCenter.latitude,
+      longitude: widget.initialCenter.longitude,
+    )
         .listen((sightings) {
-          if (mounted) {
-            setState(() {
-              _nearbySightings = sightings;
-            });
-          }
+      if (mounted) {
+        setState(() {
+          _nearbySightings = sightings;
         });
+      }
+    });
   }
 
   @override
@@ -197,8 +197,7 @@ class _LiveMapPageState extends State<LiveMapPage>
         : widget.initialCenter;
 
     final now = DateTime.now();
-    final isConsecutiveTap =
-        _lastRecenterTapTime != null &&
+    final isConsecutiveTap = _lastRecenterTapTime != null &&
         now.difference(_lastRecenterTapTime!).inMilliseconds <= 3000;
 
     final distanceMeters = const Distance().distance(startCenter, targetCenter);
@@ -440,7 +439,7 @@ class _LiveMapPageState extends State<LiveMapPage>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.pets_rounded,
                           size: 15,
                           color: AppColors.primary,
@@ -481,7 +480,7 @@ class _LiveMapPageState extends State<LiveMapPage>
                               child: child,
                             );
                           },
-                          child: const RepaintBoundary(
+                          child: RepaintBoundary(
                             child: CutePawCompassPointer(
                               size: 28,
                               padColor: AppColors.primary,

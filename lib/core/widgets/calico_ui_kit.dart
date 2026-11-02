@@ -94,8 +94,8 @@ class CalicoSpotCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double borderRadius;
-  final Color backgroundColor;
-  final Color borderColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
   final bool showCalicoPatches;
   final VoidCallback? onTap;
 
@@ -104,20 +104,22 @@ class CalicoSpotCard extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(18),
     this.borderRadius = 22,
-    this.backgroundColor = Colors.white,
-    this.borderColor = AppColors.border,
+    this.backgroundColor,
+    this.borderColor,
     this.showCalicoPatches = true,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedBackgroundColor = backgroundColor ?? AppColors.surface;
+    final resolvedBorderColor = borderColor ?? AppColors.border;
     final card = Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: resolvedBackgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: borderColor, width: 1.4),
+        border: Border.all(color: resolvedBorderColor, width: 1.4),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF3E2723).withAlpha(14),
@@ -125,7 +127,7 @@ class CalicoSpotCard extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: borderColor.withAlpha(170),
+            color: resolvedBorderColor.withAlpha(170),
             blurRadius: 0,
             offset: const Offset(0, 2.5),
           ),

@@ -30,8 +30,8 @@ class _AchievementsPageState extends State<AchievementsPage> {
     _achievementsStream = AchievementsRepositoryImpl.instance.watchAchievements(
       widget.userId,
     );
-    _equippedTitleStream = AchievementsRepositoryImpl.instance
-        .watchEquippedTitle(widget.userId);
+    _equippedTitleStream =
+        AchievementsRepositoryImpl.instance.watchEquippedTitle(widget.userId);
   }
 
   @override
@@ -77,15 +77,14 @@ class _AchievementsPageState extends State<AchievementsPage> {
           final filteredTracks = allTracks.where((track) {
             final matchesCategory =
                 _selectedCategory == AchievementCategory.all ||
-                track.category == _selectedCategory;
-            final matchesSearch =
-                _searchQuery.isEmpty ||
+                    track.category == _selectedCategory;
+            final matchesSearch = _searchQuery.isEmpty ||
                 track.title.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
+                      _searchQuery.toLowerCase(),
+                    ) ||
                 track.description.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                );
+                      _searchQuery.toLowerCase(),
+                    );
             return matchesCategory && matchesSearch;
           }).toList();
 
@@ -122,7 +121,7 @@ class _AchievementsPageState extends State<AchievementsPage> {
                           child: TextField(
                             onChanged: (val) =>
                                 setState(() => _searchQuery = val.trim()),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: 'Search 100 tiered achievements...',
                               hintStyle: TextStyle(
                                 fontSize: 13,
@@ -187,7 +186,7 @@ class _AchievementsPageState extends State<AchievementsPage> {
 
                 // Achievement Cards List
                 if (filteredTracks.isEmpty)
-                  const SliverFillRemaining(
+                  SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
                       child: Text(
@@ -269,7 +268,7 @@ class _HeroProgressCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Trophy Case Progress',
                     style: TextStyle(
                       fontSize: 12,
@@ -281,7 +280,7 @@ class _HeroProgressCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '$unlockedMilestones / $totalMilestones Milestones',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
@@ -292,8 +291,7 @@ class _HeroProgressCard extends StatelessWidget {
               StreamBuilder<ExplorerTitle?>(
                 stream: equippedTitleStream,
                 builder: (context, snapshot) {
-                  final equipped =
-                      snapshot.data ??
+                  final equipped = snapshot.data ??
                       const ExplorerTitle(
                         id: 'title_novice_scout',
                         name: 'Novice Scout',
@@ -318,7 +316,7 @@ class _HeroProgressCard extends StatelessWidget {
               value: progressFraction,
               minHeight: 10,
               backgroundColor: AppColors.border.withAlpha(120),
-              valueColor: const AlwaysStoppedAnimation<Color>(
+              valueColor: AlwaysStoppedAnimation<Color>(
                 AppColors.primary,
               ),
             ),
@@ -329,7 +327,7 @@ class _HeroProgressCard extends StatelessWidget {
             children: [
               Text(
                 '$percent% Completed',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -337,7 +335,7 @@ class _HeroProgressCard extends StatelessWidget {
               ),
               Text(
                 '+$totalPointsEarned Paw Points Claimed',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary,

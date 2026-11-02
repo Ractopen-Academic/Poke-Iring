@@ -94,7 +94,7 @@ class SightingInspectionSheet extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         sighting.breed,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary,
@@ -118,7 +118,7 @@ class SightingInspectionSheet extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Time Remaining',
                         style: TextStyle(
                           fontSize: 13,
@@ -127,7 +127,7 @@ class SightingInspectionSheet extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.timer_outlined,
                             size: 16,
                             color: AppColors.secondary,
@@ -135,7 +135,7 @@ class SightingInspectionSheet extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             sighting.remainingFormatted,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.secondary,
@@ -149,7 +149,7 @@ class SightingInspectionSheet extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Classification Confidence',
                         style: TextStyle(
                           fontSize: 13,
@@ -158,7 +158,7 @@ class SightingInspectionSheet extends StatelessWidget {
                       ),
                       Text(
                         '$confidencePct% accuracy',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
@@ -170,7 +170,7 @@ class SightingInspectionSheet extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Location',
                         style: TextStyle(
                           fontSize: 13,
@@ -179,7 +179,7 @@ class SightingInspectionSheet extends StatelessWidget {
                       ),
                       Text(
                         '${sighting.latitude.toStringAsFixed(4)}, ${sighting.longitude.toStringAsFixed(4)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textPrimary,

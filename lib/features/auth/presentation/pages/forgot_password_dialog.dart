@@ -86,7 +86,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Enter your registered email address to receive a secure password reset link.',
               style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
             ),

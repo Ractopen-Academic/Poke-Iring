@@ -136,14 +136,14 @@ class _AppBootstrapPageState extends State<AppBootstrapPage> {
                         color: AppColors.primary.withAlpha(25),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.pets,
                         size: 28,
                         color: AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
+                    Text(
                       'Poke: Iring',
                       style: TextStyle(
                         fontSize: 20,
@@ -155,7 +155,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage> {
                     const SizedBox(height: 8),
                     Text(
                       _statusText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppColors.textSecondary,
                       ),
@@ -169,7 +169,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage> {
                         child: LinearProgressIndicator(
                           value: _progress,
                           backgroundColor: AppColors.border,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
+                          valueColor: AlwaysStoppedAnimation<Color>(
                             AppColors.primary,
                           ),
                         ),

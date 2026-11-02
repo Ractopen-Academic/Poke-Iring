@@ -99,7 +99,7 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             backgroundColor: AppColors.primary,
             content: Text(
               'Quest pool successfully reset to default catalog.',
@@ -158,7 +158,7 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
                   color: AppColors.primary.withAlpha(24),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.tune_rounded,
                   color: AppColors.primary,
                   size: 22,
@@ -169,7 +169,7 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Quest Pool Manager',
                       style: TextStyle(
                         fontSize: 17,
@@ -180,7 +180,7 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
                     const SizedBox(height: 2),
                     Text(
                       '$activeCount of ${_templates.length} templates active in rotation',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
@@ -191,7 +191,7 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
               ),
               IconButton(
                 tooltip: 'Reset to default catalog',
-                icon: const Icon(
+                icon: Icon(
                   Icons.restart_alt_rounded,
                   color: AppColors.textSecondary,
                 ),
@@ -234,28 +234,28 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filtered.isEmpty
-                ? Center(
-                    child: Text(
-                      'No quest templates found in this category.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary.withAlpha(180),
+                    ? Center(
+                        child: Text(
+                          'No quest templates found in this category.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary.withAlpha(180),
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: filtered.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          final template = filtered[index];
+                          return _QuestTemplateCard(
+                            template: template,
+                            onToggleActive: (val) =>
+                                _toggleTemplate(template.id, val),
+                          );
+                        },
                       ),
-                    ),
-                  )
-                : ListView.separated(
-                    itemCount: filtered.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final template = filtered[index];
-                      return _QuestTemplateCard(
-                        template: template,
-                        onToggleActive: (val) =>
-                            _toggleTemplate(template.id, val),
-                      );
-                    },
-                  ),
           ),
         ],
       ),
@@ -368,8 +368,8 @@ class _QuestTemplateCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: template.isActive
                   ? (isDaily
-                        ? const Color(0xFFEFF6FF)
-                        : const Color(0xFFF5F3FF))
+                      ? const Color(0xFFEFF6FF)
+                      : const Color(0xFFF5F3FF))
                   : const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -378,8 +378,8 @@ class _QuestTemplateCard extends StatelessWidget {
               size: 20,
               color: template.isActive
                   ? (isDaily
-                        ? const Color(0xFF2563EB)
-                        : const Color(0xFF7C3AED))
+                      ? const Color(0xFF2563EB)
+                      : const Color(0xFF7C3AED))
                   : AppColors.textSecondary.withAlpha(120),
             ),
           ),
@@ -445,7 +445,7 @@ class _QuestTemplateCard extends StatelessWidget {
                   children: [
                     Text(
                       'Goal: ${_formatTarget(template)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textSecondary,

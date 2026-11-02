@@ -20,16 +20,16 @@ class CatMarkerAvatar extends StatefulWidget {
     required LiveSighting sighting,
     required this.onTap,
     this.onBoop,
-  }) : liveSighting = sighting,
-       catSighting = null;
+  })  : liveSighting = sighting,
+        catSighting = null;
 
   const CatMarkerAvatar.fromSighting({
     super.key,
     required CatSighting sighting,
     required this.onTap,
     this.onBoop,
-  }) : catSighting = sighting,
-       liveSighting = null;
+  })  : catSighting = sighting,
+        liveSighting = null;
 
   @override
   State<CatMarkerAvatar> createState() => _CatMarkerAvatarState();
@@ -428,7 +428,7 @@ class _CatMarkerAvatarState extends State<CatMarkerAvatar>
                           ),
                         ],
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(

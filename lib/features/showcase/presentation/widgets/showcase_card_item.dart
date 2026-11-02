@@ -181,7 +181,7 @@ class ShowcaseCardItem extends StatelessWidget {
                       Expanded(
                         child: Text(
                           sighting.breed,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
@@ -202,7 +202,7 @@ class ShowcaseCardItem extends StatelessWidget {
                         ),
                         child: Text(
                           sighting.coatPattern,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                             color: AppColors.secondary,
@@ -212,10 +212,9 @@ class ShowcaseCardItem extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 6),
-
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on_outlined,
                         size: 13,
                         color: AppColors.textSecondary,
@@ -224,7 +223,7 @@ class ShowcaseCardItem extends StatelessWidget {
                       Expanded(
                         child: Text(
                           '${sighting.barangay}, ${sighting.city}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
                             color: AppColors.textSecondary,
                           ),
@@ -235,7 +234,7 @@ class ShowcaseCardItem extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.touch_app_rounded,
                             size: 13,
                             color: AppColors.primary,
@@ -243,7 +242,7 @@ class ShowcaseCardItem extends StatelessWidget {
                           const SizedBox(width: 3),
                           Text(
                             '${sighting.boopsCount} boops',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: AppColors.primary,
@@ -253,7 +252,6 @@ class ShowcaseCardItem extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   if (sighting.quirk.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(

@@ -97,10 +97,10 @@ class _IringCenterButtonState extends State<IringCenterButton>
             shape: BoxShape.circle,
             gradient: LinearGradient(
               colors: isMapOpen
-                  ? const [AppColors.calicoCharcoal, AppColors.calicoBlack]
+                  ? [AppColors.calicoCharcoal, AppColors.calicoBlack]
                   : isGirly
                       ? [GirlyColors.primary, GirlyColors.primaryDark]
-                      : const [Color(0xFFFFA033), AppColors.primaryDark],
+                      : [Color(0xFFFFA033), AppColors.primaryDark],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -139,8 +139,8 @@ class _IringCenterButtonState extends State<IringCenterButton>
                         style: TextStyle(
                           color: isMapOpen
                               ? (isGirly
-                                    ? GirlyColors.primaryLight
-                                    : AppColors.gingerBorder)
+                                  ? GirlyColors.primaryLight
+                                  : AppColors.gingerBorder)
                               : Colors.white,
                           fontSize: 7.2,
                           fontWeight: FontWeight.w800,

@@ -564,7 +564,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Explorer Standings',
                   style: TextStyle(
                     fontSize: 13,
@@ -574,7 +574,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 ),
                 Text(
                   'Top ${_scope.poolCapacity} slots',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,

@@ -27,12 +27,12 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
     setState(() => _isClaiming = true);
 
     try {
-      final points = await AchievementsRepositoryImpl.instance
-          .claimMilestoneReward(
-            userId: widget.userId,
-            achievementId: widget.achievement.id,
-            tier: milestone.tier,
-          );
+      final points =
+          await AchievementsRepositoryImpl.instance.claimMilestoneReward(
+        userId: widget.userId,
+        achievementId: widget.achievement.id,
+        tier: milestone.tier,
+      );
 
       if (mounted) {
         final titleText = milestone.rewardTitle != null
@@ -127,7 +127,7 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                         Flexible(
                           child: Text(
                             achievement.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: AppColors.textPrimary,
@@ -141,7 +141,7 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                     const SizedBox(height: 3),
                     Text(
                       achievement.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
                         height: 1.3,
@@ -198,8 +198,8 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                           color: isClaimed
                               ? tier.primaryColor
                               : (isUnlocked
-                                    ? tier.borderColor
-                                    : AppColors.border),
+                                  ? tier.borderColor
+                                  : AppColors.border),
                         ),
                       ),
                     ],
@@ -228,7 +228,7 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
               ),
               Text(
                 achievement.progressFormatted,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,

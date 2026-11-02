@@ -116,7 +116,7 @@ class TerritoryLockedDialog extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'To protect tournament integrity and prevent district hopping during active seasons, official territories can only be modified once every 365 days.',
                     style: TextStyle(
                       fontSize: 13,
@@ -140,7 +140,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Locked Division',
                               style: TextStyle(
                                 fontSize: 11.5,
@@ -171,7 +171,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           territory.shortLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
@@ -181,7 +181,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Cooldown Remaining',
                               style: TextStyle(
                                 fontSize: 11.5,
@@ -190,7 +190,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                             ),
                             Text(
                               '$daysRemaining days',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w800,
                                 color: AppColors.primary,
@@ -202,7 +202,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Next Eligible Change',
                               style: TextStyle(
                                 fontSize: 11.5,
@@ -211,7 +211,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                             ),
                             Text(
                               nextDate,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textPrimary,
@@ -254,7 +254,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                             Navigator.of(context).pop();
                             onAdminOverride?.call();
                           },
-                          child: const Text(
+                          child: Text(
                             'Admin Override: Change Territory',
                             style: TextStyle(
                               fontSize: 12,

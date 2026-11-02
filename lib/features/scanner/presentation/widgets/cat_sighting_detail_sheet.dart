@@ -112,13 +112,13 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
                       ? CachedNetworkImage(
                           imageUrl: widget.sighting.stickerUrl,
                           fit: BoxFit.cover,
-                          errorWidget: (context, url, error) => const Icon(
+                          errorWidget: (context, url, error) => Icon(
                             Icons.pets,
                             color: AppColors.primary,
                             size: 32,
                           ),
                         )
-                      : const Icon(
+                      : Icon(
                           Icons.pets,
                           color: AppColors.primary,
                           size: 32,
@@ -132,7 +132,7 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
                   children: [
                     Text(
                       widget.sighting.breed,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
@@ -141,7 +141,7 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
                     const SizedBox(height: 2),
                     Text(
                       'Spotted by ${widget.sighting.authorName} • +${widget.sighting.pawPoints} pts',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.5,
                         color: AppColors.primary,
                         fontWeight: FontWeight.w700,

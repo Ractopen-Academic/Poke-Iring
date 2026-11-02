@@ -39,7 +39,7 @@ class PawPointsGuideSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            const Row(
+            Row(
               children: [
                 Icon(
                   Icons.help_outline_rounded,
@@ -67,34 +67,36 @@ class PawPointsGuideSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-
             _buildSection(
               title: 'Points Scoring Formula',
               items: [
                 _GuideItem(
                   label: 'Base Sighting',
                   value: '+50 pts',
-                  description: 'Awarded for any live feline verified by the vision scanner.',
+                  description:
+                      'Awarded for any live feline verified by the vision scanner.',
                 ),
                 _GuideItem(
                   label: 'Coat Markings Bonus',
                   value: '+10 to +40 pts',
-                  description: 'Calico (+35), Tortoiseshell (+35), Tuxedo (+20), Tabby (+15), Solid (+10).',
+                  description:
+                      'Calico (+35), Tortoiseshell (+35), Tuxedo (+20), Tabby (+15), Solid (+10).',
                 ),
                 _GuideItem(
                   label: 'Breed Rarity Multiplier',
                   value: '1.0x to 2.0x',
-                  description: 'Applies to (Base + Markings). Common Puspin is 1.0x–1.2x; purebreds reach up to 2.0x.',
+                  description:
+                      'Applies to (Base + Markings). Common Puspin is 1.0x–1.2x; purebreds reach up to 2.0x.',
                 ),
                 _GuideItem(
                   label: 'Community Boops',
                   value: '+5 pts each',
-                  description: 'Earned every time a fellow explorer boops your cat pin on the live map or story.',
+                  description:
+                      'Earned every time a fellow explorer boops your cat pin on the live map or story.',
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
             _buildSection(
               title: 'Fair-Play Points Caps',
               items: [
@@ -107,12 +109,12 @@ class PawPointsGuideSheet extends StatelessWidget {
                 _GuideItem(
                   label: 'Daily Sighting Soft Cap',
                   value: '${CatScanResult.dailyPawPointsSoftCap} pts / day',
-                  description: 'Encourages genuine exploration. Beyond 500 points/day, sightings award +10 baseline exploration points.',
+                  description:
+                      'Encourages genuine exploration. Beyond 500 points/day, sightings award +10 baseline exploration points.',
                 ),
               ],
             ),
             const SizedBox(height: 20),
-
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
@@ -151,7 +153,7 @@ class PawPointsGuideSheet extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13.5,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
@@ -169,7 +171,7 @@ class PawPointsGuideSheet extends StatelessWidget {
                     children: [
                       Text(
                         item.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
@@ -177,7 +179,7 @@ class PawPointsGuideSheet extends StatelessWidget {
                       ),
                       Text(
                         item.value,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w800,
                           color: AppColors.primary,

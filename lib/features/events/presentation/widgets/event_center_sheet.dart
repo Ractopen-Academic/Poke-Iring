@@ -151,16 +151,14 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
     return StreamBuilder<FelineEvent>(
       stream: _repository.watchActiveEvent(),
       builder: (context, eventSnapshot) {
-        final event =
-            widget.event ??
+        final event = widget.event ??
             eventSnapshot.data ??
             LocalEventCatalog.activeFestival;
 
         return StreamBuilder<UserEventWallet>(
           stream: _repository.watchUserWallet(widget.userId, event.id),
           builder: (context, walletSnapshot) {
-            final wallet =
-                walletSnapshot.data ??
+            final wallet = walletSnapshot.data ??
                 UserEventWallet(
                   userId: widget.userId,
                   eventId: event.id,
@@ -196,7 +194,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.close_rounded,
                             color: AppColors.textSecondary,
                           ),
@@ -420,9 +418,8 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                   isCompleted
                       ? Icons.check_circle_rounded
                       : Icons.event_available_rounded,
-                  color: isCompleted
-                      ? const Color(0xFF059669)
-                      : event.bannerColor,
+                  color:
+                      isCompleted ? const Color(0xFF059669) : event.bannerColor,
                   size: 20,
                 ),
               ),
@@ -439,9 +436,8 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                         color: isCompleted
                             ? AppColors.textSecondary
                             : AppColors.textPrimary,
-                        decoration: isCompleted
-                            ? TextDecoration.lineThrough
-                            : null,
+                        decoration:
+                            isCompleted ? TextDecoration.lineThrough : null,
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -545,7 +541,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
             ),
             child: Column(
               children: [
-                const Text(
+                Text(
                   'Live Avatar Preview',
                   style: TextStyle(
                     fontSize: 12,
@@ -570,7 +566,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                   children: [
                     Text(
                       preview.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
@@ -601,7 +597,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                 Text(
                   preview.description,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
                     color: AppColors.textSecondary,
                   ),
@@ -661,7 +657,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
           const SizedBox(height: 16),
 
           // Border Catalog Header
-          const Text(
+          Text(
             'Festival Collection',
             style: TextStyle(
               fontSize: 13.5,
@@ -808,14 +804,14 @@ class _BorderCatalogCard extends StatelessWidget {
                     isEquipped
                         ? Icons.check_rounded
                         : isUnlocked
-                        ? Icons.lock_open_rounded
-                        : Icons.lock_rounded,
+                            ? Icons.lock_open_rounded
+                            : Icons.lock_rounded,
                     size: 15,
                     color: isEquipped
                         ? AppColors.primary
                         : isUnlocked
-                        ? const Color(0xFF059669)
-                        : AppColors.textSecondary,
+                            ? const Color(0xFF059669)
+                            : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -829,7 +825,7 @@ class _BorderCatalogCard extends StatelessWidget {
                     children: [
                       Text(
                         border.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
@@ -861,7 +857,7 @@ class _BorderCatalogCard extends StatelessWidget {
                     border.description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       color: AppColors.textSecondary,
                     ),
