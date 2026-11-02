@@ -99,13 +99,15 @@ class _IringCenterButtonState extends State<IringCenterButton>
               colors: isMapOpen
                   ? const [AppColors.calicoCharcoal, AppColors.calicoBlack]
                   : isGirly
-                  ? [GirlyColors.primary, GirlyColors.primaryDark]
-                  : const [Color(0xFFFFA033), AppColors.primaryDark],
+                      ? [GirlyColors.primary, GirlyColors.primaryDark]
+                      : const [Color(0xFFFFA033), AppColors.primaryDark],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             border: Border.all(
-              color: isMapOpen ? AppColors.primary : const Color(0xFFFFF4E8),
+              color: isMapOpen
+                  ? (isGirly ? GirlyColors.primary : AppColors.primary)
+                  : const Color(0xFFFFF4E8),
               width: 2.4,
             ),
             boxShadow: [
@@ -136,7 +138,9 @@ class _IringCenterButtonState extends State<IringCenterButton>
                         text: isMapOpen ? 'CLOSE   MAP    ' : 'IRING   POKE   ',
                         style: TextStyle(
                           color: isMapOpen
-                              ? AppColors.gingerBorder
+                              ? (isGirly
+                                    ? GirlyColors.primaryLight
+                                    : AppColors.gingerBorder)
                               : Colors.white,
                           fontSize: 7.2,
                           fontWeight: FontWeight.w800,

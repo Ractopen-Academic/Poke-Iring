@@ -8,30 +8,30 @@ class GirlyColors {
   GirlyColors._();
 
   // Primary palette – sakura / pink-cat tones
-  static const Color primary = Color(0xFFF48FB1);       // medium-pink
-  static const Color primaryDark = Color(0xFFE91E8C);   // hot-pink accent
-  static const Color primaryLight = Color(0xFFFCE4EC);  // blush
+  static const Color primary = Color(0xFFF48FB1); // medium-pink
+  static const Color primaryDark = Color(0xFFE91E8C); // hot-pink accent
+  static const Color primaryLight = Color(0xFFFCE4EC); // blush
 
   // Background & surfaces
-  static const Color background = Color(0xFFFFA6C8);    // saturated sakura pink
+  static const Color background = Color(0xFFFFA6C8); // saturated sakura pink
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color creamSurface = Color(0xFFFFCCDF);  // rose cream
-  static const Color navBar = Color(0xFFFFB6C1);        // light-pink bar
+  static const Color creamSurface = Color(0xFFFFCCDF); // rose cream
+  static const Color navBar = Color(0xFFFFB6C1); // light-pink bar
 
   // Text
-  static const Color textPrimary = Color(0xFF5D2B4A);   // deep berry
+  static const Color textPrimary = Color(0xFF5D2B4A); // deep berry
   static const Color textSecondary = Color(0xFF9E6B82); // muted mauve
 
   // Accents & borders
-  static const Color border = Color(0xFFF8BBD0);        // pale rose border
-  static const Color accent = Color(0xFFCE93D8);        // soft lavender
-  static const Color accentDark = Color(0xFF9C27B0);    // plum
+  static const Color border = Color(0xFFF8BBD0); // pale rose border
+  static const Color accent = Color(0xFFCE93D8); // soft lavender
+  static const Color accentDark = Color(0xFF9C27B0); // plum
   static const Color highlightPink = Color(0xFFFF80AB); // bright sakura pink
 
   // Nav bar
-  static const Color navSelected = Color(0xFFE91E8C);   // hot-pink active
-  static const Color navMuted = Color(0xFFE8A0B5);      // muted pink
-  static const Color navBarBg = Color(0xFF7B2D5E);      // deep berry nav
+  static const Color navSelected = Color(0xFFE91E8C); // hot-pink active
+  static const Color navMuted = Color(0xFFE8A0B5); // muted pink
+  static const Color navBarBg = Color(0xFF7B2D5E); // deep berry nav
 }
 
 // ─────────────────────────────────────────────

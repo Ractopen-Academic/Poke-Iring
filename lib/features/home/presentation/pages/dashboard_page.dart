@@ -396,15 +396,15 @@ class _DashboardPageState extends State<DashboardPage> {
                     decoration: BoxDecoration(
                       color: isClub
                           ? (isGirly
-                                ? GirlyColors.creamSurface
-                                : const Color(0xFFFFF8E1))
+                              ? GirlyColors.creamSurface
+                              : const Color(0xFFFFF8E1))
                           : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isClub
                             ? (isGirly
-                                  ? GirlyColors.primary
-                                  : const Color(0xFFFFB300))
+                                ? GirlyColors.primary
+                                : const Color(0xFFFFB300))
                             : AppColors.border,
                       ),
                     ),
@@ -415,8 +415,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           decoration: BoxDecoration(
                             color: isClub
                                 ? (isGirly
-                                      ? GirlyColors.primary.withAlpha(30)
-                                      : const Color(0xFFFF8F00).withAlpha(30))
+                                    ? GirlyColors.primary.withAlpha(30)
+                                    : const Color(0xFFFF8F00).withAlpha(30))
                                 : AppColors.primary.withAlpha(20),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -427,8 +427,8 @@ class _DashboardPageState extends State<DashboardPage> {
                             size: 20,
                             color: isClub
                                 ? (isGirly
-                                      ? GirlyColors.primaryDark
-                                      : const Color(0xFFE65100))
+                                    ? GirlyColors.primaryDark
+                                    : const Color(0xFFE65100))
                                 : AppColors.primary,
                           ),
                         ),
@@ -446,8 +446,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   fontWeight: FontWeight.w800,
                                   color: isClub
                                       ? (isGirly
-                                            ? GirlyColors.textPrimary
-                                            : const Color(0xFF4E342E))
+                                          ? GirlyColors.textPrimary
+                                          : const Color(0xFF4E342E))
                                       : AppColors.textPrimary,
                                 ),
                               ),
@@ -460,8 +460,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   fontSize: 11,
                                   color: isClub
                                       ? (isGirly
-                                            ? GirlyColors.textSecondary
-                                            : const Color(0xFF6D4C41))
+                                          ? GirlyColors.textSecondary
+                                          : const Color(0xFF6D4C41))
                                       : AppColors.textSecondary,
                                 ),
                               ),
@@ -487,8 +487,8 @@ class _DashboardPageState extends State<DashboardPage> {
                             side: BorderSide(
                               color: isClub
                                   ? (isGirly
-                                        ? GirlyColors.primary
-                                        : const Color(0xFFFF8F00))
+                                      ? GirlyColors.primary
+                                      : const Color(0xFFFF8F00))
                                   : AppColors.primary,
                             ),
                             shape: RoundedRectangleBorder(
@@ -502,8 +502,8 @@ class _DashboardPageState extends State<DashboardPage> {
                               fontWeight: FontWeight.w700,
                               color: isClub
                                   ? (isGirly
-                                        ? GirlyColors.primaryDark
-                                        : const Color(0xFFE65100))
+                                      ? GirlyColors.primaryDark
+                                      : const Color(0xFFE65100))
                                   : AppColors.primary,
                             ),
                           ),
@@ -592,7 +592,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.workspace_premium_rounded,
                           size: 22,
                           color: isGirly
@@ -604,7 +604,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Lifetime Mythic Prestige',
                                 style: TextStyle(
                                   fontSize: 11,
@@ -617,7 +617,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               const SizedBox(height: 1),
                               Text(
                                 '$prestige Points',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
                                   color: isGirly
