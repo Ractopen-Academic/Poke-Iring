@@ -55,7 +55,7 @@ class EventBannerSurface extends StatelessWidget {
               child: Image.network(
                 bannerImageUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
               ),
             ),
             Positioned.fill(
@@ -155,7 +155,7 @@ class EventLogoEmblem extends StatelessWidget {
         width: size,
         height: size,
         fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => fallback,
+        errorBuilder: (context, error, stackTrace) => fallback,
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 
 class IringCenterButton extends StatefulWidget {
   final VoidCallback onTap;
@@ -78,6 +79,7 @@ class _IringCenterButtonState extends State<IringCenterButton>
   @override
   Widget build(BuildContext context) {
     final isMapOpen = widget.isMapOpen;
+    final isGirly = GirlyThemeProvider.isGirly(context);
 
     return GestureDetector(
       onTap: _handleTap,
@@ -96,6 +98,8 @@ class _IringCenterButtonState extends State<IringCenterButton>
             gradient: LinearGradient(
               colors: isMapOpen
                   ? const [AppColors.calicoCharcoal, AppColors.calicoBlack]
+                  : isGirly
+                  ? [GirlyColors.primary, GirlyColors.primaryDark]
                   : const [Color(0xFFFFA033), AppColors.primaryDark],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -106,7 +110,8 @@ class _IringCenterButtonState extends State<IringCenterButton>
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withAlpha(isMapOpen ? 130 : 105),
+                color: (isGirly ? GirlyColors.primary : AppColors.primary)
+                    .withAlpha(isMapOpen ? 130 : 105),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
@@ -159,7 +164,10 @@ class _IringCenterButtonState extends State<IringCenterButton>
                     width: 28,
                     height: 28,
                     child: CustomPaint(
-                      painter: _CalicoCatCenterPainter(isAlert: isMapOpen),
+                      painter: _CalicoCatCenterPainter(
+                        isAlert: isMapOpen,
+                        isGirly: isGirly,
+                      ),
                     ),
                   ),
                 ),
@@ -217,8 +225,12 @@ class _CircularTextPainter extends CustomPainter {
 
 class _CalicoCatCenterPainter extends CustomPainter {
   final bool isAlert;
+  final bool isGirly;
 
-  const _CalicoCatCenterPainter({required this.isAlert});
+  const _CalicoCatCenterPainter({
+    required this.isAlert,
+    required this.isGirly,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -226,7 +238,7 @@ class _CalicoCatCenterPainter extends CustomPainter {
     final h = size.height;
 
     final gingerPaint = Paint()
-      ..color = AppColors.primary
+      ..color = isGirly ? GirlyColors.primary : AppColors.primary
       ..style = PaintingStyle.fill;
     final obsidianPaint = Paint()
       ..color = AppColors.calicoBlack

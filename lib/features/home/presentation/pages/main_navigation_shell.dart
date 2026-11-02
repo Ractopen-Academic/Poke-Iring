@@ -9,7 +9,9 @@ import '../../../../core/network/network_info_impl.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
+import '../../../../core/widgets/girly_theme_toggle.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../achievements/domain/entities/explorer_title.dart';
 import '../../../achievements/presentation/widgets/equipped_title_badge.dart';
@@ -239,10 +241,12 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     final showGpsDisabled =
         !_isLocationServiceEnabled && !_dismissedGpsBanner && !showOffline;
     final mapOnStage = _isShowingMap || _keepMapVisibleDuringExit;
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final bgColor = isGirly ? GirlyColors.background : AppColors.background;
 
     return Scaffold(
       extendBody: true,
-      backgroundColor: AppColors.background,
+      backgroundColor: bgColor,
       body: Stack(
         children: [
           Offstage(
@@ -376,8 +380,14 @@ class _HomePageState extends State<_HomePage> {
         ? widget.user.displayName
         : widget.user.email.split('@').first;
 
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final scaffoldBg = isGirly ? GirlyColors.background : AppColors.background;
+    final titleColor = isGirly ? GirlyColors.textPrimary : AppColors.textPrimary;
+    final dot1Color = isGirly ? GirlyColors.primary : AppColors.primary;
+    final dot2Color = isGirly ? GirlyColors.accent : AppColors.calicoBlack;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: scaffoldBg,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -385,27 +395,36 @@ class _HomePageState extends State<_HomePage> {
             Container(
               width: 10,
               height: 10,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary,
+                color: dot1Color,
               ),
             ),
             const SizedBox(width: 4),
             Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.calicoBlack,
+                color: dot2Color,
               ),
             ),
             const SizedBox(width: 8),
-            const Text(AppStrings.appName),
+            Text(
+              AppStrings.appName,
+              style: TextStyle(color: titleColor),
+            ),
           ],
         ),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: scaffoldBg,
+        foregroundColor: titleColor,
         elevation: 0,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: GirlyThemeToggle(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: StreamBuilder<ExplorerHealthSnapshot>(
@@ -668,12 +687,19 @@ class _MiniMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final cardBg = isGirly
+        ? GirlyColors.creamSurface.withAlpha(200)
+        : AppColors.creamSurface.withAlpha(160);
+    final cardBorder = isGirly ? GirlyColors.border : AppColors.border;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
-        color: AppColors.creamSurface.withAlpha(160),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        color: cardBg,
+        borderRadius: BorderRadius.circular(isGirly ? 18 : 14),
+        border: Border.all(color: cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

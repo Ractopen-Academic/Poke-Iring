@@ -390,7 +390,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
       itemCount: event.quests.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final quest = event.quests[index];
         final isCompleted = wallet.isQuestCompleted(quest.id);

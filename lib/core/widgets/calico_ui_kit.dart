@@ -6,15 +6,18 @@ import '../constants/app_colors.dart';
 class CalicoAnimatedBar extends StatelessWidget {
   final bool isActive;
   final double activeWidth;
+  final Color? activeColor;
 
   const CalicoAnimatedBar({
     super.key,
     required this.isActive,
     this.activeWidth = 22,
+    this.activeColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final barColor = activeColor ?? AppColors.primary;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 240),
       curve: Curves.easeOutCubic,
@@ -22,12 +25,12 @@ class CalicoAnimatedBar extends StatelessWidget {
       height: 4,
       width: isActive ? activeWidth : 0,
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: barColor,
         borderRadius: BorderRadius.circular(99),
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: AppColors.primary.withAlpha(150),
+                  color: barColor.withAlpha(150),
                   blurRadius: 8,
                   offset: const Offset(0, 1),
                 ),

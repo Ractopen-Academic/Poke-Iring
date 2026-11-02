@@ -97,7 +97,7 @@ class TitleSelectionSheet extends StatelessWidget {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: sortedTitles.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final title = sortedTitles[index];
                     return _TitleTile(

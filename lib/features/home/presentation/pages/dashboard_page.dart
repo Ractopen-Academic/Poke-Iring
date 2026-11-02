@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_version.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
@@ -106,16 +107,18 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     final displayName = widget.user.displayName.isNotEmpty
         ? widget.user.displayName
         : widget.user.email.split('@').first;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isGirly ? GirlyColors.background : AppColors.background,
       appBar: AppBar(
         title: const Text(AppStrings.appName),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: isGirly ? GirlyColors.background : Colors.white,
+        foregroundColor:
+            isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
         elevation: 0,
         actions: [
           IconButton(
@@ -391,11 +394,17 @@ class _DashboardPageState extends State<DashboardPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: isClub ? const Color(0xFFFFF8E1) : Colors.white,
+                      color: isClub
+                          ? (isGirly
+                                ? GirlyColors.creamSurface
+                                : const Color(0xFFFFF8E1))
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isClub
-                            ? const Color(0xFFFFB300)
+                            ? (isGirly
+                                  ? GirlyColors.primary
+                                  : const Color(0xFFFFB300))
                             : AppColors.border,
                       ),
                     ),
@@ -405,7 +414,9 @@ class _DashboardPageState extends State<DashboardPage> {
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: isClub
-                                ? const Color(0xFFFF8F00).withAlpha(30)
+                                ? (isGirly
+                                      ? GirlyColors.primary.withAlpha(30)
+                                      : const Color(0xFFFF8F00).withAlpha(30))
                                 : AppColors.primary.withAlpha(20),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -415,7 +426,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                 : Icons.card_membership_rounded,
                             size: 20,
                             color: isClub
-                                ? const Color(0xFFE65100)
+                                ? (isGirly
+                                      ? GirlyColors.primaryDark
+                                      : const Color(0xFFE65100))
                                 : AppColors.primary,
                           ),
                         ),
@@ -432,7 +445,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   color: isClub
-                                      ? const Color(0xFF4E342E)
+                                      ? (isGirly
+                                            ? GirlyColors.textPrimary
+                                            : const Color(0xFF4E342E))
                                       : AppColors.textPrimary,
                                 ),
                               ),
@@ -444,7 +459,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: isClub
-                                      ? const Color(0xFF6D4C41)
+                                      ? (isGirly
+                                            ? GirlyColors.textSecondary
+                                            : const Color(0xFF6D4C41))
                                       : AppColors.textSecondary,
                                 ),
                               ),
@@ -469,7 +486,9 @@ class _DashboardPageState extends State<DashboardPage> {
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             side: BorderSide(
                               color: isClub
-                                  ? const Color(0xFFFF8F00)
+                                  ? (isGirly
+                                        ? GirlyColors.primary
+                                        : const Color(0xFFFF8F00))
                                   : AppColors.primary,
                             ),
                             shape: RoundedRectangleBorder(
@@ -482,7 +501,9 @@ class _DashboardPageState extends State<DashboardPage> {
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: isClub
-                                  ? const Color(0xFFE65100)
+                                  ? (isGirly
+                                        ? GirlyColors.primaryDark
+                                        : const Color(0xFFE65100))
                                   : AppColors.primary,
                             ),
                           ),
@@ -559,16 +580,24 @@ class _DashboardPageState extends State<DashboardPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF9C4).withAlpha(120),
+                      color: isGirly
+                          ? GirlyColors.creamSurface.withAlpha(170)
+                          : const Color(0xFFFFF9C4).withAlpha(120),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFFFD54F)),
+                      border: Border.all(
+                        color: isGirly
+                            ? GirlyColors.primary
+                            : const Color(0xFFFFD54F),
+                      ),
                     ),
                     child: Row(
                       children: [
                         const Icon(
                           Icons.workspace_premium_rounded,
                           size: 22,
-                          color: Color(0xFFFFA000),
+                          color: isGirly
+                              ? GirlyColors.primaryDark
+                              : const Color(0xFFFFA000),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -580,7 +609,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF5D4037),
+                                  color: isGirly
+                                      ? GirlyColors.textPrimary
+                                      : const Color(0xFF5D4037),
                                 ),
                               ),
                               const SizedBox(height: 1),
@@ -589,7 +620,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFF4E342E),
+                                  color: isGirly
+                                      ? GirlyColors.textPrimary
+                                      : const Color(0xFF4E342E),
                                 ),
                               ),
                             ],
@@ -599,7 +632,9 @@ class _DashboardPageState extends State<DashboardPage> {
                           'Archived prestige',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.brown.shade400,
+                            color: isGirly
+                                ? GirlyColors.textSecondary
+                                : Colors.brown.shade400,
                           ),
                         ),
                       ],

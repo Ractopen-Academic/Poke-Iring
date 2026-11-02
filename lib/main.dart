@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'core/constants/app_strings.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/girly_theme.dart';
 import 'core/widgets/responsive_web_shell.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/data/repositories/dev_auth_repository.dart';
@@ -42,20 +43,23 @@ Future<void> main() async {
     authRepository = DevAuthRepository();
   }
 
-  runApp(PokeIringApp(authRepository: authRepository));
+  runApp(
+    GirlyThemeProvider(child: PokeIringApp(authRepository: authRepository)),
+  );
 }
 
 class PokeIringApp extends StatelessWidget {
   final AuthRepository authRepository;
-
   const PokeIringApp({super.key, required this.authRepository});
 
   @override
   Widget build(BuildContext context) {
+    // isGirly registers a rebuild dependency via InheritedNotifier
+    final isGirly = GirlyThemeProvider.isGirly(context);
     return MaterialApp(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: isGirly ? GirlyThemeData.build() : AppTheme.lightTheme,
       builder: (context, child) =>
           ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
       home: AuthGate(authRepository: authRepository),

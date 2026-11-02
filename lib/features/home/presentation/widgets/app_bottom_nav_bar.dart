@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 
 class AppBottomNavBar extends StatelessWidget {
@@ -16,28 +17,44 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final navBg = isGirly
+        ? GirlyColors.navBarBg.withAlpha(242)
+        : AppColors.calicoBlack.withAlpha(242);
+    final navBorder = isGirly
+        ? GirlyColors.primary.withAlpha(100)
+        : AppColors.primary.withAlpha(65);
+    final shadowColor = isGirly
+        ? GirlyColors.primaryDark.withAlpha(80)
+        : AppColors.calicoBlack.withAlpha(95);
+    final glowColor = isGirly
+        ? GirlyColors.primary.withAlpha(55)
+        : AppColors.primary.withAlpha(28);
+
     return SafeArea(
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInOut,
           height: 66,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: AppColors.calicoBlack.withAlpha(242),
-            borderRadius: BorderRadius.circular(28),
+            color: navBg,
+            borderRadius: BorderRadius.circular(isGirly ? 32 : 28),
             border: Border.all(
-              color: AppColors.primary.withAlpha(65),
+              color: navBorder,
               width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.calicoBlack.withAlpha(95),
+                color: shadowColor,
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
               BoxShadow(
-                color: AppColors.primary.withAlpha(28),
+                color: glowColor,
                 blurRadius: 14,
                 offset: const Offset(0, 2),
               ),
@@ -178,8 +195,15 @@ class _NavBarItemState extends State<_NavBarItem>
   @override
   Widget build(BuildContext context) {
     final isSelected = widget.isSelected;
-    final iconColor = isSelected ? AppColors.primary : AppColors.calicoMuted;
-    final labelColor = isSelected ? Colors.white : AppColors.calicoMuted;
+    final isGirly = GirlyThemeProvider.isGirly(context);
+
+    final iconColor = isSelected
+        ? (isGirly ? GirlyColors.navSelected : AppColors.primary)
+        : (isGirly ? GirlyColors.navMuted : AppColors.calicoMuted);
+    final labelColor = isSelected
+        ? (isGirly ? GirlyColors.highlightPink : Colors.white)
+        : (isGirly ? GirlyColors.navMuted : AppColors.calicoMuted);
+    final barColor = isGirly ? GirlyColors.highlightPink : null;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -190,7 +214,11 @@ class _NavBarItemState extends State<_NavBarItem>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CalicoAnimatedBar(isActive: isSelected, activeWidth: 20),
+            CalicoAnimatedBar(
+              isActive: isSelected,
+              activeWidth: 20,
+              activeColor: barColor,
+            ),
             AnimatedBuilder(
               animation: _triggerController,
               builder: (context, child) {
