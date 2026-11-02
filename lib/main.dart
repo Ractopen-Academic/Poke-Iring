@@ -54,18 +54,19 @@ class PokeIringApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mode = GirlyThemeProvider.mode(context);
-    return MaterialApp(
-      title: AppStrings.appName,
-      debugShowCheckedModeBanner: false,
-      theme: switch (mode) {
-        AppThemeMode.normal => AppTheme.lightTheme,
-        AppThemeMode.kawaii => GirlyThemeData.build(),
-        AppThemeMode.dark => DarkThemeData.build(),
-      },
-      builder: (context, child) =>
-          ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
-      home: AuthGate(authRepository: authRepository),
+    return AppThemeBuilder(
+      builder: (context, mode) => MaterialApp(
+        title: AppStrings.appName,
+        debugShowCheckedModeBanner: false,
+        theme: switch (mode) {
+          AppThemeMode.normal => AppTheme.lightTheme,
+          AppThemeMode.kawaii => GirlyThemeData.build(),
+          AppThemeMode.dark => DarkThemeData.build(),
+        },
+        builder: (context, child) =>
+            ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
+        home: AuthGate(authRepository: authRepository),
+      ),
     );
   }
 }

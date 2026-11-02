@@ -50,10 +50,12 @@ class _GirlyThemeToggleState extends State<GirlyThemeToggle>
 
   Future<void> _handleTap() async {
     HapticFeedback.mediumImpact();
+    final modeChange = GirlyThemeProvider.of(context).toggle();
     await _controller.forward(from: 0.0);
     if (mounted) {
-      await GirlyThemeProvider.of(context).toggle();
+      await _controller.reverse();
     }
+    await modeChange;
   }
 
   @override
@@ -93,7 +95,7 @@ class _GirlyThemeToggleState extends State<GirlyThemeToggle>
         return Transform.scale(
           scale: _scale.value,
           child: Transform.rotate(
-            angle: _spin.value * 0.5, // gentle 180° tilt
+            angle: _spin.value * 0.5,
             child: child,
           ),
         );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -186,6 +187,7 @@ class DarkThemeData {
 class _GirlyNotifier extends ValueNotifier<AppThemeMode> {
   static const _prefKey = 'app_theme_mode';
   static const _legacyPrefKey = 'girly_theme_enabled';
+  bool _hasLocalChange = false;
 
   _GirlyNotifier() : super(AppThemeModeState.current) {
     _load();
@@ -193,6 +195,7 @@ class _GirlyNotifier extends ValueNotifier<AppThemeMode> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
+    if (_hasLocalChange) return;
     final storedMode = prefs.getString(_prefKey);
     final legacyGirly = prefs.getBool(_legacyPrefKey) ?? false;
     _setMode(
@@ -209,6 +212,7 @@ class _GirlyNotifier extends ValueNotifier<AppThemeMode> {
   }
 
   Future<void> setMode(AppThemeMode mode) async {
+    _hasLocalChange = true;
     _setMode(mode);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefKey, mode.name);
@@ -271,6 +275,7 @@ class GirlyThemeProviderState extends State<GirlyThemeProvider> {
   bool get isGirlyMode => _notifier.value == AppThemeMode.kawaii;
   bool get isDarkMode => _notifier.value == AppThemeMode.dark;
   AppThemeMode get themeMode => _notifier.value;
+  ValueListenable<AppThemeMode> get themeModeListenable => _notifier;
 
   Future<void> toggle() => _notifier.toggle();
 
@@ -285,6 +290,21 @@ class GirlyThemeProviderState extends State<GirlyThemeProvider> {
     return _GirlyInherited(
       notifier: _notifier,
       child: widget.child,
+    );
+  }
+}
+
+class AppThemeBuilder extends StatelessWidget {
+  final Widget Function(BuildContext context, AppThemeMode mode) builder;
+
+  const AppThemeBuilder({super.key, required this.builder});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeMode = GirlyThemeProvider.of(context).themeModeListenable;
+    return ValueListenableBuilder<AppThemeMode>(
+      valueListenable: themeMode,
+      builder: (context, mode, _) => builder(context, mode),
     );
   }
 }
