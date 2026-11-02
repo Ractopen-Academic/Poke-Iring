@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/girly_theme.dart';
 import '../../domain/entities/explorer_title.dart';
 
 class EquippedTitleBadge extends StatelessWidget {
@@ -17,16 +18,22 @@ class EquippedTitleBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tier = title.tier;
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final backgroundColor =
+        isGirly ? GirlyColors.primaryLight : tier.backgroundColor;
+    final borderColor = isGirly ? GirlyColors.border : tier.borderColor;
+    final accentColor = isGirly ? GirlyColors.primaryDark : tier.primaryColor;
+    final textColor = isGirly ? GirlyColors.textPrimary : tier.secondaryColor;
 
     final badge = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: tier.backgroundColor,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: tier.borderColor, width: 1.2),
+        border: Border.all(color: borderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: tier.primaryColor.withAlpha(25),
+            color: accentColor.withAlpha(25),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -40,7 +47,7 @@ class EquippedTitleBadge extends StatelessWidget {
             height: 7,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: tier.primaryColor,
+              color: accentColor,
             ),
           ),
           const SizedBox(width: 6),
@@ -49,7 +56,7 @@ class EquippedTitleBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: tier.secondaryColor,
+              color: textColor,
               letterSpacing: 0.2,
             ),
           ),
@@ -58,7 +65,7 @@ class EquippedTitleBadge extends StatelessWidget {
             Icon(
               Icons.unfold_more_rounded,
               size: 14,
-              color: tier.secondaryColor,
+              color: textColor,
             ),
           ],
         ],

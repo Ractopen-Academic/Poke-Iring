@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../data/datasources/firebase_territory_datasource.dart';
 import '../../data/datasources/ph_territory_catalog.dart';
 import '../../data/services/territory_service_impl.dart';
@@ -122,7 +123,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
     setState(() => _isDetecting = true);
     final detected =
         await TerritoryServiceImpl.instance.autoDetectAndSync(widget.userId) ??
-        await TerritoryServiceImpl.instance.detectFromGps();
+            await TerritoryServiceImpl.instance.detectFromGps();
     if (!mounted) return;
 
     setState(() {
@@ -181,15 +182,21 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final accent = isGirly ? GirlyColors.primaryDark : AppColors.primary;
+    final textPrimary =
+        isGirly ? GirlyColors.textPrimary : AppColors.textPrimary;
+    final textSecondary =
+        isGirly ? GirlyColors.textSecondary : AppColors.textSecondary;
     final cityEntry = _currentCityEntry;
     final availableBarangays = cityEntry.barangays.contains(_selectedBarangay)
         ? cityEntry.barangays
         : [_selectedBarangay, ...cityEntry.barangays];
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: isGirly ? GirlyColors.surface : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -212,7 +219,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: isGirly ? GirlyColors.border : AppColors.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -225,17 +232,17 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(25),
+                        color: accent.withAlpha(25),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.location_on_rounded,
-                        color: AppColors.primary,
+                        color: accent,
                         size: 22,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -244,7 +251,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: textPrimary,
                             ),
                           ),
                           SizedBox(height: 2),
@@ -252,7 +259,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                             'Cloud database & live GPS reverse geocoding',
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: textSecondary,
                             ),
                           ),
                         ],
@@ -271,7 +278,11 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                           height: 14,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.my_location_rounded, size: 18),
+                      : Icon(
+                          Icons.my_location_rounded,
+                          size: 18,
+                          color: accent,
+                        ),
                   label: Text(
                     _isDetecting
                         ? 'Detecting GPS (Reverse Geocoding)...'
@@ -279,8 +290,8 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
+                    foregroundColor: accent,
+                    side: BorderSide(color: accent),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -293,19 +304,19 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'City / Municipality',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                        color: textSecondary,
                       ),
                     ),
                     Text(
                       '${_cities.length} cities in database',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: AppColors.textSecondary,
+                        color: textSecondary,
                       ),
                     ),
                   ],
@@ -315,34 +326,43 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                   height: 38,
                   margin: const EdgeInsets.only(bottom: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
+                    color: isGirly
+                        ? GirlyColors.primaryLight
+                        : const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: TextField(
                     onChanged: (val) => setState(() => _searchFilter = val),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Search city or province...',
                       hintStyle: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: textSecondary,
                       ),
                       prefixIcon: Icon(
                         Icons.search_rounded,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: textSecondary,
                       ),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 8),
                     ),
-                    style: const TextStyle(fontSize: 13),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: textPrimary,
+                    ),
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: isGirly
+                        ? GirlyColors.primaryLight
+                        : AppColors.background,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(
+                      color: isGirly ? GirlyColors.border : AppColors.border,
+                    ),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -356,10 +376,10 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                           value: c.city,
                           child: Text(
                             '${c.city} (${c.province})',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: textPrimary,
                             ),
                           ),
                         );
@@ -384,20 +404,20 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Barangay (Neighborhood)',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                        color: textSecondary,
                       ),
                     ),
                     Text(
                       '${availableBarangays.length} verified zones',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                        color: textSecondary,
                       ),
                     ),
                   ],
@@ -406,9 +426,13 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: isGirly
+                        ? GirlyColors.primaryLight
+                        : AppColors.background,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(
+                      color: isGirly ? GirlyColors.border : AppColors.border,
+                    ),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -422,10 +446,10 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                           value: b,
                           child: Text(
                             b,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: textPrimary,
                             ),
                           ),
                         );
@@ -444,7 +468,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 ElevatedButton(
                   onPressed: _saveTerritory,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: accent,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(

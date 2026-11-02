@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../data/repositories/achievements_repository_impl.dart';
 import '../../domain/entities/explorer_title.dart';
 
@@ -20,11 +21,16 @@ class TitleSelectionSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final textPrimary =
+        isGirly ? GirlyColors.textPrimary : AppColors.textPrimary;
+    final textSecondary =
+        isGirly ? GirlyColors.textSecondary : AppColors.textSecondary;
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: isGirly ? GirlyColors.surface : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -33,7 +39,7 @@ class TitleSelectionSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.border,
+              color: isGirly ? GirlyColors.border : AppColors.border,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -44,13 +50,13 @@ class TitleSelectionSheet extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'Explorer Titles',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: textPrimary,
                         ),
                       ),
                       SizedBox(height: 4),
@@ -58,7 +64,7 @@ class TitleSelectionSheet extends StatelessWidget {
                         'Equip unlocked titles to display on your profile and leaderboards.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: textSecondary,
                         ),
                       ),
                     ],
@@ -66,13 +72,16 @@ class TitleSelectionSheet extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
-                  color: AppColors.textSecondary,
+                  color: textSecondary,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.border),
+          Divider(
+            height: 1,
+            color: isGirly ? GirlyColors.border : AppColors.border,
+          ),
           Expanded(
             child: StreamBuilder<List<ExplorerTitle>>(
               stream: AchievementsRepositoryImpl.instance.watchTitles(userId),
@@ -140,20 +149,30 @@ class _TitleTile extends StatelessWidget {
     final tier = title.tier;
     final isUnlocked = title.isUnlocked;
     final isEquipped = title.isEquipped;
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final textPrimary =
+        isGirly ? GirlyColors.textPrimary : AppColors.textPrimary;
+    final textSecondary =
+        isGirly ? GirlyColors.textSecondary : AppColors.textSecondary;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: isEquipped
-            ? tier.backgroundColor
-            : (isUnlocked ? Colors.white : AppColors.background.withAlpha(150)),
+            ? (isGirly ? GirlyColors.primaryLight : tier.backgroundColor)
+            : (isUnlocked
+                ? (isGirly ? GirlyColors.surface : Colors.white)
+                : (isGirly
+                    ? GirlyColors.primaryLight.withAlpha(150)
+                    : AppColors.background.withAlpha(150))),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isEquipped
-              ? tier.borderColor
+              ? (isGirly ? GirlyColors.border : tier.borderColor)
               : (isUnlocked
-                    ? AppColors.border
-                    : AppColors.border.withAlpha(80)),
+                  ? (isGirly ? GirlyColors.border : AppColors.border)
+                  : (isGirly ? GirlyColors.border : AppColors.border)
+                      .withAlpha(80)),
           width: isEquipped ? 1.5 : 1.0,
         ),
       ),
@@ -165,10 +184,12 @@ class _TitleTile extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isUnlocked
-                  ? tier.backgroundColor
-                  : AppColors.textSecondary.withAlpha(20),
+                  ? (isGirly ? GirlyColors.primaryLight : tier.backgroundColor)
+                  : textSecondary.withAlpha(20),
               border: Border.all(
-                color: isUnlocked ? tier.borderColor : AppColors.border,
+                color: isUnlocked
+                    ? (isGirly ? GirlyColors.border : tier.borderColor)
+                    : (isGirly ? GirlyColors.border : AppColors.border),
               ),
             ),
             child: Icon(
@@ -176,7 +197,9 @@ class _TitleTile extends StatelessWidget {
                   ? Icons.military_tech_outlined
                   : Icons.lock_outline_rounded,
               size: 18,
-              color: isUnlocked ? tier.primaryColor : AppColors.textSecondary,
+              color: isUnlocked
+                  ? (isGirly ? GirlyColors.primaryDark : tier.primaryColor)
+                  : textSecondary,
             ),
           ),
           const SizedBox(width: 12),
@@ -192,9 +215,7 @@ class _TitleTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: isUnlocked
-                              ? AppColors.textPrimary
-                              : AppColors.textSecondary,
+                          color: isUnlocked ? textPrimary : textSecondary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -209,8 +230,8 @@ class _TitleTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     color: isUnlocked
-                        ? AppColors.textSecondary
-                        : AppColors.textSecondary.withAlpha(160),
+                        ? textSecondary
+                        : textSecondary.withAlpha(160),
                   ),
                 ),
               ],
@@ -221,7 +242,7 @@ class _TitleTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: tier.primaryColor,
+                color: isGirly ? GirlyColors.primaryDark : tier.primaryColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
@@ -237,7 +258,9 @@ class _TitleTile extends StatelessWidget {
             OutlinedButton(
               onPressed: onEquip,
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: tier.borderColor),
+                side: BorderSide(
+                  color: isGirly ? GirlyColors.border : tier.borderColor,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -253,7 +276,8 @@ class _TitleTile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: tier.secondaryColor,
+                  color:
+                      isGirly ? GirlyColors.primaryDark : tier.secondaryColor,
                 ),
               ),
             )
@@ -261,15 +285,16 @@ class _TitleTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.border.withAlpha(60),
+                color: (isGirly ? GirlyColors.border : AppColors.border)
+                    .withAlpha(60),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'Locked',
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: textSecondary,
                 ),
               ),
             ),
@@ -286,26 +311,32 @@ class _RarityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
     Color bg;
     Color fg;
 
-    switch (rarity) {
-      case TitleRarity.common:
-        bg = const Color(0xFFF1F3F5);
-        fg = const Color(0xFF5A6672);
-        break;
-      case TitleRarity.rare:
-        bg = const Color(0xFFE3F2FD);
-        fg = const Color(0xFF1976D2);
-        break;
-      case TitleRarity.epic:
-        bg = const Color(0xFFF3E5F5);
-        fg = const Color(0xFF7B1FA2);
-        break;
-      case TitleRarity.legendary:
-        bg = const Color(0xFFFFF8E1);
-        fg = const Color(0xFFF57F17);
-        break;
+    if (isGirly) {
+      bg = GirlyColors.primaryLight;
+      fg = GirlyColors.primaryDark;
+    } else {
+      switch (rarity) {
+        case TitleRarity.common:
+          bg = const Color(0xFFF1F3F5);
+          fg = const Color(0xFF5A6672);
+          break;
+        case TitleRarity.rare:
+          bg = const Color(0xFFE3F2FD);
+          fg = const Color(0xFF1976D2);
+          break;
+        case TitleRarity.epic:
+          bg = const Color(0xFFF3E5F5);
+          fg = const Color(0xFF7B1FA2);
+          break;
+        case TitleRarity.legendary:
+          bg = const Color(0xFFFFF8E1);
+          fg = const Color(0xFFF57F17);
+          break;
+      }
     }
 
     return Container(

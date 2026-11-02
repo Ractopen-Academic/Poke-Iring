@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
 import '../../../showcase/services/showcase_service.dart';
@@ -40,7 +41,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
     }
   }
 
-  Color _rarityColor(FelineRarityTier rarity) {
+  Color _rarityColor(FelineRarityTier rarity, {required bool isGirly}) {
     switch (rarity) {
       case FelineRarityTier.common:
         return const Color(0xFF4CAF50);
@@ -51,7 +52,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
       case FelineRarityTier.veryRare:
         return const Color(0xFF9C27B0);
       case FelineRarityTier.mythic:
-        return const Color(0xFFFF9800);
+        return isGirly ? GirlyColors.primaryDark : const Color(0xFFFF9800);
     }
   }
 
@@ -111,12 +112,18 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
   Widget build(BuildContext context) {
     final entry = widget.entry;
     final species = entry.species;
-    final rarityColor = _rarityColor(species.rarity);
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final textPrimary =
+        isGirly ? GirlyColors.textPrimary : AppColors.textPrimary;
+    final textSecondary =
+        isGirly ? GirlyColors.textSecondary : AppColors.textSecondary;
+    final accent = isGirly ? GirlyColors.primaryDark : AppColors.primary;
+    final rarityColor = _rarityColor(species.rarity, isGirly: isGirly);
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: isGirly ? GirlyColors.surface : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       child: SingleChildScrollView(
@@ -129,13 +136,12 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: isGirly ? GirlyColors.border : Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 18),
-
             Center(
               child: Stack(
                 alignment: Alignment.bottomRight,
@@ -189,14 +195,15 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               ),
             ),
             const SizedBox(height: 16),
-
             Center(
               child: Text(
                 species.formattedNumber,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: Colors.grey.shade600,
+                  color: isGirly
+                      ? GirlyColors.textSecondary
+                      : Colors.grey.shade600,
                   letterSpacing: 1.2,
                 ),
               ),
@@ -205,25 +212,24 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
             Center(
               child: Text(
                 entry.isDiscovered ? species.name : 'Unknown Feline',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: textPrimary,
                 ),
               ),
             ),
             Center(
               child: Text(
                 species.commonName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
+                  color: textSecondary,
                 ),
               ),
             ),
             const SizedBox(height: 14),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -253,15 +259,17 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F1F5),
+                    color: isGirly
+                        ? GirlyColors.primaryLight
+                        : const Color(0xFFF0F1F5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     species.coatPattern,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: textPrimary,
                     ),
                   ),
                 ),
@@ -272,62 +280,71 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(20),
+                    color: accent.withAlpha(20),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     '${species.rarity.defaultMultiplier}x Points',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.primary,
+                      color: accent,
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-
             _buildSection(
               title: 'Species Field Notes',
               content: species.description,
+              isGirly: isGirly,
             ),
             const SizedBox(height: 12),
-
-            _buildSection(title: 'Typical Habitat', content: species.habitat),
+            _buildSection(
+              title: 'Typical Habitat',
+              content: species.habitat,
+              isGirly: isGirly,
+            ),
             const SizedBox(height: 16),
-
             if (entry.isDiscovered) ...[
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFC),
+                  color: isGirly
+                      ? GirlyColors.primaryLight
+                      : const Color(0xFFF9FAFC),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(
+                    color: isGirly ? GirlyColors.border : AppColors.border,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Your Discovery Records',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: textPrimary,
                       ),
                     ),
                     const SizedBox(height: 10),
                     _buildRecordRow(
                       'First Sighted',
                       _formatDate(entry.firstSightedAt),
+                      isGirly: isGirly,
                     ),
                     _buildRecordRow(
                       'Best Encounter',
                       entry.bestLocation ?? 'Local territory',
+                      isGirly: isGirly,
                     ),
                     _buildRecordRow(
                       'Highest Reward',
                       '+${entry.bestPawPoints} Paw Points',
+                      isGirly: isGirly,
                     ),
                     if (entry.sightings.isNotEmpty &&
                         entry.sightings.first.quirk.isNotEmpty)
@@ -338,7 +355,9 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                           style: TextStyle(
                             fontSize: 11.5,
                             fontStyle: FontStyle.italic,
-                            color: Colors.grey.shade700,
+                            color: isGirly
+                                ? GirlyColors.textSecondary
+                                : Colors.grey.shade700,
                           ),
                         ),
                       ),
@@ -356,26 +375,24 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                       icon: Icon(
                         _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                         size: 15,
-                        color: _isPinned
-                            ? AppColors.primary
-                            : AppColors.textPrimary,
+                        color: _isPinned ? accent : textPrimary,
                       ),
                       label: Text(
                         _isPinned ? 'In Showcase' : 'Pin to Showcase',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: _isPinned
-                              ? AppColors.primary
-                              : AppColors.textPrimary,
+                          color: _isPinned ? accent : textPrimary,
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         side: BorderSide(
                           color: _isPinned
-                              ? AppColors.primary
-                              : AppColors.border,
+                              ? accent
+                              : (isGirly
+                                  ? GirlyColors.border
+                                  : AppColors.border),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -387,22 +404,25 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _handleSaveSticker,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.download_rounded,
                         size: 15,
-                        color: AppColors.textPrimary,
+                        color: textPrimary,
                       ),
-                      label: const Text(
+                      label: Text(
                         'Save Sticker',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: textPrimary,
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 11),
-                        side: const BorderSide(color: AppColors.border),
+                        side: BorderSide(
+                          color:
+                              isGirly ? GirlyColors.border : AppColors.border,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -418,7 +438,9 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(
+                        color: isGirly ? GirlyColors.border : AppColors.border,
+                      ),
                     ),
                   ),
                 ],
@@ -428,24 +450,30 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F6F8),
+                  color: isGirly
+                      ? GirlyColors.primaryLight
+                      : const Color(0xFFF5F6F8),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(
+                    color: isGirly ? GirlyColors.border : AppColors.border,
+                  ),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.info_outline_rounded,
-                      color: Colors.grey.shade600,
+                      color: isGirly
+                          ? GirlyColors.textSecondary
+                          : Colors.grey.shade600,
                       size: 20,
                     ),
                     const SizedBox(width: 10),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Undiscovered in your Iring-Dex. Point your scanner camera at neighborhood cats to reveal this record.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: textSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -455,11 +483,10 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               ),
               const SizedBox(height: 20),
             ],
-
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: accent,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
@@ -478,24 +505,29 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
     );
   }
 
-  Widget _buildSection({required String title, required String content}) {
+  Widget _buildSection({
+    required String title,
+    required String content,
+    required bool isGirly,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w700,
-            color: AppColors.textSecondary,
+            color:
+                isGirly ? GirlyColors.textSecondary : AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           content,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13.5,
-            color: AppColors.textPrimary,
+            color: isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
             height: 1.4,
           ),
         ),
@@ -503,7 +535,11 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
     );
   }
 
-  Widget _buildRecordRow(String label, String value) {
+  Widget _buildRecordRow(
+    String label,
+    String value, {
+    required bool isGirly,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -511,17 +547,18 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color:
+                  isGirly ? GirlyColors.textSecondary : AppColors.textSecondary,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: isGirly ? GirlyColors.textPrimary : AppColors.textPrimary,
             ),
           ),
         ],

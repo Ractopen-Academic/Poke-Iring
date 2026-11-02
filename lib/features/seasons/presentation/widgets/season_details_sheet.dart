@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/girly_theme.dart';
 import '../../data/services/season_service_impl.dart';
 import '../../domain/entities/season_period.dart';
 import 'season_rollover_dialog.dart';
@@ -49,6 +50,12 @@ class SeasonDetailsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGirly = GirlyThemeProvider.isGirly(context);
+    final accent = isGirly ? GirlyColors.primaryDark : AppColors.primary;
+    final textPrimary =
+        isGirly ? GirlyColors.textPrimary : AppColors.textPrimary;
+    final textSecondary =
+        isGirly ? GirlyColors.textSecondary : AppColors.textSecondary;
     final projected = SeasonServiceImpl.instance.calculateRollover(
       userId: userId,
       season: season,
@@ -58,9 +65,9 @@ class SeasonDetailsSheet extends StatelessWidget {
     );
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: isGirly ? GirlyColors.surface : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -79,7 +86,7 @@ class SeasonDetailsSheet extends StatelessWidget {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: isGirly ? GirlyColors.border : AppColors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -91,12 +98,12 @@ class SeasonDetailsSheet extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(25),
+                    color: accent.withAlpha(25),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.event_repeat_rounded,
-                    color: AppColors.primary,
+                    color: accent,
                     size: 24,
                   ),
                 ),
@@ -107,19 +114,19 @@ class SeasonDetailsSheet extends StatelessWidget {
                     children: [
                       Text(
                         season.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         season.remainingFormatted,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          color: accent,
                         ),
                       ),
                     ],
@@ -130,9 +137,9 @@ class SeasonDetailsSheet extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               season.description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: textSecondary,
                 height: 1.35,
               ),
             ),
@@ -141,19 +148,23 @@ class SeasonDetailsSheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color:
+                    isGirly ? GirlyColors.primaryLight : AppColors.background,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(
+                  color: isGirly ? GirlyColors.border : AppColors.border,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
                       Icon(
                         Icons.military_tech_rounded,
                         size: 18,
-                        color: AppColors.secondary,
+                        color:
+                            isGirly ? GirlyColors.primary : AppColors.secondary,
                       ),
                       SizedBox(width: 8),
                       Text(
@@ -161,7 +172,7 @@ class SeasonDetailsSheet extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: textPrimary,
                         ),
                       ),
                     ],
@@ -170,67 +181,77 @@ class SeasonDetailsSheet extends StatelessWidget {
                   _RewardMetricRow(
                     label: 'Current Standing',
                     value: '$divisionTitle (#$userRank)',
+                    isGirly: isGirly,
                   ),
                   const SizedBox(height: 6),
                   _RewardMetricRow(
                     label: 'Lifetime Mythic Prestige',
                     value: '+${projected.prestigeEarned} Points',
                     highlight: true,
+                    isGirly: isGirly,
                   ),
                   const SizedBox(height: 6),
                   _RewardMetricRow(
                     label: 'Permanent Trophy Crest',
                     value: projected.trophyCrest.label,
+                    isGirly: isGirly,
                   ),
                   const SizedBox(height: 6),
                   _RewardMetricRow(
                     label: 'Next Season Starting Floor',
                     value:
                         '${projected.startingPlacementDivision} (${projected.startingPlacementPoints} pts)',
+                    isGirly: isGirly,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 18),
             // Soft Reset Rules Accordion / Cards
-            const Text(
+            Text(
               'How Seasonal Resets Work',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: textPrimary,
               ),
             ),
             const SizedBox(height: 10),
             _RuleStepTile(
               stepNumber: '1',
               title: 'Soft Reset Placement',
-              description: 'Paw points compress into placement brackets so new explorers can compete while veteran ranks earn higher starting floors.',
+              description:
+                  'Paw points compress into placement brackets so new explorers can compete while veteran ranks earn higher starting floors.',
+              isGirly: isGirly,
             ),
             const SizedBox(height: 8),
             _RuleStepTile(
               stepNumber: '2',
               title: 'Mythic Prestige Minting',
-              description: '100% of seasonal points plus top-tier rank bonuses are minted into permanent Mythic Prestige points on your profile.',
+              description:
+                  '100% of seasonal points plus top-tier rank bonuses are minted into permanent Mythic Prestige points on your profile.',
+              isGirly: isGirly,
             ),
             const SizedBox(height: 8),
             _RuleStepTile(
               stepNumber: '3',
               title: 'Permanent Trophy Crests',
-              description: 'Gold, Silver, and Bronze Mythic Paws are permanently archived to your Explorer Showcase.',
+              description:
+                  'Gold, Silver, and Bronze Mythic Paws are permanently archived to your Explorer Showcase.',
+              isGirly: isGirly,
             ),
             const SizedBox(height: 20),
             // Simulate rollover button
             OutlinedButton.icon(
               onPressed: () async {
                 Navigator.of(context).pop();
-                final record = await SeasonServiceImpl.instance
-                    .completeSeasonRollover(
-                      userId: userId,
-                      currentPoints: userPoints,
-                      currentRank: userRank,
-                      divisionTitle: divisionTitle,
-                    );
+                final record =
+                    await SeasonServiceImpl.instance.completeSeasonRollover(
+                  userId: userId,
+                  currentPoints: userPoints,
+                  currentRank: userRank,
+                  divisionTitle: divisionTitle,
+                );
                 if (context.mounted) {
                   SeasonRolloverDialog.show(context, record);
                   onRolloverCompleted?.call();
@@ -242,8 +263,8 @@ class SeasonDetailsSheet extends StatelessWidget {
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
+                foregroundColor: accent,
+                side: BorderSide(color: accent),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -261,11 +282,13 @@ class _RewardMetricRow extends StatelessWidget {
   final String label;
   final String value;
   final bool highlight;
+  final bool isGirly;
 
   const _RewardMetricRow({
     required this.label,
     required this.value,
     this.highlight = false,
+    required this.isGirly,
   });
 
   @override
@@ -276,7 +299,11 @@ class _RewardMetricRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(
+            fontSize: 12,
+            color:
+                isGirly ? GirlyColors.textSecondary : AppColors.textSecondary,
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -286,7 +313,9 @@ class _RewardMetricRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: highlight ? AppColors.primary : AppColors.textPrimary,
+              color: highlight
+                  ? (isGirly ? GirlyColors.primaryDark : AppColors.primary)
+                  : (isGirly ? GirlyColors.textPrimary : AppColors.textPrimary),
             ),
           ),
         ),
@@ -299,11 +328,13 @@ class _RuleStepTile extends StatelessWidget {
   final String stepNumber;
   final String title;
   final String description;
+  final bool isGirly;
 
   const _RuleStepTile({
     required this.stepNumber,
     required this.title,
     required this.description,
+    required this.isGirly,
   });
 
   @override
@@ -311,9 +342,11 @@ class _RuleStepTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isGirly ? GirlyColors.primaryLight : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: isGirly ? GirlyColors.border : AppColors.border,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,16 +355,17 @@ class _RuleStepTile extends StatelessWidget {
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(20),
+              color: (isGirly ? GirlyColors.primaryDark : AppColors.primary)
+                  .withAlpha(20),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 stepNumber,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.primary,
+                  color: isGirly ? GirlyColors.primaryDark : AppColors.primary,
                 ),
               ),
             ),
@@ -343,18 +377,22 @@ class _RuleStepTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: isGirly
+                        ? GirlyColors.textPrimary
+                        : AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
-                    color: AppColors.textSecondary,
+                    color: isGirly
+                        ? GirlyColors.textSecondary
+                        : AppColors.textSecondary,
                     height: 1.3,
                   ),
                 ),
