@@ -149,9 +149,11 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppColors.calicoBlack,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.primary.withAlpha(55)),
+                color: AppColors.chromeTrack,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: AppColors.gingerBorder.withAlpha(120),
+                ),
               ),
               child: Row(
                 children: [
@@ -227,37 +229,21 @@ class _CategoryTab extends StatelessWidget {
         onTap();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withAlpha(40),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
+          color: isSelected ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CalicoAnimatedBar(isActive: isSelected, activeWidth: 18),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected
-                    ? AppColors.calicoBlack
-                    : AppColors.calicoMuted,
-              ),
-            ),
-          ],
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+          ),
         ),
       ),
     );

@@ -35,11 +35,9 @@ class PawQuestCard extends StatelessWidget {
     return CalicoSpotCard(
       padding: const EdgeInsets.all(16),
       borderRadius: 18,
-      backgroundColor: isCompleted && !isClaimed
-          ? const Color(0xFFFFFCF8)
-          : Colors.white,
+      backgroundColor: AppColors.surface,
       borderColor: isCompleted && !isClaimed
-          ? AppColors.primary.withAlpha(170)
+          ? AppColors.primary
           : AppColors.border,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,13 +48,11 @@ class PawQuestCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
-                  color: isCompleted
-                      ? AppColors.calicoBlack
-                      : AppColors.creamSurface,
+                  color: AppColors.chromeTrack,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isCompleted
-                        ? AppColors.primary.withAlpha(90)
+                        ? AppColors.primary.withAlpha(120)
                         : AppColors.gingerBorder,
                   ),
                 ),
@@ -65,7 +61,7 @@ class PawQuestCard extends StatelessWidget {
                   size: 20,
                   color: isCompleted
                       ? AppColors.primary
-                      : AppColors.primaryDark,
+                      : const Color(0xFFB3A89D),
                 ),
               ),
               const SizedBox(width: 12),
@@ -95,11 +91,10 @@ class PawQuestCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: AppColors.gingerSoft,
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.gingerBorder),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -107,15 +102,15 @@ class PawQuestCard extends StatelessWidget {
                     const Icon(
                       Icons.star_rounded,
                       size: 14,
-                      color: AppColors.primary,
+                      color: Colors.white,
                     ),
-                    const SizedBox(width: 3),
+                    const SizedBox(width: 4),
                     Text(
                       '+${quest.rewardPawPoints}',
                       style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.primaryDark,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -133,7 +128,7 @@ class PawQuestCard extends StatelessWidget {
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
                   color: isCompleted
-                      ? AppColors.primaryDark
+                      ? AppColors.primary
                       : AppColors.textSecondary,
                 ),
               ),
@@ -143,7 +138,7 @@ class PawQuestCard extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: isCompleted
-                      ? AppColors.primaryDark
+                      ? AppColors.primary
                       : AppColors.textSecondary,
                 ),
               ),
@@ -159,9 +154,9 @@ class PawQuestCard extends StatelessWidget {
                 height: 8,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.creamSurface,
+                  color: const Color(0x1FFFFFFF),
                   borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: AppColors.border, width: 0.8),
+                  border: Border.all(color: const Color(0x22FFFFFF), width: 0.8),
                 ),
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,

@@ -292,7 +292,7 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
-        expect(find.byType(FloatingSnapIringButton), findsOneWidget);
+        expect(find.byType(FloatingSnapIringButton), findsNothing);
         expect(find.byType(LiveMapPage), findsNothing);
 
         await tester.tap(find.byType(IringCenterButton));
@@ -308,6 +308,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 300));
 
         expect(find.byType(LiveMapPage), findsNothing);
+        expect(find.byType(FloatingSnapIringButton), findsNothing);
 
         await tester.tap(find.text('Dex'));
         await tester.pump();

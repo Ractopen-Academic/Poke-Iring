@@ -26,25 +26,25 @@ class StoryCircleItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 72,
-        margin: const EdgeInsets.symmetric(horizontal: 4),
+        width: 70,
+        margin: const EdgeInsets.symmetric(horizontal: 5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               alignment: Alignment.center,
               children: [
-                // Instagram-style gradient ring
+                // Feline story ring
                 Container(
-                  width: 62,
-                  height: 62,
+                  width: 54,
+                  height: 54,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: isUser
                         ? null
                         : isViewed
                         ? const LinearGradient(
-                            colors: [Color(0xFFBDBDBD), Color(0xFFE0E0E0)],
+                            colors: [Color(0xFF554A43), Color(0xFF7A6D65)],
                           )
                         : const LinearGradient(
                             colors: [
@@ -57,17 +57,17 @@ class StoryCircleItem extends StatelessWidget {
                           ),
                     color: isUser ? Colors.transparent : null,
                   ),
-                  padding: const EdgeInsets.all(2.5),
+                  padding: const EdgeInsets.all(2.2),
                   child: Container(
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white,
+                      color: AppColors.surface,
                     ),
                     padding: const EdgeInsets.all(2),
                     child: FelineAvatar(
                       photoUrl: photoUrl,
                       seed: seed,
-                      radius: 25,
+                      radius: 21,
                     ),
                   ),
                 ),
@@ -76,15 +76,15 @@ class StoryCircleItem extends StatelessWidget {
                     right: 0,
                     bottom: 0,
                     child: Container(
-                      width: 20,
-                      height: 20,
+                      width: 18,
+                      height: 18,
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: AppColors.surface, width: 2),
                       ),
                       child: const Center(
-                        child: Icon(Icons.add, size: 13, color: Colors.white),
+                        child: Icon(Icons.add, size: 12, color: Colors.white),
                       ),
                     ),
                   ),
@@ -93,11 +93,12 @@ class StoryCircleItem extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               label,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10.5,
+                height: 1.15,
                 fontWeight: isViewed ? FontWeight.w500 : FontWeight.w700,
                 color: isViewed
                     ? AppColors.textSecondary

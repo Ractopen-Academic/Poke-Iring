@@ -215,8 +215,8 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                   entry: second,
                   rank: 2,
                   pedestalHeight: 46,
-                  accentColor: AppColors.calicoCharcoal,
-                  bgColor: const Color(0xFFF3ECE7),
+                  accentColor: const Color(0xFFC0C7D0),
+                  bgColor: const Color(0xFF26201D),
                   floatOffset: 0,
                 ),
               AnimatedBuilder(
@@ -230,7 +230,7 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                       rank: 1,
                       pedestalHeight: 62,
                       accentColor: AppColors.primary,
-                      bgColor: AppColors.gingerSoft,
+                      bgColor: AppColors.primary,
                       isChampion: true,
                       floatOffset: dy,
                     ),
@@ -242,8 +242,8 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                   entry: third,
                   rank: 3,
                   pedestalHeight: 38,
-                  accentColor: const Color(0xFFB86B35),
-                  bgColor: AppColors.creamSurface,
+                  accentColor: const Color(0xFFCD7F32),
+                  bgColor: const Color(0xFF221C19),
                   floatOffset: 0,
                 ),
             ],
@@ -278,7 +278,7 @@ class _MiniPodiumItem extends StatelessWidget {
     final avatarSize = isChampion ? 50.0 : 42.0;
 
     return SizedBox(
-      width: 90,
+      width: 98,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -292,7 +292,7 @@ class _MiniPodiumItem extends StatelessWidget {
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
+                  color: AppColors.surface,
                   border: Border.all(
                     color: accentColor,
                     width: isChampion ? 2.5 : 1.8,
@@ -338,18 +338,24 @@ class _MiniPodiumItem extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            entry.displayName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: isChampion ? 11.5 : 10.5,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+          SizedBox(
+            height: 28,
+            child: Center(
+              child: Text(
+                entry.displayName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isChampion ? 11 : 10,
+                  height: 1.15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 1),
+          const SizedBox(height: 2),
           Text(
             '${entry.points} pts',
             style: TextStyle(
@@ -367,13 +373,16 @@ class _MiniPodiumItem extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(12),
               ),
-              border: Border.all(color: accentColor.withAlpha(65), width: 1.1),
+              border: Border.all(
+                color: accentColor.withAlpha(isChampion ? 180 : 100),
+                width: 1.2,
+              ),
             ),
             child: Center(
               child: Icon(
                 isChampion ? Icons.stars_rounded : Icons.military_tech_rounded,
-                size: isChampion ? 18 : 15,
-                color: accentColor,
+                size: isChampion ? 20 : 16,
+                color: isChampion ? Colors.white : accentColor,
               ),
             ),
           ),

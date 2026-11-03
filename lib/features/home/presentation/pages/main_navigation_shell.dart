@@ -333,10 +333,10 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                 ),
               ),
             ),
-          if (_currentIndex == 0 || _isShowingMap)
+          if (_isShowingMap)
             FloatingSnapIringButton(
               onTap: _openQuickSnapCamera,
-              bottomSafeMargin: _isShowingMap ? 246.0 : 128.0,
+              bottomSafeMargin: 246.0,
             ),
         ],
       ),
@@ -379,28 +379,25 @@ class _HomePageState extends State<_HomePage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Row(
+        centerTitle: true,
+        title: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary,
+            Icon(
+              Icons.pets_rounded,
+              size: 19,
+              color: AppColors.primary,
+            ),
+            SizedBox(width: 8),
+            Text(
+              AppStrings.appName,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textPrimary,
+                letterSpacing: -0.4,
               ),
             ),
-            const SizedBox(width: 4),
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.calicoBlack,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(AppStrings.appName),
           ],
         ),
         backgroundColor: AppColors.background,
@@ -415,7 +412,7 @@ class _HomePageState extends State<_HomePage> {
             final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.only(top: 12, bottom: 28),
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 116),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -669,41 +666,46 @@ class _MiniMetric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
       decoration: BoxDecoration(
-        color: AppColors.creamSurface.withAlpha(160),
+        color: AppColors.fieldFill,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFFB3A89D),
+              letterSpacing: 0.6,
+            ),
+          ),
+          const SizedBox(height: 6),
           Row(
             children: [
-              Icon(icon, size: 13, color: accent),
-              const SizedBox(width: 5),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+              Icon(icon, size: 16, color: accent),
+              const SizedBox(width: 7),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  child: Text(
+                    value,
+                    key: ValueKey<String>(value),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 5),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            child: Text(
-              value,
-              key: ValueKey<String>(value),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
-              ),
-            ),
           ),
         ],
       ),
