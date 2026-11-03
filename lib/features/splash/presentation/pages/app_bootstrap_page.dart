@@ -43,10 +43,14 @@ class AppBootstrapPage extends StatefulWidget {
   State<AppBootstrapPage> createState() => _AppBootstrapPageState();
 }
 
-class _AppBootstrapPageState extends State<AppBootstrapPage> {
+class _AppBootstrapPageState extends State<AppBootstrapPage>
+    with SingleTickerProviderStateMixin {
   late final NetworkInfo _networkInfo;
   late final LocationService _locationService;
   late final TilePrecacheService _tilePrecacheService;
+  late final AnimationController _breathingController;
+  late final Animation<double> _breathingScale;
+  late final Animation<double> _subtleBob;
 
   String _statusText = 'Initializing services...';
   double _progress = 0.15;
@@ -60,7 +64,32 @@ class _AppBootstrapPageState extends State<AppBootstrapPage> {
     _tilePrecacheService =
         widget.tilePrecacheService ?? TilePrecacheServiceImpl();
 
+    _breathingController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+
+    _breathingScale = Tween<double>(begin: 0.975, end: 1.025).animate(
+      CurvedAnimation(
+        parent: _breathingController,
+        curve: Curves.easeInOutSine,
+      ),
+    );
+
+    _subtleBob = Tween<double>(begin: 2.0, end: -3.0).animate(
+      CurvedAnimation(
+        parent: _breathingController,
+        curve: Curves.easeInOutSine,
+      ),
+    );
+
     _runBootstrap();
+  }
+
+  @override
+  void dispose() {
+    _breathingController.dispose();
+    super.dispose();
   }
 
   Future<void> _runBootstrap() async {
@@ -134,48 +163,67 @@ class _AppBootstrapPageState extends State<AppBootstrapPage> {
                       alignment: Alignment.center,
                       children: [
                         Container(
-                          width: 170,
-                          height: 170,
+                          width: 180,
+                          height: 180,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                AppColors.primary.withAlpha(24),
+                                AppColors.primary.withAlpha(26),
                                 AppColors.primary.withAlpha(0),
                               ],
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          width: 140,
-                          height: 110,
-                          child: CalicoLoginMascot(),
+                        AnimatedBuilder(
+                          animation: _breathingController,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, _subtleBob.value),
+                              child: Transform.scale(
+                                scale: _breathingScale.value,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: const SizedBox(
+                            width: 140,
+                            height: 110,
+                            child: CalicoLoginMascot(),
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 20),
                     Text(
                       _statusText,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                        color: Color(0xFFA69B91),
                         letterSpacing: -0.2,
                       ),
                     ),
                     const SizedBox(height: 16),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(9999),
                       child: SizedBox(
-                        width: 160,
+                        width: 170,
                         height: 6,
-                        child: LinearProgressIndicator(
-                          value: _progress,
-                          backgroundColor: AppColors.progressTrack,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.gingerSoft,
-                          ),
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0.0, end: _progress),
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, progressVal, _) {
+                            return LinearProgressIndicator(
+                              value: progressVal,
+                              backgroundColor: AppColors.progressTrack,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.primary,
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
