@@ -38,20 +38,18 @@ class DexSpeciesCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDiscovered ? Colors.white : const Color(0xFFF6F7F9),
+          color: isDiscovered ? AppColors.surface : AppColors.chromeTrack,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isDiscovered
-                ? rarityColor.withAlpha(60)
-                : Colors.grey.shade300,
-            width: isDiscovered ? 1.5 : 1.0,
+            color: isDiscovered ? rarityColor.withAlpha(90) : AppColors.border,
+            width: isDiscovered ? 1.4 : 1.0,
           ),
           boxShadow: isDiscovered
               ? [
                   BoxShadow(
-                    color: Colors.black.withAlpha(6),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    color: Colors.black.withAlpha(25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
                   ),
                 ]
               : null,
@@ -69,7 +67,7 @@ class DexSpeciesCard extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                     color: isDiscovered
                         ? AppColors.textSecondary
-                        : Colors.grey.shade500,
+                        : const Color(0xFF8A7D75),
                   ),
                 ),
                 if (isDiscovered)
@@ -79,7 +77,7 @@ class DexSpeciesCard extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: rarityColor.withAlpha(20),
+                      color: rarityColor.withAlpha(35),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -92,10 +90,10 @@ class DexSpeciesCard extends StatelessWidget {
                     ),
                   )
                 else
-                  Icon(
+                  const Icon(
                     Icons.lock_outline_rounded,
                     size: 13,
-                    color: Colors.grey.shade500,
+                    color: Color(0xFF8A7D75),
                   ),
               ],
             ),
@@ -108,23 +106,23 @@ class DexSpeciesCard extends StatelessWidget {
                       seed: species.defaultSeed,
                       radius: 32,
                       showBorder: true,
-                      borderColor: rarityColor.withAlpha(80),
+                      borderColor: rarityColor.withAlpha(90),
                       borderWidth: 2,
                     )
                   : Container(
                       width: 64,
                       height: 64,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.grey.shade300,
+                        color: AppColors.calicoCharcoal,
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           '?',
                           style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
-                            color: Colors.grey.shade600,
+                            color: Color(0xFF8A7D75),
                           ),
                         ),
                       ),
@@ -142,7 +140,7 @@ class DexSpeciesCard extends StatelessWidget {
                 fontWeight: FontWeight.w800,
                 color: isDiscovered
                     ? AppColors.textPrimary
-                    : Colors.grey.shade600,
+                    : const Color(0xFF8A7D75),
               ),
             ),
             const SizedBox(height: 2),
@@ -157,7 +155,9 @@ class DexSpeciesCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
-                color: isDiscovered ? AppColors.primary : Colors.grey.shade500,
+                color: isDiscovered
+                    ? AppColors.primary
+                    : const Color(0xFF8A7D75),
               ),
             ),
           ],

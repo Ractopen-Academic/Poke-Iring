@@ -29,7 +29,7 @@ class DexProgressHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border),
       ),
@@ -68,9 +68,9 @@ class DexProgressHeader extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(20),
+                  color: AppColors.primary.withAlpha(35),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.primary.withAlpha(50)),
+                  border: Border.all(color: AppColors.primary.withAlpha(90)),
                 ),
                 child: Text(
                   rankTitle,
@@ -89,7 +89,7 @@ class DexProgressHeader extends StatelessWidget {
             child: LinearProgressIndicator(
               value: ratio,
               minHeight: 10,
-              backgroundColor: const Color(0xFFEEEEF2),
+              backgroundColor: const Color(0x1FFFFFFF),
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppColors.primary,
               ),
@@ -138,7 +138,7 @@ class _MetricPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
+        color: AppColors.fieldFill,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColors.border),
       ),
@@ -153,14 +153,15 @@ class _MetricPill extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 9.5,
-                  color: AppColors.textSecondary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFB3A89D),
                 ),
               ),
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 11.5,
+                  fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),

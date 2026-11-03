@@ -160,6 +160,7 @@ class _IringDexPageState extends State<IringDexPage> {
             icon: const Icon(Icons.camera_alt_outlined),
             onPressed: _openCamera,
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
@@ -188,8 +189,10 @@ class _IringDexPageState extends State<IringDexPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            DexProgressHeader(entries: entries),
-                            const SizedBox(height: 16),
+                            if (_viewMode == DexViewMode.catalog) ...[
+                              DexProgressHeader(entries: entries),
+                              const SizedBox(height: 16),
+                            ],
                             _buildSegmentedTab(
                               sightings.length,
                               entries.length,
@@ -214,7 +217,7 @@ class _IringDexPageState extends State<IringDexPage> {
                           onOpenScanner: _openCamera,
                         ),
                       ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 90)),
+                    const SliverToBoxAdapter(child: SizedBox(height: 120)),
                   ],
                 );
               },
@@ -229,9 +232,9 @@ class _IringDexPageState extends State<IringDexPage> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.calicoBlack,
+        color: const Color(0xFF1C1715),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withAlpha(55)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
@@ -267,6 +270,7 @@ class _IringDexPageState extends State<IringDexPage> {
   Widget _buildFilterChips() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      clipBehavior: Clip.none,
       child: Row(
         children: [
           _filterChip(label: 'All Species', tier: DexFilterTier.all),
@@ -276,6 +280,7 @@ class _IringDexPageState extends State<IringDexPage> {
           _filterChip(label: 'Rare Breeds', tier: DexFilterTier.rare),
           const SizedBox(width: 8),
           _filterChip(label: 'Mythic Encounters', tier: DexFilterTier.mythic),
+          const SizedBox(width: 24),
         ],
       ),
     );
@@ -290,12 +295,12 @@ class _IringDexPageState extends State<IringDexPage> {
         HapticFeedback.selectionClick();
         setState(() => _selectedFilter = tier);
       },
-      backgroundColor: Colors.white,
-      selectedColor: AppColors.calicoBlack,
+      backgroundColor: AppColors.chromeTrack,
+      selectedColor: AppColors.primary,
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-        color: isSelected ? Colors.white : AppColors.textPrimary,
+        color: isSelected ? Colors.white : AppColors.textSecondary,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(99),
@@ -492,12 +497,12 @@ class _TabButton extends StatelessWidget {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withAlpha(45),
+                    color: AppColors.primary.withAlpha(80),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -506,13 +511,14 @@ class _TabButton extends StatelessWidget {
         ),
         child: Column(
           children: [
-            CalicoAnimatedBar(isActive: isSelected, activeWidth: 16),
             Text(
               title,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? AppColors.calicoBlack : Colors.white,
+                color: isSelected
+                    ? const Color(0xFFF7EFE8)
+                    : AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 2),
@@ -522,8 +528,8 @@ class _TabButton extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: isSelected
-                    ? AppColors.primaryDark
-                    : AppColors.calicoMuted,
+                    ? const Color(0xFFFFECE0)
+                    : const Color(0xFF8A7D75),
               ),
             ),
           ],

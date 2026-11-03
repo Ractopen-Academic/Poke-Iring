@@ -45,12 +45,12 @@ class DexSightingCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(5),
+              color: Colors.black.withAlpha(20),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -166,15 +166,18 @@ class DexSightingCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary.withAlpha(25),
+                          color: AppColors.primary.withAlpha(35),
                           borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: AppColors.primary.withAlpha(90),
+                          ),
                         ),
                         child: Text(
                           sighting.coatPattern,
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.secondary,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -228,10 +231,10 @@ class DexSightingCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       '"${sighting.quirk}"',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontStyle: FontStyle.italic,
-                        color: Colors.grey.shade600,
+                        color: Color(0xFFC2B5A8),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -248,7 +251,7 @@ class DexSightingCard extends StatelessWidget {
 
   Widget _buildFallbackPhotoHeader() {
     return Container(
-      color: const Color(0xFFF0F2F5),
+      color: AppColors.chromeTrack,
       child: Center(
         child: FelineAvatar(
           photoUrl: sighting.photoUrl,

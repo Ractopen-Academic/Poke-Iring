@@ -115,7 +115,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
@@ -129,7 +129,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: const Color(0xFF554A43),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -147,7 +147,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                         BoxShadow(
                           color: entry.isDiscovered
                               ? rarityColor.withAlpha(40)
-                              : Colors.black.withAlpha(15),
+                              : Colors.black.withAlpha(25),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -162,7 +162,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                       showBorder: true,
                       borderColor: entry.isDiscovered
                           ? rarityColor
-                          : Colors.grey.shade300,
+                          : const Color(0xFF554A43),
                       borderWidth: 3,
                     ),
                   ),
@@ -193,10 +193,10 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
             Center(
               child: Text(
                 species.formattedNumber,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: Colors.grey.shade600,
+                  color: Color(0xFFC2B5A8),
                   letterSpacing: 1.2,
                 ),
               ),
@@ -233,9 +233,9 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: rarityColor.withAlpha(25),
+                    color: rarityColor.withAlpha(35),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: rarityColor.withAlpha(80)),
+                    border: Border.all(color: rarityColor.withAlpha(90)),
                   ),
                   child: Text(
                     species.rarity.displayName.toUpperCase(),
@@ -253,8 +253,9 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F1F5),
+                    color: AppColors.fieldFill,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Text(
                     species.coatPattern,
@@ -272,8 +273,9 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(20),
+                    color: AppColors.primary.withAlpha(35),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.primary.withAlpha(90)),
                   ),
                   child: Text(
                     '${species.rarity.defaultMultiplier}x Points',
@@ -301,7 +303,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFC),
+                  color: AppColors.fieldFill,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -335,10 +337,10 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           '"${entry.sightings.first.quirk}"',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11.5,
                             fontStyle: FontStyle.italic,
-                            color: Colors.grey.shade700,
+                            color: Color(0xFFC2B5A8),
                           ),
                         ),
                       ),
@@ -371,6 +373,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.fieldFill,
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         side: BorderSide(
                           color: _isPinned
@@ -401,6 +404,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.fieldFill,
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         side: const BorderSide(color: AppColors.border),
                         shape: RoundedRectangleBorder(
@@ -413,8 +417,13 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                   IconButton.outlined(
                     tooltip: 'Share Card',
                     onPressed: _handleShareCard,
-                    icon: const Icon(Icons.share_outlined, size: 18),
+                    icon: const Icon(
+                      Icons.share_outlined,
+                      size: 18,
+                      color: AppColors.textPrimary,
+                    ),
                     style: IconButton.styleFrom(
+                      backgroundColor: AppColors.fieldFill,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -428,19 +437,19 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F6F8),
+                  color: AppColors.chromeTrack,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
                     Icon(
                       Icons.info_outline_rounded,
-                      color: Colors.grey.shade600,
+                      color: AppColors.primary,
                       size: 20,
                     ),
-                    const SizedBox(width: 10),
-                    const Expanded(
+                    SizedBox(width: 10),
+                    Expanded(
                       child: Text(
                         'Undiscovered in your Iring-Dex. Point your scanner camera at neighborhood cats to reveal this record.',
                         style: TextStyle(
@@ -486,8 +495,9 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
           title,
           style: const TextStyle(
             fontSize: 12.5,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFFC2B5A8),
+            letterSpacing: 0.3,
           ),
         ),
         const SizedBox(height: 4),
@@ -496,7 +506,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
           style: const TextStyle(
             fontSize: 13.5,
             color: AppColors.textPrimary,
-            height: 1.4,
+            height: 1.45,
           ),
         ),
       ],
