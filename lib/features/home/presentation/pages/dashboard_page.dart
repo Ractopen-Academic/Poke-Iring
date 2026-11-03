@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_version.dart';
+import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
@@ -13,10 +13,7 @@ import '../../../achievements/presentation/widgets/equipped_title_badge.dart';
 import '../../../achievements/presentation/widgets/title_selection_sheet.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
-import '../../../dex/presentation/pages/iring_dex_page.dart';
 import '../../../health/services/explorer_health_service.dart';
-import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
-import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
 import '../../../seasons/data/services/season_service_impl.dart';
 import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
@@ -113,10 +110,18 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text(AppStrings.appName),
-        backgroundColor: Colors.white,
+        title: const Text(
+          'Explorer Profile',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
             tooltip: 'Sign Out',
@@ -127,14 +132,14 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -227,7 +232,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.border),
                     ),
@@ -278,9 +283,15 @@ class _DashboardPageState extends State<DashboardPage> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: territory.isHomeConfirmed
-                                            ? const Color(0xFFDCFCE7)
-                                            : const Color(0xFFFEF3C7),
+                                            ? const Color(0xFF13361E)
+                                            : const Color(0xFF332011),
                                         borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(
+                                          color: territory.isHomeConfirmed
+                                              ? const Color(0xFF166534)
+                                              : const Color(0xFF92400E),
+                                          width: 0.8,
+                                        ),
                                       ),
                                       child: Text(
                                         territory.isHomeConfirmed
@@ -290,8 +301,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                           fontSize: 9.5,
                                           fontWeight: FontWeight.w700,
                                           color: territory.isHomeConfirmed
-                                              ? const Color(0xFF166534)
-                                              : const Color(0xFF92400E),
+                                              ? const Color(0xFF86EFAC)
+                                              : const Color(0xFFFDBA74),
                                         ),
                                       ),
                                     ),
@@ -391,7 +402,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: isClub ? const Color(0xFFFFF8E1) : Colors.white,
+                      color: isClub
+                          ? const Color(0xFF2C2216)
+                          : AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isClub
@@ -432,7 +445,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   color: isClub
-                                      ? const Color(0xFF4E342E)
+                                      ? const Color(0xFFFFD54F)
                                       : AppColors.textPrimary,
                                 ),
                               ),
@@ -444,7 +457,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: isClub
-                                      ? const Color(0xFF6D4C41)
+                                      ? const Color(0xFFFFE082)
                                       : AppColors.textSecondary,
                                 ),
                               ),
@@ -559,9 +572,11 @@ class _DashboardPageState extends State<DashboardPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF9C4).withAlpha(120),
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFFFD54F)),
+                      border: Border.all(
+                        color: const Color(0xFFFFB300).withAlpha(120),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -580,7 +595,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF5D4037),
+                                  color: Color(0xFFFFD54F),
                                 ),
                               ),
                               const SizedBox(height: 1),
@@ -589,17 +604,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFF4E342E),
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Text(
+                        const Text(
                           'Archived prestige',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.brown.shade400,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -607,9 +622,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   );
                 },
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               const Text(
-                'Navigation Modules',
+                'Coat Appearance',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -617,111 +632,164 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              _ModuleTile(
-                icon: Icons.leaderboard_outlined,
-                title: 'Leaderboard',
-                subtitle: 'Seasonal territory standings and rankings',
-                onTap: () async {
-                  final territory = await TerritoryServiceImpl.instance
-                      .getTerritory(
-                        widget.user.id.isNotEmpty
-                            ? widget.user.id
-                            : widget.user.email,
-                      );
-                  if (!context.mounted) return;
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => LeaderboardPage(
-                        currentUserId: widget.user.id.isNotEmpty
-                            ? widget.user.id
-                            : widget.user.email,
-                        initialBarangay: territory.barangay,
-                        initialCity: territory.city,
-                        initialRegion: territory.province,
-                        initialCountry: territory.country,
-                        isAdmin: widget.user.isAdminRole,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              _ModuleTile(
-                icon: Icons.favorite_outline_rounded,
-                title: 'Explorer Health',
-                subtitle: 'Live step count, distance, and active minutes',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Explorer health is live on the home screen and account stats.',
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              _ModuleTile(
-                icon: Icons.map_outlined,
-                title: 'Live Sightings Map',
-                subtitle: 'Real-time 10-minute cat discoveries nearby',
-                onTap:
-                    widget.onOpenMap ??
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Use center Iring button to view map'),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withAlpha(20),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.palette_outlined,
+                            size: 20,
+                            color: AppColors.primary,
+                          ),
                         ),
-                      );
-                    },
-              ),
-              const SizedBox(height: 10),
-              _ModuleTile(
-                icon: Icons.camera_alt_outlined,
-                title: 'Cat Scanner',
-                subtitle: 'Vision breed classifier & paw points calculator',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CatScannerPage(user: widget.user),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Theme Foundation',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                CalicoThemeController.instance.isCalicoWhite
+                                    ? 'Calico White (Snowy coat with cinnamon)'
+                                    : 'Calico Dark (Obsidian chrome with amber)',
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              _ModuleTile(
-                icon: Icons.collections_bookmark_outlined,
-                title: 'Iring-Dex',
-                subtitle: 'Catalog of documented feline species',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => IringDexPage(user: widget.user),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              _ModuleTile(
-                icon: Icons.military_tech_outlined,
-                title: 'Achievements & Titles',
-                subtitle: '100 tiered bronze, silver & gold milestones',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AchievementsPage(
-                        userId: widget.user.id.isNotEmpty
-                            ? widget.user.id
-                            : widget.user.email,
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.chromeTrack,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () async {
+                                await CalicoThemeController.instance.setMode(
+                                  CalicoCoatMode.calicoDark,
+                                );
+                                if (mounted) setState(() {});
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 9,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      !CalicoThemeController
+                                          .instance
+                                          .isCalicoWhite
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                child: Text(
+                                  'Calico Dark',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color:
+                                        !CalicoThemeController
+                                            .instance
+                                            .isCalicoWhite
+                                        ? Colors.white
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () async {
+                                await CalicoThemeController.instance.setMode(
+                                  CalicoCoatMode.calicoWhite,
+                                );
+                                if (mounted) setState(() {});
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 9,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      CalicoThemeController
+                                          .instance
+                                          .isCalicoWhite
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                child: Text(
+                                  'Calico White',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color:
+                                        CalicoThemeController
+                                            .instance
+                                            .isCalicoWhite
+                                        ? Colors.white
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 24),
+              const Text(
+                'Explorer Hardware & Tools',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
               _ModuleTile(
                 icon: Icons.psychology_outlined,
                 title: 'AI Vision Settings',
@@ -746,6 +814,24 @@ class _DashboardPageState extends State<DashboardPage> {
                   );
                 },
               ),
+              const SizedBox(height: 10),
+              _ModuleTile(
+                icon: Icons.military_tech_outlined,
+                title: 'Achievements & Titles',
+                subtitle: '100 tiered bronze, silver & gold milestones',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AchievementsPage(
+                        userId: widget.user.id.isNotEmpty
+                            ? widget.user.id
+                            : widget.user.email,
+                      ),
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
               const Text(
                 'Explorer Showcase & Privacy',
@@ -759,7 +845,7 @@ class _DashboardPageState extends State<DashboardPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -841,7 +927,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ],
                     ),
-                    const Divider(height: 24),
+                    const Divider(height: 24, color: AppColors.border),
                     Row(
                       children: [
                         Expanded(
@@ -941,7 +1027,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border),
       ),
@@ -993,7 +1079,7 @@ class _ModuleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

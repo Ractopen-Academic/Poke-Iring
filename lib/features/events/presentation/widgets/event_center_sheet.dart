@@ -171,7 +171,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
 
             return Container(
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               constraints: BoxConstraints(
@@ -345,8 +345,9 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                     child: Container(
                       padding: const EdgeInsets.all(3.5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF1F5),
+                        color: AppColors.chromeTrack,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: Row(
                         children: [
@@ -398,12 +399,12 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
         return Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: isCompleted ? const Color(0xFFF9FAFB) : Colors.white,
+            color: isCompleted ? const Color(0xFF1E1A18) : AppColors.fieldFill,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isCompleted
-                  ? const Color(0xFFE5E7EB)
-                  : const Color(0xFFE5E7EB),
+                  ? AppColors.border.withAlpha(80)
+                  : AppColors.border,
             ),
           ),
           child: Row(
@@ -412,8 +413,8 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
                   color: isCompleted
-                      ? const Color(0xFFECFDF5)
-                      : event.bannerColor.withAlpha(20),
+                      ? const Color(0xFF1B3828)
+                      : AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -421,8 +422,8 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                       ? Icons.check_circle_rounded
                       : Icons.event_available_rounded,
                   color: isCompleted
-                      ? const Color(0xFF059669)
-                      : event.bannerColor,
+                      ? const Color(0xFF4ADE80)
+                      : AppColors.primary,
                   size: 20,
                 ),
               ),
@@ -437,7 +438,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                         fontSize: 13.5,
                         fontWeight: FontWeight.w700,
                         color: isCompleted
-                            ? AppColors.textSecondary
+                            ? const Color(0xFF8A7D75)
                             : AppColors.textPrimary,
                         decoration: isCompleted
                             ? TextDecoration.lineThrough
@@ -447,27 +448,30 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                     const SizedBox(height: 3),
                     Text(
                       quest.description,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11.5,
-                        color: AppColors.textSecondary.withAlpha(200),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+                        horizontal: 8,
+                        vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFEF3C7),
-                        borderRadius: BorderRadius.circular(5),
+                        color: AppColors.primary.withAlpha(35),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(80),
+                        ),
                       ),
                       child: Text(
                         '+${quest.rewardCoins} ${event.currencyCode}',
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFFB45309),
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -482,30 +486,33 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD1FAE5),
+                    color: const Color(0xFF1B3828),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF4ADE80).withAlpha(80),
+                    ),
                   ),
                   child: const Text(
                     'Claimed',
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF065F46),
+                      color: Color(0xFF4ADE80),
                     ),
                   ),
                 )
               else
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: event.bannerColor,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 14,
                       vertical: 8,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onPressed: () => _handleCompleteQuest(event, quest),
@@ -513,7 +520,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                     'Complete',
                     style: TextStyle(
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -539,9 +546,9 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
+              color: AppColors.fieldFill,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
+              border: Border.all(color: AppColors.border),
             ),
             child: Column(
               children: [
@@ -710,14 +717,14 @@ class _TabButton extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withAlpha(15),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+                    color: AppColors.primary.withAlpha(70),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ]
               : null,
@@ -728,7 +735,7 @@ class _TabButton extends StatelessWidget {
             Icon(
               icon,
               size: 15,
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
             ),
             const SizedBox(width: 6),
             Text(
@@ -736,7 +743,7 @@ class _TabButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                color: isSelected ? Colors.white : AppColors.textSecondary,
               ),
             ),
           ],
@@ -770,10 +777,10 @@ class _BorderCatalogCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF0FDF4) : Colors.white,
+          color: isSelected ? AppColors.fieldFill : AppColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : const Color(0xFFE5E7EB),
+            color: isSelected ? AppColors.primary : AppColors.border,
             width: isSelected ? 1.8 : 1.0,
           ),
         ),

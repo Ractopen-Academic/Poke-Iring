@@ -215,9 +215,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           'Explorer Leaderboard',
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
       body: Column(
         children: [
@@ -255,7 +256,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.border),
         ),
@@ -385,8 +386,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFEEEEEE),
+        color: AppColors.chromeTrack,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
       ),
       padding: const EdgeInsets.all(3),
       child: Row(
@@ -399,12 +401,12 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.transparent,
+                  color: isSelected ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: Colors.black.withAlpha(20),
+                            color: AppColors.primary.withAlpha(60),
                             blurRadius: 4,
                             offset: const Offset(0, 1),
                           ),
@@ -417,9 +419,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
+                    color: isSelected ? Colors.white : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -456,11 +456,11 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               label: Text(label),
               selected: isSelected,
               selectedColor: AppColors.primary,
-              backgroundColor: Colors.white,
+              backgroundColor: AppColors.chromeTrack,
               labelStyle: TextStyle(
                 fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.textPrimary,
+                color: isSelected ? Colors.white : AppColors.textSecondary,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),

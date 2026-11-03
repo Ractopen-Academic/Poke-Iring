@@ -32,12 +32,12 @@ class UserStandingCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withAlpha(50), width: 1.2),
+        border: Border.all(color: AppColors.primary.withAlpha(80), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withAlpha(12),
+            color: Colors.black.withAlpha(25),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

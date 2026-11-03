@@ -52,7 +52,7 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 28),
@@ -67,7 +67,7 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: const Color(0xFF554A43),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -166,7 +166,7 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7F8FA),
+                  color: AppColors.fieldFill,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -415,7 +415,7 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
   }
 
   Widget _buildVerticalDivider() {
-    return Container(width: 1, height: 28, color: Colors.grey.shade300);
+    return Container(width: 1, height: 28, color: AppColors.border);
   }
 
   Widget _buildPrivatePlaceholder() {
@@ -424,7 +424,7 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: const Color(0xFFF7F8FA),
+          color: AppColors.fieldFill,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.border),
         ),
@@ -432,14 +432,14 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.grey.shade200,
+                color: AppColors.calicoCharcoal,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.lock_outline_rounded,
                 size: 32,
-                color: Colors.grey.shade700,
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 14),

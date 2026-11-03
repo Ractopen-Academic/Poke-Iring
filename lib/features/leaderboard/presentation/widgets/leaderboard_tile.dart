@@ -32,7 +32,9 @@ class LeaderboardTile extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: isUser ? AppColors.primary.withAlpha(15) : Colors.white,
+              color: isUser
+                  ? AppColors.primary.withAlpha(25)
+                  : AppColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isUser ? AppColors.primary : AppColors.border,
@@ -40,7 +42,7 @@ class LeaderboardTile extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(8),
+                  color: Colors.black.withAlpha(20),
                   blurRadius: 4,
                   offset: const Offset(0, 1),
                 ),

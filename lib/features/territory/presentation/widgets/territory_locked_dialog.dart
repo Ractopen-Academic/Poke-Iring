@@ -43,13 +43,14 @@ class TerritoryLockedDialog extends StatelessWidget {
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(45),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
+              color: Colors.black.withAlpha(90),
+              blurRadius: 28,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -63,17 +64,18 @@ class TerritoryLockedDialog extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF374151), Color(0xFF1F2937)],
+                  colors: [Color(0xFF2E241E), Color(0xFF1E1714)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
+                border: Border(bottom: BorderSide(color: AppColors.border)),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(25),
+                      color: AppColors.primary.withAlpha(35),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -92,7 +94,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16.5,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 2),
@@ -100,7 +102,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                           'Annual Seasonal Cooldown',
                           style: TextStyle(
                             fontSize: 11.5,
-                            color: Colors.white70,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -130,7 +132,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.background,
+                      color: AppColors.fieldFill,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: AppColors.border),
                     ),
@@ -177,7 +179,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        const Divider(height: 18),
+                        const Divider(height: 18, color: AppColors.border),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

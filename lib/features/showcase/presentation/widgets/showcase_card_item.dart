@@ -28,12 +28,12 @@ class ShowcaseCardItem extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(8),
+              color: Colors.black.withAlpha(25),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -258,10 +258,10 @@ class ShowcaseCardItem extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       '"${sighting.quirk}"',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontStyle: FontStyle.italic,
-                        color: Colors.grey.shade600,
+                        color: Color(0xFFC2B5A8),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -278,7 +278,7 @@ class ShowcaseCardItem extends StatelessWidget {
 
   Widget _buildFallbackAvatar() {
     return Container(
-      color: const Color(0xFFF3F4F6),
+      color: AppColors.calicoCharcoal,
       child: Center(
         child: FelineAvatar(
           photoUrl: sighting.photoUrl,

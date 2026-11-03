@@ -188,8 +188,9 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(top: BorderSide(color: AppColors.border, width: 1.2)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -315,8 +316,9 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                   height: 38,
                   margin: const EdgeInsets.only(bottom: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
+                    color: AppColors.fieldFill,
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: TextField(
                     onChanged: (val) => setState(() => _searchFilter = val),
@@ -334,18 +336,22 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 8),
                     ),
-                    style: const TextStyle(fontSize: 13),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: AppColors.fieldFill,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.border),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
+                      dropdownColor: AppColors.surface,
                       value: _cities.any((c) => c.city == _selectedCity)
                           ? _selectedCity
                           : _cities.first.city,
@@ -406,12 +412,13 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: AppColors.fieldFill,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.border),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
+                      dropdownColor: AppColors.surface,
                       value: availableBarangays.contains(_selectedBarangay)
                           ? _selectedBarangay
                           : availableBarangays.first,

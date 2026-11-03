@@ -118,13 +118,14 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(45),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
+              color: Colors.black.withAlpha(90),
+              blurRadius: 28,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -138,10 +139,11 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, Color(0xFFE65100)],
+                  colors: [Color(0xFF2E241E), Color(0xFF1E1714)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
+                border: Border(bottom: BorderSide(color: AppColors.border)),
               ),
               child: Row(
                 children: [
@@ -205,7 +207,7 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.background,
+                      color: AppColors.fieldFill,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: AppColors.border),
                     ),
@@ -271,16 +273,18 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF8E1),
+                      color: const Color(0xFF2A2016),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFFFB300)),
+                      border: Border.all(
+                        color: const Color(0xFFE06D22).withAlpha(120),
+                      ),
                     ),
                     child: const Row(
                       children: [
                         Icon(
                           Icons.info_outline_rounded,
                           size: 16,
-                          color: Color(0xFFE65100),
+                          color: AppColors.primary,
                         ),
                         SizedBox(width: 8),
                         Expanded(
@@ -289,7 +293,7 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF795548),
+                              color: AppColors.textPrimary,
                               height: 1.3,
                             ),
                           ),

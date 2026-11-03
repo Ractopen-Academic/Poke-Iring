@@ -334,12 +334,35 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
               ),
             ),
             children: [
-              TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
-                userAgentPackageName: 'com.ryme.pokeiring',
-                tileProvider: _tileProvider,
-                maxNativeZoom: 19,
+              ColorFiltered(
+                colorFilter: const ColorFilter.matrix(<double>[
+                  -0.85,
+                  0.00,
+                  0.00,
+                  0.0,
+                  238.0,
+                  0.00,
+                  -0.85,
+                  0.00,
+                  0.0,
+                  232.0,
+                  0.00,
+                  0.00,
+                  -0.80,
+                  0.0,
+                  226.0,
+                  0.00,
+                  0.00,
+                  0.00,
+                  1.0,
+                  0.0,
+                ]),
+                child: TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.ryme.pokeiring',
+                  tileProvider: _tileProvider,
+                  maxNativeZoom: 19,
+                ),
               ),
               CircleLayer(
                 circles: [
