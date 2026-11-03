@@ -216,7 +216,9 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                   rank: 2,
                   pedestalHeight: 46,
                   accentColor: const Color(0xFFC0C7D0),
-                  bgColor: const Color(0xFF26201D),
+                  bgColor: AppColors.isCalicoLight
+                      ? const Color(0xFFF4ECE1)
+                      : const Color(0xFF26201D),
                   floatOffset: 0,
                 ),
               AnimatedBuilder(
@@ -243,7 +245,9 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                   rank: 3,
                   pedestalHeight: 38,
                   accentColor: const Color(0xFFCD7F32),
-                  bgColor: const Color(0xFF221C19),
+                  bgColor: AppColors.isCalicoLight
+                      ? const Color(0xFFEFE6DC)
+                      : const Color(0xFF221C19),
                   floatOffset: 0,
                 ),
             ],
@@ -292,7 +296,7 @@ class _MiniPodiumItem extends StatelessWidget {
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.surface,
+                  color: AppColors.dynamicSurface,
                   border: Border.all(
                     color: accentColor,
                     width: isChampion ? 2.5 : 1.8,
@@ -350,7 +354,7 @@ class _MiniPodiumItem extends StatelessWidget {
                   fontSize: isChampion ? 11 : 10,
                   height: 1.15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
             ),

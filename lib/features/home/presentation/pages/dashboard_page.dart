@@ -108,18 +108,18 @@ class _DashboardPageState extends State<DashboardPage> {
         : widget.user.email.split('@').first;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Explorer Profile',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: AppColors.dynamicTextPrimary,
           ),
         ),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.dynamicBackground,
+        foregroundColor: AppColors.dynamicTextPrimary,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         actions: [
@@ -139,9 +139,9 @@ class _DashboardPageState extends State<DashboardPage> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.dynamicSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.dynamicBorder),
                 ),
                 child: Row(
                   children: [
@@ -166,18 +166,18 @@ class _DashboardPageState extends State<DashboardPage> {
                         children: [
                           Text(
                             displayName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             widget.user.email,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -232,9 +232,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: AppColors.dynamicSurface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: AppColors.dynamicBorder),
                     ),
                     child: Row(
                       children: [
@@ -404,12 +404,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     decoration: BoxDecoration(
                       color: isClub
                           ? const Color(0xFF2C2216)
-                          : AppColors.surface,
+                          : AppColors.dynamicSurface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isClub
                             ? const Color(0xFFFFB300)
-                            : AppColors.border,
+                            : AppColors.dynamicBorder,
                       ),
                     ),
                     child: Row(
@@ -446,7 +446,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   fontWeight: FontWeight.w800,
                                   color: isClub
                                       ? const Color(0xFFFFD54F)
-                                      : AppColors.textPrimary,
+                                      : AppColors.dynamicTextPrimary,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -458,7 +458,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   fontSize: 11,
                                   color: isClub
                                       ? const Color(0xFFFFE082)
-                                      : AppColors.textSecondary,
+                                      : AppColors.dynamicTextSecondary,
                                 ),
                               ),
                             ],
@@ -623,21 +623,21 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Coat Appearance',
+              Text(
+                'App Appearance / Theme',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.dynamicSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.dynamicBorder),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -661,22 +661,27 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Theme Foundation',
+                              Text(
+                                'Coat Mode',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.dynamicTextPrimary,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                CalicoThemeController.instance.isCalicoWhite
-                                    ? 'Calico White (Snowy coat with cinnamon)'
-                                    : 'Calico Dark (Obsidian chrome with amber)',
-                                style: const TextStyle(
+                                CalicoThemeController.instance.mode ==
+                                        CalicoCoatMode.system
+                                    ? 'System Default (Follows OS light/dark mode)'
+                                    : (CalicoThemeController
+                                              .instance
+                                              .isCalicoLight
+                                          ? 'Calico Light (Warm biscuit/cream, espresso text)'
+                                          : 'Calico Dark (Deep charcoal/espresso, warm cream text)'),
+                                style: TextStyle(
                                   fontSize: 11.5,
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.dynamicTextSecondary,
                                 ),
                               ),
                             ],
@@ -688,9 +693,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: AppColors.chromeTrack,
+                        color: AppColors.dynamicChromeTrack,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: AppColors.dynamicBorder),
                       ),
                       child: Row(
                         children: [
@@ -710,9 +715,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color:
-                                      !CalicoThemeController
-                                          .instance
-                                          .isCalicoWhite
+                                      CalicoThemeController.instance.mode ==
+                                          CalicoCoatMode.calicoDark
                                       ? AppColors.primary
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(9),
@@ -721,14 +725,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                   'Calico Dark',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 12.5,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color:
-                                        !CalicoThemeController
-                                            .instance
-                                            .isCalicoWhite
+                                        CalicoThemeController.instance.mode ==
+                                            CalicoCoatMode.calicoDark
                                         ? Colors.white
-                                        : AppColors.textSecondary,
+                                        : AppColors.dynamicTextSecondary,
                                   ),
                                 ),
                               ),
@@ -739,7 +742,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               behavior: HitTestBehavior.opaque,
                               onTap: () async {
                                 await CalicoThemeController.instance.setMode(
-                                  CalicoCoatMode.calicoWhite,
+                                  CalicoCoatMode.calicoLight,
                                 );
                                 if (mounted) setState(() {});
                               },
@@ -750,25 +753,61 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color:
-                                      CalicoThemeController
-                                          .instance
-                                          .isCalicoWhite
+                                      CalicoThemeController.instance.mode ==
+                                          CalicoCoatMode.calicoLight
                                       ? AppColors.primary
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(9),
                                 ),
                                 child: Text(
-                                  'Calico White',
+                                  'Calico Light',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 12.5,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color:
-                                        CalicoThemeController
-                                            .instance
-                                            .isCalicoWhite
+                                        CalicoThemeController.instance.mode ==
+                                            CalicoCoatMode.calicoLight
                                         ? Colors.white
-                                        : AppColors.textSecondary,
+                                        : AppColors.dynamicTextSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () async {
+                                await CalicoThemeController.instance.setMode(
+                                  CalicoCoatMode.system,
+                                );
+                                if (mounted) setState(() {});
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 9,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      CalicoThemeController.instance.mode ==
+                                          CalicoCoatMode.system
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                child: Text(
+                                  'System',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color:
+                                        CalicoThemeController.instance.mode ==
+                                            CalicoCoatMode.system
+                                        ? Colors.white
+                                        : AppColors.dynamicTextSecondary,
                                   ),
                                 ),
                               ),
@@ -833,21 +872,21 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Explorer Showcase & Privacy',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.dynamicSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.dynamicBorder),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -871,20 +910,20 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'My Explorer Showcase',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.dynamicTextPrimary,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 '${ShowcaseService.instance.pinnedCount} of 9 slots pinned from Dex',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11.5,
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.dynamicTextSecondary,
                                 ),
                               ),
                             ],
@@ -934,12 +973,12 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Public Profile Showcase',
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.dynamicTextPrimary,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -947,9 +986,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                 _isPublicShowcase
                                     ? 'Visible to other players on leaderboards'
                                     : 'Hidden from other explorers',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.dynamicTextSecondary,
                                 ),
                               ),
                             ],
@@ -1027,9 +1066,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.dynamicSurface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
       ),
       child: Column(
         children: [
@@ -1051,9 +1090,9 @@ class _StatCard extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: AppColors.textSecondary,
+              color: AppColors.dynamicTextSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -1079,11 +1118,11 @@ class _ModuleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surface,
+      color: AppColors.dynamicSurface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.dynamicBorder),
       ),
       child: ListTile(
         leading: Container(
@@ -1096,19 +1135,19 @@ class _ModuleTile extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: AppColors.dynamicTextPrimary,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.chevron_right,
-          color: AppColors.textSecondary,
+          color: AppColors.dynamicTextSecondary,
           size: 20,
         ),
         onTap: onTap,

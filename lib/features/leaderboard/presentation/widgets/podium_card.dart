@@ -27,9 +27,9 @@ class PodiumView extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.fromLTRB(12, 14, 12, 0),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.dynamicSurface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(25),
@@ -40,17 +40,21 @@ class PodiumView extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.stars_rounded, size: 16, color: AppColors.primary),
-              SizedBox(width: 6),
+              const Icon(
+                Icons.stars_rounded,
+                size: 16,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 6),
               Text(
                 'Territory Podium',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                   letterSpacing: 0.3,
                 ),
               ),
@@ -67,7 +71,9 @@ class PodiumView extends StatelessWidget {
                         entry: second!,
                         rank: 2,
                         stepHeight: 52,
-                        pedestalColor: const Color(0xFF26201D),
+                        pedestalColor: AppColors.isCalicoLight
+                            ? const Color(0xFFF4ECE1)
+                            : const Color(0xFF26201D),
                         accentColor: const Color(0xFFC0C7D0),
                         category: category,
                         onTap: () => onEntryTap?.call(second!),
@@ -95,7 +101,9 @@ class PodiumView extends StatelessWidget {
                         entry: third!,
                         rank: 3,
                         stepHeight: 42,
-                        pedestalColor: const Color(0xFF221C19),
+                        pedestalColor: AppColors.isCalicoLight
+                            ? const Color(0xFFEFE6DC)
+                            : const Color(0xFF221C19),
                         accentColor: const Color(0xFFCD7F32),
                         category: category,
                         onTap: () => onEntryTap?.call(third!),
@@ -151,7 +159,7 @@ class _PodiumStep extends StatelessWidget {
                   height: avatarSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.surface,
+                    color: AppColors.dynamicSurface,
                     border: Border.all(
                       color: accentColor,
                       width: rank == 1 ? 2.5 : 1.8,
@@ -183,7 +191,10 @@ class _PodiumStep extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: accentColor,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.surface, width: 1.5),
+                    border: Border.all(
+                      color: AppColors.dynamicSurface,
+                      width: 1.5,
+                    ),
                   ),
                   child: Text(
                     '#$rank',
@@ -206,7 +217,7 @@ class _PodiumStep extends StatelessWidget {
             style: TextStyle(
               fontSize: rank == 1 ? 12 : 11,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: AppColors.dynamicTextPrimary,
             ),
           ),
           const SizedBox(height: 1),

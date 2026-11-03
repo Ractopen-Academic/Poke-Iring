@@ -242,7 +242,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
     return Scaffold(
       extendBody: true,
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       body: Stack(
         children: [
           Offstage(
@@ -582,7 +582,7 @@ class _HomePageState extends State<_HomePage> {
                                       value:
                                           '${health.distanceKm.toStringAsFixed(2)} km',
                                       icon: Icons.route_rounded,
-                                      accent: AppColors.calicoCharcoal,
+                                      accent: AppColors.calicoAmber,
                                     ),
                                   ),
                                 ],
@@ -605,7 +605,7 @@ class _HomePageState extends State<_HomePage> {
                                       label: 'Active',
                                       value: '${health.activeMinutes} min',
                                       icon: Icons.bolt_rounded,
-                                      accent: AppColors.calicoCharcoal,
+                                      accent: AppColors.calicoOrange,
                                     ),
                                   ),
                                 ],
@@ -664,19 +664,19 @@ class _MiniMetric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
       decoration: BoxDecoration(
-        color: AppColors.fieldFill,
+        color: AppColors.dynamicFieldFill,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w800,
-              color: Color(0xFFB3A89D),
+              color: AppColors.dynamicTextSecondary,
               letterSpacing: 0.6,
             ),
           ),
@@ -693,10 +693,10 @@ class _MiniMetric extends StatelessWidget {
                     key: ValueKey<String>(value),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.textPrimary,
+                      color: AppColors.dynamicTextPrimary,
                     ),
                   ),
                 ),

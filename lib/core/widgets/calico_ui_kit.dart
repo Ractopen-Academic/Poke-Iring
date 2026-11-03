@@ -110,25 +110,42 @@ class CalicoSpotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveBorder = borderColor ?? AppColors.border;
+    final palette = CalicoThemeController.instance.palette;
+    final effectiveBorder = borderColor ?? palette.border;
+    final effectiveBg = backgroundColor ?? palette.surface;
+    final isLight = CalicoThemeController.instance.isCalicoLight;
+
     final card = Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.surface,
+        color: effectiveBg,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: effectiveBorder, width: 1.4),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF3E2723).withAlpha(14),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: effectiveBorder.withAlpha(170),
-            blurRadius: 0,
-            offset: const Offset(0, 2.5),
-          ),
-        ],
+        border: Border.all(
+          color: isLight && borderColor == null
+              ? const Color(0xFFE06D22).withAlpha(38)
+              : effectiveBorder,
+          width: 1.4,
+        ),
+        boxShadow: isLight
+            ? [
+                BoxShadow(
+                  color: const Color(0xFF6B5E55).withAlpha(15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: const Color(0xFF3E2723).withAlpha(14),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+                BoxShadow(
+                  color: effectiveBorder.withAlpha(170),
+                  blurRadius: 0,
+                  offset: const Offset(0, 2.5),
+                ),
+              ],
       ),
       child: Stack(
         children: [
@@ -151,22 +168,24 @@ class CalicoSpotCard extends StatelessWidget {
 }
 
 class _CalicoCardSpotsPainter extends CustomPainter {
-  final CalicoCoatMode coat = CalicoThemeController.instance.mode;
+  final CalicoCoatMode coat = CalicoThemeController.instance.effectiveMode;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final isLight = CalicoThemeController.instance.isCalicoLight;
     final gingerSpot = Paint()
-      ..color = AppColors.primary.withAlpha(18)
+      ..color = AppColors.primary.withAlpha(isLight ? 24 : 18)
       ..style = PaintingStyle.fill;
     final charcoalSpot = Paint()
-      ..color = AppColors.calicoCharcoal.withAlpha(12)
+      ..color = (isLight ? const Color(0xFF6B5E55) : AppColors.calicoCharcoal)
+          .withAlpha(isLight ? 14 : 12)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(Offset(size.width - 18, -8), 34, gingerSpot);
     canvas.drawCircle(Offset(size.width + 4, 24), 22, charcoalSpot);
 
     final pawPaint = Paint()
-      ..color = AppColors.primary.withAlpha(22)
+      ..color = AppColors.primary.withAlpha(isLight ? 26 : 22)
       ..style = PaintingStyle.fill;
     final px = size.width - 28;
     final py = size.height - 22;

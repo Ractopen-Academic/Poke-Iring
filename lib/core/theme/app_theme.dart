@@ -1,43 +1,88 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_colors.dart';
+import 'calico_theme_controller.dart';
 
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme {
+  static ThemeData themeFor(CalicoCoatMode mode) {
+    final palette = CalicoPalette.of(mode);
+    final isLight = palette == CalicoPalette.calicoLight;
+
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        primary: AppColors.primary,
-        secondary: AppColors.calicoCharcoal,
-        surface: AppColors.surface,
+      brightness: isLight ? Brightness.light : Brightness.dark,
+      colorScheme: ColorScheme(
+        brightness: isLight ? Brightness.light : Brightness.dark,
+        primary: palette.primary,
+        onPrimary: Colors.white,
+        secondary: palette.secondary,
+        onSecondary: palette.textPrimary,
+        error: const Color(0xFFD32F2F),
+        onError: Colors.white,
+        surface: palette.surface,
+        onSurface: palette.textPrimary,
       ),
-      scaffoldBackgroundColor: AppColors.background,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+      scaffoldBackgroundColor: palette.background,
+      appBarTheme: AppBarTheme(
+        backgroundColor: palette.background,
+        foregroundColor: palette.textPrimary,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          color: AppColors.textPrimary,
+          color: palette.textPrimary,
           fontSize: 20,
           fontWeight: FontWeight.w800,
           letterSpacing: -0.3,
         ),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: palette.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.border, width: 1.2),
+          side: BorderSide(
+            color: isLight
+                ? const Color(0xFFE06D22).withAlpha(38)
+                : palette.border,
+            width: 1.2,
+          ),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: palette.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(color: palette.border),
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: palette.surface,
+        modalBackgroundColor: palette.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: palette.fieldFill,
+        hintStyle: TextStyle(color: palette.textSecondary, fontSize: 13),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: palette.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: palette.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: palette.primary, width: 1.8),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.calicoBlack,
+        backgroundColor: palette.calicoBlack,
         contentTextStyle: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w700,
@@ -49,4 +94,7 @@ class AppTheme {
       ),
     );
   }
+
+  static ThemeData get lightTheme => themeFor(CalicoCoatMode.calicoLight);
+  static ThemeData get darkTheme => themeFor(CalicoCoatMode.calicoDark);
 }

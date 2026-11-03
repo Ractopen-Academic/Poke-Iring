@@ -43,9 +43,9 @@ class TerritoryLockedDialog extends StatelessWidget {
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.dynamicBorder),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(90),
@@ -62,13 +62,15 @@ class TerritoryLockedDialog extends StatelessWidget {
             // Header Banner
             Container(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
                   colors: [Color(0xFF2E241E), Color(0xFF1E1714)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                border: Border(bottom: BorderSide(color: AppColors.border)),
+                border: Border(
+                  bottom: BorderSide(color: AppColors.dynamicBorder),
+                ),
               ),
               child: Row(
                 children: [

@@ -209,14 +209,17 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Explorer Leaderboard',
-          style: TextStyle(fontWeight: FontWeight.w800),
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: AppColors.dynamicTextPrimary,
+          ),
         ),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.dynamicBackground,
+        foregroundColor: AppColors.dynamicTextPrimary,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
       ),

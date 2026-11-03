@@ -56,14 +56,23 @@ class PokeIringApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CalicoThemeRebuildScope(
-      builder: (context) => MaterialApp(
-        title: AppStrings.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        builder: (context, child) =>
-            ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
-        home: AuthGate(authRepository: authRepository),
-      ),
+      builder: (context) {
+        final mode = CalicoThemeController.instance.mode;
+        return MaterialApp(
+          title: AppStrings.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: mode == CalicoCoatMode.system
+              ? ThemeMode.system
+              : (mode == CalicoCoatMode.calicoLight
+                    ? ThemeMode.light
+                    : ThemeMode.dark),
+          builder: (context, child) =>
+              ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
+          home: AuthGate(authRepository: authRepository),
+        );
+      },
     );
   }
 }

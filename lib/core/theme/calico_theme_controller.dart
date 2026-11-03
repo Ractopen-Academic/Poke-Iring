@@ -3,19 +3,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum CalicoCoatMode {
   calicoDark,
-  calicoWhite;
+  calicoLight,
+  system;
+
+  static const CalicoCoatMode calicoWhite = calicoLight;
 
   String get label => switch (this) {
     CalicoCoatMode.calicoDark => 'Calico Dark',
-    CalicoCoatMode.calicoWhite => 'Calico White',
+    CalicoCoatMode.calicoLight => 'Calico Light',
+    CalicoCoatMode.system => 'System Default',
   };
 
   String get description => switch (this) {
-    CalicoCoatMode.calicoDark => 'Obsidian chrome with marmalade orange',
-    CalicoCoatMode.calicoWhite => 'Snowy white coat with cinnamon and cocoa',
+    CalicoCoatMode.calicoDark =>
+      'Deep charcoal/espresso base, warm cream text, amber accents',
+    CalicoCoatMode.calicoLight =>
+      'Warm cream/biscuit base, dark espresso text, amber accents',
+    CalicoCoatMode.system =>
+      'Follows device OS appearance settings automatically',
   };
 
   static CalicoCoatMode fromStorage(String? value) {
+    if (value == 'calicoWhite') return CalicoCoatMode.calicoLight;
     return CalicoCoatMode.values.firstWhere(
       (mode) => mode.name == value,
       orElse: () => CalicoCoatMode.calicoDark,
@@ -91,19 +100,19 @@ class CalicoPalette {
     gingerBorder: Color(0xFF352B25),
     calicoBlack: Color(0xFF181513),
     calicoCharcoal: Color(0xFF26201D),
-    calicoMuted: Color(0xFFA69B91),
+    calicoMuted: Color(0xFFB8ABA0),
     calicoPink: Color(0xFFFFB4BE),
     secondary: Color(0xFF26201D),
     background: Color(0xFF181513),
-    creamSurface: Color(0xFF26201D),
-    surface: Color(0xFF221C19),
+    creamSurface: Color(0xFF241E1A),
+    surface: Color(0xFF241E1A),
     textPrimary: Color(0xFFF7EFE8),
-    textSecondary: Color(0xFFA69B91),
+    textSecondary: Color(0xFFB8ABA0),
     border: Color(0xFF352B25),
-    chromeSurface: Color(0xFF221C19),
+    chromeSurface: Color(0xFF241E1A),
     chromeTrack: Color(0xFF251F1C),
     chromeForeground: Color(0xFFF7EFE8),
-    chromeMuted: Color(0xFFA69B91),
+    chromeMuted: Color(0xFFB8ABA0),
     chromeBorder: Color(0xFF352B25),
     mascotBaseFur: Color(0xFFF7EFE8),
     mascotDarkPatch: Color(0xFF181513),
@@ -112,39 +121,53 @@ class CalicoPalette {
     progressTrack: Color(0xFF251F1C),
   );
 
-  /// Calico White Coat
-  static const calicoWhite = CalicoPalette(
-    primary: Color(0xFF9E5E34),
-    primaryDark: Color(0xFF7A4422),
-    gingerSoft: Color(0xFFF4EDE5),
-    gingerBorder: Color(0xFFDCC6B0),
-    calicoBlack: Color(0xFF4A3124),
-    calicoCharcoal: Color(0xFF73503D),
-    calicoMuted: Color(0xFF8F7768),
-    calicoPink: Color(0xFFF2B5B0),
-    secondary: Color(0xFF73503D),
-    background: Color(0xFFFCFAF7),
-    creamSurface: Color(0xFFF6EFE8),
+  /// Global Calico Light Theme (Reverse Palette)
+  /// Warm off-white cream background, clean white card surface, deep espresso text, and amber accents.
+  static const calicoLight = CalicoPalette(
+    primary: Color(0xFFE06D22),
+    primaryDark: Color(0xFFD4621A),
+    gingerSoft: Color(0xFFF4ECE1),
+    gingerBorder: Color(0xFFE3D8CC),
+    calicoBlack: Color(0xFF1E1815),
+    calicoCharcoal: Color(0xFF6B5E55),
+    calicoMuted: Color(0xFF6B5E55),
+    calicoPink: Color(0xFFFFB4BE),
+    secondary: Color(0xFFF4ECE1),
+    background: Color(0xFFFBF6F0),
+    creamSurface: Color(0xFFF4ECE1),
     surface: Colors.white,
-    textPrimary: Color(0xFF3A261C),
-    textSecondary: Color(0xFF7A6355),
-    border: Color(0xFFE5D8CA),
-    chromeSurface: Color(0xFFFFFCF9),
-    chromeTrack: Color(0xFFEFE4D8),
-    chromeForeground: Color(0xFF4A3124),
-    chromeMuted: Color(0xFF8F7768),
-    chromeBorder: Color(0xFFD9C3AC),
+    textPrimary: Color(0xFF1E1815),
+    textSecondary: Color(0xFF6B5E55),
+    border: Color(0xFFE3D8CC),
+    chromeSurface: Colors.white,
+    chromeTrack: Color(0xFFEFE6DC),
+    chromeForeground: Color(0xFF1E1815),
+    chromeMuted: Color(0xFF6B5E55),
+    chromeBorder: Color(0xFFE3D8CC),
     mascotBaseFur: Colors.white,
-    mascotDarkPatch: Color(0xFF6B4634),
-    mascotWarmPatch: Color(0xFFC68B59),
-    fieldFill: Color(0xFFF8F4EF),
-    progressTrack: Color(0xFFEFE4D8),
+    mascotDarkPatch: Color(0xFF1E1815),
+    mascotWarmPatch: Color(0xFFE06D22),
+    fieldFill: Colors.white,
+    progressTrack: Color(0xFFEFE6DC),
   );
+
+  static const calicoWhite = calicoLight;
 
   static CalicoPalette of(CalicoCoatMode mode) => switch (mode) {
     CalicoCoatMode.calicoDark => calicoDark,
-    CalicoCoatMode.calicoWhite => calicoWhite,
+    CalicoCoatMode.calicoLight => calicoLight,
+    CalicoCoatMode.system => _resolveSystem(),
   };
+
+  static CalicoPalette _resolveSystem() {
+    try {
+      final brightness =
+          WidgetsBinding.instance.platformDispatcher.platformBrightness;
+      return brightness == Brightness.light ? calicoLight : calicoDark;
+    } catch (_) {
+      return calicoDark;
+    }
+  }
 }
 
 class CalicoThemeController extends ChangeNotifier {
@@ -156,8 +179,26 @@ class CalicoThemeController extends ChangeNotifier {
   CalicoCoatMode _mode = CalicoCoatMode.calicoDark;
 
   CalicoCoatMode get mode => _mode;
+
+  CalicoCoatMode get effectiveMode {
+    if (_mode == CalicoCoatMode.system) {
+      try {
+        final brightness =
+            WidgetsBinding.instance.platformDispatcher.platformBrightness;
+        return brightness == Brightness.light
+            ? CalicoCoatMode.calicoLight
+            : CalicoCoatMode.calicoDark;
+      } catch (_) {
+        return CalicoCoatMode.calicoDark;
+      }
+    }
+    return _mode;
+  }
+
   CalicoPalette get palette => CalicoPalette.of(_mode);
-  bool get isCalicoWhite => _mode == CalicoCoatMode.calicoWhite;
+  bool get isCalicoLight => effectiveMode == CalicoCoatMode.calicoLight;
+  bool get isCalicoWhite => isCalicoLight;
+  bool get isCalicoDark => effectiveMode == CalicoCoatMode.calicoDark;
 
   Future<void> loadSavedMode() async {
     try {

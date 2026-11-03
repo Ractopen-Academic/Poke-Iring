@@ -35,10 +35,10 @@ class PawQuestCard extends StatelessWidget {
     return CalicoSpotCard(
       padding: const EdgeInsets.all(16),
       borderRadius: 18,
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.dynamicSurface,
       borderColor: isCompleted && !isClaimed
           ? AppColors.primary
-          : AppColors.border,
+          : AppColors.dynamicBorder,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -48,12 +48,12 @@ class PawQuestCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
-                  color: AppColors.chromeTrack,
+                  color: AppColors.dynamicChromeTrack,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isCompleted
                         ? AppColors.primary.withAlpha(120)
-                        : AppColors.gingerBorder,
+                        : AppColors.dynamicGingerBorder,
                   ),
                 ),
                 child: Icon(
@@ -61,7 +61,7 @@ class PawQuestCard extends StatelessWidget {
                   size: 20,
                   color: isCompleted
                       ? AppColors.primary
-                      : const Color(0xFFB3A89D),
+                      : AppColors.dynamicTextSecondary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -71,18 +71,18 @@ class PawQuestCard extends StatelessWidget {
                   children: [
                     Text(
                       quest.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 15,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       quest.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                         height: 1.35,
                       ),
                     ),
@@ -132,7 +132,7 @@ class PawQuestCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: isCompleted
                       ? AppColors.primary
-                      : AppColors.textSecondary,
+                      : AppColors.dynamicTextSecondary,
                 ),
               ),
               Text(
@@ -142,7 +142,7 @@ class PawQuestCard extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   color: isCompleted
                       ? AppColors.primary
-                      : AppColors.textSecondary,
+                      : AppColors.dynamicTextSecondary,
                 ),
               ),
             ],
@@ -157,10 +157,10 @@ class PawQuestCard extends StatelessWidget {
                 height: 8,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0x1FFFFFFF),
+                  color: AppColors.dynamicProgressTrack,
                   borderRadius: BorderRadius.circular(99),
                   border: Border.all(
-                    color: const Color(0x22FFFFFF),
+                    color: AppColors.dynamicBorder,
                     width: 0.8,
                   ),
                 ),

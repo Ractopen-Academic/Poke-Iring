@@ -37,37 +37,43 @@ class AppTextField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14.5),
+      style: TextStyle(color: AppColors.dynamicTextPrimary, fontSize: 14.5),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Color(0xFFB3A89D), fontSize: 14),
+        labelStyle: TextStyle(
+          color: AppColors.dynamicTextSecondary,
+          fontSize: 14,
+        ),
         floatingLabelStyle: const TextStyle(
           color: AppColors.primary,
           fontWeight: FontWeight.w700,
         ),
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFFB3A89D), fontSize: 13.5),
+        hintStyle: TextStyle(
+          color: AppColors.dynamicTextSecondary.withAlpha(180),
+          fontSize: 13.5,
+        ),
         prefixIcon: prefixIcon != null
-            ? Icon(prefixIcon, color: const Color(0xFFB3A89D), size: 20)
+            ? Icon(prefixIcon, color: AppColors.dynamicTextSecondary, size: 20)
             : null,
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: AppColors.fieldFill,
+        fillColor: AppColors.dynamicFieldFill,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.gingerBorder),
+          borderSide: BorderSide(color: AppColors.dynamicBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.gingerBorder),
+          borderSide: BorderSide(color: AppColors.dynamicBorder),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.6),
         ),
       ),
     );

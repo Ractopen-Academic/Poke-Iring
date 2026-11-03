@@ -149,10 +149,10 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppColors.chromeTrack,
+                color: AppColors.dynamicChromeTrack,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: AppColors.gingerBorder.withAlpha(120),
+                  color: AppColors.dynamicGingerBorder.withAlpha(120),
                 ),
               ),
               child: Row(
@@ -242,7 +242,7 @@ class _CategoryTab extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+            color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
           ),
         ),
       ),

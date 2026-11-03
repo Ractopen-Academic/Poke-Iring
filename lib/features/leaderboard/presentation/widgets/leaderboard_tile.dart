@@ -34,10 +34,10 @@ class LeaderboardTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: isUser
                   ? AppColors.primary.withAlpha(25)
-                  : AppColors.surface,
+                  : AppColors.dynamicSurface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isUser ? AppColors.primary : AppColors.border,
+                color: isUser ? AppColors.primary : AppColors.dynamicBorder,
                 width: isUser ? 1.8 : 1.0,
               ),
               boxShadow: [
@@ -61,7 +61,7 @@ class LeaderboardTile extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                       color: isUser
                           ? AppColors.primary
-                          : AppColors.textSecondary,
+                          : AppColors.dynamicTextSecondary,
                     ),
                   ),
                 ),
@@ -104,7 +104,7 @@ class LeaderboardTile extends StatelessWidget {
                                 fontWeight: isUser
                                     ? FontWeight.w800
                                     : FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: AppColors.dynamicTextPrimary,
                               ),
                             ),
                           ),
