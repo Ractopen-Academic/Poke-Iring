@@ -132,7 +132,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 160),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -267,12 +267,12 @@ class _DashboardPageState extends State<DashboardPage> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Active Territory',
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.textSecondary,
+                                        color: AppColors.dynamicTextSecondary,
                                       ),
                                     ),
                                     const SizedBox(width: 6),
@@ -311,17 +311,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                 const SizedBox(height: 2),
                                 Text(
                                   '${territory.barangay}, ${territory.city}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
+                                    color: AppColors.dynamicTextPrimary,
                                   ),
                                 ),
                                 Text(
                                   '${territory.province}, ${territory.country}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
-                                    color: AppColors.textSecondary,
+                                    color: AppColors.dynamicTextSecondary,
                                   ),
                                 ),
                               ],
@@ -514,12 +514,12 @@ class _DashboardPageState extends State<DashboardPage> {
                 userPhotoUrl: widget.user.photoUrl,
               ),
               const SizedBox(height: 18),
-              const Text(
-                'Explorer State',
+              Text(
+                'Explorer Stats',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -572,7 +572,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: AppColors.dynamicSurface,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: const Color(0xFFFFB300).withAlpha(120),
@@ -601,20 +601,20 @@ class _DashboardPageState extends State<DashboardPage> {
                               const SizedBox(height: 1),
                               Text(
                                 '$prestige Points',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.dynamicTextPrimary,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Archived prestige',
                           style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                           ),
                         ),
                       ],
@@ -820,12 +820,12 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Explorer Hardware & Tools',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -1015,10 +1015,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 text: 'Sign Out',
                 isOutlined: true,
                 isLoading: _isLoggingOut,
-                icon: const Icon(
+                icon: Icon(
                   Icons.logout,
                   size: 18,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
                 onPressed: _handleSignOut,
               ),
@@ -1028,10 +1028,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     Text(
                       'Poke: Iring ${AppVersion.badgeDisplay}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                         letterSpacing: 0.2,
                       ),
                     ),
@@ -1040,7 +1040,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       AppVersion.buildSubtitle,
                       style: TextStyle(
                         fontSize: 10.5,
-                        color: AppColors.textSecondary.withAlpha(160),
+                        color: AppColors.dynamicTextSecondary.withAlpha(160),
                       ),
                     ),
                   ],
