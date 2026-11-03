@@ -51,9 +51,9 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
     final cards = profile.showcaseCards;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 28),
       child: SingleChildScrollView(
@@ -67,7 +67,7 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF554A43),
+                  color: AppColors.dynamicBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -97,10 +97,10 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                             Flexible(
                               child: Text(
                                 profile.displayName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.dynamicTextPrimary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -130,18 +130,18 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                         const SizedBox(height: 3),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.location_on_outlined,
                               size: 13,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 profile.territory,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.dynamicTextSecondary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -166,9 +166,9 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.fieldFill,
+                  color: AppColors.dynamicFieldFill,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.dynamicBorder),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -250,12 +250,12 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Feline Showcase',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     Container(
@@ -280,13 +280,13 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
                 ),
               ),
               const SizedBox(height: 4),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'Swipe horizontally to explore their top neighborhood catches.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
               ),
@@ -393,10 +393,10 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
             const SizedBox(width: 4),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
           ],
@@ -404,10 +404,10 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 10.5,
             fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+            color: AppColors.dynamicTextSecondary,
           ),
         ),
       ],
@@ -415,7 +415,7 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
   }
 
   Widget _buildVerticalDivider() {
-    return Container(width: 1, height: 28, color: AppColors.border);
+    return Container(width: 1, height: 28, color: AppColors.dynamicBorder);
   }
 
   Widget _buildPrivatePlaceholder() {
@@ -424,17 +424,17 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.fieldFill,
+          color: AppColors.dynamicFieldFill,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.dynamicBorder),
         ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.calicoCharcoal,
+                color: AppColors.dynamicChromeTrack,
               ),
               child: const Icon(
                 Icons.lock_outline_rounded,
@@ -443,21 +443,21 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
               ),
             ),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Private Explorer Profile',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'This explorer has chosen to keep their feline showcase and collection private.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12.5,
-                color: AppColors.textSecondary,
+                color: AppColors.dynamicTextSecondary,
                 height: 1.4,
               ),
             ),
@@ -473,27 +473,34 @@ class _ExplorerShowcaseSheetState extends State<ExplorerShowcaseSheet> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FB),
+          color: AppColors.dynamicFieldFill,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.dynamicBorder),
         ),
-        child: const Column(
+        child: Column(
           children: [
             Icon(
               Icons.collections_outlined,
               size: 32,
-              color: AppColors.textSecondary,
+              color: AppColors.dynamicTextSecondary,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'No Featured Cats Yet',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: AppColors.dynamicTextPrimary,
+              ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'This explorer has not pinned any cats to their showcase yet.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+              style: TextStyle(
+                fontSize: 11.5,
+                color: AppColors.dynamicTextSecondary,
+              ),
             ),
           ],
         ),

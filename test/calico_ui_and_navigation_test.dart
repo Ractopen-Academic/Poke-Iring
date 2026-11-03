@@ -358,6 +358,7 @@ void main() {
       (tester) async {
         SharedPreferences.setMockInitialValues({});
         TerritoryServiceImpl.instance.resetCache();
+        MainNavigationShell.resetModalState();
 
         await tester.pumpWidget(
           MaterialApp(

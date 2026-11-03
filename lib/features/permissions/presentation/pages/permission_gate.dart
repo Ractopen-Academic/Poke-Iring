@@ -29,6 +29,7 @@ class _PermissionGateState extends State<PermissionGate> {
   bool _needsLocation = false;
   bool _needsCamera = false;
   String _message = 'Checking explorer gear...';
+  BootstrapResult? _cachedBootstrapResult;
 
   @override
   void initState() {
@@ -194,13 +195,31 @@ class _PermissionGateState extends State<PermissionGate> {
   @override
   Widget build(BuildContext context) {
     if (!_isLoading && !_needsLocation && !_needsCamera) {
-      return AppBootstrapPage(
-        onReady: (context, result) => MainNavigationShell(
+      if (_cachedBootstrapResult != null) {
+        return MainNavigationShell(
+          key: const PageStorageKey('main_navigation_shell'),
           user: widget.user,
           authRepository: widget.authRepository,
-          initialOnline: result.isOnline,
-          initialLocationStatus: result.locationStatus,
-        ),
+          initialOnline: _cachedBootstrapResult!.isOnline,
+          initialLocationStatus: _cachedBootstrapResult!.locationStatus,
+        );
+      }
+
+      return AppBootstrapPage(
+        onReady: (context, result) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() => _cachedBootstrapResult = result);
+            }
+          });
+          return MainNavigationShell(
+            key: const PageStorageKey('main_navigation_shell'),
+            user: widget.user,
+            authRepository: widget.authRepository,
+            initialOnline: result.isOnline,
+            initialLocationStatus: result.locationStatus,
+          );
+        },
       );
     }
 

@@ -53,13 +53,21 @@ class MainNavigationShell extends StatefulWidget {
     this.locationService,
   });
 
+  @visibleForTesting
+  static void resetModalState() {
+    _MainNavigationShellState._hasRunStartupModals = false;
+  }
+
   @override
   State<MainNavigationShell> createState() => _MainNavigationShellState();
 }
 
 class _MainNavigationShellState extends State<MainNavigationShell>
     with SingleTickerProviderStateMixin {
-  int _currentIndex = 0;
+  static int _activeTabIndex = 0;
+  static bool _hasRunStartupModals = false;
+
+  late int _currentIndex;
   bool _isShowingMap = false;
   bool _keepMapVisibleDuringExit = false;
   Timer? _mapExitTimer;
@@ -82,6 +90,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   @override
   void initState() {
     super.initState();
+    _currentIndex = _activeTabIndex;
     _tabEnterController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 240),
@@ -151,7 +160,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   }
 
   Future<void> _runStartupModalsSequentially() async {
-    if (!mounted) return;
+    if (!mounted || _hasRunStartupModals) return;
+    _hasRunStartupModals = true;
     final userId = widget.user.id.isNotEmpty
         ? widget.user.id
         : widget.user.email;
@@ -208,6 +218,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     if (_isShowingMap) {
       _setMapVisible(false);
     }
+    _activeTabIndex = index;
     setState(() {
       _currentIndex = index;
     });
@@ -538,7 +549,7 @@ class _HomePageState extends State<_HomePage> {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  const Expanded(
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -548,7 +559,7 @@ class _HomePageState extends State<_HomePage> {
                                           style: TextStyle(
                                             fontSize: 17,
                                             fontWeight: FontWeight.w800,
-                                            color: AppColors.textPrimary,
+                                            color: AppColors.dynamicTextPrimary,
                                           ),
                                         ),
                                         Text(
@@ -556,7 +567,8 @@ class _HomePageState extends State<_HomePage> {
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w600,
-                                            color: AppColors.textSecondary,
+                                            color:
+                                                AppColors.dynamicTextSecondary,
                                           ),
                                         ),
                                       ],
@@ -635,7 +647,7 @@ class _HomePageState extends State<_HomePage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 112),
+                  const SizedBox(height: 160),
                 ],
               ),
             );

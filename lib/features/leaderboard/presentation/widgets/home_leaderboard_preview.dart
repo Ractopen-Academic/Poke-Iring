@@ -69,7 +69,7 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.calicoBlack,
+                color: AppColors.dynamicChromeTrack,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.primary.withAlpha(90)),
               ),
@@ -80,7 +80,7 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
               ),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -88,14 +88,14 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
                 Text(
                   'Top explorers this season',
                   style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
               ],
@@ -105,9 +105,9 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: AppColors.gingerSoft,
+            color: AppColors.dynamicChromeTrack,
             borderRadius: BorderRadius.circular(99),
-            border: Border.all(color: AppColors.gingerBorder),
+            border: Border.all(color: AppColors.dynamicGingerBorder),
           ),
           child: const Row(
             mainAxisSize: MainAxisSize.min,

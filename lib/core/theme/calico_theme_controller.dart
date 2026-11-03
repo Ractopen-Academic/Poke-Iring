@@ -4,13 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum CalicoCoatMode {
   calicoDark,
   calicoLight,
+  calicoPink,
+  calicoWhite,
   system;
-
-  static const CalicoCoatMode calicoWhite = calicoLight;
 
   String get label => switch (this) {
     CalicoCoatMode.calicoDark => 'Calico Dark',
     CalicoCoatMode.calicoLight => 'Calico Light',
+    CalicoCoatMode.calicoPink => 'Calico Pink',
+    CalicoCoatMode.calicoWhite => 'Calico White',
     CalicoCoatMode.system => 'System Default',
   };
 
@@ -19,12 +21,23 @@ enum CalicoCoatMode {
       'Deep charcoal/espresso base, warm cream text, amber accents',
     CalicoCoatMode.calicoLight =>
       'Warm cream/biscuit base, dark espresso text, amber accents',
+    CalicoCoatMode.calicoPink =>
+      'Soft pastel rose base, deep berry text, vibrant pink accents',
+    CalicoCoatMode.calicoWhite =>
+      'Porcelain snow base, dark charcoal text, ginger amber accents',
     CalicoCoatMode.system =>
       'Follows device OS appearance settings automatically',
   };
 
+  Color get swatchColor => switch (this) {
+    CalicoCoatMode.calicoDark => const Color(0xFFE06D22),
+    CalicoCoatMode.calicoLight => const Color(0xFFD4A373),
+    CalicoCoatMode.calicoPink => const Color(0xFFE24B76),
+    CalicoCoatMode.calicoWhite => const Color(0xFFE0E0E0),
+    CalicoCoatMode.system => const Color(0xFF78909C),
+  };
+
   static CalicoCoatMode fromStorage(String? value) {
-    if (value == 'calicoWhite') return CalicoCoatMode.calicoLight;
     return CalicoCoatMode.values.firstWhere(
       (mode) => mode.name == value,
       orElse: () => CalicoCoatMode.calicoDark,
@@ -41,7 +54,7 @@ class CalicoPalette {
   final Color calicoBlack;
   final Color calicoCharcoal;
   final Color calicoMuted;
-  final Color calicoPink;
+  final Color pawPink;
   final Color secondary;
   final Color background;
   final Color creamSurface;
@@ -71,7 +84,7 @@ class CalicoPalette {
     required this.calicoBlack,
     required this.calicoCharcoal,
     required this.calicoMuted,
-    required this.calicoPink,
+    required this.pawPink,
     required this.secondary,
     required this.background,
     required this.creamSurface,
@@ -101,7 +114,7 @@ class CalicoPalette {
     calicoBlack: Color(0xFF181513),
     calicoCharcoal: Color(0xFF26201D),
     calicoMuted: Color(0xFFB8ABA0),
-    calicoPink: Color(0xFFFFB4BE),
+    pawPink: Color(0xFFFFB4BE),
     secondary: Color(0xFF26201D),
     background: Color(0xFF181513),
     creamSurface: Color(0xFF241E1A),
@@ -131,7 +144,7 @@ class CalicoPalette {
     calicoBlack: Color(0xFF1E1815),
     calicoCharcoal: Color(0xFF6B5E55),
     calicoMuted: Color(0xFF6B5E55),
-    calicoPink: Color(0xFFFFB4BE),
+    pawPink: Color(0xFFFFB4BE),
     secondary: Color(0xFFF4ECE1),
     background: Color(0xFFFBF6F0),
     creamSurface: Color(0xFFF4ECE1),
@@ -151,11 +164,69 @@ class CalicoPalette {
     progressTrack: Color(0xFFEFE6DC),
   );
 
-  static const calicoWhite = calicoLight;
+  /// Calico Pink Theme (Sakura / Soft Rose)
+  static const calicoPink = CalicoPalette(
+    primary: Color(0xFFE24B76),
+    primaryDark: Color(0xFFC7365F),
+    gingerSoft: Color(0xFFFCE4EC),
+    gingerBorder: Color(0xFFF9C8D4),
+    calicoBlack: Color(0xFF381A24),
+    calicoCharcoal: Color(0xFF7A4E5C),
+    calicoMuted: Color(0xFF7A4E5C),
+    pawPink: Color(0xFFE24B76),
+    secondary: Color(0xFFFCE4EC),
+    background: Color(0xFFFFF0F5),
+    creamSurface: Color(0xFFFDE8EF),
+    surface: Colors.white,
+    textPrimary: Color(0xFF381A24),
+    textSecondary: Color(0xFF7A4E5C),
+    border: Color(0xFFF9C8D4),
+    chromeSurface: Colors.white,
+    chromeTrack: Color(0xFFFCE4EC),
+    chromeForeground: Color(0xFF381A24),
+    chromeMuted: Color(0xFF7A4E5C),
+    chromeBorder: Color(0xFFF9C8D4),
+    mascotBaseFur: Color(0xFFFFF5F7),
+    mascotDarkPatch: Color(0xFF381A24),
+    mascotWarmPatch: Color(0xFFE24B76),
+    fieldFill: Color(0xFFFFF7F9),
+    progressTrack: Color(0xFFF8D7E0),
+  );
+
+  /// Calico White Theme (Pure Snow / Porcelain)
+  static const calicoWhite = CalicoPalette(
+    primary: Color(0xFFE06D22),
+    primaryDark: Color(0xFFD4621A),
+    gingerSoft: Color(0xFFF5EFEB),
+    gingerBorder: Color(0xFFE1E8ED),
+    calicoBlack: Color(0xFF14171A),
+    calicoCharcoal: Color(0xFF5B7083),
+    calicoMuted: Color(0xFF5B7083),
+    pawPink: Color(0xFFFFB4BE),
+    secondary: Color(0xFFF0F2F5),
+    background: Color(0xFFF7F8FA),
+    creamSurface: Color(0xFFF0F2F5),
+    surface: Colors.white,
+    textPrimary: Color(0xFF14171A),
+    textSecondary: Color(0xFF5B7083),
+    border: Color(0xFFE1E8ED),
+    chromeSurface: Colors.white,
+    chromeTrack: Color(0xFFEBF0F5),
+    chromeForeground: Color(0xFF14171A),
+    chromeMuted: Color(0xFF5B7083),
+    chromeBorder: Color(0xFFE1E8ED),
+    mascotBaseFur: Colors.white,
+    mascotDarkPatch: Color(0xFF14171A),
+    mascotWarmPatch: Color(0xFFE06D22),
+    fieldFill: Colors.white,
+    progressTrack: Color(0xFFE1E8ED),
+  );
 
   static CalicoPalette of(CalicoCoatMode mode) => switch (mode) {
     CalicoCoatMode.calicoDark => calicoDark,
     CalicoCoatMode.calicoLight => calicoLight,
+    CalicoCoatMode.calicoPink => calicoPink,
+    CalicoCoatMode.calicoWhite => calicoWhite,
     CalicoCoatMode.system => _resolveSystem(),
   };
 
@@ -195,9 +266,13 @@ class CalicoThemeController extends ChangeNotifier {
     return _mode;
   }
 
-  CalicoPalette get palette => CalicoPalette.of(_mode);
-  bool get isCalicoLight => effectiveMode == CalicoCoatMode.calicoLight;
-  bool get isCalicoWhite => isCalicoLight;
+  CalicoPalette get palette => CalicoPalette.of(effectiveMode);
+  bool get isCalicoLight =>
+      effectiveMode == CalicoCoatMode.calicoLight ||
+      effectiveMode == CalicoCoatMode.calicoPink ||
+      effectiveMode == CalicoCoatMode.calicoWhite;
+  bool get isCalicoPink => effectiveMode == CalicoCoatMode.calicoPink;
+  bool get isCalicoWhite => effectiveMode == CalicoCoatMode.calicoWhite;
   bool get isCalicoDark => effectiveMode == CalicoCoatMode.calicoDark;
 
   Future<void> loadSavedMode() async {
@@ -252,13 +327,7 @@ class _CalicoThemeRebuildScopeState extends State<CalicoThemeRebuildScope> {
 
   void _handleCoatChanged() {
     if (!mounted) return;
-    void markTree(Element element) {
-      element.markNeedsBuild();
-      element.visitChildren(markTree);
-    }
-
     setState(() {});
-    (context as Element).visitChildren(markTree);
   }
 
   @override

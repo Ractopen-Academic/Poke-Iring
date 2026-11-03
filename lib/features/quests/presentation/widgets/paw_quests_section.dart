@@ -83,12 +83,12 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Paw Quests',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
                 Row(
@@ -100,9 +100,11 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.creamSurface,
+                        color: AppColors.dynamicChromeTrack,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.gingerBorder),
+                        border: Border.all(
+                          color: AppColors.dynamicGingerBorder,
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -115,10 +117,10 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                           const SizedBox(width: 4),
                           Text(
                             'Resets in $resetTime',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                         ],
@@ -127,10 +129,10 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
                     if (widget.isAdmin) ...[
                       const SizedBox(width: 4),
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.tune_rounded,
                           size: 20,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                         tooltip: 'Quest Pool Settings (Admin)',
                         padding: EdgeInsets.zero,
@@ -180,15 +182,15 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
             ),
             const SizedBox(height: 14),
             if (filteredQuests.isEmpty)
-              const CalicoSpotCard(
-                padding: EdgeInsets.all(20),
+              CalicoSpotCard(
+                padding: const EdgeInsets.all(20),
                 borderRadius: 18,
                 child: Text(
                   'No active quests right now. Check back at the next cycle!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
               )

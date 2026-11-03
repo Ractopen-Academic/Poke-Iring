@@ -26,6 +26,16 @@ void main() {
       expect(light.textPrimary, const Color(0xFF1E1815));
       expect(light.textSecondary, const Color(0xFF6B5E55));
       expect(light.primary, const Color(0xFFE06D22));
+      final pink = CalicoPalette.calicoPink;
+      expect(pink.background, const Color(0xFFFFF0F5));
+      expect(pink.surface, const Color(0xFFFFFFFF));
+      expect(pink.textPrimary, const Color(0xFF381A24));
+      expect(pink.primary, const Color(0xFFE24B76));
+
+      final white = CalicoPalette.calicoWhite;
+      expect(white.background, const Color(0xFFF7F8FA));
+      expect(white.surface, const Color(0xFFFFFFFF));
+      expect(white.textPrimary, const Color(0xFF14171A));
     });
 
     test('CalicoThemeController updates mode and persists state', () async {
@@ -37,6 +47,17 @@ void main() {
       expect(controller.isCalicoLight, isFalse);
       expect(AppColors.dynamicBackground, const Color(0xFF181513));
       expect(AppColors.dynamicTextPrimary, const Color(0xFFF7EFE8));
+
+      await controller.setMode(CalicoCoatMode.calicoPink);
+      expect(controller.mode, CalicoCoatMode.calicoPink);
+      expect(controller.isCalicoPink, isTrue);
+      expect(AppColors.dynamicBackground, const Color(0xFFFFF0F5));
+      expect(AppColors.dynamicTextPrimary, const Color(0xFF381A24));
+
+      await controller.setMode(CalicoCoatMode.calicoWhite);
+      expect(controller.mode, CalicoCoatMode.calicoWhite);
+      expect(controller.isCalicoWhite, isTrue);
+      expect(AppColors.dynamicBackground, const Color(0xFFF7F8FA));
 
       await controller.setMode(CalicoCoatMode.calicoLight);
       expect(controller.mode, CalicoCoatMode.calicoLight);

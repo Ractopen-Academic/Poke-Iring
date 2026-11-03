@@ -48,31 +48,54 @@ Future<void> main() async {
   runApp(PokeIringApp(authRepository: authRepository));
 }
 
-class PokeIringApp extends StatelessWidget {
+class PokeIringApp extends StatefulWidget {
   final AuthRepository authRepository;
 
   const PokeIringApp({super.key, required this.authRepository});
 
   @override
+  State<PokeIringApp> createState() => _PokeIringAppState();
+}
+
+class _PokeIringAppState extends State<PokeIringApp> {
+  @override
+  void initState() {
+    super.initState();
+    CalicoThemeController.instance.addListener(_handleThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    CalicoThemeController.instance.removeListener(_handleThemeChanged);
+    super.dispose();
+  }
+
+  void _handleThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return CalicoThemeRebuildScope(
-      builder: (context) {
-        final mode = CalicoThemeController.instance.mode;
-        return MaterialApp(
-          title: AppStrings.appName,
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: mode == CalicoCoatMode.system
-              ? ThemeMode.system
-              : (mode == CalicoCoatMode.calicoLight
-                    ? ThemeMode.light
-                    : ThemeMode.dark),
-          builder: (context, child) =>
-              ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
-          home: AuthGate(authRepository: authRepository),
-        );
-      },
+    final mode = CalicoThemeController.instance.mode;
+    final effective = CalicoThemeController.instance.effectiveMode;
+
+    return MaterialApp(
+      key: const ValueKey('pokeiring_root_material_app'),
+      title: AppStrings.appName,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.themeFor(effective),
+      darkTheme: AppTheme.themeFor(CalicoCoatMode.calicoDark),
+      themeMode: mode == CalicoCoatMode.system
+          ? ThemeMode.system
+          : (effective == CalicoCoatMode.calicoDark
+                ? ThemeMode.dark
+                : ThemeMode.light),
+      builder: (context, child) =>
+          ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
+      home: AuthGate(
+        key: const ValueKey('pokeiring_auth_gate'),
+        authRepository: widget.authRepository,
+      ),
     );
   }
 }

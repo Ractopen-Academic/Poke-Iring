@@ -83,18 +83,13 @@ class EventRepositoryImpl implements EventRepository {
               if (!_eventsListController.isClosed) {
                 _eventsListController.add(resolved);
               }
-              if (!_eventController.isClosed) {
-                _eventController.add(
-                  resolved.isNotEmpty
-                      ? resolved.first
-                      : LocalEventCatalog.activeFestival,
-                );
+              if (!_eventController.isClosed && resolved.isNotEmpty) {
+                _eventController.add(resolved.first);
               }
             },
             onError: (Object error) {
               debugPrint('Firestore watchActiveEvents error: $error');
-              final fallback =
-                  _cachedActiveEvents ?? LocalEventCatalog.defaultActiveEvents;
+              final fallback = _cachedActiveEvents ?? const <FelineEvent>[];
               if (!_eventsListController.isClosed) {
                 _eventsListController.add(fallback);
               }
@@ -139,7 +134,7 @@ class EventRepositoryImpl implements EventRepository {
         final querySnapshot = await _db
             .collection('events')
             .get()
-            .timeout(const Duration(milliseconds: 2000));
+            .timeout(const Duration(milliseconds: 3000));
         final rawDocs = querySnapshot.docs
             .map((doc) => {...doc.data(), 'id': doc.id})
             .toList();
@@ -151,7 +146,7 @@ class EventRepositoryImpl implements EventRepository {
         debugPrint('Firestore getActiveEvents skipped: $e');
       }
     }
-    return LocalEventCatalog.defaultActiveEvents;
+    return _cachedActiveEvents ?? const <FelineEvent>[];
   }
 
   @override

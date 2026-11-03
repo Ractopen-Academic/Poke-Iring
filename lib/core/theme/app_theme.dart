@@ -7,7 +7,7 @@ class AppTheme {
 
   static ThemeData themeFor(CalicoCoatMode mode) {
     final palette = CalicoPalette.of(mode);
-    final isLight = palette == CalicoPalette.calicoLight;
+    final isLight = palette.background.computeLuminance() > 0.4;
 
     return ThemeData(
       useMaterial3: true,

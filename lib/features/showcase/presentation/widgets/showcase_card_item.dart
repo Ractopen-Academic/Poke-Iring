@@ -28,9 +28,9 @@ class ShowcaseCardItem extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.dynamicBorder),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(25),
@@ -181,10 +181,10 @@ class ShowcaseCardItem extends StatelessWidget {
                       Expanded(
                         child: Text(
                           sighting.breed,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: AppColors.dynamicTextPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -197,7 +197,7 @@ class ShowcaseCardItem extends StatelessWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary.withAlpha(25),
+                          color: AppColors.primary.withAlpha(25),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -205,7 +205,7 @@ class ShowcaseCardItem extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.secondary,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -215,18 +215,18 @@ class ShowcaseCardItem extends StatelessWidget {
 
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on_outlined,
                         size: 13,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           '${sighting.barangay}, ${sighting.city}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -258,10 +258,10 @@ class ShowcaseCardItem extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       '"${sighting.quirk}"',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontStyle: FontStyle.italic,
-                        color: Color(0xFFC2B5A8),
+                        color: AppColors.dynamicTextSecondary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

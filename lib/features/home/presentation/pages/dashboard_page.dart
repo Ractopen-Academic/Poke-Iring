@@ -132,7 +132,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 160),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 180),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -395,6 +395,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             : widget.user.email,
                       );
                   final isClub = status.isClubMember;
+                  final isLight = CalicoThemeController.instance.isCalicoLight;
 
                   return Container(
                     padding: const EdgeInsets.symmetric(
@@ -403,12 +404,16 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     decoration: BoxDecoration(
                       color: isClub
-                          ? const Color(0xFF2C2216)
+                          ? (isLight
+                                ? const Color(0xFFFFF8E1)
+                                : const Color(0xFF2C2216))
                           : AppColors.dynamicSurface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isClub
-                            ? const Color(0xFFFFB300)
+                            ? (isLight
+                                  ? const Color(0xFFFFA000)
+                                  : const Color(0xFFFFB300))
                             : AppColors.dynamicBorder,
                       ),
                     ),
@@ -445,7 +450,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   color: isClub
-                                      ? const Color(0xFFFFD54F)
+                                      ? (isLight
+                                            ? const Color(0xFFE65100)
+                                            : const Color(0xFFFFD54F))
                                       : AppColors.dynamicTextPrimary,
                                 ),
                               ),
@@ -457,7 +464,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: isClub
-                                      ? const Color(0xFFFFE082)
+                                      ? (isLight
+                                            ? const Color(0xFF8D6E63)
+                                            : const Color(0xFFFFE082))
                                       : AppColors.dynamicTextSecondary,
                                 ),
                               ),
@@ -590,12 +599,17 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Lifetime Mythic Prestige',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFFFFD54F),
+                                  color:
+                                      CalicoThemeController
+                                          .instance
+                                          .isCalicoLight
+                                      ? const Color(0xFFE65100)
+                                      : const Color(0xFFFFD54F),
                                 ),
                               ),
                               const SizedBox(height: 1),
@@ -671,14 +685,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                CalicoThemeController.instance.mode ==
-                                        CalicoCoatMode.system
-                                    ? 'System Default (Follows OS light/dark mode)'
-                                    : (CalicoThemeController
-                                              .instance
-                                              .isCalicoLight
-                                          ? 'Calico Light (Warm biscuit/cream, espresso text)'
-                                          : 'Calico Dark (Deep charcoal/espresso, warm cream text)'),
+                                CalicoThemeController.instance.mode.description,
                                 style: TextStyle(
                                   fontSize: 11.5,
                                   color: AppColors.dynamicTextSecondary,
@@ -691,129 +698,77 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     const SizedBox(height: 14),
                     Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: AppColors.dynamicChromeTrack,
+                        color: AppColors.dynamicFieldFill,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppColors.dynamicBorder),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () async {
-                                await CalicoThemeController.instance.setMode(
-                                  CalicoCoatMode.calicoDark,
-                                );
-                                if (mounted) setState(() {});
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 9,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      CalicoThemeController.instance.mode ==
-                                          CalicoCoatMode.calicoDark
-                                      ? AppColors.primary
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(9),
-                                ),
-                                child: Text(
-                                  'Calico Dark',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color:
-                                        CalicoThemeController.instance.mode ==
-                                            CalicoCoatMode.calicoDark
-                                        ? Colors.white
-                                        : AppColors.dynamicTextSecondary,
-                                  ),
-                                ),
-                              ),
-                            ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<CalicoCoatMode>(
+                          value: CalicoThemeController.instance.mode,
+                          isExpanded: true,
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.dynamicTextSecondary,
                           ),
-                          Expanded(
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () async {
-                                await CalicoThemeController.instance.setMode(
-                                  CalicoCoatMode.calicoLight,
-                                );
-                                if (mounted) setState(() {});
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 9,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      CalicoThemeController.instance.mode ==
-                                          CalicoCoatMode.calicoLight
-                                      ? AppColors.primary
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(9),
-                                ),
-                                child: Text(
-                                  'Calico Light',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color:
-                                        CalicoThemeController.instance.mode ==
-                                            CalicoCoatMode.calicoLight
-                                        ? Colors.white
-                                        : AppColors.dynamicTextSecondary,
+                          dropdownColor: AppColors.dynamicSurface,
+                          borderRadius: BorderRadius.circular(16),
+                          items: CalicoCoatMode.values.map((mode) {
+                            final isSelected =
+                                mode == CalicoThemeController.instance.mode;
+                            return DropdownMenuItem<CalicoCoatMode>(
+                              value: mode,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 13,
+                                    height: 13,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: mode.swatchColor,
+                                      border: Border.all(
+                                        color: AppColors.dynamicBorder,
+                                        width: 1.2,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () async {
-                                await CalicoThemeController.instance.setMode(
-                                  CalicoCoatMode.system,
-                                );
-                                if (mounted) setState(() {});
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 9,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      CalicoThemeController.instance.mode ==
-                                          CalicoCoatMode.system
-                                      ? AppColors.primary
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(9),
-                                ),
-                                child: Text(
-                                  'System',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color:
-                                        CalicoThemeController.instance.mode ==
-                                            CalicoCoatMode.system
-                                        ? Colors.white
-                                        : AppColors.dynamicTextSecondary,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      mode.label,
+                                      style: TextStyle(
+                                        fontSize: 13.5,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w800
+                                            : FontWeight.w600,
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : AppColors.dynamicTextPrimary,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  if (isSelected)
+                                    const Icon(
+                                      Icons.check_rounded,
+                                      size: 18,
+                                      color: AppColors.primary,
+                                    ),
+                                ],
                               ),
-                            ),
-                          ),
-                        ],
+                            );
+                          }).toList(),
+                          onChanged: (newMode) async {
+                            if (newMode == null) return;
+                            await CalicoThemeController.instance.setMode(
+                              newMode,
+                            );
+                            if (mounted) setState(() {});
+                          },
+                        ),
                       ),
                     ),
                   ],

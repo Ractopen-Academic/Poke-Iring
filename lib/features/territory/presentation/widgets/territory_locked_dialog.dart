@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/calico_theme_controller.dart';
 import '../../domain/entities/explorer_territory.dart';
 
 class TerritoryLockedDialog extends StatelessWidget {
@@ -35,6 +36,7 @@ class TerritoryLockedDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final daysRemaining = territory.daysUntilChangeAvailable;
     final nextDate = territory.nextChangeDateFormatted;
+    final isLight = CalicoThemeController.instance.isCalicoLight;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
@@ -48,7 +50,7 @@ class TerritoryLockedDialog extends StatelessWidget {
           border: Border.all(color: AppColors.dynamicBorder),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(90),
+              color: Colors.black.withAlpha(isLight ? 30 : 90),
               blurRadius: 28,
               offset: const Offset(0, 10),
             ),
@@ -63,8 +65,10 @@ class TerritoryLockedDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF2E241E), Color(0xFF1E1714)],
+                gradient: LinearGradient(
+                  colors: isLight
+                      ? const [Color(0xFFFBF6F0), Color(0xFFF4ECE1)]
+                      : const [Color(0xFF2E241E), Color(0xFF1E1714)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -87,7 +91,7 @@ class TerritoryLockedDialog extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 14),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -96,15 +100,15 @@ class TerritoryLockedDialog extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16.5,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: AppColors.dynamicTextPrimary,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           'Annual Seasonal Cooldown',
                           style: TextStyle(
                             fontSize: 11.5,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                           ),
                         ),
                       ],
@@ -120,11 +124,11 @@ class TerritoryLockedDialog extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'To protect tournament integrity and prevent district hopping during active seasons, official territories can only be modified once every 365 days.',
                     style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textSecondary,
+                      color: AppColors.dynamicTextSecondary,
                       height: 1.45,
                     ),
                   ),
@@ -134,9 +138,9 @@ class TerritoryLockedDialog extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.fieldFill,
+                      color: AppColors.dynamicFieldFill,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: AppColors.dynamicBorder),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,11 +148,11 @@ class TerritoryLockedDialog extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Locked Division',
                               style: TextStyle(
                                 fontSize: 11.5,
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -175,21 +179,21 @@ class TerritoryLockedDialog extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           territory.shortLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: AppColors.dynamicTextPrimary,
                           ),
                         ),
-                        const Divider(height: 18, color: AppColors.border),
+                        Divider(height: 18, color: AppColors.dynamicBorder),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Cooldown Remaining',
                               style: TextStyle(
                                 fontSize: 11.5,
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                               ),
                             ),
                             Text(
@@ -206,19 +210,19 @@ class TerritoryLockedDialog extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Next Eligible Change',
                               style: TextStyle(
                                 fontSize: 11.5,
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                               ),
                             ),
                             Text(
                               nextDate,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: AppColors.dynamicTextPrimary,
                               ),
                             ),
                           ],
@@ -258,12 +262,12 @@ class TerritoryLockedDialog extends StatelessWidget {
                             Navigator.of(context).pop();
                             onAdminOverride?.call();
                           },
-                          child: const Text(
+                          child: Text(
                             'Admin Override: Change Territory',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                         ),
