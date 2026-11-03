@@ -169,7 +169,10 @@ class _LoginPageState extends State<LoginPage> {
                     child: Center(
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          minHeight: (constraints.maxHeight - 44).clamp(0, 1200),
+                          minHeight: (constraints.maxHeight - 44).clamp(
+                            0,
+                            1200,
+                          ),
                           maxWidth: 420,
                         ),
                         child: Form(
@@ -189,8 +192,9 @@ class _LoginPageState extends State<LoginPage> {
                                     color: AppColors.calicoCharcoal,
                                     borderRadius: BorderRadius.circular(99),
                                     border: Border.all(
-                                      color:
-                                          AppColors.primaryDark.withAlpha(120),
+                                      color: AppColors.primaryDark.withAlpha(
+                                        120,
+                                      ),
                                     ),
                                   ),
                                   child: const Row(
@@ -256,8 +260,12 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               CalicoSpotCard(
-                                padding:
-                                    const EdgeInsets.fromLTRB(20, 22, 20, 24),
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  22,
+                                  20,
+                                  24,
+                                ),
                                 borderRadius: 26,
                                 backgroundColor: AppColors.surface,
                                 borderColor: AppColors.border,
@@ -269,8 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                                       padding: const EdgeInsets.all(4),
                                       decoration: BoxDecoration(
                                         color: AppColors.chromeTrack,
-                                        borderRadius:
-                                            BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(14),
                                         border: Border.all(
                                           color: AppColors.gingerBorder
                                               .withAlpha(120),
@@ -304,8 +311,9 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF2A1515),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                           border: Border.all(
                                             color: const Color(0xFF7F2323),
                                           ),
@@ -334,8 +342,9 @@ class _LoginPageState extends State<LoginPage> {
                                       const SizedBox(height: 16),
                                     ],
                                     AnimatedSize(
-                                      duration:
-                                          const Duration(milliseconds: 240),
+                                      duration: const Duration(
+                                        milliseconds: 240,
+                                      ),
                                       curve: Curves.easeOutCubic,
                                       child: Column(
                                         crossAxisAlignment:
@@ -347,8 +356,7 @@ class _LoginPageState extends State<LoginPage> {
                                               focusNode: _handleFocusNode,
                                               label: 'Explorer Handle',
                                               hint: 'e.g. WhiskerPatrol',
-                                              prefixIcon:
-                                                  Icons.badge_outlined,
+                                              prefixIcon: Icons.badge_outlined,
                                               validator: (val) {
                                                 if (_isSignUp &&
                                                     (val == null ||
@@ -394,9 +402,8 @@ class _LoginPageState extends State<LoginPage> {
                                               icon: Icon(
                                                 _obscurePassword
                                                     ? Icons
-                                                        .visibility_off_outlined
-                                                    : Icons
-                                                        .visibility_outlined,
+                                                          .visibility_off_outlined
+                                                    : Icons.visibility_outlined,
                                                 color: _obscurePassword
                                                     ? const Color(0xFFB3A89D)
                                                     : AppColors.primary,
@@ -437,9 +444,9 @@ class _LoginPageState extends State<LoginPage> {
                                                 icon: Icon(
                                                   _obscureConfirmPassword
                                                       ? Icons
-                                                          .visibility_off_outlined
+                                                            .visibility_off_outlined
                                                       : Icons
-                                                          .visibility_outlined,
+                                                            .visibility_outlined,
                                                   color: _obscureConfirmPassword
                                                       ? const Color(0xFFB3A89D)
                                                       : AppColors.primary,
@@ -458,7 +465,8 @@ class _LoginPageState extends State<LoginPage> {
                                                     return 'Please confirm your password';
                                                   }
                                                   if (val !=
-                                                      _passwordController.text) {
+                                                      _passwordController
+                                                          .text) {
                                                     return 'Passwords do not match';
                                                   }
                                                 }
@@ -469,24 +477,22 @@ class _LoginPageState extends State<LoginPage> {
                                           if (!_isSignUp) ...[
                                             const SizedBox(height: 8),
                                             Align(
-                                              alignment:
-                                                  Alignment.centerRight,
+                                              alignment: Alignment.centerRight,
                                               child: TextButton(
                                                 onPressed: _isLoading
                                                     ? null
                                                     : () =>
-                                                        ForgotPasswordDialog
-                                                            .show(
-                                                          context,
-                                                          widget
-                                                              .authRepository,
-                                                        ),
+                                                          ForgotPasswordDialog.show(
+                                                            context,
+                                                            widget
+                                                                .authRepository,
+                                                          ),
                                                 style: TextButton.styleFrom(
                                                   padding:
                                                       const EdgeInsets.symmetric(
-                                                    horizontal: 4,
-                                                    vertical: 4,
-                                                  ),
+                                                        horizontal: 4,
+                                                        vertical: 4,
+                                                      ),
                                                   minimumSize: Size.zero,
                                                   tapTargetSize:
                                                       MaterialTapTargetSize
@@ -520,8 +526,9 @@ class _LoginPageState extends State<LoginPage> {
                                     const Row(
                                       children: [
                                         Expanded(
-                                          child:
-                                              Divider(color: AppColors.border),
+                                          child: Divider(
+                                            color: AppColors.border,
+                                          ),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.symmetric(
@@ -537,8 +544,9 @@ class _LoginPageState extends State<LoginPage> {
                                           ),
                                         ),
                                         Expanded(
-                                          child:
-                                              Divider(color: AppColors.border),
+                                          child: Divider(
+                                            color: AppColors.border,
+                                          ),
                                         ),
                                       ],
                                     ),

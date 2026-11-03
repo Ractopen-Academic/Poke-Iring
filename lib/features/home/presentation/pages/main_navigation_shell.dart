@@ -383,11 +383,7 @@ class _HomePageState extends State<_HomePage> {
         title: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.pets_rounded,
-              size: 19,
-              color: AppColors.primary,
-            ),
+            Icon(Icons.pets_rounded, size: 19, color: AppColors.primary),
             SizedBox(width: 8),
             Text(
               AppStrings.appName,

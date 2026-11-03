@@ -91,7 +91,10 @@ class PawQuestCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(12),
@@ -156,7 +159,10 @@ class PawQuestCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0x1FFFFFFF),
                   borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: const Color(0x22FFFFFF), width: 0.8),
+                  border: Border.all(
+                    color: const Color(0x22FFFFFF),
+                    width: 0.8,
+                  ),
                 ),
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,

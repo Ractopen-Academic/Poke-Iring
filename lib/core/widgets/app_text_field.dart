@@ -37,25 +37,16 @@ class AppTextField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(
-        color: AppColors.textPrimary,
-        fontSize: 14.5,
-      ),
+      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14.5),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(
-          color: Color(0xFFB3A89D),
-          fontSize: 14,
-        ),
+        labelStyle: const TextStyle(color: Color(0xFFB3A89D), fontSize: 14),
         floatingLabelStyle: const TextStyle(
           color: AppColors.primary,
           fontWeight: FontWeight.w700,
         ),
         hintText: hint,
-        hintStyle: const TextStyle(
-          color: Color(0xFFB3A89D),
-          fontSize: 13.5,
-        ),
+        hintStyle: const TextStyle(color: Color(0xFFB3A89D), fontSize: 13.5),
         prefixIcon: prefixIcon != null
             ? Icon(prefixIcon, color: const Color(0xFFB3A89D), size: 20)
             : null,
