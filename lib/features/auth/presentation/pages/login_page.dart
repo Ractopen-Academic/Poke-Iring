@@ -162,10 +162,10 @@ class _LoginPageState extends State<LoginPage> {
                                 vertical: 5,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.calicoBlack,
+                                color: AppColors.calicoCharcoal,
                                 borderRadius: BorderRadius.circular(99),
                                 border: Border.all(
-                                  color: AppColors.primary.withAlpha(110),
+                                  color: AppColors.primaryDark.withAlpha(120),
                                 ),
                               ),
                               child: const Row(
@@ -182,7 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                                     style: TextStyle(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w800,
-                                      color: Colors.white,
+                                      color: AppColors.textPrimary,
                                       letterSpacing: 0.7,
                                     ),
                                   ),
@@ -217,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 28),
                           Center(
                             child: Transform.translate(
                               offset: const Offset(0, 10),
@@ -233,14 +233,15 @@ class _LoginPageState extends State<LoginPage> {
                           CalicoSpotCard(
                             padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
                             borderRadius: 26,
-                            borderColor: AppColors.gingerBorder.withAlpha(150),
+                            backgroundColor: AppColors.surface,
+                            borderColor: AppColors.border,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                    color: AppColors.calicoBlack,
+                                    color: AppColors.chromeTrack,
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                   child: Row(
@@ -270,25 +271,25 @@ class _LoginPageState extends State<LoginPage> {
                                       vertical: 10,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFEF2F2),
+                                      color: const Color(0xFF2A1515),
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
-                                        color: const Color(0xFFFECACA),
+                                        color: const Color(0xFF7F2323),
                                       ),
                                     ),
                                     child: Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.error_outline_rounded,
                                           size: 18,
-                                          color: Colors.red.shade700,
+                                          color: Color(0xFFF87171),
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             _errorMessage!,
-                                            style: TextStyle(
-                                              color: Colors.red.shade800,
+                                            style: const TextStyle(
+                                              color: Color(0xFFFCA5A5),
                                               fontSize: 12.5,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -507,7 +508,7 @@ class _AuthModeSegment extends StatelessWidget {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
+          color: isSelected ? AppColors.primaryDark : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
@@ -516,7 +517,7 @@ class _AuthModeSegment extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w800,
-            color: isSelected ? Colors.white : AppColors.calicoMuted,
+            color: isSelected ? AppColors.textPrimary : AppColors.calicoMuted,
           ),
         ),
       ),

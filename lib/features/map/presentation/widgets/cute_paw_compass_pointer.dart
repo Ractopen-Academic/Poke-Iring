@@ -4,13 +4,13 @@ import '../../../../core/constants/app_colors.dart';
 
 class CutePawCompassPointer extends StatelessWidget {
   final double size;
-  final Color padColor;
+  final Color? padColor;
   final Color baseColor;
 
   const CutePawCompassPointer({
     super.key,
     this.size = 28.0,
-    this.padColor = AppColors.primary,
+    this.padColor,
     this.baseColor = Colors.white,
   });
 
@@ -20,7 +20,10 @@ class CutePawCompassPointer extends StatelessWidget {
       width: size,
       height: size,
       child: CustomPaint(
-        painter: _CutePawPainter(padColor: padColor, baseColor: baseColor),
+        painter: _CutePawPainter(
+          padColor: padColor ?? AppColors.primary,
+          baseColor: baseColor,
+        ),
       ),
     );
   }

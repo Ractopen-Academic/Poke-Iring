@@ -156,8 +156,8 @@ void main() {
       );
 
       expect(find.text('Calico Patch Card'), findsOneWidget);
-      expect(AppColors.primary, equals(const Color(0xFFFF8C1A)));
-      expect(AppColors.calicoBlack, equals(const Color(0xFF1B1614)));
+      expect(AppColors.primary, equals(const Color(0xFFD96B27)));
+      expect(AppColors.calicoBlack, equals(const Color(0xFF1A1817)));
 
       await tester.tap(find.text('Calico Patch Card'));
       await tester.pump(const Duration(milliseconds: 250));

@@ -4,13 +4,13 @@ import '../../../../core/constants/app_colors.dart';
 
 class CatArmCompassPointer extends StatelessWidget {
   final double size;
-  final Color armColor;
+  final Color? armColor;
   final Color padColor;
 
   const CatArmCompassPointer({
     super.key,
     this.size = 28.0,
-    this.armColor = AppColors.primary,
+    this.armColor,
     this.padColor = Colors.white,
   });
 
@@ -20,7 +20,10 @@ class CatArmCompassPointer extends StatelessWidget {
       width: size,
       height: size,
       child: CustomPaint(
-        painter: _CatArmPainter(armColor: armColor, padColor: padColor),
+        painter: _CatArmPainter(
+          armColor: armColor ?? AppColors.primary,
+          padColor: padColor,
+        ),
       ),
     );
   }

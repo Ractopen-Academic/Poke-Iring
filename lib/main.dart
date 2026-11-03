@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'core/constants/app_strings.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/calico_theme_controller.dart';
 import 'core/widgets/responsive_web_shell.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/data/repositories/dev_auth_repository.dart';
@@ -18,6 +19,8 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  await CalicoThemeController.instance.loadSavedMode();
 
   final isFirebaseSupported =
       !kIsWeb &&
@@ -52,13 +55,15 @@ class PokeIringApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppStrings.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      builder: (context, child) =>
-          ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
-      home: AuthGate(authRepository: authRepository),
+    return CalicoThemeRebuildScope(
+      builder: (context) => MaterialApp(
+        title: AppStrings.appName,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        builder: (context, child) =>
+            ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
+        home: AuthGate(authRepository: authRepository),
+      ),
     );
   }
 }

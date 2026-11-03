@@ -285,13 +285,13 @@ class _CalicoLoginMascotPainter extends CustomPainter {
     final h = size.height;
 
     final gingerPaint = Paint()
-      ..color = AppColors.primary
+      ..color = AppColors.mascotWarmPatch
       ..style = PaintingStyle.fill;
     final obsidianPaint = Paint()
-      ..color = AppColors.calicoBlack
+      ..color = AppColors.mascotDarkPatch
       ..style = PaintingStyle.fill;
     final creamPaint = Paint()
-      ..color = const Color(0xFFFFFAF4)
+      ..color = AppColors.mascotBaseFur
       ..style = PaintingStyle.fill;
     final pinkPaint = Paint()
       ..color = AppColors.calicoPink
@@ -555,7 +555,7 @@ class _CalicoLoginMascotPainter extends CustomPainter {
     final angle = (isLeft ? 0.34 : -0.34) * progress * math.pi * 0.45;
 
     final creamPaint = Paint()
-      ..color = const Color(0xFFFFFAF4)
+      ..color = AppColors.mascotBaseFur
       ..style = PaintingStyle.fill;
     final outlinePaint = Paint()
       ..color = AppColors.calicoCharcoal

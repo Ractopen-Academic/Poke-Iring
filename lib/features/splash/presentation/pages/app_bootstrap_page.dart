@@ -9,6 +9,7 @@ import '../../../../core/network/network_info.dart';
 import '../../../../core/network/network_info_impl.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
+import '../../../auth/presentation/widgets/calico_login_mascot.dart';
 import '../../../map/data/services/tile_precache_service_impl.dart';
 import '../../../map/domain/services/tile_precache_service.dart';
 
@@ -129,48 +130,51 @@ class _AppBootstrapPageState extends State<AppBootstrapPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(25),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.pets,
-                        size: 28,
-                        color: AppColors.primary,
-                      ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 170,
+                          height: 170,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                AppColors.primary.withAlpha(24),
+                                AppColors.primary.withAlpha(0),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 140,
+                          height: 110,
+                          child: CalicoLoginMascot(),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Poke: Iring',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 18),
                     Text(
                       _statusText,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
+                        letterSpacing: -0.2,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(99),
                       child: SizedBox(
-                        width: 140,
-                        height: 4,
+                        width: 160,
+                        height: 6,
                         child: LinearProgressIndicator(
                           value: _progress,
-                          backgroundColor: AppColors.border,
+                          backgroundColor: AppColors.progressTrack,
                           valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.primary,
+                            AppColors.gingerSoft,
                           ),
                         ),
                       ),
