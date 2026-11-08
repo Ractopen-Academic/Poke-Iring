@@ -25,11 +25,17 @@ class RawPhotoVaultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       appBar: AppBar(
-        title: const Text('RAW Photo Vault'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        title: Text(
+          'RAW Photo Vault',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: AppColors.dynamicTextPrimary,
+          ),
+        ),
+        backgroundColor: AppColors.dynamicBackground,
+        foregroundColor: AppColors.dynamicTextPrimary,
         elevation: 0,
       ),
       body: StreamBuilder<SubscriptionStatus>(

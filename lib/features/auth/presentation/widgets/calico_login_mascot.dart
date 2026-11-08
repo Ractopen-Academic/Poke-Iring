@@ -48,7 +48,7 @@ class _CalicoBackdropPainter extends CustomPainter {
         colors: [
           AppColors.primary.withAlpha(42),
           AppColors.gingerSoft.withAlpha(95),
-          AppColors.background.withAlpha(0),
+          AppColors.dynamicBackground.withAlpha(0),
         ],
       ).createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, topGlow);
@@ -58,9 +58,9 @@ class _CalicoBackdropPainter extends CustomPainter {
         center: const Alignment(-0.82, 0.85),
         radius: 0.85 * progress,
         colors: [
-          AppColors.calicoCharcoal.withAlpha(22),
-          AppColors.creamSurface.withAlpha(90),
-          AppColors.background.withAlpha(0),
+          AppColors.dynamicCalicoCharcoal.withAlpha(22),
+          AppColors.dynamicCreamSurface.withAlpha(90),
+          AppColors.dynamicBackground.withAlpha(0),
         ],
       ).createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, bottomGlow);

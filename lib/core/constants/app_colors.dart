@@ -62,6 +62,7 @@ class AppColors {
   static Color get dynamicChromeSurface => currentPalette.chromeSurface;
   static Color get dynamicChromeMuted => currentPalette.chromeMuted;
   static Color get dynamicSecondary => currentPalette.secondary;
+  static Color get dynamicCreamSurface => currentPalette.creamSurface;
   static Color get dynamicCalicoCharcoal => currentPalette.calicoCharcoal;
   static Color get dynamicCalicoBlack => currentPalette.calicoBlack;
   static Color get dynamicGingerBorder => currentPalette.gingerBorder;

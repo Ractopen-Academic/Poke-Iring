@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/services/image_compression_service.dart';
 import '../../../auth/domain/entities/auth_user.dart';
+import '../../../subscription/data/services/subscription_service_impl.dart';
+import '../../../subscription/presentation/widgets/feline_club_paywall_sheet.dart';
 import '../../domain/repositories/stories_repository.dart';
 
 class CreateStoryDialog extends StatefulWidget {
@@ -44,8 +46,69 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
   ImageCompressionResult? _compressionResult;
   bool _isCompressing = false;
   bool _isPublishing = false;
+  bool _isClubMember = false;
+  Duration _selectedDuration = const Duration(hours: 24);
   String _selectedBreed = 'Domestic Shorthair (Puspin)';
   final String _locationTag = 'Bankal, Lapu-Lapu City';
+
+  @override
+  void initState() {
+    super.initState();
+    _checkMembership();
+  }
+
+  Future<void> _checkMembership() async {
+    final userId = widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+    final status = await SubscriptionServiceImpl.instance.getSubscription(userId);
+    if (mounted) {
+      setState(() {
+        _isClubMember = status.isClubMember;
+      });
+    }
+  }
+
+  void _promptClubUpgrade(String featureReason) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Feline Club Exclusive Perk'),
+        content: Text(
+          '$featureReason\n\nUpgrade to Feline Club with PayPal Sandbox to unlock settable durations up to 7 days and uncompressed 4K uploads.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Maybe Later'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              final userId =
+                  widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+              FelineClubPaywallSheet.show(
+                context,
+                userId: userId,
+                onSubscribed: () {
+                  _checkMembership();
+                },
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('View Membership'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDurationLabel(Duration d) {
+    if (d.inDays >= 7) return '7 Days';
+    if (d.inDays >= 1) return '${d.inHours} Hours';
+    return '${d.inHours}h';
+  }
 
   final List<String> _commonBreeds = const [
     'Domestic Shorthair (Puspin)',
@@ -65,7 +128,10 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
       setState(() => _isCompressing = true);
 
       final rawBytes = await file.readAsBytes();
-      final result = await _compressionService.compressStoryImage(rawBytes);
+      final result = await _compressionService.compressStoryImage(
+        rawBytes,
+        isClubMember: _isClubMember,
+      );
 
       if (mounted) {
         setState(() {
@@ -97,16 +163,17 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             : 'Feline spotlight in $_locationTag',
         catBreed: _selectedBreed,
         locationTag: _locationTag,
+        duration: _selectedDuration,
       );
 
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             backgroundColor: AppColors.primary,
             content: Text(
-              'Story published! Live in neighborhood highlights for 24 hours.',
-              style: TextStyle(fontWeight: FontWeight.w700),
+              'Story published! Active in highlights for ${_formatDurationLabel(_selectedDuration)}.',
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         );
@@ -125,6 +192,71 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
   void dispose() {
     _captionController.dispose();
     super.dispose();
+  }
+
+  Widget _buildDurationChip({
+    required String label,
+    required Duration duration,
+    required bool isClubOnly,
+  }) {
+    final isSelected = _selectedDuration == duration;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (isClubOnly && !_isClubMember) {
+            _promptClubUpgrade('Set your MyDay lifespan to $label.');
+            return;
+          }
+          setState(() => _selectedDuration = duration);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primary
+                : (isClubOnly && !_isClubMember)
+                ? Colors.grey.shade50
+                : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.primary
+                  : (isClubOnly && !_isClubMember)
+                  ? Colors.grey.shade300
+                  : AppColors.border,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected
+                      ? Colors.white
+                      : (isClubOnly && !_isClubMember)
+                      ? Colors.grey.shade500
+                      : AppColors.textPrimary,
+                ),
+              ),
+              if (isClubOnly)
+                Text(
+                  'CLUB',
+                  style: TextStyle(
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w900,
+                    color: isSelected
+                        ? Colors.white.withAlpha(220)
+                        : const Color(0xFFE65100),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -303,6 +435,107 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                 ],
               ),
 
+            const SizedBox(height: 16),
+
+            // MyDay Duration Selector
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'MyDay Lifespan',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                if (!_isClubMember)
+                  GestureDetector(
+                    onTap: () => _promptClubUpgrade('Unlock up to 7 days extended story duration.'),
+                    child: const Text(
+                      'Upgrade for 48h - 7d',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                _buildDurationChip(
+                  label: '24 Hours',
+                  duration: const Duration(hours: 24),
+                  isClubOnly: false,
+                ),
+                const SizedBox(width: 6),
+                _buildDurationChip(
+                  label: '48 Hours',
+                  duration: const Duration(hours: 48),
+                  isClubOnly: true,
+                ),
+                const SizedBox(width: 6),
+                _buildDurationChip(
+                  label: '72 Hours',
+                  duration: const Duration(hours: 72),
+                  isClubOnly: true,
+                ),
+                const SizedBox(width: 6),
+                _buildDurationChip(
+                  label: '7 Days',
+                  duration: const Duration(days: 7),
+                  isClubOnly: true,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Resolution status banner
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: _isClubMember
+                    ? const Color(0xFFFFF8E1)
+                    : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: _isClubMember
+                      ? const Color(0xFFFFB300)
+                      : Colors.grey.shade300,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _isClubMember
+                        ? Icons.workspace_premium_rounded
+                        : Icons.photo_size_select_actual_outlined,
+                    size: 15,
+                    color: _isClubMember
+                        ? const Color(0xFFE65100)
+                        : AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _isClubMember
+                          ? 'Club Ultra HD: 4K 2160p Lossless Master'
+                          : 'Standard 1080p Web Compression (Join Club for 4K)',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _isClubMember
+                            ? const Color(0xFFE65100)
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
 
             // Breed Selector

@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       body: CalicoAmbientBackdrop(
         child: SafeArea(
           child: Stack(
@@ -189,7 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.calicoCharcoal,
+                                    color: AppColors.dynamicChromeTrack,
                                     borderRadius: BorderRadius.circular(99),
                                     border: Border.all(
                                       color: AppColors.primaryDark.withAlpha(
@@ -197,21 +197,21 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                     ),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.pets_rounded,
                                         size: 13,
                                         color: AppColors.primary,
                                       ),
-                                      SizedBox(width: 7),
+                                      const SizedBox(width: 7),
                                       Text(
                                         'FELINE EXPLORER NETWORK',
                                         style: TextStyle(
                                           fontSize: 10.5,
                                           fontWeight: FontWeight.w800,
-                                          color: AppColors.textPrimary,
+                                          color: AppColors.dynamicTextPrimary,
                                           letterSpacing: 0.7,
                                         ),
                                       ),
@@ -220,13 +220,13 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               const SizedBox(height: 14),
-                              const Text(
+                              Text(
                                 AppStrings.appName,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 31,
                                   fontWeight: FontWeight.w900,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.dynamicTextPrimary,
                                   letterSpacing: -0.6,
                                 ),
                               ),
@@ -239,10 +239,10 @@ class _LoginPageState extends State<LoginPage> {
                                       : AppStrings.tagline,
                                   key: ValueKey<bool>(_isSignUp),
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w500,
-                                    color: AppColors.textSecondary,
+                                    color: AppColors.dynamicTextSecondary,
                                   ),
                                 ),
                               ),
@@ -267,8 +267,8 @@ class _LoginPageState extends State<LoginPage> {
                                   24,
                                 ),
                                 borderRadius: 26,
-                                backgroundColor: AppColors.surface,
-                                borderColor: AppColors.border,
+                                backgroundColor: AppColors.dynamicSurface,
+                                borderColor: AppColors.dynamicBorder,
                                 child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
@@ -276,11 +276,10 @@ class _LoginPageState extends State<LoginPage> {
                                     Container(
                                       padding: const EdgeInsets.all(4),
                                       decoration: BoxDecoration(
-                                        color: AppColors.chromeTrack,
+                                        color: AppColors.dynamicChromeTrack,
                                         borderRadius: BorderRadius.circular(14),
                                         border: Border.all(
-                                          color: AppColors.gingerBorder
-                                              .withAlpha(120),
+                                          color: AppColors.dynamicBorder,
                                         ),
                                       ),
                                       child: Row(
@@ -523,29 +522,29 @@ class _LoginPageState extends State<LoginPage> {
                                       onPressed: _handleManualAuth,
                                     ),
                                     const SizedBox(height: 20),
-                                    const Row(
+                                    Row(
                                       children: [
                                         Expanded(
                                           child: Divider(
-                                            color: AppColors.border,
+                                            color: AppColors.dynamicBorder,
                                           ),
                                         ),
                                         Padding(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                             horizontal: 14,
                                           ),
                                           child: Text(
                                             'or continue with',
                                             style: TextStyle(
                                               fontSize: 11.5,
-                                              color: AppColors.textSecondary,
+                                              color: AppColors.dynamicTextSecondary,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
                                         ),
                                         Expanded(
                                           child: Divider(
-                                            color: AppColors.border,
+                                            color: AppColors.dynamicBorder,
                                           ),
                                         ),
                                       ],
@@ -599,16 +598,16 @@ class _LoginPageState extends State<LoginPage> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.creamSurface.withAlpha(200),
+                    color: AppColors.dynamicChromeTrack,
                     borderRadius: BorderRadius.circular(99),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.dynamicBorder),
                   ),
                   child: Text(
                     AppVersion.releaseTag,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textSecondary,
+                      color: AppColors.dynamicTextSecondary,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -652,7 +651,9 @@ class _AuthModeSegment extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w800,
-            color: isSelected ? AppColors.textPrimary : const Color(0xFFA69B91),
+            color: isSelected
+                ? Colors.white
+                : AppColors.dynamicTextSecondary,
           ),
         ),
       ),

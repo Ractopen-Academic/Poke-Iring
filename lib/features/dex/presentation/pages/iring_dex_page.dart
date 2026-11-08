@@ -116,25 +116,32 @@ class _IringDexPageState extends State<IringDexPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       appBar: AppBar(
         title: _isSearching
             ? TextField(
                 controller: _searchController,
                 autofocus: true,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Search species or pattern...',
+                  hintStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                   border: InputBorder.none,
                 ),
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.dynamicTextPrimary,
+                ),
                 onChanged: (val) => setState(() => _searchQuery = val),
               )
-            : const Text(
+            : Text(
                 'Iring-Dex',
-                style: TextStyle(fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.dynamicTextPrimary,
+                ),
               ),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.dynamicBackground,
+        foregroundColor: AppColors.dynamicTextPrimary,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         actions: [

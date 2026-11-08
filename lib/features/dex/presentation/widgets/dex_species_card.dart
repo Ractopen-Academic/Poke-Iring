@@ -38,10 +38,10 @@ class DexSpeciesCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDiscovered ? AppColors.surface : AppColors.chromeTrack,
+          color: isDiscovered ? AppColors.dynamicSurface : AppColors.dynamicChromeTrack,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isDiscovered ? rarityColor.withAlpha(90) : AppColors.border,
+            color: isDiscovered ? rarityColor.withAlpha(90) : AppColors.dynamicBorder,
             width: isDiscovered ? 1.4 : 1.0,
           ),
           boxShadow: isDiscovered
@@ -66,7 +66,7 @@ class DexSpeciesCard extends StatelessWidget {
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: isDiscovered
-                        ? AppColors.textSecondary
+                        ? AppColors.dynamicTextSecondary
                         : const Color(0xFF8A7D75),
                   ),
                 ),
@@ -112,9 +112,9 @@ class DexSpeciesCard extends StatelessWidget {
                   : Container(
                       width: 64,
                       height: 64,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.calicoCharcoal,
+                        color: AppColors.dynamicChromeTrack,
                       ),
                       child: const Center(
                         child: Text(
@@ -139,7 +139,7 @@ class DexSpeciesCard extends StatelessWidget {
                 fontSize: 12.5,
                 fontWeight: FontWeight.w800,
                 color: isDiscovered
-                    ? AppColors.textPrimary
+                    ? AppColors.dynamicTextPrimary
                     : const Color(0xFF8A7D75),
               ),
             ),

@@ -57,6 +57,10 @@ class _StoriesTrayState extends State<StoriesTray> {
       stream: _repository.watchActiveStories(),
       builder: (context, snapshot) {
         final stories = snapshot.data ?? const [];
+        final userStories =
+            stories.where((s) => s.userId == currentUserId).toList();
+        final hasUserStory = userStories.isNotEmpty;
+        final latestUserStory = hasUserStory ? userStories.first : null;
 
         return SizedBox(
           height: 94,
@@ -71,9 +75,18 @@ class _StoriesTrayState extends State<StoriesTray> {
                   seed: widget.user.displayName.isNotEmpty
                       ? widget.user.displayName
                       : widget.user.email,
-                  photoUrl: widget.user.photoUrl,
+                  authorAvatarUrl: widget.user.photoUrl,
+                  storyMediaUrl: latestUserStory?.mediaUrl,
+                  catBreed: latestUserStory?.catBreed,
                   isUser: true,
-                  onTap: _openCreateStory,
+                  hasActiveUserStory: hasUserStory,
+                  onTap: hasUserStory
+                      ? () => _openStoryViewer(
+                            stories,
+                            stories.indexOf(latestUserStory!),
+                          )
+                      : _openCreateStory,
+                  onAddTap: _openCreateStory,
                 );
               }
 
@@ -84,7 +97,9 @@ class _StoriesTrayState extends State<StoriesTray> {
               return StoryCircleItem(
                 label: story.authorName,
                 seed: story.authorName,
-                photoUrl: story.authorAvatarUrl,
+                storyMediaUrl: story.mediaUrl,
+                authorAvatarUrl: story.authorAvatarUrl,
+                catBreed: story.catBreed,
                 isViewed: isViewed,
                 onTap: () => _openStoryViewer(stories, storyIndex),
               );

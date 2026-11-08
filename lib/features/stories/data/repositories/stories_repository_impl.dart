@@ -28,6 +28,7 @@ class StoriesRepositoryImpl implements StoriesRepository {
     required String caption,
     required String catBreed,
     required String locationTag,
+    Duration duration = const Duration(hours: 24),
   }) {
     final now = DateTime.now();
     final story = IringStory(
@@ -42,7 +43,7 @@ class StoriesRepositoryImpl implements StoriesRepository {
       catBreed: catBreed,
       locationTag: locationTag,
       createdAt: now,
-      expiresAt: now.add(const Duration(hours: 24)),
+      expiresAt: now.add(duration),
     );
 
     return _dataSource.publishStory(

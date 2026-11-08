@@ -26,15 +26,23 @@ class ImageCompressionService {
   static const int maxStoryHeight = 1920;
   static const int storyJpegQuality = 82;
 
+  // Ultra HD / 4K perks for Feline Club Members
+  static const int clubStoryWidth = 2160;
+  static const int clubStoryHeight = 3840;
+  static const int clubStoryJpegQuality = 95;
+
   static const int maxAvatarDimension = 360;
   static const int avatarJpegQuality = 85;
 
-  Future<ImageCompressionResult> compressStoryImage(Uint8List rawBytes) async {
+  Future<ImageCompressionResult> compressStoryImage(
+    Uint8List rawBytes, {
+    bool isClubMember = false,
+  }) async {
     return compute(_compressImageIsolate, {
       'bytes': rawBytes,
-      'maxWidth': maxStoryWidth,
-      'maxHeight': maxStoryHeight,
-      'quality': storyJpegQuality,
+      'maxWidth': isClubMember ? clubStoryWidth : maxStoryWidth,
+      'maxHeight': isClubMember ? clubStoryHeight : maxStoryHeight,
+      'quality': isClubMember ? clubStoryJpegQuality : storyJpegQuality,
     });
   }
 

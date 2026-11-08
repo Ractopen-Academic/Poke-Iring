@@ -32,7 +32,7 @@ class UserStandingCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.dynamicSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.primary.withAlpha(80), width: 1.2),
         boxShadow: [
@@ -58,9 +58,9 @@ class UserStandingCard extends StatelessWidget {
                   children: [
                     Text.rich(
                       TextSpan(
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                         children: [
                           const TextSpan(text: 'You are at '),
@@ -92,10 +92,10 @@ class UserStandingCard extends StatelessWidget {
                                 : '${scope.label} pool of ${scope.poolCapacity} explorers',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                         ),

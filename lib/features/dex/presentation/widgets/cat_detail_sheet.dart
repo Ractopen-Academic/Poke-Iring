@@ -114,9 +114,9 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
     final rarityColor = _rarityColor(species.rarity);
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       child: SingleChildScrollView(

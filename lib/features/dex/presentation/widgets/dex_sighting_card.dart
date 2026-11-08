@@ -45,9 +45,9 @@ class DexSightingCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.dynamicBorder),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(20),

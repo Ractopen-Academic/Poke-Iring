@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../data/services/subscription_service_impl.dart';
 import '../../domain/entities/subscription_tier.dart';
+import 'paypal_sandbox_checkout_modal.dart';
 
 enum SandboxPaymentMethod {
   paypal(
@@ -57,6 +58,29 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
   bool _isProcessing = false;
 
   Future<void> _handleUpgrade() async {
+    if (_selectedPaymentMethod == SandboxPaymentMethod.paypal) {
+      final success = await PayPalSandboxCheckoutModal.show(
+        context,
+        userId: widget.userId,
+        interval: _selectedInterval,
+      );
+
+      if (success == true && mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: AppColors.primary,
+            content: Text(
+              'PayPal Sandbox transaction verified! Welcome to Feline Club.',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        );
+        widget.onSubscribed?.call();
+      }
+      return;
+    }
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => _SandboxCheckoutDialog(
@@ -179,6 +203,18 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
             ),
             const SizedBox(height: 18),
             // Perks List
+            _PerkRow(
+              icon: Icons.hourglass_top_rounded,
+              title: 'Extended MyDay Story Lifespan',
+              description: 'Publish stories that remain active for 24h, 48h, 72h, or up to 7 days.',
+            ),
+            const SizedBox(height: 10),
+            _PerkRow(
+              icon: Icons.hd_rounded,
+              title: 'Ultra HD 4K Story & Vault Uploads',
+              description: 'Upload high-resolution 4K photographs up to 25MB without downscaling.',
+            ),
+            const SizedBox(height: 10),
             _PerkRow(
               icon: Icons.camera_enhance_rounded,
               title: 'Uncompressed RAW Photo Vault',
@@ -515,9 +551,9 @@ class _SandboxCheckoutDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: AppColors.dynamicChromeTrack,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: AppColors.dynamicBorder),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

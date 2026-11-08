@@ -80,9 +80,9 @@ class SeasonRolloverDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: AppColors.dynamicChromeTrack,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: AppColors.dynamicBorder),
               ),
               child: Column(
                 children: [

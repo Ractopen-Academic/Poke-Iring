@@ -187,10 +187,10 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
         : [_selectedBarangay, ...cityEntry.barangays];
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(top: BorderSide(color: AppColors.border, width: 1.2)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(top: BorderSide(color: AppColors.dynamicBorder, width: 1.2)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -351,7 +351,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      dropdownColor: AppColors.surface,
+                      dropdownColor: AppColors.dynamicSurface,
                       value: _cities.any((c) => c.city == _selectedCity)
                           ? _selectedCity
                           : _cities.first.city,
@@ -418,7 +418,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      dropdownColor: AppColors.surface,
+                      dropdownColor: AppColors.dynamicSurface,
                       value: availableBarangays.contains(_selectedBarangay)
                           ? _selectedBarangay
                           : availableBarangays.first,

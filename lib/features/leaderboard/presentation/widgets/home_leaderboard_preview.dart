@@ -150,18 +150,18 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.creamSurface.withAlpha(180),
+                color: AppColors.dynamicCreamSurface.withAlpha(180),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: AppColors.dynamicBorder),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.workspace_premium_rounded,
                     size: 22,
                     color: AppColors.primary,
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,15 +171,15 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: AppColors.dynamicTextPrimary,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           'Log your first neighborhood cat sighting to claim the #1 explorer spot.',
                           style: TextStyle(
                             fontSize: 11.5,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                             height: 1.3,
                           ),
                         ),

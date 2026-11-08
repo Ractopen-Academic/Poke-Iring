@@ -126,9 +126,9 @@ class _EventPopupModalState extends State<EventPopupModal> {
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.background,
+          color: AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.gingerBorder, width: 1.5),
+          border: Border.all(color: AppColors.dynamicBorder, width: 1.5),
           boxShadow: [
             BoxShadow(
               color: AppColors.calicoBlack.withAlpha(65),
@@ -298,9 +298,9 @@ class _EventPopupModalState extends State<EventPopupModal> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.background,
+                      color: AppColors.dynamicChromeTrack,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: AppColors.dynamicBorder),
                     ),
                     child: Row(
                       children: [

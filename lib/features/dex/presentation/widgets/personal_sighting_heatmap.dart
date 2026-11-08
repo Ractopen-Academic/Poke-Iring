@@ -167,9 +167,9 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: AppColors.dynamicSurface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
         child: Column(
@@ -308,7 +308,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
       height: 520,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.dynamicSurface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border, width: 1.2),
         boxShadow: [
@@ -440,7 +440,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.surface.withAlpha(240),
+                        color: AppColors.dynamicSurface.withAlpha(240),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: AppColors.border),
                         boxShadow: [
@@ -475,7 +475,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       ),
                     ),
                     Material(
-                      color: AppColors.surface.withAlpha(240),
+                      color: AppColors.dynamicSurface.withAlpha(240),
                       shape: const CircleBorder(
                         side: BorderSide(color: AppColors.border),
                       ),
@@ -535,7 +535,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface.withAlpha(245),
+                  color: AppColors.dynamicSurface.withAlpha(245),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: AppColors.border),
                   boxShadow: [
@@ -662,7 +662,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.surface,
+        color: AppColors.dynamicSurface,
         border: Border.all(color: borderColor, width: 2.8),
         boxShadow: [
           BoxShadow(
@@ -695,7 +695,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
           height: 52,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.surface,
+            color: AppColors.dynamicSurface,
             border: Border.all(color: borderColor, width: 2.8),
             boxShadow: [
               BoxShadow(
@@ -719,7 +719,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.surface, width: 1.8),
+              border: Border.all(color: AppColors.dynamicSurface, width: 1.8),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withAlpha(70),

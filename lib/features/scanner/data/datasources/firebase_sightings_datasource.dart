@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/services/data_purge_service.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../quests/data/repositories/paw_quests_repository_impl.dart';
 import '../../domain/entities/cat_sighting.dart';
@@ -14,6 +15,7 @@ import '../../domain/entities/cat_sighting.dart';
 class FirebaseSightingsDataSource {
   static final FirebaseSightingsDataSource _instance =
       FirebaseSightingsDataSource._internal();
+  static FirebaseSightingsDataSource get instance => _instance;
 
   final FirebaseFirestore? firestore;
   final FirebaseStorage? storage;
@@ -39,10 +41,15 @@ class FirebaseSightingsDataSource {
   }
 
   FirebaseSightingsDataSource._internal({this.firestore, this.storage}) {
-    if (!_isFirebaseAvailable) {
+    if (!_isFirebaseAvailable && !DataPurgeService.areSeedsDisabled) {
       _initLocalSeedData();
     }
     _loadPersistedSightings();
+  }
+
+  void clearTestData() {
+    _localSightings.removeWhere((s) => s.id.startsWith('seed-'));
+    _localStreamController.add(List.unmodifiable(_localSightings));
   }
 
   bool get _isFirebaseAvailable {

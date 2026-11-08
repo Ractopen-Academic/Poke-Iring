@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -239,8 +242,31 @@ class _StoryViewerPageState extends State<StoryViewerPage>
 
   Widget _buildStoryMedia(IringStory story) {
     if (story.mediaUrl.isNotEmpty) {
+      final url = story.mediaUrl.trim();
+      if (url.startsWith('data:image')) {
+        try {
+          final commaIdx = url.indexOf(',');
+          final base64Str = commaIdx != -1 ? url.substring(commaIdx + 1) : url;
+          return Image.memory(
+            base64Decode(base64Str),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                _buildFallbackFelineGraphic(story),
+          );
+        } catch (_) {
+          return _buildFallbackFelineGraphic(story);
+        }
+      }
+      if (url.startsWith('file://') || url.startsWith('/')) {
+        return Image.file(
+          File(url.replaceFirst('file://', '')),
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildFallbackFelineGraphic(story),
+        );
+      }
       return CachedNetworkImage(
-        imageUrl: story.mediaUrl,
+        imageUrl: url,
         fit: BoxFit.cover,
         errorWidget: (context, url, error) =>
             _buildFallbackFelineGraphic(story),

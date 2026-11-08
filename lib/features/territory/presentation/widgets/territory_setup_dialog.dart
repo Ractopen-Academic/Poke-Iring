@@ -118,9 +118,9 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.dynamicBorder),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(90),

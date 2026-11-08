@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/services/data_purge_service.dart';
 import '../../domain/entities/vault_photo_entry.dart';
 import '../../domain/services/photo_vault_service.dart';
 
@@ -155,9 +156,22 @@ class PhotoVaultServiceImpl implements PhotoVaultService {
     } catch (_) {}
 
     // 4. Built-in Seed Fallback (Clean install offline)
+    if (DataPurgeService.areSeedsDisabled) {
+      _cache[userId] = const [];
+      return const [];
+    }
     final seed = defaultSeedPhotos(userId);
     _cache[userId] = seed;
     return seed;
+  }
+
+  void clearTestData() {
+    _cache.clear();
+    for (final controller in _controllers.values) {
+      if (!controller.isClosed) {
+        controller.add(const []);
+      }
+    }
   }
 
   @override

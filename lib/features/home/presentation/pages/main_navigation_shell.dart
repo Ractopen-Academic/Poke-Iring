@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/network/network_info.dart';
 import '../../../../core/network/network_info_impl.dart';
 import '../../../../core/services/location_service.dart';
@@ -246,120 +247,125 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   @override
   Widget build(BuildContext context) {
-    final showOffline = !_isOnline && !_dismissedOfflineBanner;
-    final showGpsDisabled =
-        !_isLocationServiceEnabled && !_dismissedGpsBanner && !showOffline;
-    final mapOnStage = _isShowingMap || _keepMapVisibleDuringExit;
+    return ListenableBuilder(
+      listenable: CalicoThemeController.instance,
+      builder: (context, _) {
+        final showOffline = !_isOnline && !_dismissedOfflineBanner;
+        final showGpsDisabled =
+            !_isLocationServiceEnabled && !_dismissedGpsBanner && !showOffline;
+        final mapOnStage = _isShowingMap || _keepMapVisibleDuringExit;
 
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: AppColors.dynamicBackground,
-      body: Stack(
-        children: [
-          Offstage(
-            offstage: _isShowingMap && !_keepMapVisibleDuringExit,
-            child: IgnorePointer(
-              ignoring: _isShowingMap,
-              child: AnimatedScale(
-                scale: _isShowingMap ? 0.95 : 1.0,
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-                child: AnimatedOpacity(
-                  opacity: _isShowingMap ? 0.0 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: FadeTransition(
-                    opacity: _tabFade,
-                    child: SlideTransition(
-                      position: _tabSlide,
-                      child: IndexedStack(
-                        index: _currentIndex,
-                        children: _pages,
+        return Scaffold(
+          extendBody: true,
+          backgroundColor: AppColors.dynamicBackground,
+          body: Stack(
+            children: [
+              Offstage(
+                offstage: _isShowingMap && !_keepMapVisibleDuringExit,
+                child: IgnorePointer(
+                  ignoring: _isShowingMap,
+                  child: AnimatedScale(
+                    scale: _isShowingMap ? 0.95 : 1.0,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOutCubic,
+                    child: AnimatedOpacity(
+                      opacity: _isShowingMap ? 0.0 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: FadeTransition(
+                        opacity: _tabFade,
+                        child: SlideTransition(
+                          position: _tabSlide,
+                          child: IndexedStack(
+                            index: _currentIndex,
+                            children: _pages,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
-          Offstage(
-            offstage: !mapOnStage,
-            child: IgnorePointer(
-              ignoring: !_isShowingMap,
-              child: AnimatedSlide(
-                offset: _isShowingMap ? Offset.zero : const Offset(0, 0.03),
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-                child: AnimatedOpacity(
-                  opacity: _isShowingMap ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutCubic,
-                  child: TickerMode(
-                    enabled: _isShowingMap,
-                    child: LiveMapPage(
-                      locationService: _locationService,
-                      isMapActive: _isShowingMap,
-                      currentUserId: widget.user.id.isNotEmpty
-                          ? widget.user.id
-                          : widget.user.email,
-                      onClose: () => _setMapVisible(false),
+              Offstage(
+                offstage: !mapOnStage,
+                child: IgnorePointer(
+                  ignoring: !_isShowingMap,
+                  child: AnimatedSlide(
+                    offset: _isShowingMap ? Offset.zero : const Offset(0, 0.03),
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOutCubic,
+                    child: AnimatedOpacity(
+                      opacity: _isShowingMap ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      child: TickerMode(
+                        enabled: _isShowingMap,
+                        child: LiveMapPage(
+                          locationService: _locationService,
+                          isMapActive: _isShowingMap,
+                          currentUserId: widget.user.id.isNotEmpty
+                              ? widget.user.id
+                              : widget.user.email,
+                          onClose: () => _setMapVisible(false),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              if (showOffline)
+                Positioned(
+                  top: _isShowingMap ? 56 : 0,
+                  left: 0,
+                  right: 0,
+                  child: SafeArea(
+                    child: FelineStatusBanner(
+                      message: 'Offline mode: exploration is limited to cached territories.',
+                      icon: Icons.pets,
+                      actionLabel: 'Retry',
+                      onAction: () async {
+                        final online = await _networkInfo.isConnected;
+                        if (mounted) {
+                          setState(() => _isOnline = online);
+                        }
+                      },
+                      onDismiss: () =>
+                          setState(() => _dismissedOfflineBanner = true),
+                    ),
+                  ),
+                )
+              else if (showGpsDisabled)
+                Positioned(
+                  top: _isShowingMap ? 56 : 0,
+                  left: 0,
+                  right: 0,
+                  child: SafeArea(
+                    child: FelineStatusBanner(
+                      message: 'GPS disabled. Exploration map centered on Bankal default zone.',
+                      icon: Icons.location_off,
+                      actionLabel: 'Enable',
+                      onAction: () => _locationService.openLocationSettings(),
+                      onDismiss: () => setState(() => _dismissedGpsBanner = true),
+                    ),
+                  ),
+                ),
+              if (_isShowingMap)
+                FloatingSnapIringButton(
+                  onTap: _openQuickSnapCamera,
+                  bottomSafeMargin: 246.0,
+                ),
+            ],
           ),
-          if (showOffline)
-            Positioned(
-              top: _isShowingMap ? 56 : 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                child: FelineStatusBanner(
-                  message: 'Offline mode: exploration is limited to cached territories.',
-                  icon: Icons.pets,
-                  actionLabel: 'Retry',
-                  onAction: () async {
-                    final online = await _networkInfo.isConnected;
-                    if (mounted) {
-                      setState(() => _isOnline = online);
-                    }
-                  },
-                  onDismiss: () =>
-                      setState(() => _dismissedOfflineBanner = true),
-                ),
-              ),
-            )
-          else if (showGpsDisabled)
-            Positioned(
-              top: _isShowingMap ? 56 : 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                child: FelineStatusBanner(
-                  message: 'GPS disabled. Exploration map centered on Bankal default zone.',
-                  icon: Icons.location_off,
-                  actionLabel: 'Enable',
-                  onAction: () => _locationService.openLocationSettings(),
-                  onDismiss: () => setState(() => _dismissedGpsBanner = true),
-                ),
-              ),
-            ),
-          if (_isShowingMap)
-            FloatingSnapIringButton(
-              onTap: _openQuickSnapCamera,
-              bottomSafeMargin: 246.0,
-            ),
-        ],
-      ),
-      floatingActionButton: IringCenterButton(
-        onTap: _handleIringCenterTap,
-        isMapOpen: _isShowingMap,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: _isShowingMap ? -1 : _currentIndex,
-        onTabSelected: _selectTab,
-      ),
+          floatingActionButton: IringCenterButton(
+            onTap: _handleIringCenterTap,
+            isMapOpen: _isShowingMap,
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: AppBottomNavBar(
+            currentIndex: _isShowingMap ? -1 : _currentIndex,
+            onTabSelected: _selectTab,
+          ),
+        );
+      },
     );
   }
 }
@@ -388,27 +394,27 @@ class _HomePageState extends State<_HomePage> {
         : widget.user.email.split('@').first;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       appBar: AppBar(
         centerTitle: true,
-        title: const Row(
+        title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.pets_rounded, size: 19, color: AppColors.primary),
-            SizedBox(width: 8),
+            const Icon(Icons.pets_rounded, size: 19, color: AppColors.primary),
+            const SizedBox(width: 8),
             Text(
               AppStrings.appName,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
                 letterSpacing: -0.4,
               ),
             ),
           ],
         ),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.dynamicBackground,
+        foregroundColor: AppColors.dynamicTextPrimary,
         elevation: 0,
       ),
       body: SafeArea(
@@ -419,7 +425,7 @@ class _HomePageState extends State<_HomePage> {
             final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(0, 12, 0, 116),
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 160),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -441,24 +447,27 @@ class _HomePageState extends State<_HomePage> {
                                       vertical: 3,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.calicoBlack,
+                                      color: AppColors.dynamicChromeTrack,
                                       borderRadius: BorderRadius.circular(99),
+                                      border: Border.all(
+                                        color: AppColors.primary.withAlpha(60),
+                                      ),
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.pets_rounded,
                                           size: 11,
                                           color: AppColors.primary,
                                         ),
-                                        SizedBox(width: 5),
+                                        const SizedBox(width: 5),
                                         Text(
                                           'Welcome back,',
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
-                                            color: Colors.white,
+                                            color: AppColors.dynamicTextPrimary,
                                             letterSpacing: 0.25,
                                           ),
                                         ),
@@ -470,10 +479,10 @@ class _HomePageState extends State<_HomePage> {
                                     name,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 23,
                                       fontWeight: FontWeight.w900,
-                                      color: AppColors.textPrimary,
+                                      color: AppColors.dynamicTextPrimary,
                                       height: 1.15,
                                       letterSpacing: -0.4,
                                     ),
@@ -511,11 +520,11 @@ class _HomePageState extends State<_HomePage> {
                           ],
                         ),
                         const SizedBox(height: 5),
-                        const Text(
+                        Text(
                           'Track your daily explorer movement and unlock more feline routes.',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                           ),
                         ),
                       ],
@@ -539,7 +548,7 @@ class _HomePageState extends State<_HomePage> {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: AppColors.calicoBlack,
+                                      color: AppColors.dynamicChromeTrack,
                                       borderRadius: BorderRadius.circular(13),
                                     ),
                                     child: const Icon(

@@ -63,7 +63,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       body: CalicoAmbientBackdrop(
         child: SafeArea(
           child: Center(
@@ -74,13 +74,13 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
+                    Text(
                       AppStrings.appName,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -93,7 +93,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                     CalicoSpotCard(
                       padding: const EdgeInsets.all(22),
                       borderRadius: 26,
-                      borderColor: AppColors.gingerBorder.withAlpha(150),
+                      borderColor: AppColors.dynamicBorder,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -104,7 +104,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                                 color: AppColors.gingerSoft,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: AppColors.gingerBorder,
+                                  color: AppColors.dynamicBorder,
                                 ),
                               ),
                               child: const Icon(
@@ -115,23 +115,23 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             'Verify your email',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 21,
                               fontWeight: FontWeight.w900,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 10),
                           Text(
                             'We sent a verification link to ${widget.user.email}. Confirm your address to secure your explorer passport.',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13.5,
                               height: 1.45,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                           if (_message != null) ...[

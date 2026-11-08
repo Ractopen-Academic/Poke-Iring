@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/services/data_purge_service.dart';
 import '../../domain/entities/live_sighting.dart';
 
 abstract class MapRemoteDatasource {
@@ -49,7 +50,14 @@ class DevMapDatasource implements MapRemoteDatasource {
       StreamController<List<LiveSighting>>.broadcast();
 
   DevMapDatasource() {
-    _seedBankalSightings();
+    if (!DataPurgeService.areSeedsDisabled) {
+      _seedBankalSightings();
+    }
+  }
+
+  void clearTestData() {
+    _sightings.clear();
+    _controller.add(List.unmodifiable(_sightings));
   }
 
   void _seedBankalSightings() {

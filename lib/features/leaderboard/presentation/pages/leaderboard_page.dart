@@ -259,9 +259,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.dynamicBorder),
         ),
         child: Row(
           children: [
@@ -275,19 +275,19 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               child: Text.rich(
                 TextSpan(
                   children: [
-                    const TextSpan(
+                    TextSpan(
                       text: 'Territory: ',
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                     TextSpan(
                       text: '$_activeBarangay, $_activeCity',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                   ],
@@ -296,10 +296,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(
+            Icon(
               Icons.tune_rounded,
               size: 14,
-              color: AppColors.textSecondary,
+              color: AppColors.dynamicTextSecondary,
             ),
             const SizedBox(width: 4),
             const Text(
@@ -356,17 +356,17 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                     children: [
                       Text(
                         season.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                       Text(
                         '${season.remainingFormatted} • Tap for soft reset & prestige rewards',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                       ),
                     ],

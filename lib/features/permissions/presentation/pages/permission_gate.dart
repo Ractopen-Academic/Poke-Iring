@@ -224,7 +224,7 @@ class _PermissionGateState extends State<PermissionGate> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       body: CalicoAmbientBackdrop(
         child: SafeArea(
           child: Center(
@@ -241,27 +241,27 @@ class _PermissionGateState extends State<PermissionGate> {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.calicoBlack,
+                        color: AppColors.dynamicChromeTrack,
                         borderRadius: BorderRadius.circular(99),
                         border: Border.all(
                           color: AppColors.primary.withAlpha(110),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.shield_outlined,
                             size: 13,
                             color: AppColors.primary,
                           ),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
                             'PATROL GEAR CHECK',
                             style: TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                              color: AppColors.dynamicTextPrimary,
                               letterSpacing: 0.6,
                             ),
                           ),
@@ -276,16 +276,16 @@ class _PermissionGateState extends State<PermissionGate> {
                     CalicoSpotCard(
                       padding: const EdgeInsets.all(22),
                       borderRadius: 26,
-                      borderColor: AppColors.gingerBorder.withAlpha(150),
+                      borderColor: AppColors.dynamicBorder,
                       child: Column(
                         children: [
-                          const Text(
+                          Text(
                             'Before you explore',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                               letterSpacing: -0.4,
                             ),
                           ),
@@ -293,9 +293,9 @@ class _PermissionGateState extends State<PermissionGate> {
                           Text(
                             _message,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13.5,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                               height: 1.4,
                             ),
                           ),

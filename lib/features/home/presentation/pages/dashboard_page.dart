@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_version.dart';
+import '../../../../core/services/data_purge_service.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/feline_avatar.dart';
@@ -14,6 +15,7 @@ import '../../../achievements/presentation/widgets/title_selection_sheet.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../health/services/explorer_health_service.dart';
+import '../../../scanner/data/datasources/firebase_sightings_datasource.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
 import '../../../seasons/data/services/season_service_impl.dart';
 import '../../../showcase/presentation/widgets/explorer_showcase_sheet.dart';
@@ -27,6 +29,7 @@ import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../../territory/domain/entities/explorer_territory.dart';
 import '../../../territory/domain/services/territory_service.dart';
 import '../../../territory/presentation/widgets/territory_selection_sheet.dart';
+import '../../../vault/data/services/photo_vault_service_impl.dart';
 import '../../../vault/presentation/pages/raw_photo_vault_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -98,6 +101,54 @@ class _DashboardPageState extends State<DashboardPage> {
           _isLoggingOut = false;
         });
       }
+    }
+  }
+
+  Future<void> _handlePurgeTestData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Purge Test & Persistent Data?'),
+        content: const Text(
+          'This will wipe all local test sightings, mock stories, test photo vault entries, and persistent cache keys.\n\nMock seed injection will be disabled so you can deploy cleanly with zero test residues.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC62828),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Purge Everything'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final report = await DataPurgeService.purgeAllTestDataAndCache(
+      disableTestSeeds: true,
+    );
+    FirebaseSightingsDataSource.instance.clearTestData();
+    PhotoVaultServiceImpl.instance.clearTestData();
+    SubscriptionServiceImpl.instance.clearTestData();
+
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.primary,
+          content: Text(
+            'Clean slate activated: cleared ${report.clearedKeysCount} persistent cache keys. Ready for deployment.',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      );
     }
   }
 
@@ -964,6 +1015,22 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Deployment & Clean Slate',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.dynamicTextPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _ModuleTile(
+                icon: Icons.cleaning_services_outlined,
+                title: 'Purge All Test & Persistent Data',
+                subtitle: 'Wipe mock seeds, clear persistent caches & prepare for deployment',
+                onTap: _handlePurgeTestData,
               ),
               const SizedBox(height: 32),
               AppButton(

@@ -149,6 +149,15 @@ class SubscriptionServiceImpl implements SubscriptionService {
     return cancelled;
   }
 
+  void clearTestData() {
+    _cache.clear();
+    for (final entry in _controllers.entries) {
+      if (!entry.value.isClosed) {
+        entry.value.add(SubscriptionStatus.free(entry.key));
+      }
+    }
+  }
+
   Future<void> _persistLocally(String userId, SubscriptionStatus status) async {
     try {
       final prefs = await SharedPreferences.getInstance().timeout(

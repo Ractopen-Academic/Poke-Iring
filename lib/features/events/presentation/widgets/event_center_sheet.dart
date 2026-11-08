@@ -170,9 +170,9 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                 );
 
             return Container(
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              decoration: BoxDecoration(
+                color: AppColors.dynamicSurface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.90,
@@ -777,10 +777,10 @@ class _BorderCatalogCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.fieldFill : AppColors.surface,
+          color: isSelected ? AppColors.dynamicFieldFill : AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
             width: isSelected ? 1.8 : 1.0,
           ),
         ),

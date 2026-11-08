@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/services/data_purge_service.dart';
 import '../../domain/entities/iring_story.dart';
 
 class FirebaseStoriesDataSource {
@@ -16,9 +18,14 @@ class FirebaseStoriesDataSource {
       StreamController<List<IringStory>>.broadcast();
 
   FirebaseStoriesDataSource({this.firestore, this.storage}) {
-    if (!_isFirebaseAvailable) {
+    if (!_isFirebaseAvailable && !DataPurgeService.areSeedsDisabled) {
       _initLocalSeedStories();
     }
+  }
+
+  void clearTestData() {
+    _localStories.removeWhere((s) => s.id.startsWith('seed-'));
+    _streamController.add(List.unmodifiable(_localStories));
   }
 
   bool get _isFirebaseAvailable {
@@ -129,9 +136,15 @@ class FirebaseStoriesDataSource {
       }
     }
 
-    _localStories.insert(0, story);
+    final localWithMedia = story.mediaUrl.isEmpty
+        ? story.copyWith(
+            mediaUrl: 'data:image/jpeg;base64,${base64Encode(compressedBytes)}',
+          )
+        : story;
+
+    _localStories.insert(0, localWithMedia);
     _streamController.add(List.unmodifiable(_localStories));
-    return story;
+    return localWithMedia;
   }
 
   Stream<List<IringStory>> watchStories() async* {

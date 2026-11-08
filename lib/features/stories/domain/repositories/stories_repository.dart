@@ -14,6 +14,7 @@ abstract class StoriesRepository {
     required String caption,
     required String catBreed,
     required String locationTag,
+    Duration duration = const Duration(hours: 24),
   });
 
   Future<void> markStoryViewed({
