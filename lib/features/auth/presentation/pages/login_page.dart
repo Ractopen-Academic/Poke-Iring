@@ -4,13 +4,15 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_version.dart';
-import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/utils/auth_error_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../widgets/auth_error_banner.dart';
+import '../widgets/auth_mode_selector.dart';
 import '../widgets/calico_login_mascot.dart';
+import '../widgets/login_mascot_controller.dart';
 import 'forgot_password_dialog.dart';
 
 class LoginPage extends StatefulWidget {
@@ -34,48 +36,27 @@ class _LoginPageState extends State<LoginPage> {
   final _confirmPasswordFocusNode = FocusNode();
   final _nicknameFocusNode = FocusNode();
 
+  late final LoginMascotController _mascotController;
+
   bool _isSignUp = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _isEmailFocused = false;
-  bool _isPasswordFocused = false;
-  double _emailGazeAlignment = 0.0;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    CalicoThemeController.instance.addListener(_syncFocusState);
-    _emailFocusNode.addListener(_syncFocusState);
-    _passwordFocusNode.addListener(_syncFocusState);
-    _confirmPasswordFocusNode.addListener(_syncFocusState);
-  }
-
-  void _syncFocusState() {
-    if (!mounted) return;
-    setState(() {
-      _isEmailFocused = _emailFocusNode.hasFocus;
-      _isPasswordFocused =
-          _passwordFocusNode.hasFocus || _confirmPasswordFocusNode.hasFocus;
-    });
-  }
-
-  void _updateEmailGaze(String value) {
-    final normalized = ((value.length.clamp(0, 28) / 28.0) * 2.0) - 1.0;
-    if ((_emailGazeAlignment - normalized).abs() > 0.04 && mounted) {
-      setState(() {
-        _emailGazeAlignment = normalized;
-      });
-    }
+    _mascotController = LoginMascotController(
+      emailFocusNode: _emailFocusNode,
+      passwordFocusNode: _passwordFocusNode,
+      confirmPasswordFocusNode: _confirmPasswordFocusNode,
+    );
   }
 
   @override
   void dispose() {
-    CalicoThemeController.instance.removeListener(_syncFocusState);
-    _emailFocusNode.removeListener(_syncFocusState);
-    _passwordFocusNode.removeListener(_syncFocusState);
-    _confirmPasswordFocusNode.removeListener(_syncFocusState);
+    _mascotController.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
@@ -261,12 +242,20 @@ class _LoginPageState extends State<LoginPage> {
                               Center(
                                 child: Transform.translate(
                                   offset: const Offset(0, 10),
-                                  child: CalicoLoginMascot(
-                                    isEmailFocused: _isEmailFocused,
-                                    isPasswordFocused: _isPasswordFocused,
-                                    isPasswordVisible: !_obscurePassword,
-                                    gazeAlignment: _emailGazeAlignment,
-                                    hasError: _errorMessage != null,
+                                  child: ListenableBuilder(
+                                    listenable: _mascotController,
+                                    builder: (context, _) {
+                                      return CalicoLoginMascot(
+                                        isEmailFocused:
+                                            _mascotController.isEmailFocused,
+                                        isPasswordFocused:
+                                            _mascotController.isPasswordFocused,
+                                        isPasswordVisible: !_obscurePassword,
+                                        gazeAlignment:
+                                            _mascotController.emailGazeAlignment,
+                                        hasError: _errorMessage != null,
+                                      );
+                                    },
                                   ),
                                 ),
                               ),
@@ -284,80 +273,13 @@ class _LoginPageState extends State<LoginPage> {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.dynamicChromeTrack,
-                                        borderRadius: BorderRadius.circular(14),
-                                        border: Border.all(
-                                          color: AppColors.dynamicBorder,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: _AuthModeSegment(
-                                              label: 'Sign In',
-                                              isSelected: !_isSignUp,
-                                              onTap: () => _selectMode(false),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: _AuthModeSegment(
-                                              label: 'Sign Up',
-                                              isSelected: _isSignUp,
-                                              onTap: () => _selectMode(true),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                    AuthModeSelector(
+                                      isSignUp: _isSignUp,
+                                      onModeChanged: _selectMode,
                                     ),
                                     const SizedBox(height: 18),
                                     if (_errorMessage != null) ...[
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.isCalicoLight
-                                              ? const Color(0xFFFEE2E2)
-                                              : const Color(0xFF2A1515),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          border: Border.all(
-                                            color: AppColors.isCalicoLight
-                                                ? const Color(0xFFFCA5A5)
-                                                : const Color(0xFF7F2323),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.error_outline_rounded,
-                                              size: 18,
-                                              color: AppColors.isCalicoLight
-                                                  ? const Color(0xFFDC2626)
-                                                  : const Color(0xFFF87171),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Text(
-                                                _errorMessage!,
-                                                style: TextStyle(
-                                                  color: AppColors.isCalicoLight
-                                                      ? const Color(0xFF991B1B)
-                                                      : const Color(0xFFFCA5A5),
-                                                  fontSize: 12.5,
-                                                  fontWeight: FontWeight.w600,
-                                                  height: 1.35,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      AuthErrorBanner(message: _errorMessage!),
                                       const SizedBox(height: 16),
                                     ],
                                     AnimatedSize(
@@ -390,7 +312,8 @@ class _LoginPageState extends State<LoginPage> {
                                           AppTextField(
                                             controller: _emailController,
                                             focusNode: _emailFocusNode,
-                                            onChanged: _updateEmailGaze,
+                                            onChanged:
+                                                _mascotController.updateEmailGaze,
                                             label: 'Email Address',
                                             hint: 'explorer@example.com',
                                             keyboardType:
@@ -484,8 +407,7 @@ class _LoginPageState extends State<LoginPage> {
                                                     return 'Please confirm your password';
                                                   }
                                                   if (val !=
-                                                      _passwordController
-                                                          .text) {
+                                                      _passwordController.text) {
                                                     return 'Passwords do not match';
                                                   }
                                                 }
@@ -557,7 +479,8 @@ class _LoginPageState extends State<LoginPage> {
                                             'or continue with',
                                             style: TextStyle(
                                               fontSize: 11.5,
-                                              color: AppColors.dynamicTextSecondary,
+                                              color: AppColors
+                                                  .dynamicTextSecondary,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -618,46 +541,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AuthModeSegment extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _AuthModeSegment({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(vertical: 13),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: isSelected
-                ? Colors.white
-                : AppColors.dynamicTextSecondary,
           ),
         ),
       ),
