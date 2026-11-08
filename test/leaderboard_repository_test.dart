@@ -2,9 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pokeiring/features/leaderboard/data/repositories/leaderboard_repository_impl.dart';
 import 'package:pokeiring/features/leaderboard/domain/entities/leaderboard_query.dart';
 import 'package:pokeiring/features/leaderboard/domain/entities/leaderboard_tier.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
   group('LeaderboardTier', () {
     test('fromPoints evaluates proper tiers', () {
       expect(

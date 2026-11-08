@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pokeiring/features/leaderboard/presentation/widgets/home_leaderboard_preview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('HomeLeaderboardPreview Widget', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
     testWidgets('renders top 3 champions and triggers onTap callback', (
       tester,
     ) async {

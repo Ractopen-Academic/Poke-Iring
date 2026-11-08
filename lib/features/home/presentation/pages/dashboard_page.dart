@@ -24,7 +24,6 @@ import '../../../subscription/data/services/subscription_service_impl.dart';
 import '../../../subscription/domain/entities/subscription_tier.dart';
 import '../../../subscription/presentation/widgets/feline_club_paywall_sheet.dart';
 import '../../../territory/data/services/territory_service_impl.dart';
-import '../../../events/presentation/widgets/active_events_carousel.dart';
 import '../../../events/presentation/widgets/profile_border_avatar.dart';
 import '../../../territory/domain/entities/explorer_territory.dart';
 import '../../../territory/domain/services/territory_service.dart';
@@ -579,14 +578,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   );
                 },
-              ),
-              const SizedBox(height: 14),
-              ActiveEventsCarousel(
-                userId: widget.user.id.isNotEmpty
-                    ? widget.user.id
-                    : widget.user.email,
-                userDisplayName: displayName,
-                userPhotoUrl: widget.user.photoUrl,
               ),
               const SizedBox(height: 18),
               Text(

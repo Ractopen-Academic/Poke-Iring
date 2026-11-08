@@ -10,9 +10,14 @@ import 'package:pokeiring/features/dex/presentation/widgets/dex_progress_header.
 import 'package:pokeiring/features/dex/presentation/widgets/dex_species_card.dart';
 import 'package:pokeiring/features/scanner/data/datasources/firebase_sightings_datasource.dart';
 import 'package:pokeiring/features/scanner/domain/entities/cat_sighting.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
   const mockUser = AuthUser(
     id: 'test-dex-explorer',

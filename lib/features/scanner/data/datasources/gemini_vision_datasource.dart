@@ -3,17 +3,36 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../../core/services/ai_config_service.dart';
 import '../../domain/entities/cat_scan_result.dart';
 
 class GeminiVisionDataSource {
   final AiConfigService _configService;
+  final http.Client _httpClient;
 
-  GeminiVisionDataSource({AiConfigService? configService})
-    : _configService = configService ?? AiConfigService.instance;
+  GeminiVisionDataSource({
+    AiConfigService? configService,
+    http.Client? httpClient,
+  })  : _configService = configService ?? AiConfigService.instance,
+        _httpClient = httpClient ?? http.Client();
 
   Future<CatScanResult> analyzeCatPhoto(Uint8List imageBytes) async {
+    // 1. Try backend vision proxy if configured
+    final proxyUrl = await _configService.getProxyUrl();
+    if (proxyUrl != null && proxyUrl.isNotEmpty) {
+      try {
+        final result = await _analyzeViaProxy(proxyUrl, imageBytes);
+        if (result != null) return result;
+      } catch (e) {
+        debugPrint(
+          'Vision proxy request failed ($e), falling back to direct key or mock.',
+        );
+      }
+    }
+
+    // 2. Direct Gemini Vision inference if client key configured
     final apiKey = await _configService.getApiKey();
 
     if (apiKey == null || apiKey.isEmpty) {
@@ -78,6 +97,37 @@ Guidelines:
         fallbackNote: 'Vision analysis fallback active',
       );
     }
+  }
+
+  Future<CatScanResult?> _analyzeViaProxy(
+    String proxyUrl,
+    Uint8List imageBytes,
+  ) async {
+    try {
+      final uri = Uri.parse(proxyUrl);
+      final base64Image = base64Encode(imageBytes);
+      final response = await _httpClient
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'imageBase64': base64Image,
+              'mimeType': 'image/jpeg',
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final jsonMap = jsonDecode(response.body) as Map<String, dynamic>;
+        if (jsonMap['ok'] == true && jsonMap['data'] != null) {
+          final data = Map<String, dynamic>.from(jsonMap['data'] as Map);
+          return CatScanResult.fromJson(data);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error invoking vision proxy at $proxyUrl: $e');
+    }
+    return null;
   }
 
   CatScanResult _generateMockResult({String? fallbackNote}) {

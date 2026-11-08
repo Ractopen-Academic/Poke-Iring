@@ -21,6 +21,7 @@ class AiVisionSettingsSheet extends StatefulWidget {
 
 class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
   final TextEditingController _keyController = TextEditingController();
+  final TextEditingController _proxyUrlController = TextEditingController();
   bool _obscureText = true;
   bool _isLoading = true;
   bool _isSaving = false;
@@ -34,11 +35,20 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
 
   Future<void> _loadCurrentConfig() async {
     final key = await AiConfigService.instance.getApiKey();
+    final proxyUrl = await AiConfigService.instance.getProxyUrl();
     if (mounted) {
       setState(() {
         if (key != null && key.isNotEmpty) {
           _keyController.text = key;
-          _currentStatus = 'Configured (${AiConfigService.instance.maskedKey})';
+        }
+        if (proxyUrl != null && proxyUrl.isNotEmpty) {
+          _proxyUrlController.text = proxyUrl;
+        }
+
+        if (proxyUrl != null && proxyUrl.isNotEmpty) {
+          _currentStatus = 'Proxy Active: $proxyUrl';
+        } else if (key != null && key.isNotEmpty) {
+          _currentStatus = 'Direct Key: (${AiConfigService.instance.maskedKey})';
         } else {
           _currentStatus = 'No key set (Smart mock active)';
         }
@@ -47,37 +57,47 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
     }
   }
 
-  Future<void> _saveKey() async {
+  Future<void> _saveConfig() async {
     final key = _keyController.text.trim();
+    final proxyUrl = _proxyUrlController.text.trim();
     setState(() => _isSaving = true);
     await AiConfigService.instance.setApiKey(key);
+    await AiConfigService.instance.setProxyUrl(proxyUrl);
     if (!mounted) return;
 
     setState(() {
       _isSaving = false;
-      _currentStatus = key.isNotEmpty
-          ? 'Configured (${AiConfigService.instance.maskedKey})'
-          : 'No key set (Smart mock active)';
+      if (proxyUrl.isNotEmpty) {
+        _currentStatus = 'Proxy Active: $proxyUrl';
+      } else if (key.isNotEmpty) {
+        _currentStatus = 'Direct Key: (${AiConfigService.instance.maskedKey})';
+      } else {
+        _currentStatus = 'No key set (Smart mock active)';
+      }
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          key.isNotEmpty
-              ? 'Gemini API key saved to device.'
-              : 'Key removed. Smart mock vision activated.',
+          proxyUrl.isNotEmpty
+              ? 'Vision proxy URL and settings saved.'
+              : key.isNotEmpty
+                  ? 'Gemini API key saved to device.'
+                  : 'Cleared settings. Smart mock vision activated.',
         ),
       ),
     );
     Navigator.pop(context);
   }
 
-  Future<void> _clearKey() async {
+  Future<void> _clearConfig() async {
     setState(() {
       _keyController.clear();
+      _proxyUrlController.clear();
       _isSaving = true;
     });
     await AiConfigService.instance.clearApiKey();
+    await AiConfigService.instance.clearProxyUrl();
     if (!mounted) return;
 
     setState(() {
@@ -87,7 +107,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Cleared API key. Switched to smart mock vision.'),
+        content: Text('Cleared API settings. Switched to smart mock vision.'),
       ),
     );
     Navigator.pop(context);
@@ -96,6 +116,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
   @override
   void dispose() {
     _keyController.dispose();
+    _proxyUrlController.dispose();
     super.dispose();
   }
 
@@ -187,13 +208,13 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
             const SizedBox(height: 16),
             if (_isLoading)
               const Center(child: CircularProgressIndicator(strokeWidth: 2))
-            else
+            else ...[
               TextField(
                 controller: _keyController,
                 obscureText: _obscureText,
                 style: TextStyle(color: AppColors.dynamicTextPrimary),
                 decoration: InputDecoration(
-                  labelText: 'Gemini API Key',
+                  labelText: 'Gemini API Key (Optional client key)',
                   labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                   hintText: 'AIzaSy...',
                   hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(120)),
@@ -228,12 +249,41 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _proxyUrlController,
+                style: TextStyle(color: AppColors.dynamicTextPrimary),
+                decoration: InputDecoration(
+                  labelText: 'Vision Proxy URL (Recommended for production)',
+                  labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
+                  hintText: 'https://admin-domain/api/vision',
+                  hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(120)),
+                  filled: true,
+                  fillColor: AppColors.dynamicFieldFill,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.dynamicBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.dynamicBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _isSaving ? null : _clearKey,
+                    onPressed: _isSaving ? null : _clearConfig,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: BorderSide(color: AppColors.dynamicBorder),
@@ -248,7 +298,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _isSaving ? null : _saveKey,
+                    onPressed: _isSaving ? null : _saveConfig,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -268,7 +318,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                             ),
                           )
                         : const Text(
-                            'Save Key',
+                            'Save Config',
                             style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                   ),

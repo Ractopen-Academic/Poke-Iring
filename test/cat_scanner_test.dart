@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:image/image.dart' as img;
 import 'package:pokeiring/core/services/ai_config_service.dart';
 import 'package:pokeiring/features/auth/domain/entities/auth_user.dart';
 import 'package:pokeiring/features/scanner/data/datasources/firebase_sightings_datasource.dart';
+import 'package:pokeiring/features/scanner/data/datasources/gemini_vision_datasource.dart';
 import 'package:pokeiring/features/scanner/data/services/sticker_generator_service.dart';
 import 'package:pokeiring/features/scanner/domain/entities/cat_scan_result.dart';
 import 'package:pokeiring/features/scanner/presentation/pages/cat_scanner_page.dart';
@@ -37,6 +41,67 @@ void main() {
       // Clear key
       await config.clearApiKey();
       expect(await config.getApiKey(), isNull);
+    });
+
+    test('retrieves, persists, and clears Vision Proxy URL', () async {
+      final config = AiConfigService.instance;
+      await config.init();
+
+      await config.clearProxyUrl();
+      expect(await config.getProxyUrl(), isNull);
+
+      await config.setProxyUrl('https://admin.pokeiring.example/api/vision');
+      expect(
+        await config.getProxyUrl(),
+        equals('https://admin.pokeiring.example/api/vision'),
+      );
+
+      await config.clearProxyUrl();
+      expect(await config.getProxyUrl(), isNull);
+    });
+
+    test('GeminiVisionDataSource invokes Vision Proxy successfully', () async {
+      final config = AiConfigService.instance;
+      await config.init();
+      await config.setProxyUrl('https://admin.pokeiring.example/api/vision');
+
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), equals('https://admin.pokeiring.example/api/vision'));
+        expect(request.headers['Content-Type'], equals('application/json'));
+        final body = jsonDecode(request.body) as Map<String, dynamic>;
+        expect(body['imageBase64'], isNotEmpty);
+
+        return http.Response(
+          jsonEncode({
+            'ok': true,
+            'data': {
+              'is_cat': true,
+              'confidence': 0.99,
+              'breed': 'Domestic Shorthair (Puspin)',
+              'coat_pattern': 'Calico',
+              'dominant_color': 'Orange and White',
+              'rarity_multiplier': 1.4,
+              'pattern_bonus_pts': 35,
+              'quirk': 'Spotted perched on a warm motorcycle seat.',
+              'box_2d': [100, 150, 800, 850],
+            },
+          }),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      });
+
+      final dataSource = GeminiVisionDataSource(
+        configService: config,
+        httpClient: mockClient,
+      );
+
+      final result = await dataSource.analyzeCatPhoto(Uint8List.fromList([1, 2, 3, 4]));
+      expect(result.isCat, isTrue);
+      expect(result.breed, equals('Domestic Shorthair (Puspin)'));
+      expect(result.quirk, contains('motorcycle seat'));
+
+      await config.clearProxyUrl();
     });
   });
 

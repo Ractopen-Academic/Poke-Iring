@@ -23,6 +23,16 @@ service cloud.firestore {
         && request.resource.data.totalPawPoints == resource.data.totalPawPoints + 5;
     }
 
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        (request.auth.token.email != null && (
+          request.auth.token.email.matches('.*@admin\\.pokeiring\\.com') ||
+          request.auth.token.email.matches('.*@admin\\.com')
+        ))
+      );
+    }
+
     // User profiles and private subcollections
     match /users/{userId} {
       allow read: if isAuthenticated();
@@ -64,35 +74,36 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
-    // Shared catalogs (readable by all players, writable for seeding)
+    // Shared catalogs (read-only for explorers, write-restricted to admins & server-side tools)
     match /dex_species/{speciesId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
     match /territories/{territoryId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
     }
 
     match /events/{eventId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
     match /quest_pool/{questId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
     match /achievement_tracks/{trackId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
     match /seasons/{seasonId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
   }
 }

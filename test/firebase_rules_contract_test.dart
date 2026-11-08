@@ -55,6 +55,7 @@ void main() {
         expect(text.contains('function isOwner('), isTrue);
         expect(text.contains('function isBoopUpdate()'), isTrue);
         expect(text.contains('function isPointsIncrement()'), isTrue);
+        expect(text.contains('function isAdmin()'), isTrue);
 
         // Collections
         expect(text.contains('match /users/{userId}'), isTrue);
