@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
@@ -42,12 +43,18 @@ class _IringDexPageState extends State<IringDexPage> {
   void initState() {
     super.initState();
     _repository = widget.repository ?? DexRepositoryImpl();
+    CalicoThemeController.instance.addListener(_handleThemeChanged);
   }
 
   @override
   void dispose() {
+    CalicoThemeController.instance.removeListener(_handleThemeChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _handleThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   String get _effectiveUserId =>
@@ -239,9 +246,9 @@ class _IringDexPageState extends State<IringDexPage> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1715),
+        color: AppColors.dynamicChromeTrack,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
       ),
       child: Row(
         children: [
@@ -302,17 +309,17 @@ class _IringDexPageState extends State<IringDexPage> {
         HapticFeedback.selectionClick();
         setState(() => _selectedFilter = tier);
       },
-      backgroundColor: AppColors.chromeTrack,
+      backgroundColor: AppColors.dynamicChromeTrack,
       selectedColor: AppColors.primary,
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-        color: isSelected ? Colors.white : AppColors.textSecondary,
+        color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(99),
         side: BorderSide(
-          color: isSelected ? AppColors.primary : AppColors.border,
+          color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
           width: isSelected ? 1.4 : 1.0,
         ),
       ),
@@ -322,29 +329,33 @@ class _IringDexPageState extends State<IringDexPage> {
 
   Widget _buildCatalogSliver(List<IringDexEntry> filtered) {
     if (filtered.isEmpty) {
-      return const SliverToBoxAdapter(
+      return SliverToBoxAdapter(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: CalicoSpotCard(
-            padding: EdgeInsets.all(28),
+            padding: const EdgeInsets.all(28),
             child: Column(
               children: [
-                Icon(
+                const Icon(
                   Icons.search_off_rounded,
                   size: 44,
                   color: AppColors.primary,
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   'No matching species found',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: AppColors.dynamicTextPrimary,
+                  ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Try selecting a different filter category.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
               ],
@@ -401,21 +412,21 @@ class _IringDexPageState extends State<IringDexPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'No Cat Sightings Yet',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   'Explore your neighborhood, snap local felines with the AI vision camera, and watch your sightings album grow.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12.5,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                     height: 1.4,
                   ),
                 ),
@@ -524,8 +535,8 @@ class _TabButton extends StatelessWidget {
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 color: isSelected
-                    ? const Color(0xFFF7EFE8)
-                    : AppColors.textSecondary,
+                    ? Colors.white
+                    : AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 2),
@@ -535,8 +546,8 @@ class _TabButton extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: isSelected
-                    ? const Color(0xFFFFECE0)
-                    : const Color(0xFF8A7D75),
+                    ? Colors.white.withAlpha(220)
+                    : AppColors.dynamicTextSecondary,
               ),
             ),
           ],

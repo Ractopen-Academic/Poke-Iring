@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/calico_theme_controller.dart';
 import '../../data/repositories/leaderboard_repository_impl.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
@@ -74,6 +75,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     _activeCity = widget.initialCity;
     _activeRegion = widget.initialRegion;
     _activeCountry = widget.initialCountry;
+    CalicoThemeController.instance.addListener(_handleThemeChanged);
 
     _loadLeaderboard();
     _syncTerritory();
@@ -84,6 +86,16 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         }
       });
     }
+  }
+
+  @override
+  void dispose() {
+    CalicoThemeController.instance.removeListener(_handleThemeChanged);
+    super.dispose();
+  }
+
+  void _handleThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _checkFirstTimeTerritorySetup() async {
@@ -237,7 +249,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           // Scope Filter Pills (Barangay / City / Region / National / Global)
           _buildScopeFilterPills(),
 
-          const Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: AppColors.dynamicBorder),
 
           // Main List / Podium & Standing
           Expanded(
@@ -389,9 +401,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.chromeTrack,
+        color: AppColors.dynamicChromeTrack,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
       ),
       padding: const EdgeInsets.all(3),
       child: Row(
@@ -422,7 +434,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                    color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
                   ),
                 ),
               ),
@@ -459,16 +471,16 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               label: Text(label),
               selected: isSelected,
               selectedColor: AppColors.primary,
-              backgroundColor: AppColors.chromeTrack,
+              backgroundColor: AppColors.dynamicChromeTrack,
               labelStyle: TextStyle(
                 fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.textSecondary,
+                color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
                 side: BorderSide(
-                  color: isSelected ? AppColors.primary : AppColors.border,
+                  color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
                 ),
               ),
               onSelected: (_) => _onScopeChanged(sc),
@@ -530,20 +542,20 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Explorer Standings',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
                 Text(
                   'Top ${_scope.poolCapacity} slots',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
               ],
@@ -578,21 +590,21 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               child: const Icon(Icons.pets, size: 32, color: AppColors.primary),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Territory Unclaimed',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               'No explorers active in ${_scope.label} yet. Be the first to scan a local cat and claim the #1 spot in this ${_scope.poolCapacity}-player pool.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: AppColors.dynamicTextSecondary,
               ),
             ),
           ],

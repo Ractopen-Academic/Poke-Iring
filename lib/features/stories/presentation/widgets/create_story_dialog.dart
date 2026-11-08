@@ -223,7 +223,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                   ? AppColors.primary
                   : (isClubOnly && !_isClubMember)
                   ? Colors.grey.shade300
-                  : AppColors.border,
+                  : AppColors.dynamicBorder,
             ),
           ),
           child: Column(
@@ -238,7 +238,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                       ? Colors.white
                       : (isClubOnly && !_isClubMember)
                       ? Colors.grey.shade500
-                      : AppColors.textPrimary,
+                      : AppColors.dynamicTextPrimary,
                 ),
               ),
               if (isClubOnly)
@@ -285,16 +285,16 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
-                Icon(Icons.auto_awesome, color: AppColors.primary, size: 22),
-                SizedBox(width: 10),
+                const Icon(Icons.auto_awesome, color: AppColors.primary, size: 22),
+                const SizedBox(width: 10),
                 Text(
                   'Share Cat Story',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
               ],
@@ -441,12 +441,12 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'MyDay Lifespan',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
                 if (!_isClubMember)
@@ -516,7 +516,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                     size: 15,
                     color: _isClubMember
                         ? const Color(0xFFE65100)
-                        : AppColors.textSecondary,
+                        : AppColors.dynamicTextSecondary,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -529,7 +529,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                         fontWeight: FontWeight.w600,
                         color: _isClubMember
                             ? const Color(0xFFE65100)
-                            : AppColors.textSecondary,
+                            : AppColors.dynamicTextSecondary,
                       ),
                     ),
                   ),

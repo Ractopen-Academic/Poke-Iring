@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_version.dart';
+import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
@@ -43,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    CalicoThemeController.instance.addListener(_syncFocusState);
     _emailFocusNode.addListener(_syncFocusState);
     _passwordFocusNode.addListener(_syncFocusState);
     _confirmPasswordFocusNode.addListener(_syncFocusState);
@@ -68,6 +70,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
+    CalicoThemeController.instance.removeListener(_syncFocusState);
     _emailFocusNode.removeListener(_syncFocusState);
     _passwordFocusNode.removeListener(_syncFocusState);
     _confirmPasswordFocusNode.removeListener(_syncFocusState);

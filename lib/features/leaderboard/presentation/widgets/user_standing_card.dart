@@ -163,7 +163,7 @@ class UserStandingCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 7,
-              backgroundColor: AppColors.border,
+              backgroundColor: AppColors.dynamicProgressTrack,
               valueColor: AlwaysStoppedAnimation<Color>(tier.color),
             ),
           ),
@@ -183,10 +183,10 @@ class UserStandingCard extends StatelessWidget {
                 nextThreshold != null
                     ? '$ptsToNext pts to next division'
                     : 'Max Tier Achieved',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                 ),
               ),
             ],

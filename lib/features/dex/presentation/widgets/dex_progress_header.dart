@@ -138,9 +138,9 @@ class _MetricPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.fieldFill,
+        color: AppColors.dynamicFieldFill,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -152,18 +152,18 @@ class _MetricPill extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFFB3A89D),
+                  color: AppColors.dynamicTextSecondary,
                 ),
               ),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
             ],

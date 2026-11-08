@@ -197,10 +197,10 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                 const SizedBox(width: 8),
                 Text(
                   '${cluster.sightings.length} Sightings at this Spot',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
               ],
@@ -231,9 +231,9 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.fieldFill,
+                        color: AppColors.dynamicFieldFill,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: AppColors.dynamicBorder),
                       ),
                       child: Row(
                         children: [
@@ -249,17 +249,17 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                               children: [
                                 Text(
                                   s.breed,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary,
+                                    color: AppColors.dynamicTextPrimary,
                                   ),
                                 ),
                                 Text(
                                   '${s.barangay}, ${s.city}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
-                                    color: AppColors.textSecondary,
+                                    color: AppColors.dynamicTextSecondary,
                                   ),
                                 ),
                               ],
@@ -310,7 +310,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
       decoration: BoxDecoration(
         color: AppColors.dynamicSurface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border, width: 1.2),
+        border: Border.all(color: AppColors.dynamicBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(40),
@@ -442,7 +442,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                       decoration: BoxDecoration(
                         color: AppColors.dynamicSurface.withAlpha(240),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: AppColors.dynamicBorder),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withAlpha(40),
@@ -465,10 +465,10 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                           const SizedBox(width: 6),
                           Text(
                             '${activeSightings.length} Heatspots',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                             ),
                           ),
                         ],
@@ -476,8 +476,8 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                     ),
                     Material(
                       color: AppColors.dynamicSurface.withAlpha(240),
-                      shape: const CircleBorder(
-                        side: BorderSide(color: AppColors.border),
+                      shape: CircleBorder(
+                        side: BorderSide(color: AppColors.dynamicBorder),
                       ),
                       elevation: 2,
                       child: InkWell(
@@ -537,7 +537,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                 decoration: BoxDecoration(
                   color: AppColors.dynamicSurface.withAlpha(245),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.dynamicBorder),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withAlpha(50),
@@ -549,21 +549,21 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
+                    Text(
                       'No Personal Sightings Mapped Yet',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Photograph roaming cats using the camera to paint your discovery heatmap across the territory.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 11.5,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                         height: 1.3,
                       ),
                     ),
@@ -609,12 +609,12 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary
-              : AppColors.fieldFill.withAlpha(235),
+              : AppColors.dynamicFieldFill.withAlpha(235),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? AppColors.primary
-                : (accentColor?.withAlpha(120) ?? AppColors.border),
+                : (accentColor?.withAlpha(120) ?? AppColors.dynamicBorder),
             width: isSelected ? 1.5 : 1.0,
           ),
           boxShadow: [
@@ -644,7 +644,7 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.textSecondary,
+                color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
               ),
             ),
           ],

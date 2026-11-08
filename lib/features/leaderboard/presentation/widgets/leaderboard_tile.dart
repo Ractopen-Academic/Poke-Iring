@@ -139,9 +139,9 @@ class LeaderboardTile extends StatelessWidget {
                               '${entry.barangay}, ${entry.city}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                               ),
                             ),
                           ),
@@ -149,9 +149,9 @@ class LeaderboardTile extends StatelessWidget {
                           Container(
                             width: 3,
                             height: 3,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -175,10 +175,10 @@ class LeaderboardTile extends StatelessWidget {
                   children: [
                     Text(
                       entry.formattedScore(category),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     if (entry.mythicPaws > 0) ...[

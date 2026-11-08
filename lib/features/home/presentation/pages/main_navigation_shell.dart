@@ -86,12 +86,45 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   late bool _isLocationServiceEnabled;
   bool _dismissedOfflineBanner = false;
   bool _dismissedGpsBanner = false;
-  late final List<Widget> _pages;
+
+  List<Widget> _buildPages() {
+    final coatName = CalicoThemeController.instance.effectiveMode.name;
+    return [
+      _HomePage(
+        key: ValueKey('home_tab_$coatName'),
+        user: widget.user,
+        onOpenLeaderboard: () => _selectTab(2),
+      ),
+      IringDexPage(
+        key: ValueKey('dex_tab_$coatName'),
+        user: widget.user,
+      ),
+      LeaderboardPage(
+        key: ValueKey('leaderboard_tab_$coatName'),
+        currentUserId: widget.user.id.isNotEmpty
+            ? widget.user.id
+            : widget.user.email,
+        initialBarangay: 'Bankal',
+        initialCity: 'Lapu-Lapu City',
+        initialCountry: 'Philippines',
+        bottomPadding: 108.0,
+        isAdmin: widget.user.isAdminRole,
+        promptTerritorySetup: false,
+      ),
+      DashboardPage(
+        key: ValueKey('dashboard_tab_$coatName'),
+        user: widget.user,
+        authRepository: widget.authRepository,
+        onOpenMap: () => _setMapVisible(true),
+      ),
+    ];
+  }
 
   @override
   void initState() {
     super.initState();
     _currentIndex = _activeTabIndex;
+    CalicoThemeController.instance.addListener(_handleCoatModeChanged);
     _tabEnterController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 240),
@@ -108,27 +141,6 @@ class _MainNavigationShellState extends State<MainNavigationShell>
             curve: Curves.easeOutCubic,
           ),
         );
-
-    _pages = [
-      _HomePage(user: widget.user, onOpenLeaderboard: () => _selectTab(2)),
-      IringDexPage(user: widget.user),
-      LeaderboardPage(
-        currentUserId: widget.user.id.isNotEmpty
-            ? widget.user.id
-            : widget.user.email,
-        initialBarangay: 'Bankal',
-        initialCity: 'Lapu-Lapu City',
-        initialCountry: 'Philippines',
-        bottomPadding: 108.0,
-        isAdmin: widget.user.isAdminRole,
-        promptTerritorySetup: false,
-      ),
-      DashboardPage(
-        user: widget.user,
-        authRepository: widget.authRepository,
-        onOpenMap: () => _setMapVisible(true),
-      ),
-    ];
     _networkInfo = widget.networkInfo ?? NetworkInfoImpl();
     _locationService = widget.locationService ?? LocationServiceImpl();
     _isOnline = widget.initialOnline ?? true;
@@ -185,11 +197,16 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   @override
   void dispose() {
+    CalicoThemeController.instance.removeListener(_handleCoatModeChanged);
     _mapExitTimer?.cancel();
     _tabEnterController.dispose();
     _networkSubscription?.cancel();
     _locationSubscription?.cancel();
     super.dispose();
+  }
+
+  void _handleCoatModeChanged() {
+    if (mounted) setState(() {});
   }
 
   void _setMapVisible(bool show) {
@@ -277,7 +294,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                           position: _tabSlide,
                           child: IndexedStack(
                             index: _currentIndex,
-                            children: _pages,
+                            children: _buildPages(),
                           ),
                         ),
                       ),
@@ -374,7 +391,7 @@ class _HomePage extends StatefulWidget {
   final AuthUser user;
   final VoidCallback? onOpenLeaderboard;
 
-  const _HomePage({required this.user, this.onOpenLeaderboard});
+  const _HomePage({super.key, required this.user, this.onOpenLeaderboard});
 
   @override
   State<_HomePage> createState() => _HomePageState();
@@ -385,6 +402,17 @@ class _HomePageState extends State<_HomePage> {
   void initState() {
     super.initState();
     ExplorerHealthService.instance.start();
+    CalicoThemeController.instance.addListener(_handleThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    CalicoThemeController.instance.removeListener(_handleThemeChanged);
+    super.dispose();
+  }
+
+  void _handleThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   @override

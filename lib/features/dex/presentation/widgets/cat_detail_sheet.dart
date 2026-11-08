@@ -205,20 +205,20 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
             Center(
               child: Text(
                 entry.isDiscovered ? species.name : 'Unknown Feline',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
             ),
             Center(
               child: Text(
                 species.commonName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                 ),
               ),
             ),
@@ -253,16 +253,16 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.fieldFill,
+                    color: AppColors.dynamicFieldFill,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.dynamicBorder),
                   ),
                   child: Text(
                     species.coatPattern,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: AppColors.dynamicTextPrimary,
                     ),
                   ),
                 ),
@@ -303,19 +303,19 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.fieldFill,
+                  color: AppColors.dynamicFieldFill,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.dynamicBorder),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Your Discovery Records',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -337,10 +337,10 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           '"${entry.sightings.first.quirk}"',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
                             fontStyle: FontStyle.italic,
-                            color: Color(0xFFC2B5A8),
+                            color: AppColors.dynamicTextSecondary,
                           ),
                         ),
                       ),
@@ -360,7 +360,7 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                         size: 15,
                         color: _isPinned
                             ? AppColors.primary
-                            : AppColors.textPrimary,
+                            : AppColors.dynamicTextPrimary,
                       ),
                       label: Text(
                         _isPinned ? 'In Showcase' : 'Pin to Showcase',
@@ -369,16 +369,16 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                           fontWeight: FontWeight.w700,
                           color: _isPinned
                               ? AppColors.primary
-                              : AppColors.textPrimary,
+                              : AppColors.dynamicTextPrimary,
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColors.fieldFill,
+                        backgroundColor: AppColors.dynamicFieldFill,
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         side: BorderSide(
                           color: _isPinned
                               ? AppColors.primary
-                              : AppColors.border,
+                              : AppColors.dynamicBorder,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -390,23 +390,23 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _handleSaveSticker,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.download_rounded,
                         size: 15,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
-                      label: const Text(
+                      label: Text(
                         'Save Sticker',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColors.fieldFill,
+                        backgroundColor: AppColors.dynamicFieldFill,
                         padding: const EdgeInsets.symmetric(vertical: 11),
-                        side: const BorderSide(color: AppColors.border),
+                        side: BorderSide(color: AppColors.dynamicBorder),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -417,17 +417,17 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
                   IconButton.outlined(
                     tooltip: 'Share Card',
                     onPressed: _handleShareCard,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.share_outlined,
                       size: 18,
-                      color: AppColors.textPrimary,
+                      color: AppColors.dynamicTextPrimary,
                     ),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.fieldFill,
+                      backgroundColor: AppColors.dynamicFieldFill,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(color: AppColors.dynamicBorder),
                     ),
                   ),
                 ],
@@ -437,24 +437,24 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.chromeTrack,
+                  color: AppColors.dynamicChromeTrack,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.dynamicBorder),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.info_outline_rounded,
                       color: AppColors.primary,
                       size: 20,
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Undiscovered in your Iring-Dex. Point your scanner camera at neighborhood cats to reveal this record.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -493,19 +493,19 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w800,
-            color: Color(0xFFC2B5A8),
+            color: AppColors.dynamicTextSecondary,
             letterSpacing: 0.3,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           content,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13.5,
-            color: AppColors.textPrimary,
+            color: AppColors.dynamicTextPrimary,
             height: 1.45,
           ),
         ),
@@ -521,17 +521,17 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: AppColors.dynamicTextSecondary,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: AppColors.dynamicTextPrimary,
             ),
           ),
         ],

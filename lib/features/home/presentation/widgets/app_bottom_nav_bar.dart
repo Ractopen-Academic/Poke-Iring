@@ -24,21 +24,19 @@ class AppBottomNavBar extends StatelessWidget {
           height: 66,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: AppColors.isCalicoLight
-                ? const Color(0xFFFFFFFF).withAlpha(248)
-                : AppColors.calicoBlack.withAlpha(242),
+            color: AppColors.dynamicSurface.withAlpha(248),
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
-              color: AppColors.isCalicoLight
-                  ? AppColors.primary.withAlpha(45)
-                  : AppColors.primary.withAlpha(65),
+              color: AppColors.primary.withAlpha(
+                AppColors.isCalicoLight ? 45 : 65,
+              ),
               width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
                 color: AppColors.isCalicoLight
                     ? Colors.black.withAlpha(25)
-                    : AppColors.calicoBlack.withAlpha(95),
+                    : AppColors.dynamicBackground.withAlpha(95),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -186,14 +184,10 @@ class _NavBarItemState extends State<_NavBarItem>
     final isSelected = widget.isSelected;
     final iconColor = isSelected
         ? AppColors.primary
-        : (AppColors.isCalicoLight
-              ? AppColors.dynamicTextSecondary
-              : AppColors.calicoMuted);
+        : AppColors.dynamicTextSecondary;
     final labelColor = isSelected
-        ? (AppColors.isCalicoLight ? AppColors.primary : Colors.white)
-        : (AppColors.isCalicoLight
-              ? AppColors.dynamicTextSecondary
-              : AppColors.calicoMuted);
+        ? AppColors.primary
+        : AppColors.dynamicTextSecondary;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
