@@ -15,6 +15,7 @@ class ActiveEventsCarousel extends StatefulWidget {
   final String? userPhotoUrl;
   final EventRepository? repository;
   final Duration autoScrollDuration;
+  final double bottomPadding;
 
   const ActiveEventsCarousel({
     super.key,
@@ -23,6 +24,7 @@ class ActiveEventsCarousel extends StatefulWidget {
     this.userPhotoUrl,
     this.repository,
     this.autoScrollDuration = const Duration(seconds: 5),
+    this.bottomPadding = 0.0,
   });
 
   @override
@@ -93,7 +95,7 @@ class _ActiveEventsCarouselState extends State<ActiveEventsCarousel> {
           });
         }
 
-        return Column(
+        final carousel = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
@@ -146,6 +148,14 @@ class _ActiveEventsCarouselState extends State<ActiveEventsCarousel> {
             ],
           ],
         );
+
+        if (widget.bottomPadding > 0) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: widget.bottomPadding),
+            child: carousel,
+          );
+        }
+        return carousel;
       },
     );
   }

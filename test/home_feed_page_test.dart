@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pokeiring/features/auth/domain/entities/auth_user.dart';
+import 'package:pokeiring/features/events/presentation/widgets/active_events_carousel.dart';
 import 'package:pokeiring/features/home/presentation/pages/home_feed_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,6 +53,25 @@ void main() {
         await tester.tap(championWidget);
         expect(leaderboardOpened, isTrue);
       }
+    });
+
+    testWidgets('ActiveEventsCarousel collapses seamlessly when empty', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ActiveEventsCarousel(
+              userId: 'u_no_event',
+              userDisplayName: 'Tester',
+              bottomPadding: 24,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(find.byType(PageView), findsNothing);
     });
   });
 }

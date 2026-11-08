@@ -301,8 +301,8 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                               : widget.user.email,
                           userDisplayName: name,
                           userPhotoUrl: widget.user.photoUrl,
+                          bottomPadding: 24,
                         ),
-                        const SizedBox(height: 24),
                         PawQuestsSection(
                           userId: widget.user.id.isNotEmpty
                               ? widget.user.id
