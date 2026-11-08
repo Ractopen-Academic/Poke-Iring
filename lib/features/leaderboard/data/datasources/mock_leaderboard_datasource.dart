@@ -1,3 +1,4 @@
+import '../../../../core/services/data_purge_service.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 
 // fallback if firestore leaderboard is empty or offline
@@ -5,6 +6,9 @@ class MockLeaderboardDatasource {
   const MockLeaderboardDatasource();
 
   List<LeaderboardEntry> getSeedEntries() {
+    if (DataPurgeService.areSeedsDisabled) {
+      return const <LeaderboardEntry>[];
+    }
     return const [
       LeaderboardEntry(
         id: 'seed-1',

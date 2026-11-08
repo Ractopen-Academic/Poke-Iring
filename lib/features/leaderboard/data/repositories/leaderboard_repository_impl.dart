@@ -1,3 +1,4 @@
+import '../../../../core/services/data_purge_service.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../../domain/entities/leaderboard_query.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
@@ -58,7 +59,7 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
       currentUserId: currentUserId,
     );
 
-    if (firebaseDatasource.isCloudConnected) {
+    if (firebaseDatasource.isCloudConnected || DataPurgeService.areSeedsDisabled) {
       if (liveEntries.isEmpty) {
         return const <LeaderboardEntry>[];
       }

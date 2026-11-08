@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/services/data_purge_service.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import 'mock_leaderboard_datasource.dart';
 
@@ -78,6 +79,10 @@ class FirebaseLeaderboardDataSource {
       return Stream.value(_cachedEntries ?? const <LeaderboardEntry>[]);
     }
 
+    if (DataPurgeService.areSeedsDisabled) {
+      return Stream.value(const <LeaderboardEntry>[]);
+    }
+
     return Stream.value(_getFallbackEntries(currentUserId));
   }
 
@@ -119,6 +124,18 @@ class FirebaseLeaderboardDataSource {
       }
     }
 
+    if (DataPurgeService.areSeedsDisabled) {
+      if (_cachedEntries != null && _cachedEntries!.isNotEmpty) {
+        return _markCurrentUser(_cachedEntries!, currentUserId);
+      }
+      final localCached = await _loadLocalCache();
+      if (localCached.isNotEmpty) {
+        _cachedEntries = localCached;
+        return _markCurrentUser(localCached, currentUserId);
+      }
+      return const <LeaderboardEntry>[];
+    }
+
     if (_cachedEntries != null && _cachedEntries!.isNotEmpty) {
       return _markCurrentUser(_cachedEntries!, currentUserId);
     }
@@ -133,6 +150,9 @@ class FirebaseLeaderboardDataSource {
   }
 
   List<LeaderboardEntry> _getFallbackEntries(String? currentUserId) {
+    if (DataPurgeService.areSeedsDisabled) {
+      return const <LeaderboardEntry>[];
+    }
     final seeds = _mockDatasource.getSeedEntries();
     return _markCurrentUser(seeds, currentUserId);
   }

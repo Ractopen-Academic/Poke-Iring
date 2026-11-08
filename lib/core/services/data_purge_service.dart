@@ -12,12 +12,19 @@ class DataPurgeService {
   /// Whether mock seed items (sightings, stories, vault photos) should be blocked.
   static bool get areSeedsDisabled => _seedsDisabledInMemory || kReleaseMode;
 
+  @visibleForTesting
+  static void setSeedsDisabledForTesting(bool disabled) {
+    _seedsDisabledInMemory = disabled;
+  }
+
   /// Initialize state from persistent storage.
   static Future<void> init() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _seedsDisabledInMemory = prefs.getBool(_keyDisableTestSeeds) ?? false;
-    } catch (_) {}
+      _seedsDisabledInMemory = prefs.getBool(_keyDisableTestSeeds) ?? true;
+    } catch (_) {
+      _seedsDisabledInMemory = true;
+    }
   }
 
   /// Purge all local persistent caches, test data, and optionally disable mock seeds.
@@ -42,6 +49,8 @@ class DataPurgeService {
             key.startsWith('explorer_health_') ||
             key.startsWith('subscription_status_') ||
             key.startsWith('offline_queue_') ||
+            key.startsWith('pokeiring_leaderboard_') ||
+            key.startsWith('leaderboard_') ||
             key == 'quick_snap_last_position_v1') {
           keysToRemove.add(key);
         }

@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
+import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../events/data/repositories/event_repository_impl.dart';
 import '../../../events/domain/repositories/event_repository.dart';
@@ -75,6 +76,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
   @override
   void initState() {
     super.initState();
+    CalicoThemeController.instance.addListener(_handleThemeChanged);
     _repository = widget.repository ?? CatScannerRepositoryImpl();
     _eventRepository = widget.eventRepository ?? EventRepositoryImpl.instance;
     _locationService = widget.locationService ?? LocationServiceImpl();
@@ -90,6 +92,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
         }
       });
     }
+  }
+
+  void _handleThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _refreshEventMultiplier() async {
@@ -116,6 +122,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
 
   @override
   void dispose() {
+    CalicoThemeController.instance.removeListener(_handleThemeChanged);
     _asyncNoticeTimer?.cancel();
     super.dispose();
   }
@@ -308,14 +315,17 @@ class _CatScannerPageState extends State<CatScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Cat Scanner & Vision',
-          style: TextStyle(fontWeight: FontWeight.w800),
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: AppColors.dynamicTextPrimary,
+          ),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.dynamicBackground,
+        foregroundColor: AppColors.dynamicTextPrimary,
         elevation: 0,
         actions: [
           IconButton(
@@ -365,12 +375,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Gemini Vision Analyzing Feline',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -379,7 +389,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey.shade600,
+                color: AppColors.dynamicTextSecondary,
                 height: 1.4,
               ),
             ),
@@ -481,25 +491,25 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.dynamicSurface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                  border: Border.all(color: AppColors.dynamicBorder),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.check_circle_outline,
                       size: 16,
                       color: AppColors.primary,
                     ),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(
                       'Encounter Captured',
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                   ],
@@ -586,9 +596,9 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   icon: const Icon(Icons.refresh_rounded, size: 18),
                   label: const Text('Retake'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textPrimary,
-                    side: const BorderSide(
-                      color: Color(0xFFD1D5DB),
+                    foregroundColor: AppColors.dynamicTextPrimary,
+                    side: BorderSide(
+                      color: AppColors.dynamicBorder,
                       width: 1.5,
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -631,10 +641,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.black87 : Colors.white,
+          color: isSelected ? AppColors.primary : AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? Colors.black : const Color(0xFFD1D5DB),
+            color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
           ),
         ),
         child: Text(
@@ -642,7 +652,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w800,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+            color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
           ),
         ),
       ),
@@ -657,10 +667,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
         duration: const Duration(milliseconds: 160),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? AppColors.primary : AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? AppColors.primary : const Color(0xFFE5E7EB),
+            color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
           ),
           boxShadow: [
             BoxShadow(
@@ -676,7 +686,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
             Icon(
               icon,
               size: 15,
-              color: isSelected ? Colors.white : AppColors.textSecondary,
+              color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
             ),
             const SizedBox(width: 6),
             Text(
@@ -684,7 +694,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.textPrimary,
+                color: isSelected ? Colors.white : AppColors.dynamicTextPrimary,
               ),
             ),
           ],
@@ -795,9 +805,9 @@ class _CatScannerPageState extends State<CatScannerPage> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.dynamicSurface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Column(
               children: [
@@ -814,12 +824,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Spot a Neighborhood Cat',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -828,7 +838,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13.5,
-                    color: Colors.grey.shade600,
+                    color: AppColors.dynamicTextSecondary,
                     height: 1.4,
                   ),
                 ),
@@ -855,40 +865,40 @@ class _CatScannerPageState extends State<CatScannerPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: Colors.red.shade900.withAlpha(40),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red.shade200),
+                border: Border.all(color: Colors.red.shade400.withAlpha(120)),
               ),
               child: Text(
                 _errorMessage!,
-                style: TextStyle(fontSize: 12.5, color: Colors.red.shade800),
+                style: const TextStyle(fontSize: 12.5, color: Color(0xFFFCA5A5)),
               ),
             ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F7F9),
+              color: AppColors.dynamicSurface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.stars_rounded,
                       size: 18,
                       color: AppColors.primary,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Paw Points Scoring Matrix',
                       style: TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                   ],
@@ -920,11 +930,15 @@ class _CatScannerPageState extends State<CatScannerPage> {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
           ),
           Text(
             value,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.dynamicTextPrimary,
+            ),
           ),
         ],
       ),
@@ -947,19 +961,19 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 color: Colors.grey,
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'No Feline Detected',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 result.rejectionReason ?? 'Our vision model could not identify a cat. Please frame the cat clearly and try again.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13.5, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 13.5, color: AppColors.dynamicTextSecondary),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -988,9 +1002,9 @@ class _CatScannerPageState extends State<CatScannerPage> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.dynamicSurface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Column(
               children: [
@@ -1000,7 +1014,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     height: 160,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 4),
+                      border: Border.all(color: AppColors.dynamicSurface, width: 4),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.primary.withAlpha(40),
@@ -1017,10 +1031,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 Text(
                   result.breed,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -1049,7 +1063,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   style: TextStyle(
                     fontSize: 13,
                     fontStyle: FontStyle.italic,
-                    color: Colors.grey.shade700,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
               ],
@@ -1061,19 +1075,19 @@ class _CatScannerPageState extends State<CatScannerPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.dynamicSurface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Paw Points Earned',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -1095,12 +1109,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Total Paw Points',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     Text(
@@ -1122,7 +1136,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F7),
+              color: AppColors.dynamicFieldFill,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -1136,9 +1150,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 Expanded(
                   child: Text(
                     'Territory: ${widget.currentBarangay}, ${widget.currentCity}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
+                      color: AppColors.dynamicTextPrimary,
                     ),
                   ),
                 ),

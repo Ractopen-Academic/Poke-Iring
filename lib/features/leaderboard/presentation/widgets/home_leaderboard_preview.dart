@@ -6,7 +6,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../data/datasources/firebase_leaderboard_datasource.dart';
-import '../../data/datasources/mock_leaderboard_datasource.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 
 class HomeLeaderboardPreview extends StatefulWidget {
@@ -34,23 +33,26 @@ class _HomeLeaderboardPreviewState extends State<HomeLeaderboardPreview>
     )..repeat(reverse: true);
 
     final datasource = FirebaseLeaderboardDataSource.instance;
-    if (datasource.isCloudConnected) {
-      _isLoading = true;
-      _entriesSubscription = datasource.watchEntries().listen((entries) {
-        if (!mounted) return;
-        final sortedLive = List<LeaderboardEntry>.from(entries)
-          ..sort((a, b) => b.points.compareTo(a.points));
-        setState(() {
-          _topThree = sortedLive.take(3).toList();
-          _isLoading = false;
-        });
-      });
-    } else {
-      final seeds = const MockLeaderboardDatasource().getSeedEntries();
-      final sorted = List<LeaderboardEntry>.from(seeds)
+    _isLoading = true;
+    _entriesSubscription = datasource.watchEntries().listen((entries) {
+      if (!mounted) return;
+      final sortedLive = List<LeaderboardEntry>.from(entries)
         ..sort((a, b) => b.points.compareTo(a.points));
-      _topThree = sorted.take(3).toList();
-    }
+      setState(() {
+        _topThree = sortedLive.take(3).toList();
+        _isLoading = false;
+      });
+    });
+
+    datasource.fetchEntries().then((entries) {
+      if (!mounted) return;
+      final sortedLive = List<LeaderboardEntry>.from(entries)
+        ..sort((a, b) => b.points.compareTo(a.points));
+      setState(() {
+        _topThree = sortedLive.take(3).toList();
+        _isLoading = false;
+      });
+    });
   }
 
   @override
