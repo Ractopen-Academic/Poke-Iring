@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_version.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
+import '../../../../core/utils/auth_error_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
@@ -102,7 +103,8 @@ class _LoginPageState extends State<LoginPage> {
       if (_isSignUp) {
         if (_passwordController.text != _confirmPasswordController.text) {
           setState(() {
-            _errorMessage = 'Passwords do not match';
+            _errorMessage =
+                AuthErrorFormatter.format('Passwords do not match');
             _isLoading = false;
           });
           return;
@@ -114,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _errorMessage = AuthErrorFormatter.format(e);
         });
       }
     } finally {
@@ -138,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _errorMessage = AuthErrorFormatter.format(e);
         });
       }
     } finally {
@@ -309,33 +311,42 @@ class _LoginPageState extends State<LoginPage> {
                                     if (_errorMessage != null) ...[
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
+                                          horizontal: 14,
                                           vertical: 10,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF2A1515),
+                                          color: AppColors.isCalicoLight
+                                              ? const Color(0xFFFEE2E2)
+                                              : const Color(0xFF2A1515),
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
                                           border: Border.all(
-                                            color: const Color(0xFF7F2323),
+                                            color: AppColors.isCalicoLight
+                                                ? const Color(0xFFFCA5A5)
+                                                : const Color(0xFF7F2323),
                                           ),
                                         ),
                                         child: Row(
                                           children: [
-                                            const Icon(
+                                            Icon(
                                               Icons.error_outline_rounded,
                                               size: 18,
-                                              color: Color(0xFFF87171),
+                                              color: AppColors.isCalicoLight
+                                                  ? const Color(0xFFDC2626)
+                                                  : const Color(0xFFF87171),
                                             ),
-                                            const SizedBox(width: 8),
+                                            const SizedBox(width: 10),
                                             Expanded(
                                               child: Text(
                                                 _errorMessage!,
-                                                style: const TextStyle(
-                                                  color: Color(0xFFFCA5A5),
+                                                style: TextStyle(
+                                                  color: AppColors.isCalicoLight
+                                                      ? const Color(0xFF991B1B)
+                                                      : const Color(0xFFFCA5A5),
                                                   fontSize: 12.5,
                                                   fontWeight: FontWeight.w600,
+                                                  height: 1.35,
                                                 ),
                                               ),
                                             ),

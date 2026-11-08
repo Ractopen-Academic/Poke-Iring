@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/utils/auth_error_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../domain/entities/auth_user.dart';
@@ -49,7 +50,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
     } catch (error) {
       if (mounted) {
         setState(() {
-          _message = error.toString().replaceFirst('Exception: ', '');
+          _message = AuthErrorFormatter.format(error);
           _isError = true;
         });
       }

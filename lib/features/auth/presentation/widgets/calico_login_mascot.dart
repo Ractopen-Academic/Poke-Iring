@@ -164,9 +164,11 @@ class CalicoLoginMascot extends StatefulWidget {
 }
 
 class _CalicoLoginMascotState extends State<CalicoLoginMascot>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _boopController;
   late final Animation<double> _boopBounce;
+  late final AnimationController _shakeController;
+  late final Animation<double> _shakeAnimation;
 
   @override
   void initState() {
@@ -191,11 +193,61 @@ class _CalicoLoginMascotState extends State<CalicoLoginMascot>
         weight: 60,
       ),
     ]).animate(_boopController);
+
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 460),
+    );
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: -6.5)
+            .chain(CurveTween(curve: Curves.easeOutQuad)),
+        weight: 15,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: -6.5, end: 6.5)
+            .chain(CurveTween(curve: Curves.easeInOutQuad)),
+        weight: 25,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 6.5, end: -4.0)
+            .chain(CurveTween(curve: Curves.easeInOutQuad)),
+        weight: 25,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: -4.0, end: 2.5)
+            .chain(CurveTween(curve: Curves.easeInOutQuad)),
+        weight: 20,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 2.5, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeOutQuad)),
+        weight: 15,
+      ),
+    ]).animate(_shakeController);
+
+    if (widget.hasError) {
+      _triggerErrorShake();
+    }
+  }
+
+  @override
+  void didUpdateWidget(CalicoLoginMascot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.hasError && !oldWidget.hasError) {
+      _triggerErrorShake();
+    }
+  }
+
+  void _triggerErrorShake() {
+    HapticFeedback.mediumImpact();
+    _shakeController.forward(from: 0.0);
   }
 
   @override
   void dispose() {
     _boopController.dispose();
+    _shakeController.dispose();
     super.dispose();
   }
 
@@ -234,7 +286,7 @@ class _CalicoLoginMascotState extends State<CalicoLoginMascot>
                 curve: Curves.easeOutCubic,
                 builder: (context, gaze, _) {
                   return AnimatedBuilder(
-                    animation: _boopController,
+                    animation: Listenable.merge([_boopController, _shakeController]),
                     builder: (context, _) {
                       return SizedBox(
                         width: 138,
@@ -245,8 +297,10 @@ class _CalicoLoginMascotState extends State<CalicoLoginMascot>
                             rightPawCover: rightCover,
                             gaze: gaze,
                             bounceOffset: _boopBounce.value,
+                            shakeOffset: _shakeAnimation.value,
                             hasError: widget.hasError,
                             isHappyBoop: _boopController.isAnimating,
+                            isShaking: _shakeController.isAnimating,
                           ),
                         ),
                       );
@@ -267,16 +321,20 @@ class _CalicoLoginMascotPainter extends CustomPainter {
   final double rightPawCover;
   final Offset gaze;
   final double bounceOffset;
+  final double shakeOffset;
   final bool hasError;
   final bool isHappyBoop;
+  final bool isShaking;
 
   const _CalicoLoginMascotPainter({
     required this.leftPawCover,
     required this.rightPawCover,
     required this.gaze,
     required this.bounceOffset,
+    required this.shakeOffset,
     required this.hasError,
     required this.isHappyBoop,
+    required this.isShaking,
   });
 
   @override
@@ -303,7 +361,7 @@ class _CalicoLoginMascotPainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round;
 
     canvas.save();
-    canvas.translate(0, bounceOffset);
+    canvas.translate(shakeOffset, bounceOffset);
 
     // Subtle soft shadow behind head
     final headShadow = Paint()
@@ -319,7 +377,9 @@ class _CalicoLoginMascotPainter extends CustomPainter {
     );
 
     // Left Ear (Obsidian Calico)
-    final earTilt = isHappyBoop ? -2.5 : 0.0;
+    final earTilt = isHappyBoop
+        ? -2.5
+        : (isShaking ? 3.0 : (hasError ? 1.5 : 0.0));
     final leftEar = Path()
       ..moveTo(w * 0.23, h * 0.44)
       ..lineTo(w * 0.16, h * 0.10 + earTilt)
@@ -416,8 +476,18 @@ class _CalicoLoginMascotPainter extends CustomPainter {
       canvas.drawPath(leftArc, squintPaint);
       canvas.drawPath(rightArc, squintPaint);
     } else {
-      _drawExpressiveEye(canvas, leftEyeCenter, gaze);
-      _drawExpressiveEye(canvas, rightEyeCenter, gaze);
+      _drawExpressiveEye(
+        canvas,
+        leftEyeCenter,
+        gaze,
+        isTroubled: hasError || isShaking,
+      );
+      _drawExpressiveEye(
+        canvas,
+        rightEyeCenter,
+        gaze,
+        isTroubled: hasError || isShaking,
+      );
     }
 
     // Pink Nose & Cat Mouth
@@ -439,11 +509,30 @@ class _CalicoLoginMascotPainter extends CustomPainter {
       ..strokeWidth = 1.8
       ..strokeCap = StrokeCap.round;
 
-    if (hasError) {
+    if (hasError || isShaking) {
       final frown = Path()
         ..moveTo(w * 0.45, h * 0.70)
         ..quadraticBezierTo(w * 0.50, h * 0.67, w * 0.55, h * 0.70);
       canvas.drawPath(frown, mouthPaint);
+
+      // Flustered sweat drop on temple
+      final sweatPaint = Paint()
+        ..color = const Color(0xFF60A5FA)
+        ..style = PaintingStyle.fill;
+      final sweatOutline = Paint()
+        ..color = const Color(0xFF2563EB)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8;
+      final sweatPath = Path()
+        ..moveTo(w * 0.77, h * 0.44)
+        ..quadraticBezierTo(w * 0.79, h * 0.47, w * 0.77, h * 0.50)
+        ..arcToPoint(
+          Offset(w * 0.75, h * 0.50),
+          radius: const Radius.circular(1.5),
+        )
+        ..quadraticBezierTo(w * 0.75, h * 0.47, w * 0.77, h * 0.44);
+      canvas.drawPath(sweatPath, sweatPaint);
+      canvas.drawPath(sweatPath, sweatOutline);
     } else {
       final smile = Path()
         ..moveTo(w * 0.435, h * 0.675)
@@ -453,28 +542,29 @@ class _CalicoLoginMascotPainter extends CustomPainter {
     }
 
     // Whiskers
+    final whiskerDroop = (hasError || isShaking) ? 2.0 : 0.0;
     final whiskerPaint = Paint()
       ..color = AppColors.calicoCharcoal.withAlpha(170)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.4
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
-      Offset(w * 0.14, h * 0.59),
+      Offset(w * 0.14, h * 0.59 + whiskerDroop),
       Offset(w * 0.27, h * 0.61),
       whiskerPaint,
     );
     canvas.drawLine(
-      Offset(w * 0.15, h * 0.66),
+      Offset(w * 0.15, h * 0.66 + whiskerDroop),
       Offset(w * 0.27, h * 0.65),
       whiskerPaint,
     );
     canvas.drawLine(
-      Offset(w * 0.86, h * 0.59),
+      Offset(w * 0.86, h * 0.59 + whiskerDroop),
       Offset(w * 0.73, h * 0.61),
       whiskerPaint,
     );
     canvas.drawLine(
-      Offset(w * 0.85, h * 0.66),
+      Offset(w * 0.85, h * 0.66 + whiskerDroop),
       Offset(w * 0.73, h * 0.65),
       whiskerPaint,
     );
@@ -486,7 +576,7 @@ class _CalicoLoginMascotPainter extends CustomPainter {
       canvas,
       size: size,
       restCenter: Offset(w * 0.30, h * 0.91),
-      coverCenter: Offset(w * 0.39, h * 0.55 + bounceOffset),
+      coverCenter: Offset(w * 0.39 + shakeOffset, h * 0.55 + bounceOffset),
       progress: leftPawCover,
       patchColor: AppColors.calicoBlack,
       isLeft: true,
@@ -495,14 +585,19 @@ class _CalicoLoginMascotPainter extends CustomPainter {
       canvas,
       size: size,
       restCenter: Offset(w * 0.70, h * 0.91),
-      coverCenter: Offset(w * 0.61, h * 0.55 + bounceOffset),
+      coverCenter: Offset(w * 0.61 + shakeOffset, h * 0.55 + bounceOffset),
       progress: rightPawCover,
       patchColor: AppColors.primary,
       isLeft: false,
     );
   }
 
-  void _drawExpressiveEye(Canvas canvas, Offset center, Offset gazeOffset) {
+  void _drawExpressiveEye(
+    Canvas canvas,
+    Offset center,
+    Offset gazeOffset, {
+    bool isTroubled = false,
+  }) {
     final scleraPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
@@ -527,15 +622,40 @@ class _CalicoLoginMascotPainter extends CustomPainter {
         ..strokeWidth = 1.0,
     );
 
+    if (isTroubled) {
+      // Worried brow angled outward
+      final browPaint = Paint()
+        ..color = AppColors.calicoCharcoal
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..strokeCap = StrokeCap.round;
+
+      final isLeft = center.dx < 70;
+      if (isLeft) {
+        canvas.drawLine(
+          Offset(center.dx - 5, center.dy - 9.5),
+          Offset(center.dx + 4, center.dy - 11.0),
+          browPaint,
+        );
+      } else {
+        canvas.drawLine(
+          Offset(center.dx - 4, center.dy - 11.0),
+          Offset(center.dx + 5, center.dy - 9.5),
+          browPaint,
+        );
+      }
+    }
+
+    final pupilRadius = isTroubled ? 3.4 : 4.4;
     final pupilCenter = Offset(
-      center.dx + (gazeOffset.dx * 2.6),
-      center.dy + (gazeOffset.dy * 2.0),
+      center.dx + (gazeOffset.dx * 2.4),
+      center.dy + (gazeOffset.dy * 1.8),
     );
-    canvas.drawCircle(pupilCenter, 4.4, irisPaint);
-    canvas.drawCircle(pupilCenter, 4.4, amberRing);
+    canvas.drawCircle(pupilCenter, pupilRadius, irisPaint);
+    canvas.drawCircle(pupilCenter, pupilRadius, amberRing);
     canvas.drawCircle(
-      Offset(pupilCenter.dx - 1.5, pupilCenter.dy - 1.5),
-      1.5,
+      Offset(pupilCenter.dx - 1.2, pupilCenter.dy - 1.2),
+      isTroubled ? 1.1 : 1.5,
       glintPaint,
     );
   }
@@ -611,7 +731,9 @@ class _CalicoLoginMascotPainter extends CustomPainter {
         oldDelegate.rightPawCover != rightPawCover ||
         oldDelegate.gaze != gaze ||
         oldDelegate.bounceOffset != bounceOffset ||
+        oldDelegate.shakeOffset != shakeOffset ||
         oldDelegate.hasError != hasError ||
-        oldDelegate.isHappyBoop != isHappyBoop;
+        oldDelegate.isHappyBoop != isHappyBoop ||
+        oldDelegate.isShaking != isShaking;
   }
 }

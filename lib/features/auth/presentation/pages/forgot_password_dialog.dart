@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/auth_error_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -60,7 +61,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _errorMessage = AuthErrorFormatter.format(e);
         });
       }
     } finally {

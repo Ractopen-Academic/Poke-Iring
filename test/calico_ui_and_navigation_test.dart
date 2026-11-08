@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pokeiring/core/constants/app_colors.dart';
 import 'package:pokeiring/core/network/network_info.dart';
 import 'package:pokeiring/core/services/location_service.dart';
+import 'package:pokeiring/core/utils/auth_error_formatter.dart';
 import 'package:pokeiring/core/widgets/calico_ui_kit.dart';
 import 'package:pokeiring/features/auth/domain/entities/auth_user.dart';
 import 'package:pokeiring/features/auth/domain/repositories/auth_repository.dart';
@@ -350,6 +351,71 @@ void main() {
         await tester.tap(find.text('Sign Up'));
         await tester.pumpAndSettle();
         expect(find.text('Create Explorer Account'), findsOneWidget);
+      },
+    );
+
+    test('AuthErrorFormatter formats raw Firebase errors into human messages', () {
+      expect(
+        AuthErrorFormatter.format(
+          '[firebase_auth/invalid-credential] The supplied auth credential is incorrect, malformed or has expired.',
+        ),
+        'Incorrect email or password. Please double-check your credentials or reset your password.',
+      );
+
+      expect(
+        AuthErrorFormatter.format('[firebase_auth/email-already-in-use] The email is already in use.'),
+        'An account with this email address already exists. Please sign in instead.',
+      );
+
+      expect(
+        AuthErrorFormatter.format('Exception: [firebase_auth/weak-password] Password should be at least 6 characters'),
+        'Password is too weak. Please use at least 6 characters.',
+      );
+
+      expect(
+        AuthErrorFormatter.format('Passwords do not match'),
+        'Passwords do not match. Please ensure both fields are identical.',
+      );
+
+      expect(
+        AuthErrorFormatter.format('Network error: SocketException'),
+        'Unable to connect to game servers. Please check your network connection.',
+      );
+    });
+
+    testWidgets(
+      'CalicoLoginMascot reacts to hasError without breaking paw hiding on password focus',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: CalicoLoginMascot(
+                isPasswordFocused: true,
+                isPasswordVisible: false,
+                hasError: false,
+              ),
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.byType(CalicoLoginMascot), findsOneWidget);
+
+        // Update with error
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: CalicoLoginMascot(
+                isPasswordFocused: true,
+                isPasswordVisible: false,
+                hasError: true,
+              ),
+            ),
+          ),
+        );
+        // Animate error shake
+        await tester.pump(const Duration(milliseconds: 150));
+        await tester.pump(const Duration(milliseconds: 350));
+        expect(find.byType(CalicoLoginMascot), findsOneWidget);
       },
     );
 
