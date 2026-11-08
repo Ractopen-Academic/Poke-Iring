@@ -264,8 +264,17 @@ class FirebaseSeasonsDataSource {
     return null;
   }
 
+  void invalidateCache() {
+    _cachedSeason = null;
+  }
+
+  Future<SeasonPeriod> forceRefreshActiveSeason() async {
+    invalidateCache();
+    return getActiveSeason();
+  }
+
   @visibleForTesting
   void resetCache() {
-    _cachedSeason = null;
+    invalidateCache();
   }
 }

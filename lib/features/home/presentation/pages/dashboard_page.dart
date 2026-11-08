@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_version.dart';
+import '../../../../core/services/app_cache_coordinator.dart';
 import '../../../../core/services/data_purge_service.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -159,6 +160,36 @@ class _DashboardPageState extends State<DashboardPage> {
           backgroundColor: AppColors.primary,
           content: Text(
             'Clean slate activated: cleared ${report.clearedKeysCount} persistent cache keys. Ready for deployment.',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleForceRecache() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: AppColors.primaryDark,
+        content: Text(
+          'Synchronizing cloud catalog...',
+          style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+        ),
+        duration: Duration(milliseconds: 900),
+      ),
+    );
+
+    final report = await AppCacheCoordinator.instance.forceRecacheAll(
+      userId: widget.user.id.isNotEmpty ? widget.user.id : widget.user.email,
+    );
+
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.primary,
+          content: Text(
+            report.statusSummary,
             style: const TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
@@ -1031,6 +1062,13 @@ class _DashboardPageState extends State<DashboardPage> {
                   title: 'AI Vision Engine (Admin)',
                   subtitle: 'Configure vision classifier API keys',
                   onTap: () => AiVisionSettingsSheet.show(context),
+                ),
+                const SizedBox(height: 10),
+                _ModuleTile(
+                  icon: Icons.sync_rounded,
+                  title: 'Force Cloud Recache',
+                  subtitle: 'Synchronize and bust local caches across all catalogs',
+                  onTap: _handleForceRecache,
                 ),
                 const SizedBox(height: 10),
                 _ModuleTile(

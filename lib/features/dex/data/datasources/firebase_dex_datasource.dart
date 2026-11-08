@@ -229,8 +229,21 @@ class FirebaseDexDataSource {
     return [];
   }
 
+  void invalidateCache() {
+    _cachedSpecies = null;
+  }
+
+  Future<List<FelineDexSpecies>> forceRefreshSpecies() async {
+    invalidateCache();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_localCacheKey);
+    } catch (_) {}
+    return getSpecies();
+  }
+
   @visibleForTesting
   void resetCache() {
-    _cachedSpecies = null;
+    invalidateCache();
   }
 }

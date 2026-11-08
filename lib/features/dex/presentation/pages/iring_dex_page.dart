@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/app_cache_coordinator.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../auth/domain/entities/auth_user.dart';
@@ -195,8 +196,13 @@ class _IringDexPageState extends State<IringDexPage> {
                 final filteredEntries = _filterEntries(entries);
                 final filteredSightings = _filterSightings(sightings);
 
-                return CustomScrollView(
-                  slivers: [
+                return RefreshIndicator(
+                  color: AppColors.primary,
+                  backgroundColor: AppColors.dynamicSurface,
+                  onRefresh: AppCacheCoordinator.instance.refreshDex,
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -233,7 +239,8 @@ class _IringDexPageState extends State<IringDexPage> {
                       ),
                     const SliverToBoxAdapter(child: SizedBox(height: 120)),
                   ],
-                );
+                ),
+              );
               },
             );
           },

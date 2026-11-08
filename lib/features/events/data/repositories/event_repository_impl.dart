@@ -149,6 +149,20 @@ class EventRepositoryImpl implements EventRepository {
     return _cachedActiveEvents ?? const <FelineEvent>[];
   }
 
+  void invalidateCache() {
+    _cachedActiveEvents = null;
+    _hasSyncedCloudEvents = false;
+  }
+
+  Future<List<FelineEvent>> forceRefreshActiveEvents() async {
+    invalidateCache();
+    final events = await getActiveEvents();
+    if (!_eventsListController.isClosed) {
+      _eventsListController.add(events);
+    }
+    return events;
+  }
+
   @override
   Future<double> getActiveMultiplier() async {
     final events = await getActiveEvents();

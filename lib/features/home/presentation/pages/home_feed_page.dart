@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/services/app_cache_coordinator.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
@@ -80,9 +81,18 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
           builder: (context, snapshot) {
             final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(0, 12, 0, 108),
-              child: Column(
+            return RefreshIndicator(
+              color: AppColors.primary,
+              backgroundColor: AppColors.dynamicSurface,
+              onRefresh: () => AppCacheCoordinator.instance.refreshHomeFeed(
+                userId: widget.user.id.isNotEmpty
+                    ? widget.user.id
+                    : widget.user.email,
+              ),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(0, 12, 0, 108),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
@@ -314,8 +324,9 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          );
+        },
         ),
       ),
     );

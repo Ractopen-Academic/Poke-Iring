@@ -204,8 +204,20 @@ class FirebaseLeaderboardDataSource {
     return [];
   }
 
+  void invalidateCache() {
+    _cachedEntries = null;
+  }
+
+  Future<List<LeaderboardEntry>> forceRefreshEntries({
+    String? currentUserId,
+  }) async {
+    invalidateCache();
+    await _clearLocalCache();
+    return fetchEntries(currentUserId: currentUserId);
+  }
+
   @visibleForTesting
   void resetCache() {
-    _cachedEntries = null;
+    invalidateCache();
   }
 }

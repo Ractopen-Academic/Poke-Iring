@@ -243,4 +243,17 @@ class FirebaseQuestDataSource {
       await prefs.setStringList(_localCacheKey, list);
     } catch (_) {}
   }
+
+  void invalidateCache() {
+    _cachedTemplates = null;
+  }
+
+  Future<List<QuestTemplate>> forceRefreshQuestPool() async {
+    invalidateCache();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_localCacheKey);
+    } catch (_) {}
+    return getQuestPool();
+  }
 }
