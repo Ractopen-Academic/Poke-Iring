@@ -38,9 +38,20 @@ class DevAuthRepository implements AuthRepository {
   @override
   Future<AuthUser> registerWithEmailPassword(
     String email,
-    String password,
-  ) async {
-    return signInWithEmailPassword(email, password);
+    String password, {
+    String? nickname,
+  }) async {
+    final user = AuthUser(
+      id: 'dev_${DateTime.now().millisecondsSinceEpoch}',
+      email: email.trim(),
+      displayName: (nickname != null && nickname.trim().isNotEmpty)
+          ? nickname.trim()
+          : email.split('@').first,
+      emailVerified: true,
+    );
+    _currentUser = user;
+    _controller.add(user);
+    return user;
   }
 
   @override

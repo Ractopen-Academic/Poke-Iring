@@ -25,7 +25,11 @@ class _FakeAuthRepository implements AuthRepository {
   Future<AuthUser> signInWithEmailPassword(String email, String password) =>
       throw UnimplementedError();
   @override
-  Future<AuthUser> registerWithEmailPassword(String email, String password) =>
+  Future<AuthUser> registerWithEmailPassword(
+    String email,
+    String password, {
+    String? nickname,
+  }) =>
       throw UnimplementedError();
   @override
   Future<AuthUser> signInWithGoogle() => throw UnimplementedError();

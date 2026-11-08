@@ -20,8 +20,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthUser> registerWithEmailPassword(String email, String password) {
-    return _datasource.registerWithEmailPassword(email, password);
+  Future<AuthUser> registerWithEmailPassword(
+    String email,
+    String password, {
+    String? nickname,
+  }) {
+    return _datasource.registerWithEmailPassword(
+      email,
+      password,
+      nickname: nickname,
+    );
   }
 
   @override

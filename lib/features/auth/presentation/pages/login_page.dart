@@ -27,12 +27,12 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _handleController = TextEditingController();
+  final _nicknameController = TextEditingController();
 
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _confirmPasswordFocusNode = FocusNode();
-  final _handleFocusNode = FocusNode();
+  final _nicknameFocusNode = FocusNode();
 
   bool _isSignUp = false;
   bool _isLoading = false;
@@ -79,11 +79,11 @@ class _LoginPageState extends State<LoginPage> {
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
-    _handleFocusNode.dispose();
+    _nicknameFocusNode.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _handleController.dispose();
+    _nicknameController.dispose();
     super.dispose();
   }
 
@@ -109,7 +109,12 @@ class _LoginPageState extends State<LoginPage> {
           });
           return;
         }
-        await widget.authRepository.registerWithEmailPassword(email, password);
+        final nickname = _nicknameController.text.trim();
+        await widget.authRepository.registerWithEmailPassword(
+          email,
+          password,
+          nickname: nickname.isNotEmpty ? nickname : null,
+        );
       } else {
         await widget.authRepository.signInWithEmailPassword(email, password);
       }
@@ -366,16 +371,16 @@ class _LoginPageState extends State<LoginPage> {
                                         children: [
                                           if (_isSignUp) ...[
                                             AppTextField(
-                                              controller: _handleController,
-                                              focusNode: _handleFocusNode,
-                                              label: 'Explorer Handle',
+                                              controller: _nicknameController,
+                                              focusNode: _nicknameFocusNode,
+                                              label: 'Nickname',
                                               hint: 'e.g. WhiskerPatrol',
                                               prefixIcon: Icons.badge_outlined,
                                               validator: (val) {
                                                 if (_isSignUp &&
                                                     (val == null ||
                                                         val.trim().isEmpty)) {
-                                                  return 'Please choose a call-sign';
+                                                  return 'Please choose a nickname';
                                                 }
                                                 return null;
                                               },

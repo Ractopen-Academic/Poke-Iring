@@ -43,8 +43,9 @@ class FirebaseAuthDatasource {
 
   Future<AuthUser> registerWithEmailPassword(
     String email,
-    String password,
-  ) async {
+    String password, {
+    String? nickname,
+  }) async {
     final credential = await _firebaseAuth.createUserWithEmailAndPassword(
       email: email.trim(),
       password: password,
@@ -53,8 +54,15 @@ class FirebaseAuthDatasource {
     if (user == null) {
       throw Exception('Registration failed');
     }
+    if (nickname != null && nickname.trim().isNotEmpty) {
+      try {
+        await user.updateDisplayName(nickname.trim());
+      } catch (e) {
+        debugPrint('Failed to set displayName on auth user: $e');
+      }
+    }
     await user.sendEmailVerification();
-    final mapped = _mapFirebaseUser(user)!;
+    final mapped = _mapFirebaseUser(user, fallbackDisplayName: nickname?.trim())!;
     unawaited(_ensureFirestoreProfile(mapped, isNewRegistration: true));
     return mapped;
   }
@@ -162,7 +170,7 @@ class FirebaseAuthDatasource {
     ]);
   }
 
-  AuthUser? _mapFirebaseUser(User? user) {
+  AuthUser? _mapFirebaseUser(User? user, {String? fallbackDisplayName}) {
     if (user == null) return null;
     final email = (user.email ?? '').toLowerCase();
     final isPreVerifiedDomain =
@@ -171,10 +179,13 @@ class FirebaseAuthDatasource {
         email == 'admin@pokeiring.app' ||
         email == 'admin@iring.ph' ||
         email.endsWith('@iring.ph');
+    final displayName = (user.displayName != null && user.displayName!.isNotEmpty)
+        ? user.displayName!
+        : (fallbackDisplayName ?? '');
     return AuthUser(
       id: user.uid,
       email: user.email ?? '',
-      displayName: user.displayName ?? '',
+      displayName: displayName,
       photoUrl: user.photoURL ?? '',
       emailVerified: user.emailVerified || isPreVerifiedDomain,
       isAdmin: isAdmin,

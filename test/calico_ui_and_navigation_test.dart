@@ -38,8 +38,9 @@ class _FakeAuthRepository implements AuthRepository {
   @override
   Future<AuthUser> registerWithEmailPassword(
     String email,
-    String password,
-  ) async => user;
+    String password, {
+    String? nickname,
+  }) async => user;
 
   @override
   Future<void> reloadCurrentUser() async {}

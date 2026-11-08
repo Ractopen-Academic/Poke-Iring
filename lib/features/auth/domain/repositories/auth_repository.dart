@@ -4,7 +4,11 @@ abstract class AuthRepository {
   Stream<AuthUser?> get authStateChanges;
   AuthUser? get currentUser;
   Future<AuthUser> signInWithEmailPassword(String email, String password);
-  Future<AuthUser> registerWithEmailPassword(String email, String password);
+  Future<AuthUser> registerWithEmailPassword(
+    String email,
+    String password, {
+    String? nickname,
+  });
   Future<AuthUser> signInWithGoogle();
   Future<void> sendEmailVerification();
   Future<void> reloadCurrentUser();
