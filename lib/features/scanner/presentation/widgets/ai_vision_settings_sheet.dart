@@ -105,9 +105,12 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
 
     return Container(
       padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + bottomInset),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -119,26 +122,26 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.dynamicBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            const Row(
+            Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.psychology_outlined,
                   color: AppColors.primary,
                   size: 24,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Text(
                   'AI Vision Settings',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
               ],
@@ -148,7 +151,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
               'Configure your personal Gemini API key for cat recognition and silhouette cutout. The key remains stored only on this device.',
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey.shade600,
+                color: AppColors.dynamicTextSecondary,
                 height: 1.4,
               ),
             ),
@@ -156,9 +159,9 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(15),
+                color: AppColors.primary.withAlpha(20),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primary.withAlpha(40)),
+                border: Border.all(color: AppColors.primary.withAlpha(50)),
               ),
               child: Row(
                 children: [
@@ -171,10 +174,10 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                   Expanded(
                     child: Text(
                       'Status: $_currentStatus',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                   ),
@@ -188,14 +191,21 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
               TextField(
                 controller: _keyController,
                 obscureText: _obscureText,
+                style: TextStyle(color: AppColors.dynamicTextPrimary),
                 decoration: InputDecoration(
                   labelText: 'Gemini API Key',
+                  labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                   hintText: 'AIzaSy...',
+                  hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(120)),
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: AppColors.dynamicFieldFill,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide: BorderSide(color: AppColors.dynamicBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.dynamicBorder),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -210,6 +220,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
                       size: 20,
+                      color: AppColors.dynamicTextSecondary,
                     ),
                     onPressed: () {
                       setState(() => _obscureText = !_obscureText);
@@ -225,6 +236,8 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                     onPressed: _isSaving ? null : _clearKey,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: AppColors.dynamicBorder),
+                      foregroundColor: AppColors.dynamicTextSecondary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -266,7 +279,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
             Center(
               child: Text(
                 'Get your key at aistudio.google.com/app/apikey',
-                style: TextStyle(fontSize: 11.5, color: Colors.grey.shade500),
+                style: TextStyle(fontSize: 11.5, color: AppColors.dynamicTextSecondary.withAlpha(160)),
               ),
             ),
           ],

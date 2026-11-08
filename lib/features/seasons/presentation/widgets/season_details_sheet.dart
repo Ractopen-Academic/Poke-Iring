@@ -58,9 +58,12 @@ class SeasonDetailsSheet extends StatelessWidget {
     );
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -79,7 +82,7 @@ class SeasonDetailsSheet extends StatelessWidget {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.dynamicBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -107,10 +110,10 @@ class SeasonDetailsSheet extends StatelessWidget {
                     children: [
                       Text(
                         season.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -130,9 +133,9 @@ class SeasonDetailsSheet extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               season.description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: AppColors.dynamicTextSecondary,
                 height: 1.35,
               ),
             ),
@@ -148,20 +151,20 @@ class SeasonDetailsSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.military_tech_rounded,
                         size: 18,
                         color: AppColors.secondary,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         'Projected Season Rewards',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                     ],
@@ -193,28 +196,28 @@ class SeasonDetailsSheet extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             // Soft Reset Rules Accordion / Cards
-            const Text(
+            Text(
               'How Seasonal Resets Work',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 10),
-            _RuleStepTile(
+            const _RuleStepTile(
               stepNumber: '1',
               title: 'Soft Reset Placement',
               description: 'Paw points compress into placement brackets so new explorers can compete while veteran ranks earn higher starting floors.',
             ),
             const SizedBox(height: 8),
-            _RuleStepTile(
+            const _RuleStepTile(
               stepNumber: '2',
               title: 'Mythic Prestige Minting',
               description: '100% of seasonal points plus top-tier rank bonuses are minted into permanent Mythic Prestige points on your profile.',
             ),
             const SizedBox(height: 8),
-            _RuleStepTile(
+            const _RuleStepTile(
               stepNumber: '3',
               title: 'Permanent Trophy Crests',
               description: 'Gold, Silver, and Bronze Mythic Paws are permanently archived to your Explorer Showcase.',
@@ -311,9 +314,9 @@ class _RuleStepTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.dynamicChromeTrack,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,7 +325,7 @@ class _RuleStepTile extends StatelessWidget {
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(20),
+              color: AppColors.primary.withAlpha(30),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -343,18 +346,18 @@ class _RuleStepTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                     height: 1.3,
                   ),
                 ),

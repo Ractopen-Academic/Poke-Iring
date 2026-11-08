@@ -19,9 +19,12 @@ class PawPointsGuideSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -33,26 +36,26 @@ class PawPointsGuideSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.dynamicBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 18),
-            const Row(
+            Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.help_outline_rounded,
                   color: AppColors.primary,
                   size: 24,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Text(
                   'How Paw Points Work',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                 ),
               ],
@@ -62,7 +65,7 @@ class PawPointsGuideSheet extends StatelessWidget {
               'Paw Points measure your neighborhood feline discoveries and determine your leaderboard standing.',
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey.shade600,
+                color: AppColors.dynamicTextSecondary,
                 height: 1.4,
               ),
             ),
@@ -142,19 +145,19 @@ class PawPointsGuideSheet extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F9),
+        color: AppColors.dynamicChromeTrack,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13.5,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: AppColors.dynamicTextPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -169,10 +172,10 @@ class PawPointsGuideSheet extends StatelessWidget {
                     children: [
                       Text(
                         item.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                       Text(
@@ -190,7 +193,7 @@ class PawPointsGuideSheet extends StatelessWidget {
                     item.description,
                     style: TextStyle(
                       fontSize: 11.5,
-                      color: Colors.grey.shade600,
+                      color: AppColors.dynamicTextSecondary,
                     ),
                   ),
                 ],

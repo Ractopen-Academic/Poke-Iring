@@ -71,9 +71,12 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -84,7 +87,7 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: AppColors.dynamicBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -98,7 +101,7 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.primary.withAlpha(25),
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: AppColors.dynamicBorder, width: 2),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withAlpha(20),
@@ -132,10 +135,10 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
                   children: [
                     Text(
                       widget.sighting.breed,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -152,7 +155,7 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
                       '${widget.sighting.barangay}, ${widget.sighting.city}',
                       style: TextStyle(
                         fontSize: 11.5,
-                        color: Colors.grey.shade600,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                   ],
@@ -165,15 +168,16 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F7F9),
+                color: AppColors.dynamicChromeTrack,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.dynamicBorder),
               ),
               child: Text(
                 '"${widget.sighting.quirk}"',
                 style: TextStyle(
                   fontSize: 12.5,
                   fontStyle: FontStyle.italic,
-                  color: Colors.grey.shade700,
+                  color: AppColors.dynamicTextSecondary,
                 ),
               ),
             ),

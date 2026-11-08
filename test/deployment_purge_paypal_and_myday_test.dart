@@ -206,10 +206,10 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('sandbox.paypal.com'), findsOneWidget);
-      expect(find.text('SANDBOX'), findsOneWidget);
+      expect(find.text('paypal.com'), findsOneWidget);
+      expect(find.text('VERIFIED'), findsOneWidget);
       expect(find.text('PayPal Checkout'), findsOneWidget);
-      expect(find.text('buyer-sandbox@pokeiring.app'), findsOneWidget);
+      expect(find.text('explorer@pokeiring.app'), findsOneWidget);
       expect(find.text('PayPal Balance'), findsOneWidget);
       expect(find.text('Complete Purchase'), findsOneWidget);
     });

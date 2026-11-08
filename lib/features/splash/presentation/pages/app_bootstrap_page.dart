@@ -149,102 +149,104 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          width: 180,
-                          height: 180,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                AppColors.primary.withAlpha(26),
-                                AppColors.primary.withAlpha(0),
-                              ],
+      backgroundColor: AppColors.dynamicBackground,
+      body: CalicoAmbientBackdrop(
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 180,
+                            height: 180,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  AppColors.dynamicPrimary.withAlpha(26),
+                                  AppColors.dynamicPrimary.withAlpha(0),
+                                ],
+                              ),
                             ),
                           ),
+                          AnimatedBuilder(
+                            animation: _breathingController,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, _subtleBob.value),
+                                child: Transform.scale(
+                                  scale: _breathingScale.value,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: const SizedBox(
+                              width: 140,
+                              height: 110,
+                              child: CalicoLoginMascot(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        _statusText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.dynamicTextSecondary,
+                          letterSpacing: -0.2,
                         ),
-                        AnimatedBuilder(
-                          animation: _breathingController,
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: Offset(0, _subtleBob.value),
-                              child: Transform.scale(
-                                scale: _breathingScale.value,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: const SizedBox(
-                            width: 140,
-                            height: 110,
-                            child: CalicoLoginMascot(),
+                      ),
+                      const SizedBox(height: 16),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(9999),
+                        child: SizedBox(
+                          width: 170,
+                          height: 6,
+                          child: TweenAnimationBuilder<double>(
+                            tween: Tween<double>(begin: 0.0, end: _progress),
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, progressVal, _) {
+                              return LinearProgressIndicator(
+                                value: progressVal,
+                                backgroundColor: AppColors.dynamicProgressTrack,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.dynamicPrimary,
+                                ),
+                              );
+                            },
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      _statusText,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFA69B91),
-                        letterSpacing: -0.2,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(9999),
-                      child: SizedBox(
-                        width: 170,
-                        height: 6,
-                        child: TweenAnimationBuilder<double>(
-                          tween: Tween<double>(begin: 0.0, end: _progress),
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                          builder: (context, progressVal, _) {
-                            return LinearProgressIndicator(
-                              value: progressVal,
-                              backgroundColor: AppColors.progressTrack,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                AppColors.primary,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              left: 16,
-              bottom: 12,
-              child: Text(
-                AppVersion.releaseTag,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary.withAlpha(140),
-                  letterSpacing: 0.3,
+              Positioned(
+                left: 16,
+                bottom: 12,
+                child: Text(
+                  AppVersion.releaseTag,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.dynamicTextSecondary.withAlpha(140),
+                    letterSpacing: 0.3,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

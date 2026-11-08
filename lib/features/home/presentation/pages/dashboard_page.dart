@@ -108,14 +108,29 @@ class _DashboardPageState extends State<DashboardPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Purge Test & Persistent Data?'),
-        content: const Text(
+        backgroundColor: AppColors.dynamicSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: AppColors.dynamicBorder),
+        ),
+        title: Text(
+          'Purge Test & Persistent Data?',
+          style: TextStyle(
+            color: AppColors.dynamicTextPrimary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
           'This will wipe all local test sightings, mock stories, test photo vault entries, and persistent cache keys.\n\nMock seed injection will be disabled so you can deploy cleanly with zero test residues.',
+          style: TextStyle(color: AppColors.dynamicTextSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.dynamicTextSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),

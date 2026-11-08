@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../data/services/subscription_service_impl.dart';
 import '../../domain/entities/subscription_tier.dart';
 import 'paypal_sandbox_checkout_modal.dart';
 
 enum SandboxPaymentMethod {
-  paypal(
-    'PayPal Sandbox',
-    'simulated_buyer@pokeiring.app',
-    Icons.payment_rounded,
-  ),
-  gcash(
-    'GCash (PayMongo)',
-    '0917-***-2026',
-    Icons.account_balance_wallet_rounded,
-  ),
-  maya('Maya (PayMongo)', '0918-***-8822', Icons.credit_card_rounded);
+  paypal('PayPal', 'Instant & Cards', Icons.payment_rounded),
+  gcash('GCash', 'via PayPal Checkout', Icons.account_balance_wallet_rounded),
+  maya('Maya', 'via PayPal Checkout', Icons.credit_card_rounded);
 
   final String label;
   final String accountHint;
@@ -55,73 +46,27 @@ class FelineClubPaywallSheet extends StatefulWidget {
 class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
   BillingInterval _selectedInterval = BillingInterval.annual;
   SandboxPaymentMethod _selectedPaymentMethod = SandboxPaymentMethod.paypal;
-  bool _isProcessing = false;
 
   Future<void> _handleUpgrade() async {
-    if (_selectedPaymentMethod == SandboxPaymentMethod.paypal) {
-      final success = await PayPalSandboxCheckoutModal.show(
-        context,
-        userId: widget.userId,
-        interval: _selectedInterval,
-      );
+    final success = await PayPalSandboxCheckoutModal.show(
+      context,
+      userId: widget.userId,
+      interval: _selectedInterval,
+    );
 
-      if (success == true && mounted) {
+    if (mounted) {
+      if (success == true) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: AppColors.primary,
             content: Text(
-              'PayPal Sandbox transaction verified! Welcome to Feline Club.',
+              'Payment verified! Welcome to Feline Club.',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         );
         widget.onSubscribed?.call();
-      }
-      return;
-    }
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => _SandboxCheckoutDialog(
-        method: _selectedPaymentMethod,
-        interval: _selectedInterval,
-      ),
-    );
-    if (confirmed != true) return;
-
-    setState(() => _isProcessing = true);
-    try {
-      await SubscriptionServiceImpl.instance.upgradeToClub(
-        widget.userId,
-        interval: _selectedInterval,
-      );
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        final txId = _selectedPaymentMethod == SandboxPaymentMethod.paypal
-            ? 'PAYPAL-SBX-${DateTime.now().millisecondsSinceEpoch % 1000000}'
-            : 'PM-${_selectedPaymentMethod.name.toUpperCase()}-${DateTime.now().millisecondsSinceEpoch % 1000000}';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.primary,
-            content: Text(
-              'Verified via ${_selectedPaymentMethod.label} ($txId). Welcome to Feline Club!',
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-        );
-        widget.onSubscribed?.call();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to activate subscription: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
       }
     }
   }
@@ -129,9 +74,12 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -150,7 +98,7 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.dynamicBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -162,21 +110,21 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFB300).withAlpha(35),
+                    color: AppColors.primary.withAlpha(30),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: const Color(0xFFFFB300),
+                      color: AppColors.primary,
                       width: 1.5,
                     ),
                   ),
                   child: const Icon(
                     Icons.workspace_premium_rounded,
-                    color: Color(0xFFE65100),
+                    color: AppColors.primary,
                     size: 26,
                   ),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -185,15 +133,15 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         'Lossless Master Archiving & Collector Perks',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                       ),
                     ],
@@ -203,37 +151,37 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
             ),
             const SizedBox(height: 18),
             // Perks List
-            _PerkRow(
+            const _PerkRow(
               icon: Icons.hourglass_top_rounded,
               title: 'Extended MyDay Story Lifespan',
               description: 'Publish stories that remain active for 24h, 48h, 72h, or up to 7 days.',
             ),
             const SizedBox(height: 10),
-            _PerkRow(
+            const _PerkRow(
               icon: Icons.hd_rounded,
               title: 'Ultra HD 4K Story & Vault Uploads',
               description: 'Upload high-resolution 4K photographs up to 25MB without downscaling.',
             ),
             const SizedBox(height: 10),
-            _PerkRow(
+            const _PerkRow(
               icon: Icons.camera_enhance_rounded,
               title: 'Uncompressed RAW Photo Vault',
               description: 'Keep original 12MP+ camera masters without lossy WebP compression.',
             ),
             const SizedBox(height: 10),
-            _PerkRow(
+            const _PerkRow(
               icon: Icons.military_tech_rounded,
               title: 'Gold Club Member Badge',
               description: 'Exclusive gold flair displayed beside your name across territory rankings.',
             ),
             const SizedBox(height: 10),
-            _PerkRow(
+            const _PerkRow(
               icon: Icons.touch_app_rounded,
               title: '2x Daily Boop Allowance',
               description: 'Double your daily boops to support neighborhood stray sightings.',
             ),
             const SizedBox(height: 10),
-            _PerkRow(
+            const _PerkRow(
               icon: Icons.file_download_rounded,
               title: 'Lossless Sticker Export',
               description: 'Download transparent high-resolution stickers of scanned cats.',
@@ -264,12 +212,12 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
               ],
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Sandbox Payment Method',
+            Text(
+              'Payment Method',
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -288,13 +236,13 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFFFFF8E1)
-                            : Colors.white,
+                            ? AppColors.primary.withAlpha(28)
+                            : AppColors.dynamicChromeTrack,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFFFFB300)
-                              : AppColors.border,
+                              ? AppColors.primary
+                              : AppColors.dynamicBorder,
                           width: isSelected ? 1.8 : 1,
                         ),
                       ),
@@ -304,8 +252,8 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                             method.icon,
                             size: 18,
                             color: isSelected
-                                ? const Color(0xFFE65100)
-                                : AppColors.textSecondary,
+                                ? AppColors.primary
+                                : AppColors.dynamicTextSecondary,
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -314,8 +262,8 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: isSelected
-                                  ? const Color(0xFFE65100)
-                                  : AppColors.textPrimary,
+                                  ? AppColors.primary
+                                  : AppColors.dynamicTextPrimary,
                             ),
                           ),
                         ],
@@ -328,9 +276,9 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
             const SizedBox(height: 20),
             // Subscribe Button
             ElevatedButton(
-              onPressed: _isProcessing ? null : _handleUpgrade,
+              onPressed: _handleUpgrade,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF8F00),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
@@ -338,22 +286,13 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                 ),
                 elevation: 0,
               ),
-              child: _isProcessing
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(Colors.white),
-                      ),
-                    )
-                  : const Text(
-                      'Join Feline Club',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+              child: const Text(
+                'Join Feline Club',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
           ],
         ),
@@ -393,18 +332,18 @@ class _PerkRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11.5,
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                   height: 1.3,
                 ),
               ),
@@ -434,10 +373,12 @@ class _PlanOptionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFFF8E1) : Colors.white,
+          color: isSelected
+              ? AppColors.primary.withAlpha(28)
+              : AppColors.dynamicChromeTrack,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? const Color(0xFFFFB300) : AppColors.border,
+            color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -449,7 +390,7 @@ class _PlanOptionCard extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 6),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF8F00),
+                  color: AppColors.primaryDark,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -463,10 +404,10 @@ class _PlanOptionCard extends StatelessWidget {
               ),
             Text(
               plan.interval == BillingInterval.annual ? 'Annual' : 'Monthly',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 4),
@@ -477,187 +418,6 @@ class _PlanOptionCard extends StatelessWidget {
                 fontWeight: FontWeight.w800,
                 color: AppColors.primary,
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SandboxCheckoutDialog extends StatelessWidget {
-  final SandboxPaymentMethod method;
-  final BillingInterval interval;
-
-  const _SandboxCheckoutDialog({required this.method, required this.interval});
-
-  @override
-  Widget build(BuildContext context) {
-    final plan = interval == BillingInterval.annual
-        ? SubscriptionPlan.annual
-        : SubscriptionPlan.monthly;
-
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFB300).withAlpha(30),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    method.icon,
-                    color: const Color(0xFFE65100),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        method.label,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      const Text(
-                        'Sandbox Test Environment',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.dynamicChromeTrack,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.dynamicBorder),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Total Due',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      Text(
-                        plan.priceFormatted,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Test Identifier',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      Text(
-                        method.accountHint,
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'This is a local sandbox simulation for feline membership validation. No real financial transaction will take place.',
-              style: TextStyle(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-                height: 1.3,
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: AppColors.border),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF8F00),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text(
-                      'Authorize Sandbox',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ],
         ),

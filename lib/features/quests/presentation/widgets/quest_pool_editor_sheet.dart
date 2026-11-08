@@ -68,14 +68,29 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Reset Quest Pool?'),
-        content: const Text(
+        backgroundColor: AppColors.dynamicSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: AppColors.dynamicBorder),
+        ),
+        title: Text(
+          'Reset Quest Pool?',
+          style: TextStyle(
+            color: AppColors.dynamicTextPrimary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
           'This will restore the 16 standard built-in quest templates in both local storage and Cloud Firestore.',
+          style: TextStyle(color: AppColors.dynamicTextSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.dynamicTextSecondary),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -120,9 +135,12 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
     final activeCount = _templates.where((t) => t.isActive).length;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
       ),
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.88,
@@ -142,7 +160,7 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
               width: 38,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: AppColors.dynamicBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -169,21 +187,21 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Quest Pool Manager',
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '$activeCount of ${_templates.length} templates active in rotation',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                   ],
@@ -191,9 +209,9 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
               ),
               IconButton(
                 tooltip: 'Reset to default catalog',
-                icon: const Icon(
+                icon: Icon(
                   Icons.restart_alt_rounded,
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                 ),
                 onPressed: _resetToDefaults,
               ),
@@ -282,10 +300,10 @@ class _FilterChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : const Color(0xFFF3F4F6),
+          color: isSelected ? AppColors.primary : AppColors.dynamicChromeTrack,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primary : const Color(0xFFE5E7EB),
+            color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
           ),
         ),
         child: Text(
@@ -293,7 +311,7 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+            color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
           ),
         ),
       ),
@@ -352,12 +370,14 @@ class _QuestTemplateCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: template.isActive ? Colors.white : const Color(0xFFF9FAFB),
+        color: template.isActive
+            ? AppColors.dynamicChromeTrack
+            : AppColors.dynamicSurface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: template.isActive
-              ? const Color(0xFFE5E7EB)
-              : const Color(0xFFE5E7EB).withAlpha(120),
+              ? AppColors.dynamicBorder
+              : AppColors.dynamicBorder.withAlpha(90),
         ),
       ),
       child: Row(
@@ -368,9 +388,9 @@ class _QuestTemplateCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: template.isActive
                   ? (isDaily
-                        ? const Color(0xFFEFF6FF)
-                        : const Color(0xFFF5F3FF))
-                  : const Color(0xFFF3F4F6),
+                        ? const Color(0xFF2563EB).withAlpha(35)
+                        : const Color(0xFF7C3AED).withAlpha(35))
+                  : AppColors.dynamicSurface,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -378,9 +398,9 @@ class _QuestTemplateCard extends StatelessWidget {
               size: 20,
               color: template.isActive
                   ? (isDaily
-                        ? const Color(0xFF2563EB)
-                        : const Color(0xFF7C3AED))
-                  : AppColors.textSecondary.withAlpha(120),
+                        ? const Color(0xFF60A5FA)
+                        : const Color(0xFFA78BFA))
+                  : AppColors.dynamicTextSecondary.withAlpha(120),
             ),
           ),
           const SizedBox(width: 12),
@@ -397,8 +417,8 @@ class _QuestTemplateCard extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: template.isActive
-                              ? AppColors.textPrimary
-                              : AppColors.textSecondary.withAlpha(180),
+                              ? AppColors.dynamicTextPrimary
+                              : AppColors.dynamicTextSecondary.withAlpha(180),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -412,8 +432,8 @@ class _QuestTemplateCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: isDaily
-                            ? const Color(0xFFDBEAFE)
-                            : const Color(0xFFEDE9FE),
+                            ? const Color(0xFF1E3A8A).withAlpha(60)
+                            : const Color(0xFF581C87).withAlpha(60),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -423,8 +443,8 @@ class _QuestTemplateCard extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
                           color: isDaily
-                              ? const Color(0xFF1D4ED8)
-                              : const Color(0xFF6D28D9),
+                              ? const Color(0xFF93C5FD)
+                              : const Color(0xFFC4B5FD),
                         ),
                       ),
                     ),
@@ -435,7 +455,7 @@ class _QuestTemplateCard extends StatelessWidget {
                   template.description,
                   style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary.withAlpha(200),
+                    color: AppColors.dynamicTextSecondary.withAlpha(200),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -445,10 +465,10 @@ class _QuestTemplateCard extends StatelessWidget {
                   children: [
                     Text(
                       'Goal: ${_formatTarget(template)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -458,15 +478,18 @@ class _QuestTemplateCard extends StatelessWidget {
                         vertical: 1.5,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFEF3C7),
+                        color: AppColors.primary.withAlpha(30),
                         borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(60),
+                        ),
                       ),
                       child: Text(
                         '+${template.rewardPawPoints} pts',
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF92400E),
+                          color: AppColors.primary,
                         ),
                       ),
                     ),

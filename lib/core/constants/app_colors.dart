@@ -51,6 +51,7 @@ class AppColors {
       CalicoThemeController.instance.palette;
 
   // Dynamic Theme Palette Accessors (resolves to active mode: Calico Dark or Calico Light)
+  static Color get dynamicPrimary => currentPalette.primary;
   static Color get dynamicBackground => currentPalette.background;
   static Color get dynamicSurface => currentPalette.surface;
   static Color get dynamicTextPrimary => currentPalette.textPrimary;

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../permissions/presentation/pages/permission_gate.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../widgets/calico_login_mascot.dart';
 import 'email_verification_page.dart';
 import 'login_page.dart';
 
@@ -24,12 +26,20 @@ class _AuthGateState extends State<AuthGate> {
       stream: widget.authRepository.authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(
-              child: SizedBox(
-                width: 28,
-                height: 28,
-                child: CircularProgressIndicator(strokeWidth: 2),
+          return Scaffold(
+            backgroundColor: AppColors.dynamicBackground,
+            body: CalicoAmbientBackdrop(
+              child: Center(
+                child: SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.dynamicPrimary,
+                    ),
+                  ),
+                ),
               ),
             ),
           );

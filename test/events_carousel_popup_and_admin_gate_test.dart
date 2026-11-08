@@ -443,8 +443,8 @@ void main() {
     });
   });
 
-  group('Feline Club Sandbox Payment Tests', () {
-    testWidgets('allows selecting PayPal Sandbox, GCash, and Maya gateways', (
+  group('Feline Club Payment Tests', () {
+    testWidgets('allows selecting PayPal, GCash, and Maya gateways and routes to PayPal checkout', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -455,7 +455,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Sandbox Payment Method'), findsOneWidget);
+      expect(find.text('Payment Method'), findsOneWidget);
       expect(find.text('PayPal'), findsOneWidget);
       expect(find.text('GCash'), findsOneWidget);
       expect(find.text('Maya'), findsOneWidget);
@@ -465,20 +465,19 @@ void main() {
       await tester.tap(find.text('GCash'));
       await tester.pumpAndSettle();
 
-      // Tap Join Feline Club to trigger sandbox dialog
+      // Tap Join Feline Club to trigger PayPal checkout flow
       await tester.ensureVisible(find.text('Join Feline Club'));
       await tester.tap(find.text('Join Feline Club'));
       await tester.pumpAndSettle();
 
-      expect(find.text('GCash (PayMongo)'), findsOneWidget);
-      expect(find.text('Sandbox Test Environment'), findsOneWidget);
-      expect(find.text('Authorize Sandbox'), findsOneWidget);
+      expect(find.text('PayPal Checkout'), findsOneWidget);
+      expect(find.text('paypal.com'), findsOneWidget);
 
-      // Cancel dialog
-      await tester.tap(find.text('Cancel'));
+      // Cancel modal
+      await tester.tap(find.byIcon(Icons.close));
       await tester.pumpAndSettle();
 
-      expect(find.text('Sandbox Test Environment'), findsNothing);
+      expect(find.text('PayPal Checkout'), findsNothing);
     });
   });
 }

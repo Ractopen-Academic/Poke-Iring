@@ -32,7 +32,11 @@ class SeasonRolloverDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      backgroundColor: AppColors.dynamicSurface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: AppColors.dynamicBorder),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -63,17 +67,17 @@ class SeasonRolloverDialog extends StatelessWidget {
             Text(
               '${record.seasonTitle} Concluded',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Your seasonal progress has been permanently archived.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
             ),
             const SizedBox(height: 18),
             // Stats summary container
@@ -90,19 +94,19 @@ class SeasonRolloverDialog extends StatelessWidget {
                     label: 'Final Standing',
                     value: '${record.finalDivision} (#${record.finalRank})',
                   ),
-                  const Divider(height: 16),
+                  Divider(height: 16, color: AppColors.dynamicBorder),
                   _SummaryRow(
                     label: 'Lifetime Mythic Prestige',
                     value: '+${record.prestigeEarned} pts',
                     highlightColor: AppColors.primary,
                   ),
-                  const Divider(height: 16),
+                  Divider(height: 16, color: AppColors.dynamicBorder),
                   _SummaryRow(
                     label: 'Trophy Crest Awarded',
                     value: record.trophyCrest.label,
                     highlightColor: _crestColor,
                   ),
-                  const Divider(height: 16),
+                  Divider(height: 16, color: AppColors.dynamicBorder),
                   _SummaryRow(
                     label: 'Next Season Starting Floor',
                     value:
@@ -154,7 +158,7 @@ class _SummaryRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -164,7 +168,7 @@ class _SummaryRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: highlightColor ?? AppColors.textPrimary,
+              color: highlightColor ?? AppColors.dynamicTextPrimary,
             ),
           ),
         ),

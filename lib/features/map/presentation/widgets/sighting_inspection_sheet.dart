@@ -12,9 +12,10 @@ class SightingInspectionSheet extends StatelessWidget {
   static Future<void> show(BuildContext context, LiveSighting sighting) {
     return showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      backgroundColor: AppColors.dynamicSurface,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        side: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
       ),
       builder: (context) => SightingInspectionSheet(sighting: sighting),
     );
@@ -49,7 +50,7 @@ class SightingInspectionSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.dynamicBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -94,10 +95,10 @@ class SightingInspectionSheet extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         sighting.breed,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                     ],
@@ -118,11 +119,11 @@ class SightingInspectionSheet extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Time Remaining',
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                       ),
                       Row(
@@ -145,44 +146,44 @@ class SightingInspectionSheet extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Divider(height: 18),
+                  Divider(height: 18, color: AppColors.dynamicBorder),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Classification Confidence',
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                       ),
                       Text(
                         '$confidencePct% accuracy',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                     ],
                   ),
-                  const Divider(height: 18),
+                  Divider(height: 18, color: AppColors.dynamicBorder),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Location',
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                       ),
                       Text(
                         '${sighting.latitude.toStringAsFixed(4)}, ${sighting.longitude.toStringAsFixed(4)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                     ],

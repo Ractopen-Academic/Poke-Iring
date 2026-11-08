@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/app_version.dart';
@@ -557,26 +558,10 @@ class _LoginPageState extends State<LoginPage> {
                                       text: 'Continue with Google',
                                       isOutlined: true,
                                       isLoading: _isLoading,
-                                      icon: Container(
-                                        width: 22,
-                                        height: 22,
-                                        decoration: BoxDecoration(
-                                          color: AppColors.gingerSoft,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: AppColors.gingerBorder,
-                                          ),
-                                        ),
-                                        child: const Center(
-                                          child: Text(
-                                            'G',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w900,
-                                              color: AppColors.primaryDark,
-                                            ),
-                                          ),
-                                        ),
+                                      icon: Image.asset(
+                                        AppAssets.googleLogo,
+                                        width: 20,
+                                        height: 20,
                                       ),
                                       onPressed: _handleGoogleAuth,
                                     ),

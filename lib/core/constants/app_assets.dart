@@ -5,6 +5,7 @@ class AppAssets {
   static const String banner = 'assets/images/banner.png';
   static const String bannerDark = 'assets/images/banner_dark.png';
   static const String bannerLight = 'assets/images/banner_light.png';
+  static const String googleLogo = 'assets/images/google_logo.png';
 
   static const String ambientBgm = 'assets/music/bgm_ambient.wav';
 }

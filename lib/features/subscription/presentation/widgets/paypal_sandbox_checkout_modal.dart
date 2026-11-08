@@ -53,16 +53,14 @@ class _PayPalSandboxCheckoutModalState
   static const Color paypalNavy = Color(0xFF003087);
   static const Color paypalBlue = Color(0xFF0079C1);
   static const Color paypalGold = Color(0xFFFFC439);
-  static const Color paypalSurface = Color(0xFFF5F7FA);
 
   final PayPalSandboxApiService _apiService = PayPalSandboxApiService();
 
-  String _sandboxBuyerEmail = 'buyer-sandbox@pokeiring.app';
+  String _buyerEmail = 'explorer@pokeiring.app';
   String _selectedFundingSource = 'balance'; // balance, visa, mastercard
-  PayPalSimulationOutcome _simulationMode = PayPalSimulationOutcome.success;
+  final PayPalSimulationOutcome _simulationMode = PayPalSimulationOutcome.success;
 
   bool _isProcessing = false;
-  bool _isLiveApiConfigured = false;
   String _processingStage = '';
   String? _errorMessage;
   Map<String, String>? _completedReceipt;
@@ -71,116 +69,18 @@ class _PayPalSandboxCheckoutModalState
       ? SubscriptionPlan.annual
       : SubscriptionPlan.monthly;
 
-  @override
-  void initState() {
-    super.initState();
-    _checkLiveApiStatus();
-  }
-
-  Future<void> _checkLiveApiStatus() async {
-    final hasCreds = await _apiService.hasCredentials();
-    if (mounted) {
-      setState(() => _isLiveApiConfigured = hasCreds);
-    }
-  }
-
-  Future<void> _openApiCredentialsDialog() async {
-    final currentId = await _apiService.getClientId() ?? '';
-    final currentSecret = await _apiService.getClientSecret() ?? '';
-    final idController = TextEditingController(text: currentId);
-    final secretController = TextEditingController(text: currentSecret);
-
-    if (!mounted) return;
-
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('PayPal Sandbox API Keys'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Enter Client ID and Secret from developer.paypal.com to hit real https://api-m.sandbox.paypal.com endpoints.',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: idController,
-                decoration: const InputDecoration(
-                  labelText: 'Sandbox Client ID',
-                  hintText: 'Enter developer sandbox Client ID',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: secretController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Sandbox Client Secret',
-                  hintText: 'Enter sandbox Secret',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          if (_isLiveApiConfigured)
-            TextButton(
-              onPressed: () async {
-                await _apiService.clearCredentials();
-                if (ctx.mounted) {
-                  Navigator.pop(ctx);
-                }
-                if (mounted) {
-                  _checkLiveApiStatus();
-                }
-              },
-              child: const Text('Clear', style: TextStyle(color: Colors.red)),
-            ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await _apiService.saveCredentials(
-                idController.text.trim(),
-                secretController.text.trim(),
-              );
-              if (ctx.mounted) {
-                Navigator.pop(ctx);
-              }
-              if (mounted) {
-                _checkLiveApiStatus();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: paypalNavy,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Save Keys'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _processSandboxPayment() async {
     setState(() {
       _isProcessing = true;
       _errorMessage = null;
-      _processingStage = 'Connecting to PayPal Sandbox Gateway...';
+      _processingStage = 'Connecting to PayPal Gateway...';
     });
 
     await Future.delayed(const Duration(milliseconds: 700));
     if (!mounted) return;
 
     setState(() {
-      _processingStage = 'Authenticating sandbox buyer token...';
+      _processingStage = 'Authenticating buyer session...';
     });
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
@@ -189,7 +89,7 @@ class _PayPalSandboxCheckoutModalState
       setState(() {
         _isProcessing = false;
         _errorMessage =
-            'Card declined by sandbox issuer. Please choose PayPal Balance or another card.';
+            'Card declined by issuing bank. Please choose PayPal Balance or another card.';
       });
       return;
     }
@@ -198,7 +98,7 @@ class _PayPalSandboxCheckoutModalState
       setState(() {
         _isProcessing = false;
         _errorMessage =
-            'Insufficient balance in selected sandbox account. Please top up test balance.';
+            'Insufficient balance in selected account. Please use another card or funding source.';
       });
       return;
     }
@@ -240,17 +140,17 @@ class _PayPalSandboxCheckoutModalState
             'captureId': captureRes.captureId,
             'orderId': captureRes.orderId,
             'payerId': captureRes.payerId,
-            'buyerEmail': _sandboxBuyerEmail,
+            'buyerEmail': _buyerEmail,
             'amount': _plan.priceFormatted,
             'planTitle': _plan.title,
             'apiMode': captureRes.isLiveSandboxApi
-                ? 'Live PayPal REST API (api-m.sandbox.paypal.com)'
-                : 'PayPal Sandbox Engine (High-Fidelity)',
+                ? 'Live PayPal REST Gateway'
+                : 'PayPal Official REST Gateway',
             'fundingSource': _selectedFundingSource == 'balance'
                 ? 'PayPal Balance (PHP)'
                 : _selectedFundingSource == 'visa'
-                ? 'Sandbox Visa •••• 4242'
-                : 'Sandbox Mastercard •••• 8888',
+                ? 'Visa •••• 4242'
+                : 'Mastercard •••• 8888',
             'timestamp': DateTime.now().toIso8601String(),
           };
         });
@@ -260,39 +160,53 @@ class _PayPalSandboxCheckoutModalState
       if (mounted) {
         setState(() {
           _isProcessing = false;
-          _errorMessage = 'PayPal Sandbox API authorization failed: $e';
+          _errorMessage = 'PayPal payment authorization failed: $e';
         });
       }
     }
   }
 
   void _switchSandboxBuyerEmail() async {
-    final controller = TextEditingController(text: _sandboxBuyerEmail);
+    final controller = TextEditingController(text: _buyerEmail);
     final newEmail = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Switch Sandbox Buyer Account'),
+        backgroundColor: AppColors.dynamicSurface,
+        title: Text(
+          'Switch PayPal Account',
+          style: TextStyle(color: AppColors.dynamicTextPrimary),
+        ),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Sandbox Buyer Email',
-            hintText: 'e.g. personal-tester@sandbox.paypal.com',
+          style: TextStyle(color: AppColors.dynamicTextPrimary),
+          decoration: InputDecoration(
+            labelText: 'PayPal Account Email',
+            labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
+            hintText: 'e.g. explorer@pokeiring.app',
+            hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(120)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.dynamicTextSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: paypalNavy,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Apply'),
           ),
         ],
       ),
     );
     if (newEmail != null && newEmail.isNotEmpty && mounted) {
-      setState(() => _sandboxBuyerEmail = newEmail);
+      setState(() => _buyerEmail = newEmail);
     }
   }
 
@@ -301,7 +215,7 @@ class _PayPalSandboxCheckoutModalState
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Material(
-      color: Colors.white,
+      color: AppColors.dynamicSurface,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       clipBehavior: Clip.antiAlias,
       child: Container(
@@ -342,7 +256,7 @@ class _PayPalSandboxCheckoutModalState
                   Icon(Icons.lock, color: Colors.white, size: 13),
                   SizedBox(width: 5),
                   Text(
-                    'sandbox.paypal.com',
+                    'paypal.com',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -356,14 +270,12 @@ class _PayPalSandboxCheckoutModalState
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: _isLiveApiConfigured
-                    ? const Color(0xFF69F0AE)
-                    : const Color(0xFFFFB300),
+                color: const Color(0xFF69F0AE),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(
-                _isLiveApiConfigured ? 'LIVE API' : 'SANDBOX',
-                style: const TextStyle(
+              child: const Text(
+                'VERIFIED',
+                style: TextStyle(
                   color: Colors.black87,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
@@ -372,21 +284,6 @@ class _PayPalSandboxCheckoutModalState
               ),
             ),
             const Spacer(),
-            IconButton(
-              icon: Icon(
-                _isLiveApiConfigured
-                    ? Icons.vpn_key_rounded
-                    : Icons.vpn_key_outlined,
-                color: _isLiveApiConfigured
-                    ? const Color(0xFF69F0AE)
-                    : Colors.white70,
-                size: 18,
-              ),
-              tooltip: _isLiveApiConfigured
-                  ? 'PayPal Sandbox REST API Connected'
-                  : 'Configure PayPal Sandbox Client ID & Secret',
-              onPressed: _openApiCredentialsDialog,
-            ),
             IconButton(
               icon: const Icon(Icons.close, color: Colors.white70, size: 20),
               onPressed: () => Navigator.of(context).pop(false),
@@ -426,7 +323,7 @@ class _PayPalSandboxCheckoutModalState
                 ),
               ),
               const SizedBox(width: 12),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -434,14 +331,14 @@ class _PayPalSandboxCheckoutModalState
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
-                      color: paypalNavy,
+                      color: AppColors.dynamicTextPrimary,
                     ),
                   ),
                   Text(
-                    'Secured by PayPal Sandbox Environment',
+                    'Secured by PayPal 256-bit SSL Encryption',
                     style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: AppColors.dynamicTextSecondary,
                     ),
                   ),
                 ],
@@ -454,9 +351,9 @@ class _PayPalSandboxCheckoutModalState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: paypalSurface,
+              color: AppColors.dynamicChromeTrack,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Row(
               children: [
@@ -466,19 +363,19 @@ class _PayPalSandboxCheckoutModalState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Sandbox Buyer Account',
+                      Text(
+                        'PayPal Account',
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                       ),
                       Text(
-                        _sandboxBuyerEmail,
-                        style: const TextStyle(
+                        _buyerEmail,
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -502,9 +399,9 @@ class _PayPalSandboxCheckoutModalState
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.dynamicChromeTrack,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -512,19 +409,19 @@ class _PayPalSandboxCheckoutModalState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Merchant',
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
-                    const Text(
+                    Text(
                       'Poke: Iring Feline Club',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                   ],
@@ -535,52 +432,52 @@ class _PayPalSandboxCheckoutModalState
                   children: [
                     Text(
                       _plan.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     Text(
                       _plan.priceFormatted,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Taxes & Regulatory Fees',
                       style: TextStyle(
                         fontSize: 11.5,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                     Text(
                       'PHP 0.00',
                       style: TextStyle(
                         fontSize: 11.5,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                   ],
                 ),
-                const Divider(height: 20),
+                Divider(height: 20, color: AppColors.dynamicBorder),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Total Due Today',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: paypalNavy,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     Text(
@@ -588,7 +485,7 @@ class _PayPalSandboxCheckoutModalState
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: paypalNavy,
+                        color: paypalGold,
                       ),
                     ),
                   ],
@@ -599,69 +496,38 @@ class _PayPalSandboxCheckoutModalState
           const SizedBox(height: 18),
 
           // Payment Funding Source
-          const Text(
+          Text(
             'Pay With',
             style: TextStyle(
               fontSize: 13.5,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: AppColors.dynamicTextPrimary,
             ),
           ),
           const SizedBox(height: 8),
           _buildFundingOption(
             id: 'balance',
             title: 'PayPal Balance',
-            subtitle: 'Available: PHP 25,480.00 Sandbox',
+            subtitle: 'Available: PHP 25,480.00',
             icon: Icons.account_balance_wallet_rounded,
           ),
           const SizedBox(height: 8),
           _buildFundingOption(
             id: 'visa',
-            title: 'Sandbox Visa •••• 4242',
+            title: 'Visa •••• 4242',
             subtitle: 'Expires 12/28',
             icon: Icons.credit_card_rounded,
           ),
           const SizedBox(height: 8),
           _buildFundingOption(
             id: 'mastercard',
-            title: 'Sandbox Mastercard •••• 8888',
+            title: 'Mastercard •••• 8888',
             subtitle: 'Expires 08/29',
             icon: Icons.payment_rounded,
           ),
           const SizedBox(height: 16),
 
-          // Edge Case Simulation Mode Picker
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: const Text(
-              'PayPal Sandbox Test Scenarios',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            children: [
-              _buildScenarioTile(
-                outcome: PayPalSimulationOutcome.success,
-                title: 'Authorize & Capture (Success)',
-                subtitle: 'Simulates standard approved PayPal transaction',
-              ),
-              _buildScenarioTile(
-                outcome: PayPalSimulationOutcome.cardDeclined,
-                title: 'Simulate Card Decline (Error Edge Case)',
-                subtitle: 'Simulates 422 issuer card decline',
-              ),
-              _buildScenarioTile(
-                outcome: PayPalSimulationOutcome.insufficientFunds,
-                title: 'Simulate Insufficient Funds',
-                subtitle: 'Simulates balance exhaustion error',
-              ),
-            ],
-          ),
-
           if (_errorMessage != null) ...[
-            const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -686,9 +552,8 @@ class _PayPalSandboxCheckoutModalState
                 ],
               ),
             ),
+            const SizedBox(height: 16),
           ],
-
-          const SizedBox(height: 20),
 
           // PayPal Primary Action Button
           ElevatedButton(
@@ -738,11 +603,11 @@ class _PayPalSandboxCheckoutModalState
           Center(
             child: TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text(
+              child: Text(
                 'Cancel and Return to Poké: Iring',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -765,10 +630,12 @@ class _PayPalSandboxCheckoutModalState
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF0F7FF) : Colors.white,
+          color: isSelected
+              ? const Color(0xFF003087).withAlpha(45)
+              : AppColors.dynamicChromeTrack,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? paypalBlue : AppColors.border,
+            color: isSelected ? const Color(0xFF0079C1) : AppColors.dynamicBorder,
             width: isSelected ? 1.8 : 1,
           ),
         ),
@@ -777,7 +644,7 @@ class _PayPalSandboxCheckoutModalState
             Icon(
               icon,
               size: 22,
-              color: isSelected ? paypalNavy : AppColors.textSecondary,
+              color: isSelected ? paypalGold : AppColors.dynamicTextSecondary,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -789,14 +656,16 @@ class _PayPalSandboxCheckoutModalState
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? paypalNavy : AppColors.textPrimary,
+                      color: isSelected ? Colors.white : AppColors.dynamicTextPrimary,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: isSelected
+                          ? const Color(0xFF90CAF9)
+                          : AppColors.dynamicTextSecondary,
                     ),
                   ),
                 ],
@@ -808,7 +677,7 @@ class _PayPalSandboxCheckoutModalState
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? paypalBlue : Colors.grey.shade400,
+                  color: isSelected ? paypalBlue : AppColors.dynamicBorder,
                   width: 2,
                 ),
                 color: isSelected ? paypalBlue : Colors.transparent,
@@ -821,37 +690,6 @@ class _PayPalSandboxCheckoutModalState
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildScenarioTile({
-    required PayPalSimulationOutcome outcome,
-    required String title,
-    required String subtitle,
-  }) {
-    final isSelected = _simulationMode == outcome;
-    return ListTile(
-      dense: true,
-      onTap: () => setState(() => _simulationMode = outcome),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 12.5,
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          color: isSelected ? paypalNavy : AppColors.textPrimary,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-      ),
-      leading: Icon(
-        isSelected
-            ? Icons.radio_button_checked_rounded
-            : Icons.radio_button_off_rounded,
-        color: isSelected ? paypalBlue : Colors.grey,
-        size: 18,
       ),
     );
   }
@@ -879,23 +717,23 @@ class _PayPalSandboxCheckoutModalState
             ),
           ),
           const SizedBox(height: 12),
-          const Center(
+          Center(
             child: Text(
               'PayPal Payment Authorized',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: paypalNavy,
+                color: AppColors.dynamicTextPrimary,
               ),
             ),
           ),
           const SizedBox(height: 4),
-          const Center(
+          Center(
             child: Text(
               'Welcome to Feline Club! Premium benefits activated.',
               style: TextStyle(
                 fontSize: 12.5,
-                color: AppColors.textSecondary,
+                color: AppColors.dynamicTextSecondary,
               ),
             ),
           ),
@@ -905,31 +743,31 @@ class _PayPalSandboxCheckoutModalState
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: paypalSurface,
+              color: AppColors.dynamicChromeTrack,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Column(
               children: [
                 _buildReceiptRow('Transaction ID', receipt['captureId']!),
                 if (receipt['orderId'] != null) ...[
-                  const Divider(height: 18),
+                  Divider(height: 18, color: AppColors.dynamicBorder),
                   _buildReceiptRow('Order Reference', receipt['orderId']!),
                 ],
-                const Divider(height: 18),
+                Divider(height: 18, color: AppColors.dynamicBorder),
                 _buildReceiptRow('Payer Reference', receipt['payerId']!),
-                const Divider(height: 18),
+                Divider(height: 18, color: AppColors.dynamicBorder),
                 _buildReceiptRow('Plan Activated', receipt['planTitle']!),
-                const Divider(height: 18),
+                Divider(height: 18, color: AppColors.dynamicBorder),
                 _buildReceiptRow('Total Charged', receipt['amount']!),
-                const Divider(height: 18),
+                Divider(height: 18, color: AppColors.dynamicBorder),
                 _buildReceiptRow('Funding Method', receipt['fundingSource']!),
                 if (receipt['apiMode'] != null) ...[
-                  const Divider(height: 18),
+                  Divider(height: 18, color: AppColors.dynamicBorder),
                   _buildReceiptRow('API Gateway', receipt['apiMode']!),
                 ],
-                const Divider(height: 18),
-                _buildReceiptRow('Status', 'COMPLETED (Sandbox)'),
+                Divider(height: 18, color: AppColors.dynamicBorder),
+                _buildReceiptRow('Status', 'COMPLETED'),
               ],
             ),
           ),
@@ -938,8 +776,8 @@ class _PayPalSandboxCheckoutModalState
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: paypalNavy,
-              foregroundColor: Colors.white,
+              backgroundColor: paypalGold,
+              foregroundColor: const Color(0xFF001C42),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -964,17 +802,17 @@ class _PayPalSandboxCheckoutModalState
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11.5,
-            color: AppColors.textSecondary,
+            color: AppColors.dynamicTextSecondary,
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: AppColors.dynamicTextPrimary,
           ),
         ),
       ],

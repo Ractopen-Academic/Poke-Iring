@@ -75,10 +75,18 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text(
+      backgroundColor: AppColors.dynamicSurface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.dynamicBorder),
+      ),
+      title: Text(
         'Reset Password',
-        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 18,
+          color: AppColors.dynamicTextPrimary,
+        ),
       ),
       content: Form(
         key: _formKey,
@@ -86,9 +94,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Enter your registered email address to receive a secure password reset link.',
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 13, color: AppColors.dynamicTextSecondary),
             ),
             const SizedBox(height: 16),
             AppTextField(

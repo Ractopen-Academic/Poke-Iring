@@ -22,9 +22,12 @@ class TitleSelectionSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
       ),
       child: Column(
         children: [
@@ -33,7 +36,7 @@ class TitleSelectionSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.border,
+              color: AppColors.dynamicBorder,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -44,21 +47,21 @@ class TitleSelectionSheet extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'Explorer Titles',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         'Equip unlocked titles to display on your profile and leaderboards.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                       ),
                     ],
@@ -66,13 +69,13 @@ class TitleSelectionSheet extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: AppColors.dynamicBorder),
           Expanded(
             child: StreamBuilder<List<ExplorerTitle>>(
               stream: AchievementsRepositoryImpl.instance.watchTitles(userId),
@@ -145,15 +148,17 @@ class _TitleTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: isEquipped
-            ? tier.backgroundColor
-            : (isUnlocked ? Colors.white : AppColors.background.withAlpha(150)),
+            ? tier.primaryColor.withAlpha(32)
+            : (isUnlocked
+                  ? AppColors.dynamicChromeTrack
+                  : AppColors.dynamicSurface),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isEquipped
-              ? tier.borderColor
+              ? tier.primaryColor
               : (isUnlocked
-                    ? AppColors.border
-                    : AppColors.border.withAlpha(80)),
+                    ? AppColors.dynamicBorder
+                    : AppColors.dynamicBorder.withAlpha(70)),
           width: isEquipped ? 1.5 : 1.0,
         ),
       ),
@@ -165,10 +170,10 @@ class _TitleTile extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isUnlocked
-                  ? tier.backgroundColor
-                  : AppColors.textSecondary.withAlpha(20),
+                  ? tier.primaryColor.withAlpha(35)
+                  : AppColors.dynamicChromeTrack,
               border: Border.all(
-                color: isUnlocked ? tier.borderColor : AppColors.border,
+                color: isUnlocked ? tier.primaryColor : AppColors.dynamicBorder,
               ),
             ),
             child: Icon(
@@ -176,7 +181,9 @@ class _TitleTile extends StatelessWidget {
                   ? Icons.military_tech_outlined
                   : Icons.lock_outline_rounded,
               size: 18,
-              color: isUnlocked ? tier.primaryColor : AppColors.textSecondary,
+              color: isUnlocked
+                  ? tier.primaryColor
+                  : AppColors.dynamicTextSecondary,
             ),
           ),
           const SizedBox(width: 12),
@@ -193,8 +200,8 @@ class _TitleTile extends StatelessWidget {
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: isUnlocked
-                              ? AppColors.textPrimary
-                              : AppColors.textSecondary,
+                              ? AppColors.dynamicTextPrimary
+                              : AppColors.dynamicTextSecondary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -209,8 +216,8 @@ class _TitleTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     color: isUnlocked
-                        ? AppColors.textSecondary
-                        : AppColors.textSecondary.withAlpha(160),
+                        ? AppColors.dynamicTextSecondary
+                        : AppColors.dynamicTextSecondary.withAlpha(140),
                   ),
                 ),
               ],
@@ -237,7 +244,8 @@ class _TitleTile extends StatelessWidget {
             OutlinedButton(
               onPressed: onEquip,
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: tier.borderColor),
+                side: BorderSide(color: tier.primaryColor),
+                foregroundColor: tier.primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -253,7 +261,7 @@ class _TitleTile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: tier.secondaryColor,
+                  color: tier.primaryColor,
                 ),
               ),
             )
@@ -261,15 +269,18 @@ class _TitleTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.border.withAlpha(60),
+                color: AppColors.dynamicChromeTrack,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppColors.dynamicBorder.withAlpha(60),
+                ),
               ),
-              child: const Text(
+              child: Text(
                 'Locked',
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                 ),
               ),
             ),
@@ -291,20 +302,20 @@ class _RarityBadge extends StatelessWidget {
 
     switch (rarity) {
       case TitleRarity.common:
-        bg = const Color(0xFFF1F3F5);
-        fg = const Color(0xFF5A6672);
+        bg = const Color(0xFF2B2623);
+        fg = const Color(0xFFB8ABA0);
         break;
       case TitleRarity.rare:
-        bg = const Color(0xFFE3F2FD);
-        fg = const Color(0xFF1976D2);
+        bg = const Color(0xFF102847);
+        fg = const Color(0xFF64B5F6);
         break;
       case TitleRarity.epic:
-        bg = const Color(0xFFF3E5F5);
-        fg = const Color(0xFF7B1FA2);
+        bg = const Color(0xFF2E173E);
+        fg = const Color(0xFFCE93D8);
         break;
       case TitleRarity.legendary:
-        bg = const Color(0xFFFFF8E1);
-        fg = const Color(0xFFF57F17);
+        bg = const Color(0xFF3E2310);
+        fg = const Color(0xFFFFB74D);
         break;
     }
 

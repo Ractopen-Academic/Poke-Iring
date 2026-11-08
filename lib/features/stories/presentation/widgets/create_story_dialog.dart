@@ -71,14 +71,29 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Feline Club Exclusive Perk'),
+        backgroundColor: AppColors.dynamicSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: AppColors.dynamicBorder),
+        ),
+        title: Text(
+          'Feline Club Exclusive Perk',
+          style: TextStyle(
+            color: AppColors.dynamicTextPrimary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         content: Text(
-          '$featureReason\n\nUpgrade to Feline Club with PayPal Sandbox to unlock settable durations up to 7 days and uncompressed 4K uploads.',
+          '$featureReason\n\nUpgrade to Feline Club with PayPal to unlock settable durations up to 7 days and uncompressed 4K uploads.',
+          style: TextStyle(color: AppColors.dynamicTextSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Maybe Later'),
+            child: Text(
+              'Maybe Later',
+              style: TextStyle(color: AppColors.dynamicTextSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -215,14 +230,14 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             color: isSelected
                 ? AppColors.primary
                 : (isClubOnly && !_isClubMember)
-                ? Colors.grey.shade50
-                : Colors.white,
+                ? (AppColors.isCalicoDark ? const Color(0xFF1F1A17) : Colors.grey.shade50)
+                : AppColors.dynamicChromeTrack,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isSelected
                   ? AppColors.primary
                   : (isClubOnly && !_isClubMember)
-                  ? Colors.grey.shade300
+                  ? (AppColors.isCalicoDark ? const Color(0xFF2E241F) : Colors.grey.shade300)
                   : AppColors.dynamicBorder,
             ),
           ),
@@ -237,7 +252,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                   color: isSelected
                       ? Colors.white
                       : (isClubOnly && !_isClubMember)
-                      ? Colors.grey.shade500
+                      ? AppColors.dynamicTextSecondary.withAlpha(160)
                       : AppColors.dynamicTextPrimary,
                 ),
               ),
@@ -249,7 +264,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                     fontWeight: FontWeight.w900,
                     color: isSelected
                         ? Colors.white.withAlpha(220)
-                        : const Color(0xFFE65100),
+                        : (AppColors.isCalicoDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100)),
                   ),
                 ),
             ],
@@ -265,9 +280,12 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
 
     return Container(
       padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + bottomInset),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -279,7 +297,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.dynamicBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -302,7 +320,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             const SizedBox(height: 6),
             Text(
               'Highlight a cat find to neighborhood explorers for the next 24 hours.',
-              style: TextStyle(fontSize: 12.5, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12.5, color: AppColors.dynamicTextSecondary),
             ),
             const SizedBox(height: 16),
 
@@ -350,16 +368,24 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.shade50,
+                        color: AppColors.isCalicoDark
+                            ? const Color(0xFF1B3320)
+                            : Colors.green.shade50,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.green.shade200),
+                        border: Border.all(
+                          color: AppColors.isCalicoDark
+                              ? const Color(0xFF2E5D36)
+                              : Colors.green.shade200,
+                        ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.speed,
                             size: 16,
-                            color: Colors.green.shade800,
+                            color: AppColors.isCalicoDark
+                                ? const Color(0xFF81C784)
+                                : Colors.green.shade800,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
@@ -368,7 +394,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.green.shade900,
+                                color: AppColors.isCalicoDark
+                                    ? const Color(0xFFA5D6A7)
+                                    : Colors.green.shade900,
                               ),
                             ),
                           ),
@@ -382,20 +410,22 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
               Container(
                 height: 140,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: AppColors.dynamicChromeTrack,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.dynamicBorder),
                 ),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(strokeWidth: 2.5),
-                      SizedBox(height: 12),
+                      const CircularProgressIndicator(strokeWidth: 2.5),
+                      const SizedBox(height: 12),
                       Text(
                         'Compressing image safely...',
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                     ],
@@ -498,13 +528,13 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: _isClubMember
-                    ? const Color(0xFFFFF8E1)
-                    : Colors.grey.shade100,
+                    ? (AppColors.isCalicoDark ? const Color(0xFF332617) : const Color(0xFFFFF8E1))
+                    : AppColors.dynamicChromeTrack,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: _isClubMember
-                      ? const Color(0xFFFFB300)
-                      : Colors.grey.shade300,
+                      ? (AppColors.isCalicoDark ? const Color(0xFF7A4D1A) : const Color(0xFFFFB300))
+                      : AppColors.dynamicBorder,
                 ),
               ),
               child: Row(
@@ -515,7 +545,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                         : Icons.photo_size_select_actual_outlined,
                     size: 15,
                     color: _isClubMember
-                        ? const Color(0xFFE65100)
+                        ? (AppColors.isCalicoDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100))
                         : AppColors.dynamicTextSecondary,
                   ),
                   const SizedBox(width: 8),
@@ -528,7 +558,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: _isClubMember
-                            ? const Color(0xFFE65100)
+                            ? (AppColors.isCalicoDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100))
                             : AppColors.dynamicTextSecondary,
                       ),
                     ),
@@ -541,16 +571,27 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             // Breed Selector
             DropdownButtonFormField<String>(
               initialValue: _selectedBreed,
+              style: TextStyle(
+                color: AppColors.dynamicTextPrimary,
+                fontSize: 14,
+              ),
+              dropdownColor: AppColors.dynamicSurface,
               decoration: InputDecoration(
                 labelText: 'Cat Breed / Marking',
+                labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                 filled: true,
-                fillColor: Colors.grey.shade50,
+                fillColor: AppColors.dynamicChromeTrack,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.dynamicBorder),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.dynamicBorder),
                 ),
               ),
               items: _commonBreeds
-                  .map((b) => DropdownMenuItem(value: b, child: Text(b)))
+                  .map((b) => DropdownMenuItem(value: b, child: Text(b, style: TextStyle(color: AppColors.dynamicTextPrimary))))
                   .toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedBreed = val);
@@ -563,13 +604,22 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             TextField(
               controller: _captionController,
               maxLength: 120,
+              style: TextStyle(color: AppColors.dynamicTextPrimary),
               decoration: InputDecoration(
                 labelText: 'Story Caption',
+                labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                 hintText: 'e.g. Found this fluffy calico napping on a scooter!',
+                hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(140)),
+                counterStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                 filled: true,
-                fillColor: Colors.grey.shade50,
+                fillColor: AppColors.dynamicChromeTrack,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.dynamicBorder),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.dynamicBorder),
                 ),
               ),
             ),

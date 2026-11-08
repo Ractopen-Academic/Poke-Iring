@@ -354,9 +354,10 @@ class _VaultPhotoDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.dynamicSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(top: BorderSide(color: AppColors.dynamicBorder, width: 1.2)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -373,7 +374,7 @@ class _VaultPhotoDetailSheet extends StatelessWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: AppColors.dynamicBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -401,10 +402,10 @@ class _VaultPhotoDetailSheet extends StatelessWidget {
               Expanded(
                 child: Text(
                   photo.breedName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: AppColors.dynamicTextPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -417,9 +418,9 @@ class _VaultPhotoDetailSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: AppColors.dynamicChromeTrack,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Column(
               children: [
@@ -427,20 +428,20 @@ class _VaultPhotoDetailSheet extends StatelessWidget {
                   label: 'Resolution',
                   value: photo.resolutionFormatted,
                 ),
-                const Divider(height: 14),
+                Divider(height: 14, color: AppColors.dynamicBorder),
                 _MetaItem(label: 'Megapixels', value: photo.megapixelFormatted),
-                const Divider(height: 14),
+                Divider(height: 14, color: AppColors.dynamicBorder),
                 _MetaItem(
                   label: 'Master File Size',
                   value: photo.fileSizeFormatted,
                 ),
-                const Divider(height: 14),
+                Divider(height: 14, color: AppColors.dynamicBorder),
                 _MetaItem(
                   label: 'Camera EXIF',
                   value:
                       'ISO ${photo.iso} • ${photo.shutterSpeed} • ${photo.aperture}',
                 ),
-                const Divider(height: 14),
+                Divider(height: 14, color: AppColors.dynamicBorder),
                 _MetaItem(
                   label: 'Territory Location',
                   value: photo.locationLabel,
@@ -494,14 +495,14 @@ class _MetaItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: AppColors.dynamicTextPrimary,
           ),
         ),
       ],
