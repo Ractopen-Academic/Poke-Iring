@@ -81,7 +81,7 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
             final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(0, 12, 0, 160),
+              padding: const EdgeInsets.fromLTRB(0, 12, 0, 108),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -312,7 +312,6 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 160),
                 ],
               ),
             );
