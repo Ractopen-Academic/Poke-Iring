@@ -121,26 +121,27 @@ class _AchievementsPageState extends State<AchievementsPage> {
                         // Search Bar
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.dynamicSurface,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: AppColors.dynamicBorder),
                           ),
                           child: TextField(
                             onChanged: (val) =>
                                 setState(() => _searchQuery = val.trim()),
-                            decoration: const InputDecoration(
+                            style: TextStyle(color: AppColors.dynamicTextPrimary),
+                            decoration: InputDecoration(
                               hintText: 'Search 100 tiered achievements...',
                               hintStyle: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                               ),
                               prefixIcon: Icon(
                                 Icons.search_rounded,
                                 size: 20,
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                               ),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
@@ -169,16 +170,16 @@ class _AchievementsPageState extends State<AchievementsPage> {
                                         : FontWeight.w600,
                                     color: isSelected
                                         ? Colors.white
-                                        : AppColors.textPrimary,
+                                        : AppColors.dynamicTextPrimary,
                                   ),
                                   selectedColor: AppColors.primary,
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: AppColors.dynamicSurface,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                     side: BorderSide(
                                       color: isSelected
                                           ? AppColors.primary
-                                          : AppColors.border,
+                                          : AppColors.dynamicBorder,
                                     ),
                                   ),
                                 ),
@@ -255,9 +256,9 @@ class _HeroProgressCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.dynamicSurface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.dynamicBorder),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(5),
@@ -275,22 +276,22 @@ class _HeroProgressCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Trophy Case Progress',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textSecondary,
+                      color: AppColors.dynamicTextSecondary,
                       letterSpacing: 0.5,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '$unlockedMilestones / $totalMilestones Milestones',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
+                      color: AppColors.dynamicTextPrimary,
                     ),
                   ),
                 ],
@@ -323,7 +324,7 @@ class _HeroProgressCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progressFraction,
               minHeight: 10,
-              backgroundColor: AppColors.border.withAlpha(120),
+              backgroundColor: AppColors.dynamicBorder.withAlpha(120),
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppColors.primary,
               ),
@@ -343,10 +344,10 @@ class _HeroProgressCard extends StatelessWidget {
               ),
               Text(
                 '+$totalPointsEarned Paw Points Claimed',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: AppColors.dynamicTextSecondary,
                 ),
               ),
             ],

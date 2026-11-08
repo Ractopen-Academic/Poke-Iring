@@ -851,13 +851,6 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 12),
               _ModuleTile(
-                icon: Icons.psychology_outlined,
-                title: 'AI Vision Settings',
-                subtitle: 'Configure Gemini API key for cat recognition',
-                onTap: () => AiVisionSettingsSheet.show(context),
-              ),
-              const SizedBox(height: 10),
-              _ModuleTile(
                 icon: Icons.photo_library_outlined,
                 title: 'RAW Photo Vault',
                 subtitle: 'Uncompressed master cat photographs',
@@ -1031,22 +1024,31 @@ class _DashboardPageState extends State<DashboardPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Deployment & Clean Slate',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.dynamicTextPrimary,
+              if (widget.user.isAdmin) ...[
+                const SizedBox(height: 24),
+                Text(
+                  'Admin Management',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.dynamicTextPrimary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              _ModuleTile(
-                icon: Icons.cleaning_services_outlined,
-                title: 'Purge All Test & Persistent Data',
-                subtitle: 'Wipe mock seeds, clear persistent caches & prepare for deployment',
-                onTap: _handlePurgeTestData,
-              ),
+                const SizedBox(height: 12),
+                _ModuleTile(
+                  icon: Icons.psychology_outlined,
+                  title: 'AI Vision Engine (Admin)',
+                  subtitle: 'Configure vision classifier API keys',
+                  onTap: () => AiVisionSettingsSheet.show(context),
+                ),
+                const SizedBox(height: 10),
+                _ModuleTile(
+                  icon: Icons.cleaning_services_outlined,
+                  title: 'Purge Offline & Test Cache',
+                  subtitle: 'Clear local persistent caches and sync fresh with Firebase',
+                  onTap: _handlePurgeTestData,
+                ),
+              ],
               const SizedBox(height: 32),
               AppButton(
                 text: 'Sign Out',

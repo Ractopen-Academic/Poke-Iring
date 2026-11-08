@@ -79,12 +79,12 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.dynamicSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: claimableMilestone != null
               ? claimableMilestone.tier.borderColor
-              : AppColors.border,
+              : AppColors.dynamicBorder,
           width: claimableMilestone != null ? 1.5 : 1.0,
         ),
         boxShadow: [
@@ -127,10 +127,10 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                         Flexible(
                           child: Text(
                             achievement.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                             ),
                           ),
                         ),
@@ -141,9 +141,9 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                     const SizedBox(height: 3),
                     Text(
                       achievement.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                         height: 1.3,
                       ),
                     ),
@@ -170,10 +170,10 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                   decoration: BoxDecoration(
                     color: isUnlocked
                         ? tier.backgroundColor
-                        : AppColors.background,
+                        : AppColors.dynamicChromeTrack,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: isUnlocked ? tier.borderColor : AppColors.border,
+                      color: isUnlocked ? tier.borderColor : AppColors.dynamicBorder,
                       width: 1,
                     ),
                   ),
@@ -186,7 +186,7 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                           fontWeight: FontWeight.w800,
                           color: isUnlocked
                               ? tier.secondaryColor
-                              : AppColors.textSecondary.withAlpha(120),
+                              : AppColors.dynamicTextSecondary.withAlpha(140),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -199,7 +199,7 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                               ? tier.primaryColor
                               : (isUnlocked
                                     ? tier.borderColor
-                                    : AppColors.border),
+                                    : AppColors.dynamicBorder),
                         ),
                       ),
                     ],
@@ -223,15 +223,15 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                   fontWeight: FontWeight.w600,
                   color: isMax
                       ? displayTier.secondaryColor
-                      : AppColors.textSecondary,
+                      : AppColors.dynamicTextSecondary,
                 ),
               ),
               Text(
                 achievement.progressFormatted,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: AppColors.dynamicTextPrimary,
                 ),
               ),
             ],
@@ -242,7 +242,7 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
             child: LinearProgressIndicator(
               value: isMax ? 1.0 : achievement.progressFraction,
               minHeight: 6,
-              backgroundColor: AppColors.border.withAlpha(100),
+              backgroundColor: AppColors.dynamicBorder.withAlpha(100),
               valueColor: AlwaysStoppedAnimation<Color>(
                 isMax ? displayTier.primaryColor : AppColors.primary,
               ),

@@ -333,11 +333,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
             icon: const Icon(Icons.help_outline_rounded),
             onPressed: () => PawPointsGuideSheet.show(context),
           ),
-          IconButton(
-            tooltip: 'AI Vision Settings',
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => AiVisionSettingsSheet.show(context),
-          ),
+          if (widget.user.isAdmin)
+            IconButton(
+              tooltip: 'AI Vision Engine (Admin)',
+              icon: const Icon(Icons.tune_rounded),
+              onPressed: () => AiVisionSettingsSheet.show(context),
+            ),
         ],
       ),
       body: SafeArea(
