@@ -213,7 +213,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: AppColors.dynamicBorder,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -236,7 +236,7 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -245,15 +245,15 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             'Cloud database & live GPS reverse geocoding',
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                         ],
@@ -294,19 +294,19 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'City / Municipality',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                     Text(
                       '${_cities.length} cities in database',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                   ],
@@ -316,38 +316,38 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                   height: 38,
                   margin: const EdgeInsets.only(bottom: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.fieldFill,
+                    color: AppColors.dynamicFieldFill,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.dynamicBorder),
                   ),
                   child: TextField(
                     onChanged: (val) => setState(() => _searchFilter = val),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Search city or province...',
                       hintStyle: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                       prefixIcon: Icon(
                         Icons.search_rounded,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textPrimary,
+                      color: AppColors.dynamicTextPrimary,
                     ),
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.fieldFill,
+                    color: AppColors.dynamicFieldFill,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.dynamicBorder),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -362,10 +362,10 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                           value: c.city,
                           child: Text(
                             '${c.city} (${c.province})',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                             ),
                           ),
                         );
@@ -390,20 +390,20 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Barangay (Neighborhood)',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                     Text(
                       '${availableBarangays.length} verified zones',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                   ],
@@ -412,9 +412,9 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.fieldFill,
+                    color: AppColors.dynamicFieldFill,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.dynamicBorder),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -429,10 +429,10 @@ class _TerritorySelectionSheetState extends State<TerritorySelectionSheet> {
                           value: b,
                           child: Text(
                             b,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                             ),
                           ),
                         );

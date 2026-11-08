@@ -980,7 +980,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ],
                     ),
-                    const Divider(height: 24, color: AppColors.border),
+                    Divider(height: 24, color: AppColors.dynamicBorder),
                     Row(
                       children: [
                         Expanded(

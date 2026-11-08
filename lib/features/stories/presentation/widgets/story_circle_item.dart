@@ -104,8 +104,8 @@ class StoryCircleItem extends StatelessWidget {
                     bottom: -1,
                     child: Container(
                       padding: const EdgeInsets.all(1.5),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: AppColors.dynamicSurface,
                         shape: BoxShape.circle,
                       ),
                       child: isUser && hasActiveUserStory

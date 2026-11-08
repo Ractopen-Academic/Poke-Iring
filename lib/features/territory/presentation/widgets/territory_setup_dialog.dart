@@ -137,13 +137,13 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
             // Header Banner
             Container(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
                   colors: [Color(0xFF2E241E), Color(0xFF1E1714)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                border: Border(bottom: BorderSide(color: AppColors.border)),
+                border: Border(bottom: BorderSide(color: AppColors.dynamicBorder)),
               ),
               child: Row(
                 children: [
@@ -193,11 +193,11 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'To maintain fair competitive divisions across seasonal leaderboards, your home territory is tied directly to your account and can only be changed once every year (365 days).',
                     style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textSecondary,
+                      color: AppColors.dynamicTextSecondary,
                       height: 1.45,
                     ),
                   ),
@@ -207,9 +207,9 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.fieldFill,
+                      color: AppColors.dynamicChromeTrack,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: AppColors.dynamicBorder),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,12 +222,12 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                               color: AppColors.primary,
                             ),
                             const SizedBox(width: 6),
-                            const Text(
+                            Text(
                               'Selected Division',
                               style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                               ),
                             ),
                             const Spacer(),
@@ -247,18 +247,18 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                         const SizedBox(height: 8),
                         Text(
                           _selectedTerritory.shortLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: AppColors.dynamicTextPrimary,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           '${_selectedTerritory.province}, ${_selectedTerritory.region}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                           ),
                         ),
                       ],
@@ -273,27 +273,27 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2A2016),
+                      color: AppColors.dynamicChromeTrack,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: const Color(0xFFE06D22).withAlpha(120),
+                        color: AppColors.primary.withAlpha(120),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.info_outline_rounded,
                           size: 16,
                           color: AppColors.primary,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Annual Cooldown: Once confirmed, you cannot switch your territory division until 365 days have passed.',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: AppColors.dynamicTextPrimary,
                               height: 1.3,
                             ),
                           ),
@@ -313,17 +313,17 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                               : () => Navigator.of(context).pop(null),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: const BorderSide(color: AppColors.border),
+                            side: BorderSide(color: AppColors.dynamicBorder),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Later',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                         ),

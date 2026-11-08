@@ -288,9 +288,9 @@ class _EventPopupModalState extends State<EventPopupModal> {
                 children: [
                   Text(
                     event.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.5,
-                      color: AppColors.textSecondary,
+                      color: AppColors.dynamicTextSecondary,
                       height: 1.45,
                     ),
                   ),
@@ -323,18 +323,18 @@ class _EventPopupModalState extends State<EventPopupModal> {
                             children: [
                               Text(
                                 '${event.quests.length} Festival Quests Active',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.dynamicTextPrimary,
                                 ),
                               ),
                               const SizedBox(height: 2),
-                              const Text(
+                              Text(
                                 'Complete daily tasks to claim exclusive borders',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.dynamicTextSecondary,
                                 ),
                               ),
                             ],
@@ -371,11 +371,11 @@ class _EventPopupModalState extends State<EventPopupModal> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'Don\'t show this announcement again today',
                           style: TextStyle(
                             fontSize: 11.5,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -392,17 +392,17 @@ class _EventPopupModalState extends State<EventPopupModal> {
                           onPressed: _dismissDialog,
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: const BorderSide(color: AppColors.border),
+                            side: BorderSide(color: AppColors.dynamicBorder),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Later',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
+                              color: AppColors.dynamicTextSecondary,
                             ),
                           ),
                         ),

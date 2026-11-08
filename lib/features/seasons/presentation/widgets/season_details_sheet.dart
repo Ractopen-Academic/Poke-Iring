@@ -156,7 +156,7 @@ class SeasonDetailsSheet extends StatelessWidget {
                       const Icon(
                         Icons.military_tech_rounded,
                         size: 18,
-                        color: AppColors.secondary,
+                        color: AppColors.primary,
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -279,7 +279,7 @@ class _RewardMetricRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -289,7 +289,7 @@ class _RewardMetricRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: highlight ? AppColors.primary : AppColors.textPrimary,
+              color: highlight ? AppColors.primary : AppColors.dynamicTextPrimary,
             ),
           ),
         ),

@@ -194,14 +194,14 @@ class _AchievementsPageState extends State<AchievementsPage> {
 
                 // Achievement Cards List
                 if (filteredTracks.isEmpty)
-                  const SliverFillRemaining(
+                  SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
                       child: Text(
                         'No achievements found in this category.',
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: AppColors.dynamicTextSecondary,
                         ),
                       ),
                     ),

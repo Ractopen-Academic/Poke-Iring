@@ -149,7 +149,7 @@ class ShowcaseCardItem extends StatelessWidget {
                       height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white,
+                        color: AppColors.dynamicSurface,
                         border: Border.all(color: AppColors.primary, width: 2),
                         boxShadow: [
                           BoxShadow(
@@ -278,7 +278,7 @@ class ShowcaseCardItem extends StatelessWidget {
 
   Widget _buildFallbackAvatar() {
     return Container(
-      color: AppColors.calicoCharcoal,
+      color: AppColors.dynamicChromeTrack,
       child: Center(
         child: FelineAvatar(
           photoUrl: sighting.photoUrl,

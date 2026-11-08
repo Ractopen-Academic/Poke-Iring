@@ -139,18 +139,18 @@ class RawPhotoVaultPage extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.camera_alt_outlined,
                                 size: 16,
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 '${photos.length} Master Captures',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.dynamicTextPrimary,
                                 ),
                               ),
                             ],
@@ -180,7 +180,7 @@ class RawPhotoVaultPage extends StatelessWidget {
 
                   // Photos grid
                   if (photos.isEmpty)
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(
                         child: Text(
@@ -188,7 +188,7 @@ class RawPhotoVaultPage extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                           ),
                         ),
                       ),
@@ -236,9 +236,9 @@ class _VaultPhotoCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.dynamicBorder),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(8),
@@ -256,7 +256,7 @@ class _VaultPhotoCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Container(
-                    color: AppColors.background,
+                    color: AppColors.dynamicChromeTrack,
                     child: Center(
                       child: FelineAvatar(
                         photoUrl: photo.photoUrl,
@@ -322,18 +322,18 @@ class _VaultPhotoCard extends StatelessWidget {
                     photo.breedName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: AppColors.dynamicTextPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     photo.megapixelFormatted,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: AppColors.dynamicTextSecondary,
                     ),
                   ),
                 ],

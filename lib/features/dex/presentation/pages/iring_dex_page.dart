@@ -398,7 +398,7 @@ class _IringDexPageState extends State<IringDexPage> {
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: AppColors.calicoBlack,
+                    color: AppColors.dynamicChromeTrack,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: AppColors.primary.withAlpha(110),

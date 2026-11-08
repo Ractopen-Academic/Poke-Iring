@@ -257,7 +257,7 @@ class _QuestPoolEditorSheetState extends State<QuestPoolEditorSheet> {
                       'No quest templates found in this category.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary.withAlpha(180),
+                        color: AppColors.dynamicTextSecondary.withAlpha(180),
                       ),
                     ),
                   )

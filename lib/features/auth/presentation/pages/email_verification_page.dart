@@ -207,10 +207,10 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                             onPressed: _isLoading
                                 ? null
                                 : widget.authRepository.signOut,
-                            child: const Text(
+                            child: Text(
                               'Sign out',
                               style: TextStyle(
-                                color: AppColors.textSecondary,
+                                color: AppColors.dynamicTextSecondary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),

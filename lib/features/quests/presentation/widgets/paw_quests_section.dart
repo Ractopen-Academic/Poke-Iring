@@ -46,10 +46,13 @@ class _PawQuestsSectionState extends State<PawQuestsSection> {
         HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: AppColors.calicoBlack,
+            backgroundColor: AppColors.dynamicSurface,
             content: Text(
               'Claimed +$points Paw Points for "${quest.title}"!',
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: AppColors.dynamicTextPrimary,
+              ),
             ),
           ),
         );

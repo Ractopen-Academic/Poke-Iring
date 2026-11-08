@@ -98,16 +98,20 @@ class _PermissionGateState extends State<PermissionGate> {
     required bool required,
     required bool granted,
   }) {
-    final accent = granted ? AppColors.primary : AppColors.calicoCharcoal;
+    final accent = granted ? AppColors.primary : AppColors.dynamicTextSecondary;
 
     return Container(
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: granted ? AppColors.gingerSoft.withAlpha(140) : Colors.white,
+        color: granted
+            ? AppColors.dynamicPrimary.withAlpha(24)
+            : AppColors.dynamicChromeTrack,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: granted ? AppColors.gingerBorder : AppColors.border,
+          color: granted
+              ? AppColors.dynamicGingerBorder
+              : AppColors.dynamicBorder,
           width: 1.3,
         ),
       ),
@@ -117,12 +121,14 @@ class _PermissionGateState extends State<PermissionGate> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: granted ? AppColors.calicoBlack : AppColors.creamSurface,
+              color: granted
+                  ? AppColors.dynamicPrimary.withAlpha(35)
+                  : AppColors.dynamicSurface,
               borderRadius: BorderRadius.circular(13),
               border: Border.all(
                 color: granted
                     ? AppColors.primary.withAlpha(120)
-                    : AppColors.border,
+                    : AppColors.dynamicBorder,
               ),
             ),
             child: Icon(
@@ -141,10 +147,10 @@ class _PermissionGateState extends State<PermissionGate> {
                     Flexible(
                       child: Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                     ),
@@ -158,7 +164,7 @@ class _PermissionGateState extends State<PermissionGate> {
                         decoration: BoxDecoration(
                           color: granted
                               ? AppColors.primary.withAlpha(28)
-                              : AppColors.calicoBlack,
+                              : AppColors.dynamicBorder,
                           borderRadius: BorderRadius.circular(99),
                         ),
                         child: Text(
@@ -167,7 +173,7 @@ class _PermissionGateState extends State<PermissionGate> {
                             fontSize: 10,
                             color: granted
                                 ? AppColors.primaryDark
-                                : Colors.white,
+                                : AppColors.dynamicTextSecondary,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -178,9 +184,9 @@ class _PermissionGateState extends State<PermissionGate> {
                 const SizedBox(height: 3),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                     height: 1.3,
                   ),
                 ),
@@ -351,12 +357,12 @@ class _PermissionGateState extends State<PermissionGate> {
                             const SizedBox(height: 8),
                             TextButton(
                               onPressed: _openSettings,
-                              child: const Text(
+                              child: Text(
                                 'Open browser or device settings',
                                 style: TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.dynamicTextSecondary,
                                 ),
                               ),
                             ),

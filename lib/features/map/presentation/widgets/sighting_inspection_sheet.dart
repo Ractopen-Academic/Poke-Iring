@@ -131,7 +131,7 @@ class SightingInspectionSheet extends StatelessWidget {
                           const Icon(
                             Icons.timer_outlined,
                             size: 16,
-                            color: AppColors.secondary,
+                            color: AppColors.primary,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -139,7 +139,7 @@ class SightingInspectionSheet extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.secondary,
+                              color: AppColors.primary,
                             ),
                           ),
                         ],

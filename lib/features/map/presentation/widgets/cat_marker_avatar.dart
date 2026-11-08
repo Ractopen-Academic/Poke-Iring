@@ -575,7 +575,7 @@ class _CatMarkerAvatarState extends State<CatMarkerAvatar>
 
   Widget _fallbackIcon(Color color) {
     return Container(
-      color: Colors.white,
+      color: AppColors.dynamicSurface,
       alignment: Alignment.center,
       child: Icon(Icons.pets, size: 20, color: color),
     );

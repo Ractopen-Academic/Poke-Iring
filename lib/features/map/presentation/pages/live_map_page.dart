@@ -292,7 +292,7 @@ class _LiveMapPageState extends State<LiveMapPage>
         : widget.initialCenter;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.dynamicBackground,
       body: Stack(
         children: [
           Listener(

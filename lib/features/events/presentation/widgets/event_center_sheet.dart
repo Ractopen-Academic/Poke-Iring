@@ -191,14 +191,14 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                           width: 38,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: AppColors.border,
+                            color: AppColors.dynamicBorder,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.close_rounded,
-                            color: AppColors.textSecondary,
+                            color: AppColors.dynamicTextSecondary,
                           ),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
@@ -345,9 +345,9 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                     child: Container(
                       padding: const EdgeInsets.all(3.5),
                       decoration: BoxDecoration(
-                        color: AppColors.chromeTrack,
+                        color: AppColors.dynamicChromeTrack,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: AppColors.dynamicBorder),
                       ),
                       child: Row(
                         children: [
@@ -399,12 +399,12 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
         return Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: isCompleted ? const Color(0xFF1E1A18) : AppColors.fieldFill,
+            color: isCompleted ? AppColors.dynamicChromeTrack : AppColors.dynamicFieldFill,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isCompleted
-                  ? AppColors.border.withAlpha(80)
-                  : AppColors.border,
+                  ? AppColors.dynamicBorder.withAlpha(80)
+                  : AppColors.dynamicBorder,
             ),
           ),
           child: Row(
@@ -439,7 +439,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                         fontWeight: FontWeight.w700,
                         color: isCompleted
                             ? const Color(0xFF8A7D75)
-                            : AppColors.textPrimary,
+                            : AppColors.dynamicTextPrimary,
                         decoration: isCompleted
                             ? TextDecoration.lineThrough
                             : null,
@@ -448,9 +448,9 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                     const SizedBox(height: 3),
                     Text(
                       quest.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11.5,
-                        color: AppColors.textSecondary,
+                        color: AppColors.dynamicTextSecondary,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -546,18 +546,18 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.fieldFill,
+              color: AppColors.dynamicFieldFill,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.dynamicBorder),
             ),
             child: Column(
               children: [
-                const Text(
+                Text(
                   'Live Avatar Preview',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -577,10 +577,10 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                   children: [
                     Text(
                       preview.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: AppColors.dynamicTextPrimary,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -608,9 +608,9 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                 Text(
                   preview.description,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
-                    color: AppColors.textSecondary,
+                    color: AppColors.dynamicTextSecondary,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -618,8 +618,8 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                 if (isEquipped)
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.textSecondary,
-                      side: const BorderSide(color: Color(0xFFD1D5DB)),
+                      foregroundColor: AppColors.dynamicTextSecondary,
+                      side: BorderSide(color: AppColors.dynamicBorder),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -668,12 +668,12 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
           const SizedBox(height: 16),
 
           // Border Catalog Header
-          const Text(
+          Text(
             'Festival Collection',
             style: TextStyle(
               fontSize: 13.5,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: AppColors.dynamicTextPrimary,
             ),
           ),
           const SizedBox(height: 10),
@@ -735,7 +735,7 @@ class _TabButton extends StatelessWidget {
             Icon(
               icon,
               size: 15,
-              color: isSelected ? Colors.white : AppColors.textSecondary,
+              color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
             ),
             const SizedBox(width: 6),
             Text(
@@ -743,7 +743,7 @@ class _TabButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.textSecondary,
+                color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
               ),
             ),
           ],
@@ -807,9 +807,9 @@ class _BorderCatalogCard extends StatelessWidget {
                 child: Container(
                   width: 30,
                   height: 30,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white,
+                    color: AppColors.dynamicSurface,
                   ),
                   child: Icon(
                     isEquipped
@@ -822,7 +822,7 @@ class _BorderCatalogCard extends StatelessWidget {
                         ? AppColors.primary
                         : isUnlocked
                         ? const Color(0xFF059669)
-                        : AppColors.textSecondary,
+                        : AppColors.dynamicTextSecondary,
                   ),
                 ),
               ),
@@ -836,10 +836,10 @@ class _BorderCatalogCard extends StatelessWidget {
                     children: [
                       Text(
                         border.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: AppColors.dynamicTextPrimary,
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -868,9 +868,9 @@ class _BorderCatalogCard extends StatelessWidget {
                     border.description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: AppColors.dynamicTextSecondary,
                     ),
                   ),
                 ],
