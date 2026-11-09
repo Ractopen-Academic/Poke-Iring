@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'core/constants/app_strings.dart';
+import 'core/services/audio_haptic_service.dart';
 import 'core/services/data_purge_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/calico_theme_controller.dart';
@@ -22,6 +23,7 @@ Future<void> main() async {
 
   await CalicoThemeController.instance.loadSavedMode();
   await DataPurgeService.init();
+  await AudioHapticService.instance.init();
 
   late final AuthRepository authRepository;
 

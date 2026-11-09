@@ -9,6 +9,8 @@ import '../../../../core/network/network_info.dart';
 import '../../../../core/network/network_info_impl.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
+import '../../../../core/services/remote_config_service.dart';
+import '../../../../core/widgets/lockout_views.dart';
 import '../../../auth/presentation/widgets/calico_login_mascot.dart';
 import '../../../map/data/services/tile_precache_service_impl.dart';
 import '../../../map/domain/services/tile_precache_service.dart';
@@ -56,6 +58,12 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
   double _progress = 0.15;
   BootstrapResult? _result;
 
+  String? _errorMessage;
+  bool _isMaintenance = false;
+  String _maintenanceMessage = '';
+  bool _isUpdateRequired = false;
+  String _minRequiredVersion = '';
+
   @override
   void initState() {
     super.initState();
@@ -93,40 +101,95 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
   }
 
   Future<void> _runBootstrap() async {
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = null;
+      _isMaintenance = false;
+      _isUpdateRequired = false;
+      _statusText = 'Checking connectivity...';
+      _progress = 0.20;
+    });
+
     bool isOnline = false;
     LocationAccessStatus locationStatus = LocationAccessStatus.serviceDisabled;
     var cachedTiles = 0;
 
     try {
-      setState(() {
-        _statusText = 'Checking connectivity...';
-        _progress = 0.35;
-      });
       isOnline = await _networkInfo.isConnected;
+      if (!isOnline) {
+        if (!mounted) return;
+        setState(() {
+          _errorMessage =
+              'Server or network error. Poke: Iring is an online game and requires an active internet connection to load live territories and cat sightings.';
+        });
+        return;
+      }
+
+      setState(() {
+        _statusText = 'Syncing remote app configuration...';
+        _progress = 0.45;
+      });
+
+      // Online-first: fetch global remote configuration
+      final config = await RemoteConfigService.instance.fetchConfig(
+        timeout: const Duration(seconds: 6),
+      );
+
+      // Enforce maintenance mode lockout
+      if (config.maintenanceMode) {
+        if (!mounted) return;
+        setState(() {
+          _isMaintenance = true;
+          _maintenanceMessage = config.maintenanceMessage;
+        });
+        return;
+      }
+
+      // Enforce semantic minimum app version check
+      if (!RemoteConfigService.isVersionSupported(
+        AppVersion.semanticVersion,
+        config.minAppVersion,
+      )) {
+        if (!mounted) return;
+        setState(() {
+          _isUpdateRequired = true;
+          _minRequiredVersion = config.minAppVersion;
+        });
+        return;
+      }
 
       setState(() {
         _statusText = 'Verifying GPS permissions...';
-        _progress = 0.60;
+        _progress = 0.70;
       });
       locationStatus = await _locationService.checkStatus();
 
-      if (isOnline) {
-        setState(() {
-          _statusText = 'Pre-caching exploration map...';
-          _progress = 0.85;
-        });
+      setState(() {
+        _statusText = 'Pre-caching exploration map...';
+        _progress = 0.90;
+      });
 
-        // Precache Bankal, Lapu-Lapu City base grid with safety timeout
-        cachedTiles = await _tilePrecacheService
-            .precacheArea(
-              center: const LatLng(10.3140, 123.9720),
-              zoomLevels: const [16],
-              radiusTiles: 1,
-            )
-            .timeout(const Duration(milliseconds: 2500), onTimeout: () => 0);
-      }
+      // Precache Bankal base grid with safety timeout
+      cachedTiles = await _tilePrecacheService
+          .precacheArea(
+            center: const LatLng(10.3140, 123.9720),
+            zoomLevels: const [16],
+            radiusTiles: 1,
+          )
+          .timeout(const Duration(milliseconds: 2500), onTimeout: () => 0);
+    } on RemoteConfigException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.message;
+      });
+      return;
     } catch (_) {
-      // Degrade gracefully without crashing
+      if (!mounted) return;
+      setState(() {
+        _errorMessage =
+            'Server or network error. Please verify your connection and try again.';
+      });
+      return;
     }
 
     if (!mounted) return;
@@ -144,6 +207,26 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
 
   @override
   Widget build(BuildContext context) {
+    if (_errorMessage != null) {
+      return NetworkErrorView(
+        message: _errorMessage,
+        onRetry: _runBootstrap,
+      );
+    }
+
+    if (_isMaintenance) {
+      return MaintenanceLockoutView(
+        message: _maintenanceMessage,
+        onRefresh: _runBootstrap,
+      );
+    }
+
+    if (_isUpdateRequired) {
+      return VersionUpdateRequiredView(
+        requiredVersion: _minRequiredVersion,
+      );
+    }
+
     if (_result != null) {
       return widget.onReady(context, _result!);
     }

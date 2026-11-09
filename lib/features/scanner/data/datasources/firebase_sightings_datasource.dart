@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/services/data_purge_service.dart';
+import '../../../../core/services/remote_config_service.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../quests/data/repositories/paw_quests_repository_impl.dart';
 import '../../domain/entities/cat_sighting.dart';
@@ -235,9 +236,14 @@ class FirebaseSightingsDataSource {
         );
         final stickerUrl = await stickerRef.getDownloadURL();
 
+        final awardedPoints = RemoteConfigService.instance.config.doublePointsGlobal
+            ? sighting.pawPoints * 2
+            : sighting.pawPoints;
+
         final persistedSighting = sighting.copyWith(
           photoUrl: photoUrl,
           stickerUrl: stickerUrl,
+          pawPoints: awardedPoints,
         );
 
         // 3. Save sighting document in Firestore
@@ -249,7 +255,7 @@ class FirebaseSightingsDataSource {
 
         // 4. Atomically increment player totals in users collection
         await db.collection('users').doc(sighting.userId).set({
-          'totalPawPoints': FieldValue.increment(sighting.pawPoints),
+          'totalPawPoints': FieldValue.increment(awardedPoints),
           'totalSnaps': FieldValue.increment(1),
           'lastActive': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));

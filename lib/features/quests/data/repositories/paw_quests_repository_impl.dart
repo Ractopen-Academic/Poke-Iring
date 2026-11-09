@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/services/audio_haptic_service.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../domain/entities/paw_quest.dart';
@@ -418,6 +419,7 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
     // 1. Mark claimed locally
     await prefs.setBool(claimedKey, true);
     await prefs.setBool('quest_claimed_${userId}_${quest.id}', true);
+    unawaited(AudioHapticService.instance.claimQuest());
 
     unawaited(
       AchievementsRepositoryImpl.instance.recordProgressMetric(

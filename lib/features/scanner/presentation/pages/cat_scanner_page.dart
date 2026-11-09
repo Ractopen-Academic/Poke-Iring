@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/audio_haptic_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
@@ -141,6 +142,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
 
   Future<void> _pickAndAnalyze() async {
     try {
+      AudioHapticService.instance.snapShutter();
       _acquireCurrentLocation();
       final XFile? file = await _picker.pickImage(
         source: ImageSource.camera,

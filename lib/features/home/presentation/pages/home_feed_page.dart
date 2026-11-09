@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/app_cache_coordinator.dart';
+import '../../../../core/services/remote_config_service.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
@@ -192,6 +193,52 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                             fontSize: 13,
                             color: AppColors.dynamicTextSecondary,
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        StreamBuilder<GlobalAppConfig>(
+                          stream: RemoteConfigService.instance.streamConfig(),
+                          initialData: RemoteConfigService.instance.config,
+                          builder: (context, snap) {
+                            final cfg = snap.data ?? RemoteConfigService.instance.config;
+                            if (!cfg.isBroadcastActive ||
+                                cfg.broadcastBanner.trim().isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return Container(
+                              margin: const EdgeInsets.only(top: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withAlpha(24),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: AppColors.primary.withAlpha(90),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.campaign_rounded,
+                                    size: 20,
+                                    color: AppColors.primary,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      cfg.broadcastBanner,
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.dynamicTextPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

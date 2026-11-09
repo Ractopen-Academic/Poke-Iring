@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/audio_haptic_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
@@ -18,6 +19,7 @@ import '../../domain/entities/user_location.dart';
 import '../widgets/cat_marker_avatar.dart';
 import '../widgets/cute_paw_compass_pointer.dart';
 import '../widgets/peeking_cat_recenter_button.dart';
+import '../widgets/tile_caching_sheet.dart';
 
 class LiveMapPage extends StatefulWidget {
   final LatLng initialCenter;
@@ -385,19 +387,26 @@ class _LiveMapPageState extends State<LiveMapPage>
                         height: 88,
                         child: CatMarkerAvatar.fromSighting(
                           sighting: sighting,
-                          onBoop: () => _scannerRepository.boopSighting(
-                            sightingId: sighting.id,
-                            userId: widget.currentUserId,
-                          ),
+                          onBoop: () {
+                            AudioHapticService.instance.boopPin();
+                            _scannerRepository.boopSighting(
+                              sightingId: sighting.id,
+                              userId: widget.currentUserId,
+                            );
+                          },
                           onTap: () {
+                            AudioHapticService.instance.boopPin();
                             CatSightingDetailSheet.show(
                               context: context,
                               sighting: sighting,
                               currentUserId: widget.currentUserId,
-                              onBoop: () => _scannerRepository.boopSighting(
-                                sightingId: sighting.id,
-                                userId: widget.currentUserId,
-                              ),
+                              onBoop: () {
+                                AudioHapticService.instance.boopPin();
+                                _scannerRepository.boopSighting(
+                                  sightingId: sighting.id,
+                                  userId: widget.currentUserId,
+                                );
+                              },
                             );
                           },
                         ),
@@ -519,6 +528,43 @@ class _LiveMapPageState extends State<LiveMapPage>
                 ),
               ),
             ),
+          Positioned(
+            right: 16,
+            bottom: 172,
+            child: Tooltip(
+              message: 'Precache map tiles for region',
+              child: Material(
+                color: AppColors.dynamicSurface,
+                shape: const CircleBorder(),
+                elevation: 3,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    final center = _mapController.camera.center;
+                    final zoom = _mapController.camera.zoom;
+                    TileCachingSheet.show(
+                      context,
+                      currentCenter: center,
+                      currentZoom: zoom,
+                    );
+                  },
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.dynamicBorder),
+                    ),
+                    child: const Icon(
+                      Icons.cloud_download_rounded,
+                      size: 22,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
           Positioned(
             right: 16,
             bottom: 108,

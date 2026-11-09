@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/services/audio_haptic_service.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../domain/entities/achievement_tier.dart';
 import '../../domain/entities/explorer_title.dart';
@@ -300,6 +301,7 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
 
     // Mark claimed
     await prefs.setBool(claimedKey, true);
+    unawaited(AudioHapticService.instance.tierUp());
 
     // Sync Paw Points reward with Firestore if available
     if (_isFirebaseAvailable) {

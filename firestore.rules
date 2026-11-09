@@ -28,9 +28,17 @@ service cloud.firestore {
         request.auth.token.admin == true ||
         (request.auth.token.email != null && (
           request.auth.token.email.matches('.*@admin\\.pokeiring\\.com') ||
-          request.auth.token.email.matches('.*@admin\\.com')
+          request.auth.token.email.matches('.*@admin\\.com') ||
+          request.auth.token.email.matches('.*@iring\\.ph') ||
+          request.auth.token.email == 'admin@pokeiring.app'
         ))
       );
+    }
+
+    // Global remote application configuration (bootstrap & maintenance)
+    match /app_config/{configId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // User profiles and private subcollections
@@ -56,7 +64,7 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update: if isOwner(resource.data.userId) || isBoopUpdate();
-      allow delete: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
     }
 
     // 24-hour temporary community stories
@@ -65,7 +73,7 @@ service cloud.firestore {
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update: if isOwner(resource.data.userId)
         || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['boops', 'boopedBy', 'reactions']));
-      allow delete: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
     }
 
     // Real-time map pins
@@ -82,8 +90,7 @@ service cloud.firestore {
 
     match /territories/{territoryId} {
       allow read: if isAuthenticated();
-      allow create, update: if isAuthenticated();
-      allow delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     match /events/{eventId} {
