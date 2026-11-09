@@ -7,6 +7,7 @@ import 'core/services/audio_haptic_service.dart';
 import 'core/services/data_purge_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/calico_theme_controller.dart';
+import 'core/widgets/persistent_version_overlay.dart';
 import 'core/widgets/responsive_web_shell.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
@@ -84,8 +85,15 @@ class _PokeIringAppState extends State<PokeIringApp> {
           : (effective == CalicoCoatMode.calicoDark
                 ? ThemeMode.dark
                 : ThemeMode.light),
+      navigatorObservers: [
+        AppVersionRouteObserver(),
+      ],
       builder: (context, child) =>
-          ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
+          ResponsiveWebShell(
+            child: PersistentVersionOverlay(
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ),
       home: AuthGate(
         key: ValueKey('pokeiring_auth_gate_${effective.name}'),
         authRepository: widget.authRepository,

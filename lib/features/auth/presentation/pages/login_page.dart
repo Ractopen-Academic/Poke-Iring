@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../../core/constants/app_version.dart';
 import '../../../../core/utils/auth_error_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -515,30 +514,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                 },
-              ),
-              Positioned(
-                left: 16,
-                bottom: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.dynamicChromeTrack,
-                    borderRadius: BorderRadius.circular(99),
-                    border: Border.all(color: AppColors.dynamicBorder),
-                  ),
-                  child: Text(
-                    AppVersion.releaseTag,
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.dynamicTextSecondary,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ),
               ),
             ],
           ),

@@ -315,19 +315,6 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
                   ),
                 ),
               ),
-              Positioned(
-                left: 16,
-                bottom: 12,
-                child: Text(
-                  AppVersion.releaseTag,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.dynamicTextSecondary.withAlpha(140),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
             ],
           ),
         ),

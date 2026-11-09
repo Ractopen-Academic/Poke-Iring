@@ -10,6 +10,7 @@ import '../../../../core/services/audio_haptic_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
+import '../../../../core/widgets/persistent_version_overlay.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../events/data/repositories/event_repository_impl.dart';
 import '../../../events/domain/repositories/event_repository.dart';
@@ -77,6 +78,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
   @override
   void initState() {
     super.initState();
+    AppVersionOverlayController.instance.setCameraActive(true);
     CalicoThemeController.instance.addListener(_handleThemeChanged);
     _repository = widget.repository ?? CatScannerRepositoryImpl();
     _eventRepository = widget.eventRepository ?? EventRepositoryImpl.instance;
@@ -123,6 +125,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
 
   @override
   void dispose() {
+    AppVersionOverlayController.instance.setCameraActive(false);
     CalicoThemeController.instance.removeListener(_handleThemeChanged);
     _asyncNoticeTimer?.cancel();
     super.dispose();
