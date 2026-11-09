@@ -355,34 +355,41 @@ void main() {
       },
     );
 
-    test('AuthErrorFormatter formats raw Firebase errors into human messages', () {
-      expect(
-        AuthErrorFormatter.format(
-          '[firebase_auth/invalid-credential] The supplied auth credential is incorrect, malformed or has expired.',
-        ),
-        'Incorrect email or password. Please double-check your credentials or reset your password.',
-      );
+    test(
+      'AuthErrorFormatter formats raw Firebase errors into human messages',
+      () {
+        expect(
+          AuthErrorFormatter.format(
+            '[firebase_auth/invalid-credential] The supplied auth credential is incorrect, malformed or has expired.',
+          ),
+          'Incorrect email or password. Please double-check your credentials or reset your password.',
+        );
 
-      expect(
-        AuthErrorFormatter.format('[firebase_auth/email-already-in-use] The email is already in use.'),
-        'An account with this email address already exists. Please sign in instead.',
-      );
+        expect(
+          AuthErrorFormatter.format(
+            '[firebase_auth/email-already-in-use] The email is already in use.',
+          ),
+          'An account with this email address already exists. Please sign in instead.',
+        );
 
-      expect(
-        AuthErrorFormatter.format('Exception: [firebase_auth/weak-password] Password should be at least 6 characters'),
-        'Password is too weak. Please use at least 6 characters.',
-      );
+        expect(
+          AuthErrorFormatter.format(
+            'Exception: [firebase_auth/weak-password] Password should be at least 6 characters',
+          ),
+          'Password is too weak. Please use at least 6 characters.',
+        );
 
-      expect(
-        AuthErrorFormatter.format('Passwords do not match'),
-        'Passwords do not match. Please ensure both fields are identical.',
-      );
+        expect(
+          AuthErrorFormatter.format('Passwords do not match'),
+          'Passwords do not match. Please ensure both fields are identical.',
+        );
 
-      expect(
-        AuthErrorFormatter.format('Network error: SocketException'),
-        'Unable to connect to game servers. Please check your network connection.',
-      );
-    });
+        expect(
+          AuthErrorFormatter.format('Network error: SocketException'),
+          'Unable to connect to game servers. Please check your network connection.',
+        );
+      },
+    );
 
     testWidgets(
       'CalicoLoginMascot reacts to hasError without breaking paw hiding on password focus',

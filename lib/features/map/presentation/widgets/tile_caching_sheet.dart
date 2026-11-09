@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -82,8 +83,7 @@ class _TileCachingSheetState extends State<TileCachingSheet> {
     final isOnline = await NetworkInfoImpl().isConnected;
     if (!isOnline) {
       setState(() {
-        _errorMessage =
-            'Network or server error: Pre-caching requires an active online internet connection.';
+        _errorMessage = 'Network or server error: Pre-caching requires an active online internet connection.';
       });
       return;
     }
@@ -251,7 +251,9 @@ class _TileCachingSheetState extends State<TileCachingSheet> {
                 labelStyle: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: isSel ? AppColors.primary : AppColors.dynamicTextSecondary,
+                  color: isSel
+                      ? AppColors.primary
+                      : AppColors.dynamicTextSecondary,
                 ),
               );
             }).toList(),
@@ -331,7 +333,9 @@ class _TileCachingSheetState extends State<TileCachingSheet> {
               decoration: BoxDecoration(
                 color: const Color(0xFFEF4444).withAlpha(20),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFEF4444).withAlpha(80)),
+                border: Border.all(
+                  color: const Color(0xFFEF4444).withAlpha(80),
+                ),
               ),
               child: Text(
                 _errorMessage!,
@@ -368,7 +372,9 @@ class _TileCachingSheetState extends State<TileCachingSheet> {
               child: LinearProgressIndicator(
                 value: progress,
                 backgroundColor: AppColors.dynamicProgressTrack,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
                 minHeight: 8,
               ),
             ),

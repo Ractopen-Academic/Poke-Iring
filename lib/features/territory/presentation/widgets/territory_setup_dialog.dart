@@ -143,7 +143,9 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                border: Border(bottom: BorderSide(color: AppColors.dynamicBorder)),
+                border: Border(
+                  bottom: BorderSide(color: AppColors.dynamicBorder),
+                ),
               ),
               child: Row(
                 children: [

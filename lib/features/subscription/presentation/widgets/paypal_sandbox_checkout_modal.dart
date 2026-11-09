@@ -5,11 +5,7 @@ import '../../data/services/paypal_sandbox_api_service.dart';
 import '../../data/services/subscription_service_impl.dart';
 import '../../domain/entities/subscription_tier.dart';
 
-enum PayPalSimulationOutcome {
-  success,
-  cardDeclined,
-  insufficientFunds,
-}
+enum PayPalSimulationOutcome { success, cardDeclined, insufficientFunds }
 
 class PayPalSandboxCheckoutModal extends StatefulWidget {
   final String userId;
@@ -58,7 +54,8 @@ class _PayPalSandboxCheckoutModalState
 
   String _buyerEmail = 'explorer@pokeiring.app';
   String _selectedFundingSource = 'balance'; // balance, visa, mastercard
-  final PayPalSimulationOutcome _simulationMode = PayPalSimulationOutcome.success;
+  final PayPalSimulationOutcome _simulationMode =
+      PayPalSimulationOutcome.success;
 
   bool _isProcessing = false;
   String _processingStage = '';
@@ -88,8 +85,7 @@ class _PayPalSandboxCheckoutModalState
     if (_simulationMode == PayPalSimulationOutcome.cardDeclined) {
       setState(() {
         _isProcessing = false;
-        _errorMessage =
-            'Card declined by issuing bank. Please choose PayPal Balance or another card.';
+        _errorMessage = 'Card declined by issuing bank. Please choose PayPal Balance or another card.';
       });
       return;
     }
@@ -97,8 +93,7 @@ class _PayPalSandboxCheckoutModalState
     if (_simulationMode == PayPalSimulationOutcome.insufficientFunds) {
       setState(() {
         _isProcessing = false;
-        _errorMessage =
-            'Insufficient balance in selected account. Please use another card or funding source.';
+        _errorMessage = 'Insufficient balance in selected account. Please use another card or funding source.';
       });
       return;
     }
@@ -110,8 +105,9 @@ class _PayPalSandboxCheckoutModalState
     if (!mounted) return;
 
     try {
-      final amountValue =
-          widget.interval == BillingInterval.annual ? '1190.00' : '149.00';
+      final amountValue = widget.interval == BillingInterval.annual
+          ? '1190.00'
+          : '149.00';
       const currency = 'PHP';
 
       final orderRes = await _apiService.createOrder(
@@ -183,7 +179,9 @@ class _PayPalSandboxCheckoutModalState
             labelText: 'PayPal Account Email',
             labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
             hintText: 'e.g. explorer@pokeiring.app',
-            hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(120)),
+            hintStyle: TextStyle(
+              color: AppColors.dynamicTextSecondary.withAlpha(120),
+            ),
           ),
         ),
         actions: [
@@ -635,7 +633,9 @@ class _PayPalSandboxCheckoutModalState
               : AppColors.dynamicChromeTrack,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? const Color(0xFF0079C1) : AppColors.dynamicBorder,
+            color: isSelected
+                ? const Color(0xFF0079C1)
+                : AppColors.dynamicBorder,
             width: isSelected ? 1.8 : 1,
           ),
         ),
@@ -656,7 +656,9 @@ class _PayPalSandboxCheckoutModalState
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? Colors.white : AppColors.dynamicTextPrimary,
+                      color: isSelected
+                          ? Colors.white
+                          : AppColors.dynamicTextPrimary,
                     ),
                   ),
                   Text(
@@ -785,10 +787,7 @@ class _PayPalSandboxCheckoutModalState
             ),
             child: const Text(
               'Done & Enjoy Perks',
-              style: TextStyle(
-                fontSize: 14.5,
-                fontWeight: FontWeight.w800,
-              ),
+              style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800),
             ),
           ),
         ],

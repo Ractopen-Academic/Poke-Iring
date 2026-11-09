@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,7 +48,8 @@ class PayPalSandboxApiService {
 
   final http.Client _client;
 
-  PayPalSandboxApiService({http.Client? client}) : _client = client ?? http.Client();
+  PayPalSandboxApiService({http.Client? client})
+    : _client = client ?? http.Client();
 
   /// Retrieve stored PayPal Sandbox Client ID
   Future<String?> getClientId() async {
@@ -101,7 +103,10 @@ class PayPalSandboxApiService {
 
   /// Authenticate against PayPal OAuth2 Token endpoint
   /// POST /v1/oauth2/token
-  Future<String?> fetchOAuth2Token({String? clientId, String? clientSecret}) async {
+  Future<String?> fetchOAuth2Token({
+    String? clientId,
+    String? clientSecret,
+  }) async {
     final cId = clientId ?? await getClientId();
     final cSecret = clientSecret ?? await getClientSecret();
 
@@ -111,20 +116,24 @@ class PayPalSandboxApiService {
 
     try {
       final basicAuth = base64Encode(utf8.encode('$cId:$cSecret'));
-      final response = await _client.post(
-        Uri.parse('$sandboxBaseUrl/v1/oauth2/token'),
-        headers: {
-          'Authorization': 'Basic $basicAuth',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {'grant_type': 'client_credentials'},
-      ).timeout(const Duration(seconds: 10));
+      final response = await _client
+          .post(
+            Uri.parse('$sandboxBaseUrl/v1/oauth2/token'),
+            headers: {
+              'Authorization': 'Basic $basicAuth',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: {'grant_type': 'client_credentials'},
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         return data['access_token'] as String?;
       } else {
-        debugPrint('PayPal token request error: ${response.statusCode} ${response.body}');
+        debugPrint(
+          'PayPal token request error: ${response.statusCode} ${response.body}',
+        );
         return null;
       }
     } catch (e) {
@@ -152,11 +161,8 @@ class PayPalSandboxApiService {
             {
               'reference_id': referenceId,
               'description': description,
-              'amount': {
-                'currency_code': currencyCode,
-                'value': amountValue,
-              },
-            }
+              'amount': {'currency_code': currencyCode, 'value': amountValue},
+            },
           ],
           'application_context': {
             'brand_name': 'Poké: Iring',
@@ -167,14 +173,16 @@ class PayPalSandboxApiService {
           },
         };
 
-        final response = await _client.post(
-          Uri.parse('$sandboxBaseUrl/v2/checkout/orders'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(payload),
-        ).timeout(const Duration(seconds: 12));
+        final response = await _client
+            .post(
+              Uri.parse('$sandboxBaseUrl/v2/checkout/orders'),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode(payload),
+            )
+            .timeout(const Duration(seconds: 12));
 
         if (response.statusCode == 201 || response.statusCode == 200) {
           final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -196,7 +204,9 @@ class PayPalSandboxApiService {
           );
         }
       } catch (e) {
-        debugPrint('PayPal live createOrder exception: $e. Falling back to sandbox simulator.');
+        debugPrint(
+          'PayPal live createOrder exception: $e. Falling back to sandbox simulator.',
+        );
       }
     }
 
@@ -222,28 +232,33 @@ class PayPalSandboxApiService {
 
     if (token != null && !orderId.startsWith('5O')) {
       try {
-        final response = await _client.post(
-          Uri.parse('$sandboxBaseUrl/v2/checkout/orders/$orderId/capture'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ).timeout(const Duration(seconds: 12));
+        final response = await _client
+            .post(
+              Uri.parse('$sandboxBaseUrl/v2/checkout/orders/$orderId/capture'),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+            )
+            .timeout(const Duration(seconds: 12));
 
         if (response.statusCode == 201 || response.statusCode == 200) {
           final data = jsonDecode(response.body) as Map<String, dynamic>;
           final status = data['status'] as String? ?? 'COMPLETED';
           final purchaseUnits = data['purchase_units'] as List<dynamic>? ?? [];
-          String captureId = 'CAPTURE-SBX-${DateTime.now().millisecondsSinceEpoch}';
+          String captureId =
+              'CAPTURE-SBX-${DateTime.now().millisecondsSinceEpoch}';
           if (purchaseUnits.isNotEmpty) {
-            final payments = purchaseUnits[0]['payments'] as Map<String, dynamic>?;
+            final payments =
+                purchaseUnits[0]['payments'] as Map<String, dynamic>?;
             final captures = payments?['captures'] as List<dynamic>?;
             if (captures != null && captures.isNotEmpty) {
               captureId = captures[0]['id'] as String? ?? captureId;
             }
           }
           final payer = data['payer'] as Map<String, dynamic>?;
-          final payerId = payer?['payer_id'] as String? ?? 'PAYER-SBX-PHIL-2026';
+          final payerId =
+              payer?['payer_id'] as String? ?? 'PAYER-SBX-PHIL-2026';
 
           return PayPalCaptureResponse(
             captureId: captureId,
@@ -257,7 +272,9 @@ class PayPalSandboxApiService {
           );
         }
       } catch (e) {
-        debugPrint('PayPal live captureOrder exception: $e. Falling back to sandbox simulator.');
+        debugPrint(
+          'PayPal live captureOrder exception: $e. Falling back to sandbox simulator.',
+        );
       }
     }
 

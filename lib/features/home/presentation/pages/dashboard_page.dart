@@ -382,7 +382,8 @@ class _DashboardPageState extends State<DashboardPage> {
         _ModuleTile(
           icon: Icons.cleaning_services_outlined,
           title: 'Purge Offline & Test Cache',
-          subtitle: 'Clear local persistent caches and sync fresh with Firebase',
+          subtitle:
+              'Clear local persistent caches and sync fresh with Firebase',
           onTap: _handlePurgeTestData,
         ),
       ],

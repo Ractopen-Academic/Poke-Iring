@@ -85,15 +85,12 @@ class _PokeIringAppState extends State<PokeIringApp> {
           : (effective == CalicoCoatMode.calicoDark
                 ? ThemeMode.dark
                 : ThemeMode.light),
-      navigatorObservers: [
-        AppVersionRouteObserver(),
-      ],
-      builder: (context, child) =>
-          ResponsiveWebShell(
-            child: PersistentVersionOverlay(
-              child: child ?? const SizedBox.shrink(),
-            ),
-          ),
+      navigatorObservers: [AppVersionRouteObserver()],
+      builder: (context, child) => ResponsiveWebShell(
+        child: PersistentVersionOverlay(
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
       home: AuthGate(
         key: ValueKey('pokeiring_auth_gate_${effective.name}'),
         authRepository: widget.authRepository,

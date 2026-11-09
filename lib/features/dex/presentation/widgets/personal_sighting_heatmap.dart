@@ -644,7 +644,9 @@ class _PersonalSightingHeatmapState extends State<PersonalSightingHeatmap> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.dynamicTextSecondary,
               ),
             ),
           ],

@@ -59,7 +59,8 @@ class LeaderboardRepositoryImpl implements LeaderboardRepository {
       currentUserId: currentUserId,
     );
 
-    if (firebaseDatasource.isCloudConnected || DataPurgeService.areSeedsDisabled) {
+    if (firebaseDatasource.isCloudConnected ||
+        DataPurgeService.areSeedsDisabled) {
       if (liveEntries.isEmpty) {
         return const <LeaderboardEntry>[];
       }

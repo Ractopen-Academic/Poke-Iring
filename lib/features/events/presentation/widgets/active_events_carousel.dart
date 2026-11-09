@@ -139,7 +139,9 @@ class _ActiveEventsCarouselState extends State<ActiveEventsCarousel> {
                     width: isActive ? 18 : 6,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: isActive ? AppColors.primary : AppColors.dynamicBorder,
+                      color: isActive
+                          ? AppColors.primary
+                          : AppColors.dynamicBorder,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   );

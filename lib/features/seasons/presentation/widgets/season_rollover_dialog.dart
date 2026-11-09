@@ -77,7 +77,10 @@ class SeasonRolloverDialog extends StatelessWidget {
             Text(
               'Your seasonal progress has been permanently archived.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.dynamicTextSecondary,
+              ),
             ),
             const SizedBox(height: 18),
             // Stats summary container

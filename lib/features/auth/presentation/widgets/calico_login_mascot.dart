@@ -200,28 +200,38 @@ class _CalicoLoginMascotState extends State<CalicoLoginMascot>
     );
     _shakeAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: -6.5)
-            .chain(CurveTween(curve: Curves.easeOutQuad)),
+        tween: Tween<double>(
+          begin: 0.0,
+          end: -6.5,
+        ).chain(CurveTween(curve: Curves.easeOutQuad)),
         weight: 15,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: -6.5, end: 6.5)
-            .chain(CurveTween(curve: Curves.easeInOutQuad)),
+        tween: Tween<double>(
+          begin: -6.5,
+          end: 6.5,
+        ).chain(CurveTween(curve: Curves.easeInOutQuad)),
         weight: 25,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 6.5, end: -4.0)
-            .chain(CurveTween(curve: Curves.easeInOutQuad)),
+        tween: Tween<double>(
+          begin: 6.5,
+          end: -4.0,
+        ).chain(CurveTween(curve: Curves.easeInOutQuad)),
         weight: 25,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: -4.0, end: 2.5)
-            .chain(CurveTween(curve: Curves.easeInOutQuad)),
+        tween: Tween<double>(
+          begin: -4.0,
+          end: 2.5,
+        ).chain(CurveTween(curve: Curves.easeInOutQuad)),
         weight: 20,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 2.5, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeOutQuad)),
+        tween: Tween<double>(
+          begin: 2.5,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeOutQuad)),
         weight: 15,
       ),
     ]).animate(_shakeController);
@@ -286,7 +296,10 @@ class _CalicoLoginMascotState extends State<CalicoLoginMascot>
                 curve: Curves.easeOutCubic,
                 builder: (context, gaze, _) {
                   return AnimatedBuilder(
-                    animation: Listenable.merge([_boopController, _shakeController]),
+                    animation: Listenable.merge([
+                      _boopController,
+                      _shakeController,
+                    ]),
                     builder: (context, _) {
                       return SizedBox(
                         width: 138,

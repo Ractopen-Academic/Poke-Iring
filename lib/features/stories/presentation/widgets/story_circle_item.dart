@@ -146,7 +146,10 @@ class StoryCircleItem extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.dynamicSurface, width: 2),
+                        border: Border.all(
+                          color: AppColors.dynamicSurface,
+                          width: 2,
+                        ),
                       ),
                       child: const Center(
                         child: Icon(Icons.add, size: 12, color: Colors.white),
@@ -182,11 +185,7 @@ class StoryCircleItem extends StatelessWidget {
   Widget _buildStoryCoreContent() {
     // If it's the user and they have no active story, show their profile avatar directly
     if (isUser && !hasActiveUserStory) {
-      return FelineAvatar(
-        photoUrl: authorAvatarUrl,
-        seed: seed,
-        radius: 24,
-      );
+      return FelineAvatar(photoUrl: authorAvatarUrl, seed: seed, radius: 24);
     }
 
     // If story media URL is present and valid
@@ -202,14 +201,8 @@ class StoryCircleItem extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: isViewed
-                    ? [
-                        Colors.black.withAlpha(70),
-                        Colors.black.withAlpha(110),
-                      ]
-                    : [
-                        Colors.black.withAlpha(25),
-                        Colors.black.withAlpha(65),
-                      ],
+                    ? [Colors.black.withAlpha(70), Colors.black.withAlpha(110)]
+                    : [Colors.black.withAlpha(25), Colors.black.withAlpha(65)],
               ),
             ),
           ),
@@ -290,7 +283,12 @@ class StoryCircleItem extends StatelessWidget {
     final hash = (catBreed ?? seed).hashCode.abs();
     final hue1 = (hash % 360).toDouble();
     final color1 = HSLColor.fromAHSL(1.0, hue1, 0.65, 0.35).toColor();
-    final color2 = HSLColor.fromAHSL(1.0, (hue1 + 45) % 360, 0.7, 0.22).toColor();
+    final color2 = HSLColor.fromAHSL(
+      1.0,
+      (hue1 + 45) % 360,
+      0.7,
+      0.22,
+    ).toColor();
 
     return ImageFiltered(
       imageFilter: ImageFilter.blur(sigmaX: 1.8, sigmaY: 1.8),
@@ -313,9 +311,7 @@ class StoryCircleItem extends StatelessWidget {
                 radius: 20,
               ),
             ),
-            Container(
-              color: Colors.black.withAlpha(30),
-            ),
+            Container(color: Colors.black.withAlpha(30)),
           ],
         ),
       ),

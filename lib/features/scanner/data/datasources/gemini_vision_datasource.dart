@@ -15,8 +15,8 @@ class GeminiVisionDataSource {
   GeminiVisionDataSource({
     AiConfigService? configService,
     http.Client? httpClient,
-  })  : _configService = configService ?? AiConfigService.instance,
-        _httpClient = httpClient ?? http.Client();
+  }) : _configService = configService ?? AiConfigService.instance,
+       _httpClient = httpClient ?? http.Client();
 
   Future<CatScanResult> analyzeCatPhoto(Uint8List imageBytes) async {
     // 1. Try backend vision proxy if configured

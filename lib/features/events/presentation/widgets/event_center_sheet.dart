@@ -172,7 +172,9 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
             return Container(
               decoration: BoxDecoration(
                 color: AppColors.dynamicSurface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.90,
@@ -399,7 +401,9 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
         return Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: isCompleted ? AppColors.dynamicChromeTrack : AppColors.dynamicFieldFill,
+            color: isCompleted
+                ? AppColors.dynamicChromeTrack
+                : AppColors.dynamicFieldFill,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isCompleted
@@ -743,7 +747,9 @@ class _TabButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.dynamicTextSecondary,
               ),
             ),
           ],
@@ -777,7 +783,9 @@ class _BorderCatalogCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.dynamicFieldFill : AppColors.dynamicSurface,
+          color: isSelected
+              ? AppColors.dynamicFieldFill
+              : AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.dynamicBorder,

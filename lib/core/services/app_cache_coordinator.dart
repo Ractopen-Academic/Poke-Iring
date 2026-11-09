@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../features/dex/data/datasources/firebase_dex_datasource.dart';
@@ -102,23 +103,23 @@ class AppCacheCoordinator {
   /// Refreshes the Home Feed items (Events, Leaderboard preview, Quests)
   Future<void> refreshHomeFeed({String? userId}) async {
     await Future.wait([
-      EventRepositoryImpl.instance
-          .forceRefreshActiveEvents()
-          .catchError((_) => const <FelineEvent>[]),
+      EventRepositoryImpl.instance.forceRefreshActiveEvents().catchError(
+        (_) => const <FelineEvent>[],
+      ),
       FirebaseLeaderboardDataSource.instance
           .forceRefreshEntries(currentUserId: userId)
           .catchError((_) => const <LeaderboardEntry>[]),
-      FirebaseQuestDataSource.instance
-          .forceRefreshQuestPool()
-          .catchError((_) => const <QuestTemplate>[]),
+      FirebaseQuestDataSource.instance.forceRefreshQuestPool().catchError(
+        (_) => const <QuestTemplate>[],
+      ),
     ]);
   }
 
   /// Refreshes the Dex catalog
   Future<void> refreshDex() async {
-    await FirebaseDexDataSource.instance
-        .forceRefreshSpecies()
-        .catchError((_) => const <FelineDexSpecies>[]);
+    await FirebaseDexDataSource.instance.forceRefreshSpecies().catchError(
+      (_) => const <FelineDexSpecies>[],
+    );
   }
 
   /// Refreshes the Leaderboard

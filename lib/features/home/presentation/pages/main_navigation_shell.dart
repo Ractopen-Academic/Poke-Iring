@@ -86,10 +86,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         user: widget.user,
         onOpenLeaderboard: () => _selectTab(2),
       ),
-      IringDexPage(
-        key: ValueKey('dex_tab_$coatName'),
-        user: widget.user,
-      ),
+      IringDexPage(key: ValueKey('dex_tab_$coatName'), user: widget.user),
       LeaderboardPage(
         key: ValueKey('leaderboard_tab_$coatName'),
         currentUserId: widget.user.id.isNotEmpty
@@ -354,7 +351,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                       icon: Icons.location_off,
                       actionLabel: 'Enable',
                       onAction: () => _locationService.openLocationSettings(),
-                      onDismiss: () => setState(() => _dismissedGpsBanner = true),
+                      onDismiss: () =>
+                          setState(() => _dismissedGpsBanner = true),
                     ),
                   ),
                 ),
@@ -369,7 +367,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
             onTap: _handleIringCenterTap,
             isMapOpen: _isShowingMap,
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: AppBottomNavBar(
             currentIndex: _isShowingMap ? -1 : _currentIndex,
             onTabSelected: _selectTab,
@@ -379,4 +378,3 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     );
   }
 }
-

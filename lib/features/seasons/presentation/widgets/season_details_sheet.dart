@@ -289,7 +289,9 @@ class _RewardMetricRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: highlight ? AppColors.primary : AppColors.dynamicTextPrimary,
+              color: highlight
+                  ? AppColors.primary
+                  : AppColors.dynamicTextPrimary,
             ),
           ),
         ),

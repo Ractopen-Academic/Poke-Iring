@@ -101,9 +101,7 @@ class DashboardFelineClubCard extends StatelessWidget {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   side: BorderSide(
-                    color: isClub
-                        ? const Color(0xFFFF8F00)
-                        : AppColors.primary,
+                    color: isClub ? const Color(0xFFFF8F00) : AppColors.primary,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

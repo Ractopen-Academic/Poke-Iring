@@ -57,8 +57,9 @@ class _StoriesTrayState extends State<StoriesTray> {
       stream: _repository.watchActiveStories(),
       builder: (context, snapshot) {
         final stories = snapshot.data ?? const [];
-        final userStories =
-            stories.where((s) => s.userId == currentUserId).toList();
+        final userStories = stories
+            .where((s) => s.userId == currentUserId)
+            .toList();
         final hasUserStory = userStories.isNotEmpty;
         final latestUserStory = hasUserStory ? userStories.first : null;
 
@@ -82,9 +83,9 @@ class _StoriesTrayState extends State<StoriesTray> {
                   hasActiveUserStory: hasUserStory,
                   onTap: hasUserStory
                       ? () => _openStoryViewer(
-                            stories,
-                            stories.indexOf(latestUserStory!),
-                          )
+                          stories,
+                          stories.indexOf(latestUserStory!),
+                        )
                       : _openCreateStory,
                   onAddTap: _openCreateStory,
                 );

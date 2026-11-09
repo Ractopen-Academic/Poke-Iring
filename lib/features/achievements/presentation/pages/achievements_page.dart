@@ -128,7 +128,9 @@ class _AchievementsPageState extends State<AchievementsPage> {
                           child: TextField(
                             onChanged: (val) =>
                                 setState(() => _searchQuery = val.trim()),
-                            style: TextStyle(color: AppColors.dynamicTextPrimary),
+                            style: TextStyle(
+                              color: AppColors.dynamicTextPrimary,
+                            ),
                             decoration: InputDecoration(
                               hintText: 'Search 100 tiered achievements...',
                               hintStyle: TextStyle(

@@ -8,11 +8,7 @@ class NetworkErrorView extends StatelessWidget {
   final String? message;
   final VoidCallback onRetry;
 
-  const NetworkErrorView({
-    super.key,
-    this.message,
-    required this.onRetry,
-  });
+  const NetworkErrorView({super.key, this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +53,7 @@ class NetworkErrorView extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      message ??
-                          'Server or network error. Poke: Iring is an online game and requires an active internet connection to load live territories, sightings, and feline data.',
+                      message ?? 'Server or network error. Poke: Iring is an online game and requires an active internet connection to load live territories, sightings, and feline data.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13.5,
@@ -212,10 +207,7 @@ class MaintenanceLockoutView extends StatelessWidget {
 class VersionUpdateRequiredView extends StatelessWidget {
   final String requiredVersion;
 
-  const VersionUpdateRequiredView({
-    super.key,
-    required this.requiredVersion,
-  });
+  const VersionUpdateRequiredView({super.key, required this.requiredVersion});
 
   @override
   Widget build(BuildContext context) {

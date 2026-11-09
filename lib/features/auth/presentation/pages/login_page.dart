@@ -83,8 +83,7 @@ class _LoginPageState extends State<LoginPage> {
       if (_isSignUp) {
         if (_passwordController.text != _confirmPasswordController.text) {
           setState(() {
-            _errorMessage =
-                AuthErrorFormatter.format('Passwords do not match');
+            _errorMessage = AuthErrorFormatter.format('Passwords do not match');
             _isLoading = false;
           });
           return;
@@ -250,8 +249,8 @@ class _LoginPageState extends State<LoginPage> {
                                         isPasswordFocused:
                                             _mascotController.isPasswordFocused,
                                         isPasswordVisible: !_obscurePassword,
-                                        gazeAlignment:
-                                            _mascotController.emailGazeAlignment,
+                                        gazeAlignment: _mascotController
+                                            .emailGazeAlignment,
                                         hasError: _errorMessage != null,
                                       );
                                     },
@@ -311,8 +310,8 @@ class _LoginPageState extends State<LoginPage> {
                                           AppTextField(
                                             controller: _emailController,
                                             focusNode: _emailFocusNode,
-                                            onChanged:
-                                                _mascotController.updateEmailGaze,
+                                            onChanged: _mascotController
+                                                .updateEmailGaze,
                                             label: 'Email Address',
                                             hint: 'explorer@example.com',
                                             keyboardType:
@@ -406,7 +405,8 @@ class _LoginPageState extends State<LoginPage> {
                                                     return 'Please confirm your password';
                                                   }
                                                   if (val !=
-                                                      _passwordController.text) {
+                                                      _passwordController
+                                                          .text) {
                                                     return 'Passwords do not match';
                                                   }
                                                 }

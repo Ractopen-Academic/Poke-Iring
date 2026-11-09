@@ -877,7 +877,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
               ),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12.5, color: Color(0xFFFCA5A5)),
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  color: Color(0xFFFCA5A5),
+                ),
               ),
             ),
           const SizedBox(height: 16),
@@ -936,7 +939,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.dynamicTextSecondary,
+            ),
           ),
           Text(
             value,
@@ -979,7 +985,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
               Text(
                 result.rejectionReason ?? 'Our vision model could not identify a cat. Please frame the cat clearly and try again.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13.5, color: AppColors.dynamicTextSecondary),
+                style: TextStyle(
+                  fontSize: 13.5,
+                  color: AppColors.dynamicTextSecondary,
+                ),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -1020,7 +1029,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     height: 160,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.dynamicSurface, width: 4),
+                      border: Border.all(
+                        color: AppColors.dynamicSurface,
+                        width: 4,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.primary.withAlpha(40),

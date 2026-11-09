@@ -357,7 +357,9 @@ class _VaultPhotoDetailSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.dynamicSurface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(top: BorderSide(color: AppColors.dynamicBorder, width: 1.2)),
+        border: Border(
+          top: BorderSide(color: AppColors.dynamicBorder, width: 1.2),
+        ),
       ),
       padding: EdgeInsets.fromLTRB(
         20,

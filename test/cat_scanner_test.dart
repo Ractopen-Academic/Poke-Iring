@@ -66,7 +66,10 @@ void main() {
       await config.setProxyUrl('https://admin.pokeiring.example/api/vision');
 
       final mockClient = MockClient((request) async {
-        expect(request.url.toString(), equals('https://admin.pokeiring.example/api/vision'));
+        expect(
+          request.url.toString(),
+          equals('https://admin.pokeiring.example/api/vision'),
+        );
         expect(request.headers['Content-Type'], equals('application/json'));
         final body = jsonDecode(request.body) as Map<String, dynamic>;
         expect(body['imageBase64'], isNotEmpty);
@@ -96,7 +99,9 @@ void main() {
         httpClient: mockClient,
       );
 
-      final result = await dataSource.analyzeCatPhoto(Uint8List.fromList([1, 2, 3, 4]));
+      final result = await dataSource.analyzeCatPhoto(
+        Uint8List.fromList([1, 2, 3, 4]),
+      );
       expect(result.isCat, isTrue);
       expect(result.breed, equals('Domestic Shorthair (Puspin)'));
       expect(result.quirk, contains('motorcycle seat'));

@@ -21,39 +21,40 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    testWidgets('renders explorer greeting, health metrics, and section titles', (
-      tester,
-    ) async {
-      bool leaderboardOpened = false;
+    testWidgets(
+      'renders explorer greeting, health metrics, and section titles',
+      (tester) async {
+        bool leaderboardOpened = false;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: HomeFeedPage(
-            user: testUser,
-            onOpenLeaderboard: () {
-              leaderboardOpened = true;
-            },
+        await tester.pumpWidget(
+          MaterialApp(
+            home: HomeFeedPage(
+              user: testUser,
+              onOpenLeaderboard: () {
+                leaderboardOpened = true;
+              },
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.text('Welcome back,'), findsOneWidget);
-      expect(find.text('AmberPaws'), findsOneWidget);
-      expect(find.text('Explorer Health'), findsOneWidget);
-      expect(find.text('STEPS'), findsOneWidget);
-      expect(find.text('DISTANCE'), findsOneWidget);
-      expect(find.text('CALORIES'), findsOneWidget);
-      expect(find.text('ACTIVE'), findsOneWidget);
+        expect(find.text('Welcome back,'), findsOneWidget);
+        expect(find.text('AmberPaws'), findsOneWidget);
+        expect(find.text('Explorer Health'), findsOneWidget);
+        expect(find.text('STEPS'), findsOneWidget);
+        expect(find.text('DISTANCE'), findsOneWidget);
+        expect(find.text('CALORIES'), findsOneWidget);
+        expect(find.text('ACTIVE'), findsOneWidget);
 
-      final championWidget = find.text('Territory Champions');
-      if (championWidget.evaluate().isNotEmpty) {
-        await tester.tap(championWidget);
-        expect(leaderboardOpened, isTrue);
-      }
-    });
+        final championWidget = find.text('Territory Champions');
+        if (championWidget.evaluate().isNotEmpty) {
+          await tester.tap(championWidget);
+          expect(leaderboardOpened, isTrue);
+        }
+      },
+    );
 
     testWidgets('ActiveEventsCarousel collapses seamlessly when empty', (
       tester,

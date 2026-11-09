@@ -97,7 +97,10 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           children: [
             Text(
               'Enter your registered email address to receive a secure password reset link.',
-              style: TextStyle(fontSize: 13, color: AppColors.dynamicTextSecondary),
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.dynamicTextSecondary,
+              ),
             ),
             const SizedBox(height: 16),
             AppTextField(

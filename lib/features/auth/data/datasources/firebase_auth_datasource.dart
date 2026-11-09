@@ -62,7 +62,10 @@ class FirebaseAuthDatasource {
       }
     }
     await user.sendEmailVerification();
-    final mapped = _mapFirebaseUser(user, fallbackDisplayName: nickname?.trim())!;
+    final mapped = _mapFirebaseUser(
+      user,
+      fallbackDisplayName: nickname?.trim(),
+    )!;
     unawaited(_ensureFirestoreProfile(mapped, isNewRegistration: true));
     return mapped;
   }
@@ -179,7 +182,8 @@ class FirebaseAuthDatasource {
         email == 'admin@pokeiring.app' ||
         email == 'admin@iring.ph' ||
         email.endsWith('@iring.ph');
-    final displayName = (user.displayName != null && user.displayName!.isNotEmpty)
+    final displayName =
+        (user.displayName != null && user.displayName!.isNotEmpty)
         ? user.displayName!
         : (fallbackDisplayName ?? '');
     return AuthUser(

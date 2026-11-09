@@ -58,8 +58,12 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
   }
 
   Future<void> _checkMembership() async {
-    final userId = widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
-    final status = await SubscriptionServiceImpl.instance.getSubscription(userId);
+    final userId = widget.user.id.isNotEmpty
+        ? widget.user.id
+        : widget.user.email;
+    final status = await SubscriptionServiceImpl.instance.getSubscription(
+      userId,
+    );
     if (mounted) {
       setState(() {
         _isClubMember = status.isClubMember;
@@ -98,8 +102,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
-              final userId =
-                  widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+              final userId = widget.user.id.isNotEmpty
+                  ? widget.user.id
+                  : widget.user.email;
               FelineClubPaywallSheet.show(
                 context,
                 userId: userId,
@@ -230,14 +235,18 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             color: isSelected
                 ? AppColors.primary
                 : (isClubOnly && !_isClubMember)
-                ? (AppColors.isCalicoDark ? const Color(0xFF1F1A17) : Colors.grey.shade50)
+                ? (AppColors.isCalicoDark
+                      ? const Color(0xFF1F1A17)
+                      : Colors.grey.shade50)
                 : AppColors.dynamicChromeTrack,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isSelected
                   ? AppColors.primary
                   : (isClubOnly && !_isClubMember)
-                  ? (AppColors.isCalicoDark ? const Color(0xFF2E241F) : Colors.grey.shade300)
+                  ? (AppColors.isCalicoDark
+                        ? const Color(0xFF2E241F)
+                        : Colors.grey.shade300)
                   : AppColors.dynamicBorder,
             ),
           ),
@@ -264,7 +273,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                     fontWeight: FontWeight.w900,
                     color: isSelected
                         ? Colors.white.withAlpha(220)
-                        : (AppColors.isCalicoDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100)),
+                        : (AppColors.isCalicoDark
+                              ? const Color(0xFFFFB74D)
+                              : const Color(0xFFE65100)),
                   ),
                 ),
             ],
@@ -305,7 +316,11 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.auto_awesome, color: AppColors.primary, size: 22),
+                const Icon(
+                  Icons.auto_awesome,
+                  color: AppColors.primary,
+                  size: 22,
+                ),
                 const SizedBox(width: 10),
                 Text(
                   'Share Cat Story',
@@ -320,7 +335,10 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             const SizedBox(height: 6),
             Text(
               'Highlight a cat find to neighborhood explorers for the next 24 hours.',
-              style: TextStyle(fontSize: 12.5, color: AppColors.dynamicTextSecondary),
+              style: TextStyle(
+                fontSize: 12.5,
+                color: AppColors.dynamicTextSecondary,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -481,7 +499,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                 ),
                 if (!_isClubMember)
                   GestureDetector(
-                    onTap: () => _promptClubUpgrade('Unlock up to 7 days extended story duration.'),
+                    onTap: () => _promptClubUpgrade(
+                      'Unlock up to 7 days extended story duration.',
+                    ),
                     child: const Text(
                       'Upgrade for 48h - 7d',
                       style: TextStyle(
@@ -528,12 +548,16 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: _isClubMember
-                    ? (AppColors.isCalicoDark ? const Color(0xFF332617) : const Color(0xFFFFF8E1))
+                    ? (AppColors.isCalicoDark
+                          ? const Color(0xFF332617)
+                          : const Color(0xFFFFF8E1))
                     : AppColors.dynamicChromeTrack,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: _isClubMember
-                      ? (AppColors.isCalicoDark ? const Color(0xFF7A4D1A) : const Color(0xFFFFB300))
+                      ? (AppColors.isCalicoDark
+                            ? const Color(0xFF7A4D1A)
+                            : const Color(0xFFFFB300))
                       : AppColors.dynamicBorder,
                 ),
               ),
@@ -545,7 +569,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                         : Icons.photo_size_select_actual_outlined,
                     size: 15,
                     color: _isClubMember
-                        ? (AppColors.isCalicoDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100))
+                        ? (AppColors.isCalicoDark
+                              ? const Color(0xFFFFB74D)
+                              : const Color(0xFFE65100))
                         : AppColors.dynamicTextSecondary,
                   ),
                   const SizedBox(width: 8),
@@ -558,7 +584,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: _isClubMember
-                            ? (AppColors.isCalicoDark ? const Color(0xFFFFB74D) : const Color(0xFFE65100))
+                            ? (AppColors.isCalicoDark
+                                  ? const Color(0xFFFFB74D)
+                                  : const Color(0xFFE65100))
                             : AppColors.dynamicTextSecondary,
                       ),
                     ),
@@ -591,7 +619,15 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                 ),
               ),
               items: _commonBreeds
-                  .map((b) => DropdownMenuItem(value: b, child: Text(b, style: TextStyle(color: AppColors.dynamicTextPrimary))))
+                  .map(
+                    (b) => DropdownMenuItem(
+                      value: b,
+                      child: Text(
+                        b,
+                        style: TextStyle(color: AppColors.dynamicTextPrimary),
+                      ),
+                    ),
+                  )
                   .toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedBreed = val);
@@ -609,7 +645,9 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
                 labelText: 'Story Caption',
                 labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                 hintText: 'e.g. Found this fluffy calico napping on a scooter!',
-                hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(140)),
+                hintStyle: TextStyle(
+                  color: AppColors.dynamicTextSecondary.withAlpha(140),
+                ),
                 counterStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                 filled: true,
                 fillColor: AppColors.dynamicChromeTrack,

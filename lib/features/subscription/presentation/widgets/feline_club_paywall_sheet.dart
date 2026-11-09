@@ -112,10 +112,7 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(30),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.primary,
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: AppColors.primary, width: 1.5),
                   ),
                   child: const Icon(
                     Icons.workspace_premium_rounded,
@@ -288,10 +285,7 @@ class _FelineClubPaywallSheetState extends State<FelineClubPaywallSheet> {
               ),
               child: const Text(
                 'Join Feline Club',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
               ),
             ),
           ],

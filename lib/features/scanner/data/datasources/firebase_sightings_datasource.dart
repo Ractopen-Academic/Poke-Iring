@@ -236,7 +236,8 @@ class FirebaseSightingsDataSource {
         );
         final stickerUrl = await stickerRef.getDownloadURL();
 
-        final awardedPoints = RemoteConfigService.instance.config.doublePointsGlobal
+        final awardedPoints =
+            RemoteConfigService.instance.config.doublePointsGlobal
             ? sighting.pawPoints * 2
             : sighting.pawPoints;
 

@@ -38,10 +38,14 @@ class DexSpeciesCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDiscovered ? AppColors.dynamicSurface : AppColors.dynamicChromeTrack,
+          color: isDiscovered
+              ? AppColors.dynamicSurface
+              : AppColors.dynamicChromeTrack,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isDiscovered ? rarityColor.withAlpha(90) : AppColors.dynamicBorder,
+            color: isDiscovered
+                ? rarityColor.withAlpha(90)
+                : AppColors.dynamicBorder,
             width: isDiscovered ? 1.4 : 1.0,
           ),
           boxShadow: isDiscovered

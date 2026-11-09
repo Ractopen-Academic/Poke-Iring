@@ -119,8 +119,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
       if (!isOnline) {
         if (!mounted) return;
         setState(() {
-          _errorMessage =
-              'Server or network error. Poke: Iring is an online game and requires an active internet connection to load live territories and cat sightings.';
+          _errorMessage = 'Server or network error. Poke: Iring is an online game and requires an active internet connection to load live territories and cat sightings.';
         });
         return;
       }
@@ -186,8 +185,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _errorMessage =
-            'Server or network error. Please verify your connection and try again.';
+        _errorMessage = 'Server or network error. Please verify your connection and try again.';
       });
       return;
     }
@@ -208,10 +206,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
   @override
   Widget build(BuildContext context) {
     if (_errorMessage != null) {
-      return NetworkErrorView(
-        message: _errorMessage,
-        onRetry: _runBootstrap,
-      );
+      return NetworkErrorView(message: _errorMessage, onRetry: _runBootstrap);
     }
 
     if (_isMaintenance) {
@@ -222,9 +217,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
     }
 
     if (_isUpdateRequired) {
-      return VersionUpdateRequiredView(
-        requiredVersion: _minRequiredVersion,
-      );
+      return VersionUpdateRequiredView(requiredVersion: _minRequiredVersion);
     }
 
     if (_result != null) {

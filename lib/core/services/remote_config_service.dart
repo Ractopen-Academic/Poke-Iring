@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -21,8 +22,7 @@ class GlobalAppConfig {
 
   const GlobalAppConfig({
     this.maintenanceMode = false,
-    this.maintenanceMessage =
-        'Poke: Iring is undergoing scheduled maintenance. Please check back soon.',
+    this.maintenanceMessage = 'Poke: Iring is undergoing scheduled maintenance. Please check back soon.',
     this.minAppVersion = '0.30.0',
     this.broadcastBanner = '',
     this.isBroadcastActive = false,
@@ -34,12 +34,12 @@ class GlobalAppConfig {
       maintenanceMode: data['maintenanceMode'] == true,
       maintenanceMessage:
           (data['maintenanceMessage'] as String?)?.trim().isNotEmpty == true
-              ? data['maintenanceMessage'] as String
-              : 'Poke: Iring is undergoing scheduled maintenance. Please check back soon.',
+          ? data['maintenanceMessage'] as String
+          : 'Poke: Iring is undergoing scheduled maintenance. Please check back soon.',
       minAppVersion:
           (data['minAppVersion'] as String?)?.trim().isNotEmpty == true
-              ? data['minAppVersion'] as String
-              : '0.30.0',
+          ? data['minAppVersion'] as String
+          : '0.30.0',
       broadcastBanner: (data['broadcastBanner'] as String?) ?? '',
       isBroadcastActive: data['isBroadcastActive'] == true,
       doublePointsGlobal: data['doublePointsGlobal'] == true,
@@ -123,18 +123,14 @@ class RemoteConfigService {
       return Stream.value(_config);
     }
 
-    return db
-        .collection('app_config')
-        .doc('global')
-        .snapshots()
-        .map((snap) {
-          if (!snap.exists || snap.data() == null) {
-            return const GlobalAppConfig();
-          }
-          final newConfig = GlobalAppConfig.fromMap(snap.data()!);
-          _config = newConfig;
-          return newConfig;
-        });
+    return db.collection('app_config').doc('global').snapshots().map((snap) {
+      if (!snap.exists || snap.data() == null) {
+        return const GlobalAppConfig();
+      }
+      final newConfig = GlobalAppConfig.fromMap(snap.data()!);
+      _config = newConfig;
+      return newConfig;
+    });
   }
 
   /// Evaluates whether [currentVersion] meets or exceeds [minVersion].

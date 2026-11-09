@@ -173,7 +173,9 @@ class _TieredAchievementCardState extends State<TieredAchievementCard> {
                         : AppColors.dynamicChromeTrack,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: isUnlocked ? tier.borderColor : AppColors.dynamicBorder,
+                      color: isUnlocked
+                          ? tier.borderColor
+                          : AppColors.dynamicBorder,
                       width: 1,
                     ),
                   ),

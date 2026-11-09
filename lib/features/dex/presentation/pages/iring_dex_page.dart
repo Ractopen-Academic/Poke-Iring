@@ -203,44 +203,44 @@ class _IringDexPageState extends State<IringDexPage> {
                   child: CustomScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (_viewMode == DexViewMode.catalog) ...[
-                              DexProgressHeader(entries: entries),
-                              const SizedBox(height: 16),
-                            ],
-                            _buildSegmentedTab(
-                              sightings.length,
-                              entries.length,
-                            ),
-                            if (_viewMode != DexViewMode.heatmap) ...[
-                              const SizedBox(height: 12),
-                              _buildFilterChips(),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (_viewMode == DexViewMode.catalog)
-                      _buildCatalogSliver(filteredEntries)
-                    else if (_viewMode == DexViewMode.album)
-                      _buildAlbumSliver(filteredSightings)
-                    else
                       SliverToBoxAdapter(
-                        child: PersonalSightingHeatmap(
-                          sightings: sightings,
-                          user: widget.user,
-                          onOpenScanner: _openCamera,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (_viewMode == DexViewMode.catalog) ...[
+                                DexProgressHeader(entries: entries),
+                                const SizedBox(height: 16),
+                              ],
+                              _buildSegmentedTab(
+                                sightings.length,
+                                entries.length,
+                              ),
+                              if (_viewMode != DexViewMode.heatmap) ...[
+                                const SizedBox(height: 12),
+                                _buildFilterChips(),
+                              ],
+                            ],
+                          ),
                         ),
                       ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 120)),
-                  ],
-                ),
-              );
+                      if (_viewMode == DexViewMode.catalog)
+                        _buildCatalogSliver(filteredEntries)
+                      else if (_viewMode == DexViewMode.album)
+                        _buildAlbumSliver(filteredSightings)
+                      else
+                        SliverToBoxAdapter(
+                          child: PersonalSightingHeatmap(
+                            sightings: sightings,
+                            user: widget.user,
+                            onOpenScanner: _openCamera,
+                          ),
+                        ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 120)),
+                    ],
+                  ),
+                );
               },
             );
           },
@@ -541,9 +541,7 @@ class _TabButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected
-                    ? Colors.white
-                    : AppColors.dynamicTextPrimary,
+                color: isSelected ? Colors.white : AppColors.dynamicTextPrimary,
               ),
             ),
             const SizedBox(height: 2),

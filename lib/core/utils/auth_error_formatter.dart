@@ -15,7 +15,8 @@ class AuthErrorFormatter {
     final raw = error.toString().replaceFirst('Exception: ', '').trim();
 
     // Check if error message contains a Firebase code in brackets (e.g. [firebase_auth/invalid-credential])
-    final codeMatch = RegExp(r'\[(?:firebase_auth/)?([a-zA-Z0-9_-]+)\]').firstMatch(raw);
+    final codeMatch = RegExp(r'\[(?:firebase_auth/)?([a-zA-Z0-9_-]+)\]')
+        .firstMatch(raw);
     if (codeMatch != null) {
       final code = codeMatch.group(1)!;
       return _formatFirebaseCode(code, raw);
@@ -33,25 +34,32 @@ class AuthErrorFormatter {
         lower.contains('no user corresponding')) {
       return 'Incorrect email or password. Please double-check your credentials or reset your password.';
     }
-    if (lower.contains('email-already-in-use') || lower.contains('already in use')) {
+    if (lower.contains('email-already-in-use') ||
+        lower.contains('already in use')) {
       return 'An account with this email address already exists. Please sign in instead.';
     }
     if (lower.contains('invalid-email') || lower.contains('badly formatted')) {
       return 'Please enter a valid email address (e.g., explorer@pokeiring.app).';
     }
-    if (lower.contains('weak-password') || lower.contains('password should be at least')) {
+    if (lower.contains('weak-password') ||
+        lower.contains('password should be at least')) {
       return 'Password is too weak. Please use at least 6 characters.';
     }
-    if (lower.contains('too-many-requests') || lower.contains('blocked all requests')) {
+    if (lower.contains('too-many-requests') ||
+        lower.contains('blocked all requests')) {
       return 'Too many failed login attempts. Please wait a moment before trying again.';
     }
-    if (lower.contains('network') || lower.contains('socketexception') || lower.contains('timeout')) {
+    if (lower.contains('network') ||
+        lower.contains('socketexception') ||
+        lower.contains('timeout')) {
       return 'Unable to connect to game servers. Please check your network connection.';
     }
     if (lower.contains('user-disabled')) {
       return 'This explorer account has been disabled. Please contact support.';
     }
-    if (lower.contains('popup-closed-by-user') || lower.contains('sign_in_canceled') || lower.contains('cancelled')) {
+    if (lower.contains('popup-closed-by-user') ||
+        lower.contains('sign_in_canceled') ||
+        lower.contains('cancelled')) {
       return 'Sign-in was cancelled.';
     }
 

@@ -434,7 +434,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
+                    color: isSelected
+                        ? Colors.white
+                        : AppColors.dynamicTextSecondary,
                   ),
                 ),
               ),
@@ -475,12 +477,16 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               labelStyle: TextStyle(
                 fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.dynamicTextSecondary,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
                 side: BorderSide(
-                  color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.dynamicBorder,
                 ),
               ),
               onSelected: (_) => _onScopeChanged(sc),

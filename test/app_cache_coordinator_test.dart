@@ -10,15 +10,18 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    test('forceRecacheAll executes across all catalogs and produces report', () async {
-      final report = await AppCacheCoordinator.instance.forceRecacheAll(
-        userId: 'test_explorer',
-      );
+    test(
+      'forceRecacheAll executes across all catalogs and produces report',
+      () async {
+        final report = await AppCacheCoordinator.instance.forceRecacheAll(
+          userId: 'test_explorer',
+        );
 
-      expect(report.syncedCollectionsCount, greaterThanOrEqualTo(4));
-      expect(report.timestamp, isNotNull);
-      expect(report.statusSummary, isNotEmpty);
-    });
+        expect(report.syncedCollectionsCount, greaterThanOrEqualTo(4));
+        expect(report.timestamp, isNotNull);
+        expect(report.statusSummary, isNotEmpty);
+      },
+    );
 
     test('refreshHomeFeed runs without throwing', () async {
       await expectLater(
@@ -28,15 +31,14 @@ void main() {
     });
 
     test('refreshDex runs without throwing', () async {
-      await expectLater(
-        AppCacheCoordinator.instance.refreshDex(),
-        completes,
-      );
+      await expectLater(AppCacheCoordinator.instance.refreshDex(), completes);
     });
 
     test('refreshLeaderboard runs without throwing', () async {
       await expectLater(
-        AppCacheCoordinator.instance.refreshLeaderboard(userId: 'test_explorer'),
+        AppCacheCoordinator.instance.refreshLeaderboard(
+          userId: 'test_explorer',
+        ),
         completes,
       );
     });

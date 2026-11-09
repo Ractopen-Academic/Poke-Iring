@@ -29,7 +29,8 @@ class _AuthGateState extends State<AuthGate> {
       stream: RemoteConfigService.instance.streamConfig(),
       initialData: RemoteConfigService.instance.config,
       builder: (context, configSnapshot) {
-        final config = configSnapshot.data ?? RemoteConfigService.instance.config;
+        final config =
+            configSnapshot.data ?? RemoteConfigService.instance.config;
 
         if (config.maintenanceMode) {
           return MaintenanceLockoutView(

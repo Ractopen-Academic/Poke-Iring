@@ -444,40 +444,41 @@ void main() {
   });
 
   group('Feline Club Payment Tests', () {
-    testWidgets('allows selecting PayPal, GCash, and Maya gateways and routes to PayPal checkout', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: FelineClubPaywallSheet(userId: 'u_tester')),
-        ),
-      );
+    testWidgets(
+      'allows selecting PayPal, GCash, and Maya gateways and routes to PayPal checkout',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(body: FelineClubPaywallSheet(userId: 'u_tester')),
+          ),
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      expect(find.text('Payment Method'), findsOneWidget);
-      expect(find.text('PayPal'), findsOneWidget);
-      expect(find.text('GCash'), findsOneWidget);
-      expect(find.text('Maya'), findsOneWidget);
+        expect(find.text('Payment Method'), findsOneWidget);
+        expect(find.text('PayPal'), findsOneWidget);
+        expect(find.text('GCash'), findsOneWidget);
+        expect(find.text('Maya'), findsOneWidget);
 
-      // Select GCash
-      await tester.ensureVisible(find.text('GCash'));
-      await tester.tap(find.text('GCash'));
-      await tester.pumpAndSettle();
+        // Select GCash
+        await tester.ensureVisible(find.text('GCash'));
+        await tester.tap(find.text('GCash'));
+        await tester.pumpAndSettle();
 
-      // Tap Join Feline Club to trigger PayPal checkout flow
-      await tester.ensureVisible(find.text('Join Feline Club'));
-      await tester.tap(find.text('Join Feline Club'));
-      await tester.pumpAndSettle();
+        // Tap Join Feline Club to trigger PayPal checkout flow
+        await tester.ensureVisible(find.text('Join Feline Club'));
+        await tester.tap(find.text('Join Feline Club'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('PayPal Checkout'), findsOneWidget);
-      expect(find.text('paypal.com'), findsOneWidget);
+        expect(find.text('PayPal Checkout'), findsOneWidget);
+        expect(find.text('paypal.com'), findsOneWidget);
 
-      // Cancel modal
-      await tester.tap(find.byIcon(Icons.close));
-      await tester.pumpAndSettle();
+        // Cancel modal
+        await tester.tap(find.byIcon(Icons.close));
+        await tester.pumpAndSettle();
 
-      expect(find.text('PayPal Checkout'), findsNothing);
-    });
+        expect(find.text('PayPal Checkout'), findsNothing);
+      },
+    );
   });
 }

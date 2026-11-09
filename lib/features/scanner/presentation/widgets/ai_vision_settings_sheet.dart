@@ -48,7 +48,8 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
         if (proxyUrl != null && proxyUrl.isNotEmpty) {
           _currentStatus = 'Proxy Active: $proxyUrl';
         } else if (key != null && key.isNotEmpty) {
-          _currentStatus = 'Direct Key: (${AiConfigService.instance.maskedKey})';
+          _currentStatus =
+              'Direct Key: (${AiConfigService.instance.maskedKey})';
         } else {
           _currentStatus = 'No key set (Smart mock active)';
         }
@@ -82,8 +83,8 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
           proxyUrl.isNotEmpty
               ? 'Vision proxy URL and settings saved.'
               : key.isNotEmpty
-                  ? 'Gemini API key saved to device.'
-                  : 'Cleared settings. Smart mock vision activated.',
+              ? 'Gemini API key saved to device.'
+              : 'Cleared settings. Smart mock vision activated.',
         ),
       ),
     );
@@ -217,7 +218,9 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                   labelText: 'Gemini API Key (Optional client key)',
                   labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                   hintText: 'AIzaSy...',
-                  hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(120)),
+                  hintStyle: TextStyle(
+                    color: AppColors.dynamicTextSecondary.withAlpha(120),
+                  ),
                   filled: true,
                   fillColor: AppColors.dynamicFieldFill,
                   border: OutlineInputBorder(
@@ -257,7 +260,9 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                   labelText: 'Vision Proxy URL (Recommended for production)',
                   labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
                   hintText: 'https://admin-domain/api/vision',
-                  hintStyle: TextStyle(color: AppColors.dynamicTextSecondary.withAlpha(120)),
+                  hintStyle: TextStyle(
+                    color: AppColors.dynamicTextSecondary.withAlpha(120),
+                  ),
                   filled: true,
                   fillColor: AppColors.dynamicFieldFill,
                   border: OutlineInputBorder(
@@ -329,7 +334,10 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
             Center(
               child: Text(
                 'Get your key at aistudio.google.com/app/apikey',
-                style: TextStyle(fontSize: 11.5, color: AppColors.dynamicTextSecondary.withAlpha(160)),
+                style: TextStyle(
+                  fontSize: 11.5,
+                  color: AppColors.dynamicTextSecondary.withAlpha(160),
+                ),
               ),
             ),
           ],
