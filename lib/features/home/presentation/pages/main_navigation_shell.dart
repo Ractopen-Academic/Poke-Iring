@@ -9,7 +9,6 @@ import '../../../../core/network/network_info_impl.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/widgets/feline_status_banner.dart';
-import '../../../../core/widgets/persistent_version_overlay.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../dex/presentation/pages/iring_dex_page.dart';
@@ -111,7 +110,6 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   @override
   void initState() {
     super.initState();
-    AppVersionOverlayController.instance.setBottomNavActive(true);
     _currentIndex = _activeTabIndex;
     CalicoThemeController.instance.addListener(_handleCoatModeChanged);
     _tabEnterController = AnimationController(
@@ -186,7 +184,6 @@ class _MainNavigationShellState extends State<MainNavigationShell>
 
   @override
   void dispose() {
-    AppVersionOverlayController.instance.setBottomNavActive(false);
     CalicoThemeController.instance.removeListener(_handleCoatModeChanged);
     _mapExitTimer?.cancel();
     _tabEnterController.dispose();

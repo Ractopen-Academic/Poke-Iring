@@ -6,6 +6,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/utils/auth_error_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_version_badge.dart';
 import '../../../../core/widgets/calico_ui_kit.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../widgets/auth_error_banner.dart';
@@ -515,6 +516,7 @@ class _LoginPageState extends State<LoginPage> {
                   );
                 },
               ),
+              const Positioned(left: 16, bottom: 10, child: AppVersionBadge()),
             ],
           ),
         ),

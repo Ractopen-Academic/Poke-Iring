@@ -10,6 +10,7 @@ import '../../../../core/network/network_info_impl.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/services/remote_config_service.dart';
+import '../../../../core/widgets/app_version_badge.dart';
 import '../../../../core/widgets/lockout_views.dart';
 import '../../../auth/presentation/widgets/calico_login_mascot.dart';
 import '../../../map/data/services/tile_precache_service_impl.dart';
@@ -308,6 +309,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
                   ),
                 ),
               ),
+              const Positioned(left: 16, bottom: 12, child: AppVersionBadge()),
             ],
           ),
         ),
