@@ -16,7 +16,13 @@ class FirebaseAuthDatasource {
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
   }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-       _googleSignIn = googleSignIn ?? GoogleSignIn();
+       _googleSignIn =
+           googleSignIn ??
+           (kIsWeb
+               ? GoogleSignIn(
+                   clientId: '144237882397-bnbe44dpid0a7ilqeeoo41o37aja1knb.apps.googleusercontent.com',
+                 )
+               : GoogleSignIn());
 
   Stream<AuthUser?> get authStateChanges {
     return _firebaseAuth.userChanges().map(_mapFirebaseUser);

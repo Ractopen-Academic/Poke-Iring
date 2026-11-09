@@ -72,5 +72,55 @@ void main() {
       // Restore dark for subsequent tests
       await controller.setMode(CalicoCoatMode.calicoDark);
     });
+
+    testWidgets('Theme switching preserves scroll offset without reset', (
+      tester,
+    ) async {
+      final controller = CalicoThemeController.instance;
+      await controller.setMode(CalicoCoatMode.calicoDark);
+
+      final scrollController = ScrollController();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ListenableBuilder(
+              listenable: controller,
+              builder: (context, _) {
+                return SingleChildScrollView(
+                  key: const PageStorageKey<String>('test_preserved_scroll'),
+                  controller: scrollController,
+                  child: Column(
+                    children: List.generate(
+                      50,
+                      (i) => SizedBox(
+                        height: 60,
+                        child: Text('Item $i', key: ValueKey('item_$i')),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      // Scroll down by 400 pixels
+      scrollController.jumpTo(400);
+      await tester.pump();
+      expect(scrollController.offset, equals(400));
+
+      // Switch theme mode
+      await controller.setMode(CalicoCoatMode.calicoPink);
+      await tester.pumpAndSettle();
+
+      // Verify scroll offset is preserved
+      expect(scrollController.offset, equals(400));
+      expect(controller.mode, equals(CalicoCoatMode.calicoPink));
+
+      // Restore
+      await controller.setMode(CalicoCoatMode.calicoDark);
+    });
   });
 }

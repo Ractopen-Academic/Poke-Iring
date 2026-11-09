@@ -78,16 +78,18 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   bool _dismissedGpsBanner = false;
 
   List<Widget> _buildPages() {
-    final coatName = CalicoThemeController.instance.effectiveMode.name;
     return [
       HomeFeedPage(
-        key: ValueKey('home_tab_$coatName'),
+        key: const PageStorageKey<String>('home_tab'),
         user: widget.user,
         onOpenLeaderboard: () => _selectTab(2),
       ),
-      IringDexPage(key: ValueKey('dex_tab_$coatName'), user: widget.user),
+      IringDexPage(
+        key: const PageStorageKey<String>('dex_tab'),
+        user: widget.user,
+      ),
       LeaderboardPage(
-        key: ValueKey('leaderboard_tab_$coatName'),
+        key: const PageStorageKey<String>('leaderboard_tab'),
         currentUserId: widget.user.id.isNotEmpty
             ? widget.user.id
             : widget.user.email,
@@ -99,7 +101,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         promptTerritorySetup: false,
       ),
       DashboardPage(
-        key: ValueKey('dashboard_tab_$coatName'),
+        key: const PageStorageKey<String>('dashboard_tab'),
         user: widget.user,
         authRepository: widget.authRepository,
         onOpenMap: () => _setMapVisible(true),

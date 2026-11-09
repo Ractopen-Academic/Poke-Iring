@@ -424,6 +424,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildOverviewTab(String userId, double bottomPadding) {
     return SingleChildScrollView(
+      key: const PageStorageKey<String>('dashboard_overview_scroll'),
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.only(
         top: 8,
@@ -465,6 +466,7 @@ class _DashboardPageState extends State<DashboardPage> {
     final showDevTools = widget.user.isAdmin || _isDeveloperUnlocked;
 
     return SingleChildScrollView(
+      key: const PageStorageKey<String>('dashboard_settings_scroll'),
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.only(
         top: 8,

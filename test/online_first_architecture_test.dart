@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pokeiring/core/services/remote_config_service.dart';
 import 'package:pokeiring/features/events/data/repositories/event_repository_impl.dart';
 import 'package:pokeiring/features/events/domain/entities/user_event_wallet.dart';
 import 'package:pokeiring/features/seasons/data/services/season_service_impl.dart';
@@ -150,6 +151,28 @@ void main() {
       expect(cachedTerritory.barangay, equals('Lahug'));
       expect(cachedTerritory.city, equals('Cebu City'));
       expect(cachedTerritory.isHomeConfirmed, isTrue);
+    });
+
+    test('GlobalAppConfig.fromFirestoreRest parses live REST API format', () {
+      final jsonRest = {
+        'name': 'projects/poke-iring/databases/(default)/documents/app_config/global',
+        'fields': {
+          'maintenanceMode': {'booleanValue': false},
+          'maintenanceMessage': {'stringValue': 'Routine maintenance'},
+          'minAppVersion': {'stringValue': '0.30.0'},
+          'broadcastBanner': {'stringValue': 'Special Cat Event!'},
+          'isBroadcastActive': {'booleanValue': true},
+          'doublePointsGlobal': {'booleanValue': true},
+        },
+      };
+
+      final config = GlobalAppConfig.fromFirestoreRest(jsonRest);
+      expect(config.maintenanceMode, isFalse);
+      expect(config.maintenanceMessage, equals('Routine maintenance'));
+      expect(config.minAppVersion, equals('0.30.0'));
+      expect(config.broadcastBanner, equals('Special Cat Event!'));
+      expect(config.isBroadcastActive, isTrue);
+      expect(config.doublePointsGlobal, isTrue);
     });
   });
 }

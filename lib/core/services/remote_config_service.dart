@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 class RemoteConfigException implements Exception {
   final String message;
@@ -46,6 +48,31 @@ class GlobalAppConfig {
     );
   }
 
+  factory GlobalAppConfig.fromFirestoreRest(Map<String, dynamic> doc) {
+    final fields = (doc['fields'] as Map<String, dynamic>?) ?? {};
+    return GlobalAppConfig(
+      maintenanceMode: fields['maintenanceMode']?['booleanValue'] == true,
+      maintenanceMessage:
+          (fields['maintenanceMessage']?['stringValue'] as String?)
+                  ?.trim()
+                  .isNotEmpty ==
+              true
+          ? fields['maintenanceMessage']!['stringValue'] as String
+          : 'Poke: Iring is undergoing scheduled maintenance. Please check back soon.',
+      minAppVersion:
+          (fields['minAppVersion']?['stringValue'] as String?)
+                  ?.trim()
+                  .isNotEmpty ==
+              true
+          ? fields['minAppVersion']!['stringValue'] as String
+          : '0.30.0',
+      broadcastBanner:
+          fields['broadcastBanner']?['stringValue'] as String? ?? '',
+      isBroadcastActive: fields['isBroadcastActive']?['booleanValue'] == true,
+      doublePointsGlobal: fields['doublePointsGlobal']?['booleanValue'] == true,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'maintenanceMode': maintenanceMode,
@@ -78,42 +105,69 @@ class RemoteConfigService {
   }
 
   /// Fetches remote configuration online from Firestore.
-  /// Strictly online-first: if the network or server fails, throws a
-  /// [RemoteConfigException] to indicate a network or server error,
-  /// refusing silent mock/offline fallbacks.
+  /// Strictly online-first: tries Firestore SDK, falls back to direct
+  /// Firestore REST API endpoint if SDK connection is delayed, and throws
+  /// [RemoteConfigException] if all online endpoints fail.
   Future<GlobalAppConfig> fetchConfig({
-    Duration timeout = const Duration(seconds: 5),
+    Duration timeout = const Duration(seconds: 10),
   }) async {
     final db = _firestore;
-    if (db == null) {
-      _config = const GlobalAppConfig();
-      _hasSuccessfullySynced = true;
-      return _config;
-    }
+    if (db != null) {
+      try {
+        DocumentSnapshot<Map<String, dynamic>>? docSnap;
+        try {
+          docSnap = await db
+              .collection('app_config')
+              .doc('global')
+              .get(const GetOptions(source: Source.server))
+              .timeout(timeout);
+        } catch (_) {
+          // Fallback to standard get() if server-only channel is still handshaking
+          docSnap = await db
+              .collection('app_config')
+              .doc('global')
+              .get()
+              .timeout(timeout);
+        }
 
-    try {
-      final docSnap = await db
-          .collection('app_config')
-          .doc('global')
-          .get(const GetOptions(source: Source.server))
-          .timeout(timeout);
-
-      if (!docSnap.exists || docSnap.data() == null) {
-        // Document does not exist yet on server; default safe config
-        _config = const GlobalAppConfig();
-        _hasSuccessfullySynced = true;
-        return _config;
+        if (docSnap.exists && docSnap.data() != null) {
+          _config = GlobalAppConfig.fromMap(docSnap.data()!);
+          _hasSuccessfullySynced = true;
+          return _config;
+        }
+      } catch (e) {
+        debugPrint('Firestore SDK fetchConfig failed: $e. Trying REST API.');
       }
-
-      _config = GlobalAppConfig.fromMap(docSnap.data()!);
-      _hasSuccessfullySynced = true;
-      return _config;
-    } catch (e) {
-      debugPrint('RemoteConfigService error: $e');
-      throw RemoteConfigException(
-        'Server or network error: unable to load remote configuration.',
-      );
     }
+
+    // Direct HTTPS REST fallback for web/strict environments
+    try {
+      final client = http.Client();
+      try {
+        final res = await client
+            .get(
+              Uri.parse(
+                'https://firestore.googleapis.com/v1/projects/poke-iring/databases/(default)/documents/app_config/global',
+              ),
+            )
+            .timeout(timeout);
+
+        if (res.statusCode == 200) {
+          final data = json.decode(res.body) as Map<String, dynamic>;
+          _config = GlobalAppConfig.fromFirestoreRest(data);
+          _hasSuccessfullySynced = true;
+          return _config;
+        }
+      } finally {
+        client.close();
+      }
+    } catch (restErr) {
+      debugPrint('Firestore REST fetchConfig also failed: $restErr');
+    }
+
+    throw const RemoteConfigException(
+      'Server or network error: unable to load remote configuration.',
+    );
   }
 
   /// Streams real-time updates from Firestore app_config/global.

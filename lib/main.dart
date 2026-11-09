@@ -74,7 +74,6 @@ class _PokeIringAppState extends State<PokeIringApp> {
     final effective = CalicoThemeController.instance.effectiveMode;
 
     return MaterialApp(
-      key: ValueKey('pokeiring_root_${effective.name}'),
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeFor(effective),
@@ -86,10 +85,7 @@ class _PokeIringAppState extends State<PokeIringApp> {
                 : ThemeMode.light),
       builder: (context, child) =>
           ResponsiveWebShell(child: child ?? const SizedBox.shrink()),
-      home: AuthGate(
-        key: ValueKey('pokeiring_auth_gate_${effective.name}'),
-        authRepository: widget.authRepository,
-      ),
+      home: AuthGate(authRepository: widget.authRepository),
     );
   }
 }

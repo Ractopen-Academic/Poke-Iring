@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -132,7 +133,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
 
       // Online-first: fetch global remote configuration
       final config = await RemoteConfigService.instance.fetchConfig(
-        timeout: const Duration(seconds: 6),
+        timeout: const Duration(seconds: 10),
       );
 
       // Enforce maintenance mode lockout
@@ -169,14 +170,16 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
         _progress = 0.90;
       });
 
-      // Precache Bankal base grid with safety timeout
-      cachedTiles = await _tilePrecacheService
-          .precacheArea(
-            center: const LatLng(10.3140, 123.9720),
-            zoomLevels: const [16],
-            radiusTiles: 1,
-          )
-          .timeout(const Duration(milliseconds: 2500), onTimeout: () => 0);
+      // Precache Bankal base grid on mobile with safety timeout
+      if (!kIsWeb) {
+        cachedTiles = await _tilePrecacheService
+            .precacheArea(
+              center: const LatLng(10.3140, 123.9720),
+              zoomLevels: const [16],
+              radiusTiles: 1,
+            )
+            .timeout(const Duration(milliseconds: 2500), onTimeout: () => 0);
+      }
     } on RemoteConfigException catch (e) {
       if (!mounted) return;
       setState(() {
