@@ -5,7 +5,7 @@ import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../seasons/data/services/season_service_impl.dart';
 
-/// Explorer physical activity metrics and lifetime prestige progress.
+/// Explorer gamified physical patrol activity metrics and lifetime prestige progress.
 class DashboardStatsCard extends StatelessWidget {
   final String userId;
 
@@ -16,40 +16,58 @@ class DashboardStatsCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Explorer Stats',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.dynamicTextPrimary,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Territory Patrol Activity',
+              style: TextStyle(
+                fontSize: 14.5,
+                fontWeight: FontWeight.w700,
+                color: AppColors.dynamicTextPrimary,
+              ),
+            ),
+            Text(
+              'Daily Walk Sync',
+              style: TextStyle(
+                fontSize: 11.5,
+                color: AppColors.dynamicTextSecondary,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         StreamBuilder<ExplorerHealthSnapshot>(
           stream: ExplorerHealthService.instance.stream,
           initialData: ExplorerHealthService.instance.latest,
           builder: (context, snapshot) {
             final health = snapshot.data ?? ExplorerHealthSnapshot.empty();
+            final treatsEarned = (health.stepsToday / 500).floor();
+
             return Row(
               children: [
                 Expanded(
                   child: DashboardStatTile(
-                    label: 'Steps',
+                    label: 'Patrol Steps',
                     value: '${health.stepsToday}',
+                    icon: Icons.directions_walk_rounded,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: DashboardStatTile(
-                    label: 'Distance',
+                    label: 'Patrol Dist.',
                     value: '${health.distanceKm.toStringAsFixed(2)} km',
+                    icon: Icons.map_outlined,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: DashboardStatTile(
-                    label: 'Calories',
-                    value: '${health.caloriesBurned.toStringAsFixed(0)} kcal',
+                    label: 'Cat Treats',
+                    value: '$treatsEarned Treats',
+                    icon: Icons.pets_rounded,
+                    highlight: true,
                   ),
                 ),
               ],
@@ -63,7 +81,7 @@ class DashboardStatsCard extends StatelessWidget {
           builder: (context, snapshot) {
             final prestige = snapshot.data ?? 0;
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
                 color: AppColors.dynamicSurface,
                 borderRadius: BorderRadius.circular(14),
@@ -106,7 +124,7 @@ class DashboardStatsCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Archived prestige',
+                    'Archived rank',
                     style: TextStyle(
                       fontSize: 11,
                       color: AppColors.dynamicTextSecondary,
@@ -125,37 +143,61 @@ class DashboardStatsCard extends StatelessWidget {
 class DashboardStatTile extends StatelessWidget {
   final String label;
   final String value;
+  final IconData? icon;
+  final bool highlight;
 
   const DashboardStatTile({
     super.key,
     required this.label,
     required this.value,
+    this.icon,
+    this.highlight = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: AppColors.dynamicSurface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.dynamicBorder),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: highlight
+              ? AppColors.primary.withAlpha(90)
+              : AppColors.dynamicBorder,
+        ),
       ),
       child: Column(
         children: [
+          if (icon != null) ...[
+            Icon(
+              icon,
+              size: 16,
+              color: highlight
+                  ? AppColors.primary
+                  : AppColors.dynamicTextSecondary,
+            ),
+            const SizedBox(height: 4),
+          ],
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 13.5,
               fontWeight: FontWeight.w800,
-              color: AppColors.dynamicTextPrimary,
+              color: highlight
+                  ? AppColors.primary
+                  : AppColors.dynamicTextPrimary,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10.5,
               fontWeight: FontWeight.w600,
               color: AppColors.dynamicTextSecondary,
             ),

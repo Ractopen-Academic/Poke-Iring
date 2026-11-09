@@ -25,6 +25,7 @@ import '../widgets/dashboard_showcase_card.dart';
 import '../widgets/dashboard_stats_card.dart';
 import '../widgets/dashboard_territory_card.dart';
 
+/// Tabbed Hub for the Explorer Account: Overview & Settings.
 class DashboardPage extends StatefulWidget {
   final AuthUser user;
   final AuthRepository authRepository;
@@ -44,6 +45,10 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  int _selectedTab = 0; // 0 = Overview, 1 = Settings
+  int _devTapCount = 0;
+  bool _isDeveloperUnlocked = false;
+
   bool _isLoggingOut = false;
   late final TerritoryService _territoryService;
   bool _isAutoDetectingTerritory = false;
@@ -211,11 +216,93 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  void _showAboutDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.dynamicSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: AppColors.dynamicBorder),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.pets, size: 22, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Text(
+              'About Poke: Iring',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: AppColors.dynamicTextPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'A real-world feline exploration and discovery game for mobile explorers.',
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.4,
+                color: AppColors.dynamicTextSecondary,
+              ),
+            ),
+            const SizedBox(height: 14),
+            _buildAboutMetaRow('Build Tag', AppVersion.releaseTag),
+            const SizedBox(height: 6),
+            _buildAboutMetaRow('Version', AppVersion.semanticVersion),
+            const SizedBox(height: 6),
+            _buildAboutMetaRow('Stage', AppVersion.stage),
+            const SizedBox(height: 6),
+            _buildAboutMetaRow('Build Date', AppVersion.buildDate),
+            const SizedBox(height: 6),
+            _buildAboutMetaRow('Architecture', 'Online-First • Zero Fallback'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Close',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAboutMetaRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: AppColors.dynamicTextSecondary),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: AppColors.dynamicTextPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final userId = widget.user.id.isNotEmpty
         ? widget.user.id
         : widget.user.email;
+
+    final bottomPadding = MediaQuery.of(context).padding.bottom + 96.0;
 
     return Scaffold(
       backgroundColor: AppColors.dynamicBackground,
@@ -234,64 +321,100 @@ class _DashboardPageState extends State<DashboardPage> {
         surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
-            tooltip: 'Sign Out',
-            icon: const Icon(Icons.logout_outlined),
-            onPressed: _isLoggingOut ? null : _handleSignOut,
+            tooltip: 'About Poke: Iring',
+            icon: const Icon(Icons.info_outline_rounded),
+            onPressed: _showAboutDialog,
           ),
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              DashboardProfileCard(user: widget.user),
-              const SizedBox(height: 14),
-              DashboardTerritoryCard(
-                userId: userId,
-                territoryService: _territoryService,
-                isAutoDetecting: _isAutoDetectingTerritory,
-                onAutoSync: () => _runAutoTerritorySync(showSpinner: true),
+        bottom: false,
+        child: Column(
+          children: [
+            // Tabbed Hub Segmented Pill Selector
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppColors.dynamicSurface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.dynamicBorder),
               ),
-              const SizedBox(height: 12),
-              DashboardFelineClubCard(userId: userId),
-              const SizedBox(height: 18),
-              DashboardStatsCard(userId: userId),
-              const SizedBox(height: 24),
-              DashboardCoatThemeCard(
-                onThemeChanged: () {
-                  if (mounted) setState(() {});
-                },
+              child: Row(
+                children: [
+                  _buildSubTabButton(
+                    index: 0,
+                    title: 'Overview',
+                    icon: Icons.person_pin_rounded,
+                  ),
+                  _buildSubTabButton(
+                    index: 1,
+                    title: 'Settings',
+                    icon: Icons.tune_rounded,
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              _buildHardwareSection(userId),
-              const SizedBox(height: 24),
-              DashboardShowcaseCard(
-                user: widget.user,
-                isPublicShowcase: _isPublicShowcase,
-                onPrivacyToggled: (val) {
-                  if (mounted) setState(() => _isPublicShowcase = val);
-                },
-              ),
-              if (widget.user.isAdmin) ...[
-                const SizedBox(height: 24),
-                _buildAdminSection(),
-              ],
-              const SizedBox(height: 32),
-              AppButton(
-                text: 'Sign Out',
-                isOutlined: true,
-                isLoading: _isLoggingOut,
-                icon: Icon(
-                  Icons.logout,
-                  size: 18,
-                  color: AppColors.dynamicTextPrimary,
+            ),
+
+            // Tab Content
+            Expanded(
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context)
+                    .copyWith(scrollbars: false),
+                child: IndexedStack(
+                  index: _selectedTab,
+                  children: [
+                    _buildOverviewTab(userId, bottomPadding),
+                    _buildSettingsTab(userId, bottomPadding),
+                  ],
                 ),
-                onPressed: _handleSignOut,
               ),
-              const SizedBox(height: 24),
-              _buildVersionFooter(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubTabButton({
+    required int index,
+    required String title,
+    required IconData icon,
+  }) {
+    final isSelected = _selectedTab == index;
+
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() => _selectedTab = index),
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.dynamicTextSecondary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color: isSelected
+                      ? Colors.white
+                      : AppColors.dynamicTextSecondary,
+                ),
+              ),
             ],
           ),
         ),
@@ -299,29 +422,154 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildHardwareSection(String userId) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Explorer Hardware & Tools',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.dynamicTextPrimary,
+  Widget _buildOverviewTab(String userId, double bottomPadding) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.only(
+        top: 8,
+        left: 16,
+        right: 16,
+        bottom: bottomPadding,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DashboardProfileCard(user: widget.user),
+          const SizedBox(height: 12),
+          DashboardStatsCard(userId: userId),
+          const SizedBox(height: 12),
+          DashboardTerritoryCard(
+            userId: userId,
+            territoryService: _territoryService,
+            isAutoDetecting: _isAutoDetectingTerritory,
+            onAutoSync: () => _runAutoTerritorySync(showSpinner: true),
           ),
-        ),
-        const SizedBox(height: 12),
-        if (widget.onOpenMap != null) ...[
-          _ModuleTile(
+          const SizedBox(height: 12),
+          DashboardFelineClubCard(userId: userId),
+          const SizedBox(height: 16),
+          _buildHardwareSection(userId),
+          const SizedBox(height: 16),
+          DashboardShowcaseCard(
+            user: widget.user,
+            isPublicShowcase: _isPublicShowcase,
+            onPrivacyToggled: (val) {
+              if (mounted) setState(() => _isPublicShowcase = val);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsTab(String userId, double bottomPadding) {
+    final showDevTools = widget.user.isAdmin || _isDeveloperUnlocked;
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.only(
+        top: 8,
+        left: 16,
+        right: 16,
+        bottom: bottomPadding,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DashboardCoatThemeCard(
+            onThemeChanged: () {
+              if (mounted) setState(() {});
+            },
+          ),
+          const SizedBox(height: 18),
+          _SettingsGroup(
+            title: 'Cache & Cloud Synchronization',
+            children: [
+              _SettingsTile(
+                icon: Icons.sync_rounded,
+                title: 'Force Cloud Recache',
+                subtitle: 'Synchronize local catalogs with Firebase',
+                onTap: _handleForceRecache,
+              ),
+              _SettingsTile(
+                icon: Icons.cleaning_services_outlined,
+                title: 'Purge Offline & Test Cache',
+                subtitle: 'Clear persistent memory & reset test state',
+                onTap: _handlePurgeTestData,
+                showDivider: false,
+              ),
+            ],
+          ),
+          if (showDevTools) ...[
+            const SizedBox(height: 18),
+            _SettingsGroup(
+              title: 'Developer & System Tools',
+              children: [
+                _SettingsTile(
+                  icon: Icons.psychology_outlined,
+                  title: 'AI Vision Engine',
+                  subtitle: 'Configure vision classifier API keys',
+                  onTap: () => AiVisionSettingsSheet.show(context),
+                  showDivider: false,
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 18),
+          _SettingsGroup(
+            title: 'Explorer Account',
+            children: [
+              _SettingsTile(
+                icon: Icons.email_outlined,
+                title: 'Registered Email',
+                subtitle: widget.user.email,
+                trailing: const Icon(
+                  Icons.verified_rounded,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
+                showDivider: true,
+              ),
+              _SettingsTile(
+                icon: Icons.info_outline_rounded,
+                title: 'About Poke: Iring',
+                subtitle: 'Version specifications & architecture',
+                onTap: _showAboutDialog,
+                showDivider: false,
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          AppButton(
+            text: 'Sign Out',
+            isOutlined: true,
+            isLoading: _isLoggingOut,
+            icon: Icon(
+              Icons.logout,
+              size: 18,
+              color: AppColors.dynamicTextPrimary,
+            ),
+            onPressed: _handleSignOut,
+          ),
+          const SizedBox(height: 24),
+          _buildVersionFooter(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHardwareSection(String userId) {
+    return _SettingsGroup(
+      title: 'Explorer Hardware & Tools',
+      children: [
+        if (widget.onOpenMap != null)
+          _SettingsTile(
             icon: Icons.map_outlined,
             title: 'Tactical Feline Radar',
             subtitle: 'Open full-screen community cat live tracking map',
             onTap: widget.onOpenMap!,
+            showDivider: true,
           ),
-          const SizedBox(height: 10),
-        ],
-        _ModuleTile(
+        _SettingsTile(
           icon: Icons.photo_library_outlined,
           title: 'RAW Photo Vault',
           subtitle: 'Uncompressed master cat photographs',
@@ -333,9 +581,9 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             );
           },
+          showDivider: true,
         ),
-        const SizedBox(height: 10),
-        _ModuleTile(
+        _SettingsTile(
           icon: Icons.military_tech_outlined,
           title: 'Achievements & Titles',
           subtitle: '100 tiered bronze, silver & gold milestones',
@@ -347,44 +595,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             );
           },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAdminSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Administrator Controls',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.dynamicTextPrimary,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _ModuleTile(
-          icon: Icons.psychology_outlined,
-          title: 'AI Vision Engine (Admin)',
-          subtitle: 'Configure vision classifier API keys',
-          onTap: () => AiVisionSettingsSheet.show(context),
-        ),
-        const SizedBox(height: 10),
-        _ModuleTile(
-          icon: Icons.sync_rounded,
-          title: 'Force Cloud Recache',
-          subtitle: 'Synchronize and bust local caches across all catalogs',
-          onTap: _handleForceRecache,
-        ),
-        const SizedBox(height: 10),
-        _ModuleTile(
-          icon: Icons.cleaning_services_outlined,
-          title: 'Purge Offline & Test Cache',
-          subtitle:
-              'Clear local persistent caches and sync fresh with Firebase',
-          onTap: _handlePurgeTestData,
+          showDivider: false,
         ),
       ],
     );
@@ -392,103 +603,185 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildVersionFooter() {
     return Center(
-      child: Column(
-        children: [
-          Text(
-            'Poke: Iring ${AppVersion.badgeDisplay}',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.dynamicTextSecondary,
-              letterSpacing: 0.2,
-            ),
+      child: InkWell(
+        key: const ValueKey('dashboard_dev_footer'),
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          _devTapCount++;
+          if (_devTapCount == 5) {
+            setState(() => _isDeveloperUnlocked = true);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: AppColors.primary,
+                content: Text(
+                  'Developer & System Diagnostics unlocked in Settings tab.',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          } else if (_devTapCount > 1 && _devTapCount < 5) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                duration: const Duration(milliseconds: 700),
+                content: Text(
+                  '${5 - _devTapCount} more taps to unlock developer tools',
+                ),
+              ),
+            );
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            children: [
+              Text(
+                'Poke: Iring ${AppVersion.badgeDisplay}',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.dynamicTextSecondary,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                AppVersion.buildSubtitle,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.dynamicTextSecondary.withAlpha(150),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 3),
-          Text(
-            AppVersion.buildSubtitle,
-            style: TextStyle(
-              fontSize: 10,
-              color: AppColors.dynamicTextSecondary.withAlpha(160),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _ModuleTile extends StatelessWidget {
+class _SettingsGroup extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+
+  const _SettingsGroup({required this.title, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+              color: AppColors.dynamicTextSecondary,
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.dynamicSurface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.dynamicBorder),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Column(children: children),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String subtitle;
-  final VoidCallback onTap;
+  final String? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final bool showDivider;
 
-  const _ModuleTile({
+  const _SettingsTile({
     required this.icon,
     required this.title,
-    required this.subtitle,
-    required this.onTap,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+    this.showDivider = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.dynamicSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.dynamicBorder),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(20),
-                    borderRadius: BorderRadius.circular(10),
+    return Column(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(7),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withAlpha(20),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, size: 18, color: AppColors.primary),
                   ),
-                  child: Icon(icon, size: 20, color: AppColors.primary),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.dynamicTextPrimary,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.dynamicTextPrimary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.dynamicTextSecondary,
-                        ),
-                      ),
-                    ],
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle!,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.dynamicTextSecondary,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: AppColors.dynamicTextSecondary.withAlpha(120),
-                ),
-              ],
+                  trailing ??
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: AppColors.dynamicTextSecondary.withAlpha(140),
+                      ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
+        if (showDivider)
+          Divider(
+            height: 1,
+            thickness: 0.6,
+            indent: 54,
+            color: AppColors.dynamicBorder.withAlpha(100),
+          ),
+      ],
     );
   }
 }
