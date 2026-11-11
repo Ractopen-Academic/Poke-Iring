@@ -49,6 +49,15 @@ class MainNavigationShell extends StatefulWidget {
     _MainNavigationShellState._hasRunStartupModals = false;
   }
 
+  /// Resets the navigation tab and startup modal state for a fresh user session.
+  /// Guarantees that any new login or re-authenticated session lands strictly
+  /// on the primary Home Feed dashboard (tab index 0).
+  static void resetSession() {
+    _MainNavigationShellState._activeTabIndex = 0;
+    _MainNavigationShellState._hasRunStartupModals = false;
+    _MainNavigationShellState._activeSessionUserId = null;
+  }
+
   @override
   State<MainNavigationShell> createState() => _MainNavigationShellState();
 }
@@ -57,6 +66,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     with SingleTickerProviderStateMixin {
   static int _activeTabIndex = 0;
   static bool _hasRunStartupModals = false;
+  static String? _activeSessionUserId;
 
   late int _currentIndex;
   bool _isShowingMap = false;
@@ -77,12 +87,40 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   bool _dismissedOfflineBanner = false;
   bool _dismissedGpsBanner = false;
 
+  void _openAccountPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          body: DashboardPage(
+            user: widget.user,
+            authRepository: widget.authRepository,
+            onOpenMap: () {
+              Navigator.pop(context);
+              _setMapVisible(true);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   List<Widget> _buildPages() {
     return [
       HomeFeedPage(
         key: const PageStorageKey<String>('home_tab'),
         user: widget.user,
-        onOpenLeaderboard: () => _selectTab(2),
+        onOpenLeaderboard: () => _selectTab(3),
+        onOpenAccount: _openAccountPage,
+      ),
+      LiveMapPage(
+        key: const PageStorageKey<String>('map_tab'),
+        locationService: _locationService,
+        isMapActive: _currentIndex == 1 && !_isShowingMap,
+        currentUserId: widget.user.id.isNotEmpty
+            ? widget.user.id
+            : widget.user.email,
+        onClose: () => _selectTab(0),
       ),
       IringDexPage(
         key: const PageStorageKey<String>('dex_tab'),
@@ -100,18 +138,19 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         isAdmin: widget.user.isAdminRole,
         promptTerritorySetup: false,
       ),
-      DashboardPage(
-        key: const PageStorageKey<String>('dashboard_tab'),
-        user: widget.user,
-        authRepository: widget.authRepository,
-        onOpenMap: () => _setMapVisible(true),
-      ),
     ];
   }
 
   @override
   void initState() {
     super.initState();
+    final currentUserId =
+        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+    if (_activeSessionUserId != currentUserId) {
+      _activeSessionUserId = currentUserId;
+      _activeTabIndex = 0;
+      _hasRunStartupModals = false;
+    }
     _currentIndex = _activeTabIndex;
     CalicoThemeController.instance.addListener(_handleCoatModeChanged);
     _tabEnterController = AnimationController(
@@ -234,8 +273,16 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     }
   }
 
+  DateTime? _lastSnapLaunchTime;
+
   void _handleIringCenterTap() {
-    _setMapVisible(!_isShowingMap);
+    final now = DateTime.now();
+    if (_lastSnapLaunchTime != null &&
+        now.difference(_lastSnapLaunchTime!) < const Duration(milliseconds: 600)) {
+      return;
+    }
+    _lastSnapLaunchTime = now;
+    _openQuickSnapCamera();
   }
 
   void _openQuickSnapCamera() {

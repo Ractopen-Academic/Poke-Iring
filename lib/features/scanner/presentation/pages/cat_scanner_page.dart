@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/app_permission_service.dart';
 import '../../../../core/services/audio_haptic_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
@@ -85,6 +86,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
     _lockedLongitude = widget.currentLongitude;
     _acquireCurrentLocation();
     _refreshEventMultiplier();
+    _checkLostImageRecovery();
 
     if (widget.autoLaunchCamera) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -93,6 +95,24 @@ class _CatScannerPageState extends State<CatScannerPage> {
         }
       });
     }
+  }
+
+  Future<void> _checkLostImageRecovery() async {
+    if (kIsWeb) return;
+    try {
+      final LostDataResponse response = await _picker.retrieveLostData();
+      if (response.isEmpty || response.file == null) return;
+      final bytes = await response.file!.readAsBytes();
+      if (mounted) {
+        setState(() {
+          _capturedImageBytes = bytes;
+          _isReviewingSnap = true;
+          _isAnalyzing = false;
+          _showAsyncNotice = false;
+          _errorMessage = null;
+        });
+      }
+    } catch (_) {}
   }
 
   void _handleThemeChanged() {
@@ -140,8 +160,37 @@ class _CatScannerPageState extends State<CatScannerPage> {
     } catch (_) {}
   }
 
+  bool _isCameraPermissionDenied = false;
+
   Future<void> _pickAndAnalyze() async {
     try {
+      if (!kIsWeb) {
+        const permService = AppPermissionService();
+        final status = await permService.checkCamera();
+        if (status == AppPermissionState.denied) {
+          final requested = await permService.requestCamera();
+          if (requested != AppPermissionState.granted) {
+            if (mounted) {
+              setState(() {
+                _isCameraPermissionDenied = true;
+                _errorMessage =
+                    'Camera permission is required to spot and record live feline sightings.';
+              });
+            }
+            return;
+          }
+        } else if (status == AppPermissionState.permanentlyDenied) {
+          if (mounted) {
+            setState(() {
+              _isCameraPermissionDenied = true;
+              _errorMessage =
+                  'Camera access is blocked in system settings. Tap "Open Settings" to enable.';
+            });
+          }
+          return;
+        }
+      }
+
       AudioHapticService.instance.snapShutter();
       _acquireCurrentLocation();
       final XFile? file = await _picker.pickImage(
@@ -151,10 +200,20 @@ class _CatScannerPageState extends State<CatScannerPage> {
         imageQuality: 85,
       );
 
-      if (file == null) return;
+      if (file == null) {
+        // User voluntarily cancelled the system camera capture
+        if (widget.autoLaunchCamera &&
+            _capturedImageBytes == null &&
+            _scanResult == null &&
+            mounted) {
+          Navigator.maybePop(context);
+        }
+        return;
+      }
 
       final bytes = await file.readAsBytes();
       setState(() {
+        _isCameraPermissionDenied = false;
         _capturedImageBytes = bytes;
         _isReviewingSnap = true;
         _isAnalyzing = false;
@@ -270,6 +329,8 @@ class _CatScannerPageState extends State<CatScannerPage> {
         pawPoints: awardedPoints,
         quirk: _scanResult!.quirk,
         createdAt: DateTime.now(),
+        aiVerified: _scanResult!.isCat,
+        aiConfidence: _scanResult!.confidence,
       );
 
       await _repository.saveSighting(
@@ -872,12 +933,41 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.red.shade400.withAlpha(120)),
               ),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  color: Color(0xFFFCA5A5),
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: Color(0xFFFCA5A5),
+                    ),
+                  ),
+                  if (_isCameraPermissionDenied && !kIsWeb) ...[
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFFFCA5A5),
+                        backgroundColor: Colors.white.withAlpha(20),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () =>
+                          const AppPermissionService().openAppSettingsIfNeeded(),
+                      icon: const Icon(Icons.settings_rounded, size: 16),
+                      label: const Text(
+                        'Open App Settings to Grant Camera Access',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           const SizedBox(height: 16),

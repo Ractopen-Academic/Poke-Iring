@@ -128,7 +128,7 @@ class _IringCenterButtonState extends State<IringCenterButton>
                     child: CustomPaint(
                       size: const Size(62, 62),
                       painter: _CircularTextPainter(
-                        text: isMapOpen ? 'CLOSE   MAP    ' : 'IRING   POKE   ',
+                        text: isMapOpen ? 'CLOSE   MAP    ' : 'SNAP   CAT   ',
                         style: TextStyle(
                           color: isMapOpen
                               ? AppColors.gingerBorder
@@ -155,12 +155,38 @@ class _IringCenterButtonState extends State<IringCenterButton>
                   ),
                 ),
                 child: Center(
-                  child: SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: CustomPaint(
-                      painter: _CalicoCatCenterPainter(isAlert: isMapOpen),
-                    ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CustomPaint(
+                          painter: _CalicoCatCenterPainter(isAlert: isMapOpen),
+                        ),
+                      ),
+                      if (!isMapOpen)
+                        Positioned(
+                          right: -1,
+                          bottom: -1,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: AppColors.calicoBlack,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1.0,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              size: 9,
+                              color: Color(0xFFFFA033),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),

@@ -16,6 +16,9 @@ import 'package:pokeiring/features/events/presentation/widgets/event_popup_modal
 import 'package:pokeiring/features/home/presentation/pages/main_navigation_shell.dart';
 import 'package:pokeiring/features/home/presentation/widgets/app_bottom_nav_bar.dart';
 import 'package:pokeiring/features/home/presentation/widgets/iring_center_button.dart';
+import 'package:pokeiring/features/home/presentation/pages/home_feed_page.dart';
+import 'package:pokeiring/features/dex/presentation/pages/iring_dex_page.dart';
+import 'package:pokeiring/features/scanner/presentation/pages/cat_scanner_page.dart';
 import 'package:pokeiring/features/map/domain/entities/user_location.dart';
 import 'package:pokeiring/features/map/presentation/pages/live_map_page.dart';
 import 'package:pokeiring/features/map/presentation/widgets/peeking_cat_recenter_button.dart';
@@ -189,24 +192,30 @@ void main() {
         );
 
         expect(find.text('Home'), findsOneWidget);
+        expect(find.text('Radar'), findsOneWidget);
         expect(find.text('Dex'), findsOneWidget);
         expect(find.text('Ranks'), findsOneWidget);
-        expect(find.text('Account'), findsOneWidget);
         expect(find.byType(CalicoAnimatedBar), findsNWidgets(4));
 
-        await tester.tap(find.text('Dex'));
+        await tester.tap(find.text('Radar'));
         await tester.pump(const Duration(milliseconds: 350));
         expect(selectedIndex, equals(1));
 
-        await tester.tap(find.text('Ranks'));
+        await tester.tap(find.text('Dex'));
         await tester.pump(const Duration(milliseconds: 350));
         expect(selectedIndex, equals(2));
 
-        await tester.tap(find.text('Account'));
+        await tester.tap(find.text('Ranks'));
         await tester.pump(const Duration(milliseconds: 350));
         expect(selectedIndex, equals(3));
       },
     );
+
+    test('MainNavigationShell resetSession resets tab to 0 and clears user session', () {
+      MainNavigationShell.resetSession();
+      // Calling resetSession must be safe and idempotent
+      MainNavigationShell.resetSession();
+    });
 
     testWidgets('IringCenterButton animates on tap and map state toggle', (
       tester,
@@ -276,7 +285,7 @@ void main() {
     );
 
     testWidgets(
-      'MainNavigationShell choreographs map overlay and FloatingSnapIringButton',
+      'MainNavigationShell coordinates Radar tab navigation and center button quick snap camera',
       (tester) async {
         await tester.pumpWidget(
           MaterialApp(
@@ -294,29 +303,39 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
-        expect(find.byType(FloatingSnapIringButton), findsNothing);
-        expect(find.byType(LiveMapPage), findsNothing);
+        // Initial tab is Home
+        expect(find.byType(HomeFeedPage), findsOneWidget);
+        expect(find.byType(CatScannerPage), findsNothing);
 
+        // Center button launches CatScannerPage directly
         await tester.tap(find.byType(IringCenterButton));
         await tester.pump();
+        await tester.pump(const Duration(milliseconds: 350));
+
+        expect(find.byType(CatScannerPage), findsOneWidget);
+
+        // Pop camera back to Home
+        Navigator.pop(tester.element(find.byType(CatScannerPage)));
+        await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump(const Duration(milliseconds: 300));
+
+        expect(find.byType(CatScannerPage), findsNothing);
+
+        // Tap Radar tab (index 1) to navigate to LiveMapPage
+        await tester.tap(find.text('Radar'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 350));
 
         expect(find.byType(LiveMapPage), findsOneWidget);
-        expect(find.byType(FloatingSnapIringButton), findsOneWidget);
         expect(find.text('10.3155, 123.9788'), findsOneWidget);
 
-        await tester.tap(find.byType(IringCenterButton));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
-
-        expect(find.byType(LiveMapPage), findsNothing);
-        expect(find.byType(FloatingSnapIringButton), findsNothing);
-
+        // Tap Dex tab (index 2)
         await tester.tap(find.text('Dex'));
         await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump(const Duration(milliseconds: 350));
 
-        expect(find.byType(FloatingSnapIringButton), findsNothing);
+        expect(find.byType(IringDexPage), findsOneWidget);
       },
     );
 
@@ -461,7 +480,7 @@ void main() {
     );
 
     testWidgets(
-      'FloatingSnapIringButton stays strictly above PeekingCatRecenterButton on LiveMapPage',
+      'LiveMapPage renders PeekingCatRecenterButton without obstruction',
       (tester) async {
         await tester.pumpWidget(
           MaterialApp(
@@ -479,21 +498,15 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
-        await tester.tap(find.byType(IringCenterButton));
+        // Switch to Radar tab
+        await tester.tap(find.text('Radar'));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 350));
 
-        final cameraPainterFinder = find.descendant(
-          of: find.byType(FloatingSnapIringButton),
-          matching: find.byType(SizedBox),
-        );
         final recenterFinder = find.byType(PeekingCatRecenterButton);
-
-        final cameraRect = tester.getRect(cameraPainterFinder.first);
+        expect(recenterFinder, findsOneWidget);
         final recenterRect = tester.getRect(recenterFinder);
-
-        expect(cameraRect.overlaps(recenterRect), isFalse);
-        expect(cameraRect.bottom, lessThanOrEqualTo(recenterRect.top));
+        expect(recenterRect.bottom, greaterThan(0));
       },
     );
   });

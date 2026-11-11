@@ -15,13 +15,22 @@ import '../../../events/presentation/widgets/active_events_carousel.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
 import '../../../quests/presentation/widgets/paw_quests_section.dart';
+import '../../../rewards/presentation/pages/reward_store_page.dart';
+import '../../../scanner/presentation/widgets/cat_verification_game_sheet.dart';
 import '../../../stories/presentation/widgets/stories_tray.dart';
+import '../../../../core/widgets/feline_avatar.dart';
 
 class HomeFeedPage extends StatefulWidget {
   final AuthUser user;
   final VoidCallback? onOpenLeaderboard;
+  final VoidCallback? onOpenAccount;
 
-  const HomeFeedPage({super.key, required this.user, this.onOpenLeaderboard});
+  const HomeFeedPage({
+    super.key,
+    required this.user,
+    this.onOpenLeaderboard,
+    this.onOpenAccount,
+  });
 
   @override
   State<HomeFeedPage> createState() => _HomeFeedPageState();
@@ -74,6 +83,53 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
         backgroundColor: AppColors.dynamicBackground,
         foregroundColor: AppColors.dynamicTextPrimary,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Human Verification Game',
+            icon: const Icon(
+              Icons.how_to_vote_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
+            onPressed: () => CatVerificationGameSheet.show(
+              context,
+              user: widget.user,
+            ),
+          ),
+          IconButton(
+            tooltip: 'Paw Points Exchange',
+            icon: const Icon(
+              Icons.storefront_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RewardStorePage(user: widget.user),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 14, left: 4),
+            child: Center(
+              child: Tooltip(
+                message: 'Explorer Profile & Account',
+                child: FelineAvatar(
+                  photoUrl: widget.user.photoUrl,
+                  seed: widget.user.id.isNotEmpty
+                      ? widget.user.id
+                      : widget.user.email,
+                  radius: 17,
+                  showBorder: true,
+                  borderColor: AppColors.primary,
+                  borderWidth: 1.5,
+                  onTap: widget.onOpenAccount,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: StreamBuilder<ExplorerHealthSnapshot>(

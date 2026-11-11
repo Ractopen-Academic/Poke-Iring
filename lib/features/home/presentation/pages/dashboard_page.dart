@@ -18,6 +18,7 @@ import '../../../territory/data/services/territory_service_impl.dart';
 import '../../../territory/domain/services/territory_service.dart';
 import '../../../vault/data/services/photo_vault_service_impl.dart';
 import '../../../vault/presentation/pages/raw_photo_vault_page.dart';
+import 'main_navigation_shell.dart';
 import '../widgets/dashboard_coat_theme_card.dart';
 import '../widgets/dashboard_feline_club_card.dart';
 import '../widgets/dashboard_profile_card.dart';
@@ -106,6 +107,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<void> _handleSignOut() async {
     setState(() => _isLoggingOut = true);
     try {
+      MainNavigationShell.resetSession();
       await widget.authRepository.signOut();
     } catch (e) {
       if (mounted) {
