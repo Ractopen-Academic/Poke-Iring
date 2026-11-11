@@ -12,11 +12,11 @@ import '../../../achievements/presentation/widgets/equipped_title_badge.dart';
 import '../../../achievements/presentation/widgets/title_selection_sheet.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../events/presentation/widgets/active_events_carousel.dart';
+import '../../../games/presentation/pages/reyal_or_pake_game_page.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
 import '../../../quests/presentation/widgets/paw_quests_section.dart';
 import '../../../rewards/presentation/pages/reward_store_page.dart';
-import '../../../scanner/presentation/widgets/cat_verification_game_sheet.dart';
 import '../../../stories/presentation/widgets/stories_tray.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 
@@ -85,13 +85,13 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
         elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Human Verification Game',
+            tooltip: 'Games (Reyal or Pake?)',
             icon: const Icon(
-              Icons.how_to_vote_rounded,
+              Icons.sports_esports_rounded,
               color: AppColors.primary,
-              size: 22,
+              size: 23,
             ),
-            onPressed: () => CatVerificationGameSheet.show(
+            onPressed: () => ReyalOrPakeGamePage.navigate(
               context,
               user: widget.user,
             ),
