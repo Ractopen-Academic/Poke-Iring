@@ -47,8 +47,51 @@ class TilePrecacheServiceImpl implements TilePrecacheService {
       }
     }
 
+    return _downloadBatch(urls);
+  }
+
+  @override
+  Future<int> precacheBoundingBox({
+    required LatLng northEast,
+    required LatLng southWest,
+    required List<int> zoomLevels,
+  }) async {
+    final urls = <String>[];
+    var subdomainIndex = 0;
+
+    for (final z in zoomLevels) {
+      final minX = lonToTileX(southWest.longitude, z);
+      final maxX = lonToTileX(northEast.longitude, z);
+      final minY = latToTileY(northEast.latitude, z);
+      final maxY = latToTileY(southWest.latitude, z);
+
+      final startX = math.min(minX, maxX);
+      final endX = math.max(minX, maxX);
+      final startY = math.min(minY, maxY);
+      final endY = math.max(minY, maxY);
+
+      for (var x = startX; x <= endX; x++) {
+        for (var y = startY; y <= endY; y++) {
+          final subdomain = subdomains[subdomainIndex % subdomains.length];
+          subdomainIndex++;
+
+          final url = urlTemplate
+              .replaceAll('{s}', subdomain)
+              .replaceAll('{z}', z.toString())
+              .replaceAll('{x}', x.toString())
+              .replaceAll('{y}', y.toString());
+
+          urls.add(url);
+        }
+      }
+    }
+
+    return _downloadBatch(urls);
+  }
+
+  Future<int> _downloadBatch(List<String> urls) async {
     var cachedCount = 0;
-    const batchSize = 4;
+    const batchSize = 6;
     for (var i = 0; i < urls.length; i += batchSize) {
       final batch = urls.skip(i).take(batchSize);
       final futures = batch.map((url) async {
@@ -61,10 +104,11 @@ class TilePrecacheServiceImpl implements TilePrecacheService {
               .downloadFile(
                 url,
                 authHeaders: const {
-                  'User-Agent': 'PokeIringApp/1.0 (Mobile; Android; Contact: ractopen@users.noreply.github.com)',
+                  'User-Agent':
+                      'PokeIringApp/1.0 (Mobile; Android; Contact: ractopen@users.noreply.github.com)',
                 },
               )
-              .timeout(const Duration(milliseconds: 1800));
+              .timeout(const Duration(milliseconds: 2500));
           return true;
         } catch (_) {
           return false;

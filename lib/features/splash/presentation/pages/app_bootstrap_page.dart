@@ -16,6 +16,7 @@ import '../../../../core/widgets/lockout_views.dart';
 import '../../../auth/presentation/widgets/calico_login_mascot.dart';
 import '../../../map/data/services/tile_precache_service_impl.dart';
 import '../../../map/domain/services/tile_precache_service.dart';
+import '../../../territory/data/services/territory_service_impl.dart';
 
 class BootstrapResult {
   final bool isOnline;
@@ -170,15 +171,34 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
         _progress = 0.90;
       });
 
-      // Precache Bankal base grid on mobile with safety timeout
+      // Precache 3km x 3km initial exploration spawn zone around user location / territory
       if (!kIsWeb) {
+        LatLng spawnCenter = const LatLng(10.3140, 123.9720); // Default Bankal
+        try {
+          if (locationStatus == LocationAccessStatus.granted) {
+            final userLoc = await _locationService.getCurrentLocation();
+            if (userLoc != null) {
+              spawnCenter = LatLng(userLoc.latitude, userLoc.longitude);
+            }
+          } else {
+            final t = await TerritoryServiceImpl.instance
+                .getTerritory('local_explorer')
+                .timeout(const Duration(milliseconds: 1000));
+            if (t.latitude != null && t.longitude != null) {
+              spawnCenter = LatLng(t.latitude!, t.longitude!);
+            }
+          }
+        } catch (_) {}
+
+        // 3km x 3km grid: +/- 0.0135 degrees latitude (~1.5km each direction)
+        // Zoom 15 & 16 covers the local player radius
         cachedTiles = await _tilePrecacheService
             .precacheArea(
-              center: const LatLng(10.3140, 123.9720),
-              zoomLevels: const [16],
-              radiusTiles: 1,
+              center: spawnCenter,
+              zoomLevels: const [15, 16],
+              radiusTiles: 2, // 5x5 tile grid at zoom 16 covers ~3km x 3km
             )
-            .timeout(const Duration(milliseconds: 2500), onTimeout: () => 0);
+            .timeout(const Duration(milliseconds: 3500), onTimeout: () => 0);
       }
     } on RemoteConfigException catch (e) {
       if (!mounted) return;

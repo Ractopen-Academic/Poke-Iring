@@ -6,4 +6,11 @@ abstract class TilePrecacheService {
     required List<int> zoomLevels,
     int radiusTiles = 1,
   });
+
+  /// Precaches tiles within a bounding box (e.g. customized rectangle crop)
+  Future<int> precacheBoundingBox({
+    required LatLng northEast,
+    required LatLng southWest,
+    required List<int> zoomLevels,
+  });
 }

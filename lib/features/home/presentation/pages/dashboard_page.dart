@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_version.dart';
@@ -10,6 +11,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../achievements/presentation/pages/achievements_page.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../map/presentation/widgets/offline_map_download_dialog.dart';
 import '../../../scanner/data/datasources/firebase_sightings_datasource.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
 import '../../../showcase/services/showcase_service.dart';
@@ -488,6 +490,24 @@ class _DashboardPageState extends State<DashboardPage> {
           _SettingsGroup(
             title: 'Cache & Cloud Synchronization',
             children: [
+              _SettingsTile(
+                icon: Icons.download_for_offline_outlined,
+                title: 'Download Offline Map Area',
+                subtitle: 'Select crop rectangle to cache map for offline exploration',
+                onTap: () async {
+                  final t = await TerritoryServiceImpl.instance
+                      .getTerritory(widget.user.id.isNotEmpty
+                          ? widget.user.id
+                          : widget.user.email);
+                  final lat = t.latitude ?? 10.3140;
+                  final lon = t.longitude ?? 123.9720;
+                  if (!mounted) return;
+                  OfflineMapDownloadDialog.show(
+                    context,
+                    initialCenter: LatLng(lat, lon),
+                  );
+                },
+              ),
               _SettingsTile(
                 icon: Icons.sync_rounded,
                 title: 'Force Cloud Recache',
