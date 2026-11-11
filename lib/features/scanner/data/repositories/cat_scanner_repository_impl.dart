@@ -95,4 +95,17 @@ class CatScannerRepositoryImpl implements CatScannerRepository {
       userId: userId,
     );
   }
+
+  @override
+  Future<void> voteSighting({
+    required String sightingId,
+    required String userId,
+    required bool isCat,
+  }) {
+    return _firebaseDataSource.voteSighting(
+      sightingId: sightingId,
+      userId: userId,
+      isCat: isCat,
+    );
+  }
 }

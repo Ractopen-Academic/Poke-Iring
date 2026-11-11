@@ -53,12 +53,17 @@ jobs:
           fi
 
       - name: Build Android 14+ 64-bit APK
+        env:
+          # Public URL of the admin Vision proxy (repo Variable, not a secret).
+          # The Gemini key stays on Vercel and is never baked into the APK.
+          VISION_PROXY_URL: ${{ vars.VISION_PROXY_URL }}
         run: |
           BUILD_TYPE="${{ inputs.build_type || 'release' }}"
+          DEFINES="--dart-define=VISION_PROXY_URL=${VISION_PROXY_URL}"
           if [ "$BUILD_TYPE" = "release" ]; then
-            flutter build apk --release --target-platform android-arm64 --tree-shake-icons
+            flutter build apk --release --target-platform android-arm64 --tree-shake-icons $DEFINES
           else
-            flutter build apk --debug --target-platform android-arm64
+            flutter build apk --debug --target-platform android-arm64 $DEFINES
           fi
 
       - name: Prepare Artifact Package

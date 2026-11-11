@@ -100,7 +100,8 @@ class FelineEvent {
   Color get accentColor => Color(accentColorValue);
 
   bool get isExpired => DateTime.now().isAfter(endDate);
-  bool get isUpcoming => DateTime.now().isBefore(startDate);
+  bool get isUpcoming =>
+      DateTime.now().add(const Duration(minutes: 2)).isBefore(startDate);
   bool get isActive => isEnabled && !isExpired && !isUpcoming;
   bool get isPartnership =>
       eventType == 'partnership' ||
@@ -117,6 +118,18 @@ class FelineEvent {
     final now = DateTime.now();
     if (now.isAfter(endDate)) {
       return 'Concluded';
+    }
+    if (now.isBefore(startDate)) {
+      final diff = startDate.difference(now);
+      if (diff.inDays > 0) {
+        final hours = diff.inHours % 24;
+        return 'Starts in ${diff.inDays}d ${hours}h';
+      }
+      if (diff.inHours > 0) {
+        final mins = diff.inMinutes % 60;
+        return 'Starts in ${diff.inHours}h ${mins}m';
+      }
+      return 'Starts in ${diff.inMinutes}m';
     }
     final diff = endDate.difference(now);
     if (diff.inDays > 0) {

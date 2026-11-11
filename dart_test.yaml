@@ -1,0 +1,3 @@
+tags:
+  live:
+    # Hits real network + Gemini. Skipped unless GEMINI_API_KEY is set.

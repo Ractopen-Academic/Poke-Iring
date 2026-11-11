@@ -22,7 +22,6 @@ import 'package:pokeiring/features/scanner/presentation/pages/cat_scanner_page.d
 import 'package:pokeiring/features/map/domain/entities/user_location.dart';
 import 'package:pokeiring/features/map/presentation/pages/live_map_page.dart';
 import 'package:pokeiring/features/map/presentation/widgets/peeking_cat_recenter_button.dart';
-import 'package:pokeiring/features/scanner/presentation/widgets/floating_snap_iring_button.dart';
 import 'package:pokeiring/features/territory/data/services/territory_service_impl.dart';
 import 'package:pokeiring/features/territory/domain/entities/explorer_territory.dart';
 import 'package:shared_preferences/shared_preferences.dart';

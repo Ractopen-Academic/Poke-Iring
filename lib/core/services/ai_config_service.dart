@@ -110,7 +110,7 @@ class AiConfigService {
 
   String get maskedKey {
     final key = _cachedKey?.trim() ?? _compileTimeKey.trim();
-    if (key.isEmpty) return 'Not configured (Mock active)';
+    if (key.isEmpty) return 'Not configured (scans cannot be verified)';
     if (key.length <= 8) return '••••••••';
     return '${key.substring(0, 4)}••••${key.substring(key.length - 4)}';
   }

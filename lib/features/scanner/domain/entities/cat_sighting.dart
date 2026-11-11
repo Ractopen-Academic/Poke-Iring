@@ -21,6 +21,14 @@ class CatSighting {
   final List<String> boopedBy;
   final DateTime createdAt;
 
+  // Dual-verification fields (AI stage 1 + Human community stage 2)
+  final bool aiVerified;
+  final double aiConfidence;
+  final int humanUpvotes;
+  final int humanDownvotes;
+  final List<String> verifiedByUsers;
+  final List<String> rejectedByUsers;
+
   const CatSighting({
     required this.id,
     required this.userId,
@@ -43,7 +51,16 @@ class CatSighting {
     this.boopsCount = 0,
     this.boopedBy = const [],
     required this.createdAt,
+    this.aiVerified = true,
+    this.aiConfidence = 0.95,
+    this.humanUpvotes = 0,
+    this.humanDownvotes = 0,
+    this.verifiedByUsers = const [],
+    this.rejectedByUsers = const [],
   });
+
+  /// Check if the community has completed human verification
+  bool get isHumanVerified => humanUpvotes >= 2 && humanUpvotes > humanDownvotes;
 
   CatSighting copyWith({
     String? id,
@@ -67,6 +84,12 @@ class CatSighting {
     int? boopsCount,
     List<String>? boopedBy,
     DateTime? createdAt,
+    bool? aiVerified,
+    double? aiConfidence,
+    int? humanUpvotes,
+    int? humanDownvotes,
+    List<String>? verifiedByUsers,
+    List<String>? rejectedByUsers,
   }) {
     return CatSighting(
       id: id ?? this.id,
@@ -90,6 +113,12 @@ class CatSighting {
       boopsCount: boopsCount ?? this.boopsCount,
       boopedBy: boopedBy ?? this.boopedBy,
       createdAt: createdAt ?? this.createdAt,
+      aiVerified: aiVerified ?? this.aiVerified,
+      aiConfidence: aiConfidence ?? this.aiConfidence,
+      humanUpvotes: humanUpvotes ?? this.humanUpvotes,
+      humanDownvotes: humanDownvotes ?? this.humanDownvotes,
+      verifiedByUsers: verifiedByUsers ?? this.verifiedByUsers,
+      rejectedByUsers: rejectedByUsers ?? this.rejectedByUsers,
     );
   }
 
@@ -170,6 +199,12 @@ class CatSighting {
       'boopsCount': boopsCount,
       'boopedBy': boopedBy,
       'createdAt': createdAt.toIso8601String(),
+      'aiVerified': aiVerified,
+      'aiConfidence': aiConfidence,
+      'humanUpvotes': humanUpvotes,
+      'humanDownvotes': humanDownvotes,
+      'verifiedByUsers': verifiedByUsers,
+      'rejectedByUsers': rejectedByUsers,
     };
   }
 
@@ -204,6 +239,20 @@ class CatSighting {
                 ? DateTime.tryParse(map['createdAt']) ?? DateTime.now()
                 : DateTime.now())
           : DateTime.now(),
+      aiVerified: map['aiVerified'] == null ? true : (map['aiVerified'] == true),
+      aiConfidence: (map['aiConfidence'] as num?)?.toDouble() ?? 0.95,
+      humanUpvotes: (map['humanUpvotes'] as num?)?.toInt() ?? 0,
+      humanDownvotes: (map['humanDownvotes'] as num?)?.toInt() ?? 0,
+      verifiedByUsers:
+          (map['verifiedByUsers'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      rejectedByUsers:
+          (map['rejectedByUsers'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
     );
   }
 }

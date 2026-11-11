@@ -28,4 +28,11 @@ abstract class CatScannerRepository {
     required String sightingId,
     required String userId,
   });
+
+  /// Submit a community human verification vote for a sighting photo
+  Future<void> voteSighting({
+    required String sightingId,
+    required String userId,
+    required bool isCat,
+  });
 }

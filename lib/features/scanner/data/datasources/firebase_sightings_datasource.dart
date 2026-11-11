@@ -473,6 +473,72 @@ class FirebaseSightingsDataSource {
     }
   }
 
+  Future<void> voteSighting({
+    required String sightingId,
+    required String userId,
+    required bool isCat,
+  }) async {
+    if (_isFirebaseAvailable) {
+      try {
+        final db = firestore ?? FirebaseFirestore.instance;
+        final docRef = db.collection('sightings').doc(sightingId);
+        final doc = await docRef.get();
+        if (doc.exists) {
+          final authorId = doc.data()?['userId']?.toString();
+          if (isCat) {
+            await docRef.update({
+              'humanUpvotes': FieldValue.increment(1),
+              'verifiedByUsers': FieldValue.arrayUnion([userId]),
+            });
+            // Give reward points: +15 to verifier for auditing, +10 bonus to author for verified cat
+            await db.collection('users').doc(userId).set({
+              'totalPawPoints': FieldValue.increment(15),
+            }, SetOptions(merge: true));
+            if (authorId != null && authorId.isNotEmpty && authorId != userId) {
+              await db.collection('users').doc(authorId).set({
+                'totalPawPoints': FieldValue.increment(10),
+              }, SetOptions(merge: true));
+            }
+          } else {
+            await docRef.update({
+              'humanDownvotes': FieldValue.increment(1),
+              'rejectedByUsers': FieldValue.arrayUnion([userId]),
+            });
+            // Verification guardian reward
+            await db.collection('users').doc(userId).set({
+              'totalPawPoints': FieldValue.increment(10),
+            }, SetOptions(merge: true));
+          }
+          return;
+        }
+      } catch (e) {
+        debugPrint('Firebase voteSighting error ($e). Applying locally.');
+      }
+    }
+
+    // Local update
+    final index = _localSightings.indexWhere((s) => s.id == sightingId);
+    if (index != -1) {
+      final s = _localSightings[index];
+      if (!s.verifiedByUsers.contains(userId) && !s.rejectedByUsers.contains(userId)) {
+        if (isCat) {
+          final up = List<String>.from(s.verifiedByUsers)..add(userId);
+          _localSightings[index] = s.copyWith(
+            humanUpvotes: s.humanUpvotes + 1,
+            verifiedByUsers: up,
+          );
+        } else {
+          final down = List<String>.from(s.rejectedByUsers)..add(userId);
+          _localSightings[index] = s.copyWith(
+            humanDownvotes: s.humanDownvotes + 1,
+            rejectedByUsers: down,
+          );
+        }
+        _localStreamController.add(List.unmodifiable(_localSightings));
+      }
+    }
+  }
+
   void _notifyAchievements(CatSighting sighting) {
     final achievements = AchievementsRepositoryImpl.instance;
     final userId = sighting.userId;

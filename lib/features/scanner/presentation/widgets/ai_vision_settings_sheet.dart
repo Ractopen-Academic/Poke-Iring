@@ -51,7 +51,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
           _currentStatus =
               'Direct Key: (${AiConfigService.instance.maskedKey})';
         } else {
-          _currentStatus = 'No key set (Smart mock active)';
+          _currentStatus = 'No key set (scans cannot be verified)';
         }
         _isLoading = false;
       });
@@ -73,7 +73,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
       } else if (key.isNotEmpty) {
         _currentStatus = 'Direct Key: (${AiConfigService.instance.maskedKey})';
       } else {
-        _currentStatus = 'No key set (Smart mock active)';
+        _currentStatus = 'No key set (scans cannot be verified)';
       }
     });
 
@@ -84,7 +84,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
               ? 'Vision proxy URL and settings saved.'
               : key.isNotEmpty
               ? 'Gemini API key saved to device.'
-              : 'Cleared settings. Smart mock vision activated.',
+              : 'Cleared settings. AI verification disabled.',
         ),
       ),
     );
@@ -103,12 +103,12 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
 
     setState(() {
       _isSaving = false;
-      _currentStatus = 'No key set (Smart mock active)';
+      _currentStatus = 'No key set (scans cannot be verified)';
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Cleared API settings. Switched to smart mock vision.'),
+        content: Text('Cleared API settings. AI verification disabled.'),
       ),
     );
     Navigator.pop(context);
@@ -297,7 +297,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Use Mock Mode'),
+                    child: const Text('Clear Settings'),
                   ),
                 ),
                 const SizedBox(width: 12),
