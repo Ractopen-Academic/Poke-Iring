@@ -17,6 +17,9 @@ import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
 import '../../../quests/presentation/widgets/paw_quests_section.dart';
 import '../../../rewards/presentation/pages/reward_store_page.dart';
+import '../../../seasons/data/services/season_service_impl.dart';
+import '../../../seasons/domain/entities/season_period.dart';
+import '../../../seasons/presentation/widgets/season_details_sheet.dart';
 import '../../../stories/presentation/widgets/stories_tray.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 
@@ -252,6 +255,69 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                               fontSize: 13,
                               color: AppColors.dynamicTextSecondary,
                             ),
+                          ),
+                          const SizedBox(height: 10),
+                          StreamBuilder<SeasonPeriod>(
+                            stream: SeasonServiceImpl.instance.watchCurrentSeason(),
+                            builder: (context, snapshot) {
+                              final season =
+                                  snapshot.data ?? SeasonPeriod.defaultSeason1();
+                              return GestureDetector(
+                                onTap: () {
+                                  SeasonDetailsSheet.show(
+                                    context,
+                                    season: season,
+                                    userId: widget.user.id.isNotEmpty
+                                        ? widget.user.id
+                                        : widget.user.email,
+                                    userPoints: 0,
+                                    userRank: 1,
+                                    divisionTitle: 'Division 1 • Feline Ranger',
+                                    onRolloverCompleted: () {},
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withAlpha(20),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: AppColors.primary.withAlpha(55),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.event_repeat_rounded,
+                                        size: 16,
+                                        color: AppColors.primary,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          '${season.title} • Ends in ${season.remainingFormatted}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.chevron_right_rounded,
+                                        size: 16,
+                                        color: AppColors.primary,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 12),
                           StreamBuilder<GlobalAppConfig>(

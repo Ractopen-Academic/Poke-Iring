@@ -50,6 +50,7 @@ void main() {
 
         final championWidget = find.text('Territory Champions');
         if (championWidget.evaluate().isNotEmpty) {
+          await tester.ensureVisible(championWidget);
           await tester.tap(championWidget);
           expect(leaderboardOpened, isTrue);
         }

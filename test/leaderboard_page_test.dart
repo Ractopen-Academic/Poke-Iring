@@ -30,8 +30,8 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(find.text('Explorer Leaderboard'), findsOneWidget);
-        expect(find.text('Season 1: Sunshine Strays'), findsOneWidget);
+        expect(find.text('Leaderboard'), findsOneWidget);
+        expect(find.textContaining('Season 1'), findsOneWidget);
         expect(find.text('Paw Points'), findsOneWidget);
         expect(find.text('Most Snapped'), findsOneWidget);
         expect(find.text('Most Walked'), findsOneWidget);

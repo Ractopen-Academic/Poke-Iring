@@ -7,8 +7,6 @@ void main() {
 
   group('TilePrecacheServiceImpl bounding box precache', () {
     test('precacheBoundingBox generates valid tile coordinates covering rectangular area', () async {
-      final service = TilePrecacheServiceImpl();
-
       // Bankal area bounding box
       const northEast = LatLng(10.3290, 123.9900);
       const southWest = LatLng(10.2990, 123.9540);

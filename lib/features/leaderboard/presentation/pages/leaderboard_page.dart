@@ -224,7 +224,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       backgroundColor: AppColors.dynamicBackground,
       appBar: AppBar(
         title: Text(
-          'Explorer Leaderboard',
+          'Leaderboard',
           style: TextStyle(
             fontWeight: FontWeight.w800,
             color: AppColors.dynamicTextPrimary,
@@ -237,11 +237,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       ),
       body: Column(
         children: [
-          // Season Notice Banner
-          _buildSeasonBanner(),
-
-          // Active Territory Bar
-          _buildTerritoryBar(),
+          // Compact combined Season & Territory pill bar
+          _buildCompactSeasonAndTerritoryHeader(),
 
           // Category Tabs (Overall / Snaps / Distance)
           _buildCategoryTabs(),
@@ -264,133 +261,117 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     );
   }
 
-  Widget _buildTerritoryBar() {
-    return GestureDetector(
-      onTap: _openTerritoryPicker,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.dynamicSurface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.dynamicBorder),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.location_on_rounded,
-              size: 16,
-              color: AppColors.primary,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Territory: ',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.dynamicTextSecondary,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '$_activeBarangay, $_activeCity',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.dynamicTextPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            Icon(
-              Icons.tune_rounded,
-              size: 14,
-              color: AppColors.dynamicTextSecondary,
-            ),
-            const SizedBox(width: 4),
-            const Text(
-              'Change',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSeasonBanner() {
+  Widget _buildCompactSeasonAndTerritoryHeader() {
     return StreamBuilder<SeasonPeriod>(
       stream: SeasonServiceImpl.instance.watchCurrentSeason(),
       builder: (context, snapshot) {
         final season = snapshot.data ?? SeasonPeriod.defaultSeason1();
-        return GestureDetector(
-          onTap: () {
-            SeasonDetailsSheet.show(
-              context,
-              season: season,
-              userId: widget.currentUserId,
-              userPoints: _userStanding?.points ?? 120,
-              userRank: _userStanding?.rank ?? 4,
-              divisionTitle:
-                  _userStanding?.tier.fullTitle ?? 'Division 2 • Alley Prowler',
-              onRolloverCompleted: _loadLeaderboard,
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(20),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.primary.withAlpha(50)),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.event_repeat_rounded,
-                  size: 20,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        season.title,
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.dynamicTextPrimary,
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+          child: Row(
+            children: [
+              // Compact Season Chip
+              Expanded(
+                flex: 5,
+                child: GestureDetector(
+                  onTap: () {
+                    SeasonDetailsSheet.show(
+                      context,
+                      season: season,
+                      userId: widget.currentUserId,
+                      userPoints: _userStanding?.points ?? 120,
+                      userRank: _userStanding?.rank ?? 4,
+                      divisionTitle: _userStanding?.tier.fullTitle ??
+                          'Division 2 • Alley Prowler',
+                      onRolloverCompleted: _loadLeaderboard,
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withAlpha(20),
+                      borderRadius: BorderRadius.circular(10),
+                      border:
+                          Border.all(color: AppColors.primary.withAlpha(50)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.event_repeat_rounded,
+                          size: 15,
+                          color: AppColors.primary,
                         ),
-                      ),
-                      Text(
-                        '${season.remainingFormatted} • Tap for soft reset & prestige rewards',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.dynamicTextSecondary,
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            '${season.title} • ${season.remainingFormatted}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primary,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  size: 18,
-                  color: AppColors.primary,
+              ),
+              const SizedBox(width: 8),
+              // Compact Territory Chip
+              Expanded(
+                flex: 4,
+                child: GestureDetector(
+                  onTap: _openTerritoryPicker,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.dynamicSurface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.dynamicBorder),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.location_on_rounded,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: Text(
+                            '$_activeBarangay, $_activeCity',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.dynamicTextPrimary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        Icon(
+                          Icons.tune_rounded,
+                          size: 12,
+                          color: AppColors.dynamicTextSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
