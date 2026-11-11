@@ -473,70 +473,159 @@ class FirebaseSightingsDataSource {
     }
   }
 
-  Future<void> voteSighting({
+  Future<int> voteSightingAudit({
     required String sightingId,
     required String userId,
     required bool isCat,
+    String guessedBreed = '',
+    String guessedPattern = '',
+    String guessedColor = '',
   }) async {
+    // 1. Fetch sighting to evaluate match
+    CatSighting? sighting;
     if (_isFirebaseAvailable) {
       try {
         final db = firestore ?? FirebaseFirestore.instance;
         final docRef = db.collection('sightings').doc(sightingId);
         final doc = await docRef.get();
         if (doc.exists) {
-          final authorId = doc.data()?['userId']?.toString();
-          if (isCat) {
-            await docRef.update({
-              'humanUpvotes': FieldValue.increment(1),
-              'verifiedByUsers': FieldValue.arrayUnion([userId]),
-            });
-            // Give reward points: +15 to verifier for auditing, +10 bonus to author for verified cat
-            await db.collection('users').doc(userId).set({
-              'totalPawPoints': FieldValue.increment(15),
-            }, SetOptions(merge: true));
-            if (authorId != null && authorId.isNotEmpty && authorId != userId) {
-              await db.collection('users').doc(authorId).set({
-                'totalPawPoints': FieldValue.increment(10),
-              }, SetOptions(merge: true));
-            }
-          } else {
-            await docRef.update({
-              'humanDownvotes': FieldValue.increment(1),
-              'rejectedByUsers': FieldValue.arrayUnion([userId]),
-            });
-            // Verification guardian reward
-            await db.collection('users').doc(userId).set({
-              'totalPawPoints': FieldValue.increment(10),
-            }, SetOptions(merge: true));
-          }
-          return;
+          final data = doc.data()!;
+          data['id'] = doc.id;
+          sighting = CatSighting.fromMap(data);
         }
-      } catch (e) {
-        debugPrint('Firebase voteSighting error ($e). Applying locally.');
+      } catch (_) {}
+    }
+
+    if (sighting == null) {
+      final idx = _localSightings.indexWhere((s) => s.id == sightingId);
+      if (idx != -1) sighting = _localSightings[idx];
+    }
+
+    if (sighting == null) return 0;
+
+    // Check 3-day community lifespan
+    if (sighting.isPastCommunityLifespan) {
+      throw StateError('This sighting has expired (older than 3 days).');
+    }
+
+    // Check user cannot audit their own sighting
+    if (sighting.userId == userId) {
+      throw StateError('You cannot audit or verify your own sighting.');
+    }
+
+    // Check user has not already voted on this exact sighting
+    if (sighting.verifiedByUsers.contains(userId) ||
+        sighting.rejectedByUsers.contains(userId)) {
+      throw StateError('You have already verified this photo.');
+    }
+
+    // Calculate score
+    int earnedPoints = 0;
+    if (!isCat) {
+      earnedPoints = 5; // Verified fake
+    } else {
+      earnedPoints = 2; // Base real-cat vote
+
+      // Check breed match
+      if (guessedBreed.isNotEmpty) {
+        final sBreed = sighting.breed.toLowerCase();
+        final gBreed = guessedBreed.toLowerCase();
+        if (sBreed == gBreed || (gBreed == 'uncategorized' && sBreed.isEmpty)) {
+          earnedPoints += 8;
+        }
+      }
+
+      // Check pattern match
+      if (guessedPattern.isNotEmpty) {
+        final sPattern = sighting.coatPattern.toLowerCase();
+        final gPattern = guessedPattern.toLowerCase();
+        if (sPattern.contains(gPattern) || gPattern.contains(sPattern)) {
+          earnedPoints += 5;
+        }
+      }
+
+      // Check color match
+      if (guessedColor.isNotEmpty) {
+        final sColor = sighting.dominantColor.toLowerCase();
+        final gColor = guessedColor.toLowerCase();
+        if (sColor.contains(gColor) || gColor.contains(sColor)) {
+          earnedPoints += 3;
+        }
+      }
+
+      // Bonus for all 3 correct
+      if (earnedPoints >= 18) {
+        earnedPoints = 20;
       }
     }
 
-    // Local update
+    if (_isFirebaseAvailable) {
+      try {
+        final db = firestore ?? FirebaseFirestore.instance;
+        final docRef = db.collection('sightings').doc(sightingId);
+        final authorId = sighting.userId;
+
+        if (isCat) {
+          await docRef.update({
+            'humanUpvotes': FieldValue.increment(1),
+            'verifiedByUsers': FieldValue.arrayUnion([userId]),
+          });
+          await db.collection('users').doc(userId).set({
+            'totalPawPoints': FieldValue.increment(earnedPoints),
+          }, SetOptions(merge: true));
+          if (authorId.isNotEmpty && authorId != userId) {
+            await db.collection('users').doc(authorId).set({
+              'totalPawPoints': FieldValue.increment(5),
+            }, SetOptions(merge: true));
+          }
+        } else {
+          await docRef.update({
+            'humanDownvotes': FieldValue.increment(1),
+            'rejectedByUsers': FieldValue.arrayUnion([userId]),
+          });
+          await db.collection('users').doc(userId).set({
+            'totalPawPoints': FieldValue.increment(earnedPoints),
+          }, SetOptions(merge: true));
+        }
+        return earnedPoints;
+      } catch (e) {
+        debugPrint('Firebase voteSightingAudit error ($e). Applying locally.');
+      }
+    }
+
+    // Local in-memory update
     final index = _localSightings.indexWhere((s) => s.id == sightingId);
     if (index != -1) {
       final s = _localSightings[index];
-      if (!s.verifiedByUsers.contains(userId) && !s.rejectedByUsers.contains(userId)) {
-        if (isCat) {
-          final up = List<String>.from(s.verifiedByUsers)..add(userId);
-          _localSightings[index] = s.copyWith(
-            humanUpvotes: s.humanUpvotes + 1,
-            verifiedByUsers: up,
-          );
-        } else {
-          final down = List<String>.from(s.rejectedByUsers)..add(userId);
-          _localSightings[index] = s.copyWith(
-            humanDownvotes: s.humanDownvotes + 1,
-            rejectedByUsers: down,
-          );
-        }
-        _localStreamController.add(List.unmodifiable(_localSightings));
+      if (isCat) {
+        final up = List<String>.from(s.verifiedByUsers)..add(userId);
+        _localSightings[index] = s.copyWith(
+          humanUpvotes: s.humanUpvotes + 1,
+          verifiedByUsers: up,
+        );
+      } else {
+        final down = List<String>.from(s.rejectedByUsers)..add(userId);
+        _localSightings[index] = s.copyWith(
+          humanDownvotes: s.humanDownvotes + 1,
+          rejectedByUsers: down,
+        );
       }
+      _localStreamController.add(List.unmodifiable(_localSightings));
     }
+
+    return earnedPoints;
+  }
+
+  Future<void> voteSighting({
+    required String sightingId,
+    required String userId,
+    required bool isCat,
+  }) async {
+    await voteSightingAudit(
+      sightingId: sightingId,
+      userId: userId,
+      isCat: isCat,
+    );
   }
 
   void _notifyAchievements(CatSighting sighting) {

@@ -67,6 +67,11 @@ class _CatScannerPageState extends State<CatScannerPage> {
   String _selectedZoom = '1x';
   double _activeEventMultiplier = 1.0;
 
+  final TextEditingController _customNoteController = TextEditingController();
+  String? _userChosenBreed;
+  String? _userChosenPattern;
+  String? _userChosenColor;
+
   Uint8List? _capturedImageBytes;
   Uint8List? _stickerBytes;
   CatScanResult? _scanResult;
@@ -145,6 +150,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
   void dispose() {
     CalicoThemeController.instance.removeListener(_handleThemeChanged);
     _asyncNoticeTimer?.cancel();
+    _customNoteController.dispose();
     super.dispose();
   }
 
@@ -275,6 +281,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
           _isAnalyzing = false;
           _scanResult = result;
           _stickerBytes = sticker;
+          _userChosenBreed = result.breed;
+          _userChosenPattern = result.coatPattern;
+          _userChosenColor = result.dominantColor;
+          if (_customNoteController.text.isEmpty && result.quirk.isNotEmpty) {
+            _customNoteController.text = result.quirk;
+          }
         });
       }
     } catch (e) {
@@ -306,6 +318,17 @@ class _CatScannerPageState extends State<CatScannerPage> {
           'data:image/png;base64,${base64Encode(_stickerBytes!)}';
 
       final awardedPoints = _effectivePawPoints(_scanResult!);
+      final effectiveBreed = _userChosenBreed?.trim().isNotEmpty == true
+          ? _userChosenBreed!
+          : _scanResult!.breed;
+      final effectivePattern = _userChosenPattern?.trim().isNotEmpty == true
+          ? _userChosenPattern!
+          : _scanResult!.coatPattern;
+      final effectiveColor = _userChosenColor?.trim().isNotEmpty == true
+          ? _userChosenColor!
+          : _scanResult!.dominantColor;
+      final note = _customNoteController.text.trim();
+      final effectiveQuirk = note.isNotEmpty ? note : _scanResult!.quirk;
 
       final sighting = CatSighting(
         id: 'sighting_${DateTime.now().millisecondsSinceEpoch}',
@@ -322,12 +345,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
         city: widget.currentCity,
         region: widget.currentRegion,
         country: 'Philippines',
-        breed: _scanResult!.breed,
-        coatPattern: _scanResult!.coatPattern,
-        dominantColor: _scanResult!.dominantColor,
+        breed: effectiveBreed,
+        coatPattern: effectivePattern,
+        dominantColor: effectiveColor,
         rarityMultiplier: _scanResult!.rarityMultiplier,
         pawPoints: awardedPoints,
-        quirk: _scanResult!.quirk,
+        quirk: effectiveQuirk,
         createdAt: DateTime.now(),
         aiVerified: _scanResult!.isCat,
         aiConfidence: _scanResult!.confidence,
@@ -363,6 +386,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
 
   void _reset() {
     _asyncNoticeTimer?.cancel();
+    _customNoteController.clear();
     setState(() {
       _capturedImageBytes = null;
       _stickerBytes = null;
@@ -372,6 +396,9 @@ class _CatScannerPageState extends State<CatScannerPage> {
       _isSaving = false;
       _isReviewingSnap = false;
       _showAsyncNotice = false;
+      _userChosenBreed = null;
+      _userChosenPattern = null;
+      _userChosenColor = null;
     });
   }
 
@@ -1133,14 +1160,72 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     ),
                   ),
                 const SizedBox(height: 16),
-                Text(
-                  result.breed,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.dynamicTextPrimary,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Category: ',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.dynamicTextSecondary,
+                      ),
+                    ),
+                    DropdownButton<String>(
+                      value: _userChosenBreed ?? result.breed,
+                      dropdownColor: AppColors.dynamicSurface,
+                      underline: const SizedBox.shrink(),
+                      icon: const Icon(Icons.arrow_drop_down, color: AppColors.primary),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.dynamicTextPrimary,
+                      ),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() => _userChosenBreed = val);
+                        }
+                      },
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'Uncategorized',
+                          child: Text('Uncategorized'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Domestic Shorthair (Puspin)',
+                          child: Text('Domestic Shorthair (Puspin)'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Siamese',
+                          child: Text('Siamese'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Persian',
+                          child: Text('Persian'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'British Shorthair',
+                          child: Text('British Shorthair'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Bengal',
+                          child: Text('Bengal'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Scottish Fold',
+                          child: Text('Scottish Fold'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Ragdoll',
+                          child: Text('Ragdoll'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Other',
+                          child: Text('Other'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 6),
                 Container(
@@ -1153,7 +1238,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
-                    'Pattern: ${result.coatPattern} • ${result.dominantColor}',
+                    'Pattern: ${_userChosenPattern ?? result.coatPattern} • ${_userChosenColor ?? result.dominantColor}',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -1162,13 +1247,42 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  '"${result.quirk}"',
-                  textAlign: TextAlign.center,
+                TextField(
+                  controller: _customNoteController,
+                  maxLines: 2,
                   style: TextStyle(
-                    fontSize: 13,
-                    fontStyle: FontStyle.italic,
-                    color: AppColors.dynamicTextSecondary,
+                    fontSize: 12.5,
+                    color: AppColors.dynamicTextPrimary,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Explorer Note / Nickname',
+                    labelStyle: TextStyle(
+                      fontSize: 11.5,
+                      color: AppColors.dynamicTextSecondary,
+                    ),
+                    hintText: 'Record a field note about this cat...',
+                    hintStyle: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.dynamicTextSecondary.withAlpha(120),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.dynamicFieldFill,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.dynamicBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.dynamicBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                   ),
                 ),
               ],

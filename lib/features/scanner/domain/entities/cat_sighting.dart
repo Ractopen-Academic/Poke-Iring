@@ -28,6 +28,7 @@ class CatSighting {
   final int humanDownvotes;
   final List<String> verifiedByUsers;
   final List<String> rejectedByUsers;
+  final String imageFingerprint;
 
   const CatSighting({
     required this.id,
@@ -57,6 +58,7 @@ class CatSighting {
     this.humanDownvotes = 0,
     this.verifiedByUsers = const [],
     this.rejectedByUsers = const [],
+    this.imageFingerprint = '',
   });
 
   /// Check if the community has completed human verification
@@ -90,6 +92,7 @@ class CatSighting {
     int? humanDownvotes,
     List<String>? verifiedByUsers,
     List<String>? rejectedByUsers,
+    String? imageFingerprint,
   }) {
     return CatSighting(
       id: id ?? this.id,
@@ -119,11 +122,18 @@ class CatSighting {
       humanDownvotes: humanDownvotes ?? this.humanDownvotes,
       verifiedByUsers: verifiedByUsers ?? this.verifiedByUsers,
       rejectedByUsers: rejectedByUsers ?? this.rejectedByUsers,
+      imageFingerprint: imageFingerprint ?? this.imageFingerprint,
     );
   }
 
   /// Total lifespan of a live sighting spawn on the active map.
   static const Duration totalSpawnDuration = Duration(minutes: 15);
+
+  /// Sighting validity period in the community verification game and feeds (3 days).
+  static const Duration communityLifespan = Duration(days: 3);
+
+  /// Whether the sighting has expired from community auditing and feeds (after 3 days).
+  bool get isPastCommunityLifespan => age > communityLifespan;
 
   /// Duration before the fresh sticker turns into a mystery silhouette.
   static const Duration activeStickerDuration = Duration(minutes: 10);
@@ -205,6 +215,7 @@ class CatSighting {
       'humanDownvotes': humanDownvotes,
       'verifiedByUsers': verifiedByUsers,
       'rejectedByUsers': rejectedByUsers,
+      'imageFingerprint': imageFingerprint,
     };
   }
 
@@ -222,7 +233,7 @@ class CatSighting {
       city: map['city']?.toString() ?? 'Lapu-Lapu City',
       region: map['region']?.toString() ?? 'Central Visayas',
       country: map['country']?.toString() ?? 'Philippines',
-      breed: map['breed']?.toString() ?? 'Domestic Shorthair',
+      breed: map['breed']?.toString() ?? 'Uncategorized',
       coatPattern: map['coatPattern']?.toString() ?? 'Tabby',
       dominantColor: map['dominantColor']?.toString() ?? 'Mixed',
       rarityMultiplier: (map['rarityMultiplier'] as num?)?.toDouble() ?? 1.0,
@@ -253,6 +264,7 @@ class CatSighting {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      imageFingerprint: map['imageFingerprint']?.toString() ?? '',
     );
   }
 }

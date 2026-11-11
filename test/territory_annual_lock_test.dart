@@ -46,7 +46,21 @@ class _MockLeaderboardRepository implements LeaderboardRepository {
   Future<List<LeaderboardEntry>> getLeaderboard({
     required LeaderboardFilter filter,
     required String currentUserId,
-  }) async => [];
+  }) async => const [
+    LeaderboardEntry(
+      id: 'standing_1',
+      rank: 7,
+      userId: 'u_tester',
+      displayName: 'Test Explorer',
+      points: 2150,
+      catsSnapped: 18,
+      distanceKm: 12.5,
+      barangay: 'Bankal',
+      city: 'Lapu-Lapu City',
+      country: 'Philippines',
+      isCurrentUser: true,
+    ),
+  ];
 
   @override
   Future<LeaderboardEntry?> getUserStanding({

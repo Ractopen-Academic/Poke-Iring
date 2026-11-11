@@ -20,7 +20,7 @@ class CatScanResult {
   const CatScanResult({
     required this.isCat,
     this.confidence = 0.95,
-    this.breed = 'Domestic Shorthair (Puspin)',
+    this.breed = 'Uncategorized',
     this.coatPattern = 'Tabby',
     this.dominantColor = 'Orange Tabby',
     this.rarityMultiplier = 1.0,
@@ -59,7 +59,8 @@ class CatScanResult {
     }
 
     final confidence = (json['confidence'] as num?)?.toDouble() ?? 0.95;
-    final breed = json['breed']?.toString() ?? 'Domestic Shorthair (Puspin)';
+    final rawBreed = json['breed']?.toString().trim() ?? '';
+    final breed = _normalizeBreed(rawBreed);
     final coatPattern = json['coat_pattern']?.toString() ?? 'Tabby';
     final dominantColor = json['dominant_color']?.toString() ?? 'Mixed';
     final rarityMultiplier =
@@ -99,5 +100,19 @@ class CatScanResult {
       quirk: quirk,
       boundingBox: box,
     );
+  }
+
+  static String _normalizeBreed(String input) {
+    final trimmed = input.trim();
+    if (trimmed.isEmpty) return 'Uncategorized';
+    final lower = trimmed.toLowerCase();
+    if (lower == 'unknown' ||
+        lower == 'none' ||
+        lower == 'uncategorized' ||
+        lower == 'stray' ||
+        lower == 'mixed') {
+      return 'Uncategorized';
+    }
+    return trimmed;
   }
 }

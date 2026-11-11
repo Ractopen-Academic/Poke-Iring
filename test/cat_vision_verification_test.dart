@@ -48,11 +48,43 @@ void main() {
     final ds = GeminiVisionDataSource(
       configService: config,
       httpClient: MockClient((_) async => fail('should not call network')),
+      allowDefaultProxy: false,
     );
     final result = await ds.analyzeCatPhoto(jpegBytes);
     expect(result.isCat, isFalse);
     expect(result.totalPawPoints, 0);
     expect(result.rejectionReason, GeminiVisionDataSource.unavailableReason);
+  });
+
+  test('user API key is prioritized first before proxy', () async {
+    await config.setApiKey('personal-gemini-key');
+    await config.setProxyUrl('https://custom-proxy.internal/api/vision');
+
+    bool directKeyCalled = false;
+    final ds = GeminiVisionDataSource(
+      configService: config,
+      httpClient: MockClient((request) async {
+        if (request.url.host.contains('googleapis')) {
+          directKeyCalled = true;
+          return geminiReply({
+            'is_cat': true,
+            'confidence': 0.99,
+            'breed': 'Uncategorized',
+            'coat_pattern': 'Calico',
+            'dominant_color': 'Orange, White',
+            'rarity_multiplier': 1.4,
+            'pattern_bonus_pts': 20,
+            'quirk': 'Prioritized personal key scan.',
+          });
+        }
+        fail('Should not call proxy when personal user key is present');
+      }),
+    );
+
+    final result = await ds.analyzeCatPhoto(jpegBytes);
+    expect(result.isCat, isTrue);
+    expect(directKeyCalled, isTrue);
+    expect(result.breed, equals('Uncategorized'));
   });
 
   test('empty image -> rejected', () async {

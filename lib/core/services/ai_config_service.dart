@@ -11,6 +11,8 @@ class AiConfigService {
   static const String _compileTimeProxyUrl = String.fromEnvironment(
     'VISION_PROXY_URL',
   );
+  static const String defaultVisionProxyUrl =
+      'https://poke-iring-admin.vercel.app/api/vision';
 
   static final AiConfigService instance = AiConfigService._internal();
   AiConfigService._internal();
@@ -47,7 +49,7 @@ class AiConfigService {
     return null;
   }
 
-  Future<String?> getProxyUrl() async {
+  Future<String?> getProxyUrl({bool allowDefault = false}) async {
     if (!_isLoaded) {
       await init();
     }
@@ -60,7 +62,16 @@ class AiConfigService {
       return _compileTimeProxyUrl.trim();
     }
 
+    if (allowDefault) {
+      return defaultVisionProxyUrl;
+    }
+
     return null;
+  }
+
+  Future<bool> hasUserKey() async {
+    final key = await getApiKey();
+    return key != null && key.isNotEmpty;
   }
 
   Future<void> setProxyUrl(String url) async {
