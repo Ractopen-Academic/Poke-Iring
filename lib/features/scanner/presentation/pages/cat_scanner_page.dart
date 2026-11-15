@@ -14,6 +14,7 @@ import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../events/data/repositories/event_repository_impl.dart';
 import '../../../events/domain/repositories/event_repository.dart';
+import '../../../territory/data/services/territory_service_impl.dart';
 import '../../data/repositories/cat_scanner_repository_impl.dart';
 import '../../domain/entities/cat_scan_result.dart';
 import '../../domain/entities/cat_sighting.dart';
@@ -300,7 +301,8 @@ class _CatScannerPageState extends State<CatScannerPage> {
   }
 
   Future<void> _saveSighting() async {
-    if (_scanResult == null ||
+    if (_isSaving ||
+        _scanResult == null ||
         _capturedImageBytes == null ||
         _stickerBytes == null) {
       return;
@@ -310,6 +312,23 @@ class _CatScannerPageState extends State<CatScannerPage> {
 
     try {
       await _acquireCurrentLocation();
+
+      final userId = widget.user.id.isNotEmpty
+          ? widget.user.id
+          : widget.user.email;
+      String barangay = widget.currentBarangay;
+      String city = widget.currentCity;
+      String region = widget.currentRegion;
+      String country = 'Philippines';
+      try {
+        final territory = await TerritoryServiceImpl.instance
+            .getTerritory(userId)
+            .timeout(const Duration(seconds: 2));
+        if (territory.barangay.isNotEmpty) barangay = territory.barangay;
+        if (territory.city.isNotEmpty) city = territory.city;
+        if (territory.region.isNotEmpty) region = territory.region;
+        if (territory.country.isNotEmpty) country = territory.country;
+      } catch (_) {}
 
       final photoDataUri =
           'data:image/jpeg;base64,${base64Encode(_capturedImageBytes!)}';
@@ -340,10 +359,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
         latitude: _lockedLatitude,
         longitude: _lockedLongitude,
         geohash: 'w721x',
-        barangay: widget.currentBarangay,
-        city: widget.currentCity,
-        region: widget.currentRegion,
-        country: 'Philippines',
+        barangay: barangay,
+        city: city,
+        region: region,
+        country: country,
         breed: effectiveBreed,
         coatPattern: effectivePattern,
         dominantColor: effectiveColor,
@@ -422,12 +441,11 @@ class _CatScannerPageState extends State<CatScannerPage> {
             icon: const Icon(Icons.help_outline_rounded),
             onPressed: () => PawPointsGuideSheet.show(context),
           ),
-          if (widget.user.isAdmin)
-            IconButton(
-              tooltip: 'AI Vision Engine (Admin)',
-              icon: const Icon(Icons.tune_rounded),
-              onPressed: () => AiVisionSettingsSheet.show(context),
-            ),
+          IconButton(
+            tooltip: 'AI Vision Engine Settings',
+            icon: const Icon(Icons.tune_rounded),
+            onPressed: () => AiVisionSettingsSheet.show(context),
+          ),
         ],
       ),
       body: SafeArea(

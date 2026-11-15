@@ -13,6 +13,7 @@ import '../../../achievements/presentation/pages/achievements_page.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../map/presentation/widgets/offline_map_download_dialog.dart';
+import '../../../map/presentation/widgets/tile_caching_sheet.dart';
 import '../../../scanner/data/datasources/firebase_sightings_datasource.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
 import '../../../showcase/services/showcase_service.dart';
@@ -651,6 +652,26 @@ class _DashboardPageState extends State<DashboardPage> {
                   OfflineMapDownloadDialog.show(
                     context,
                     initialCenter: LatLng(lat, lon),
+                  );
+                },
+              ),
+              _SettingsTile(
+                icon: Icons.cloud_download_outlined,
+                title: 'Precache Territory Map Tiles',
+                subtitle: 'Pre-download map grid around your saved territory',
+                onTap: () async {
+                  final t = await TerritoryServiceImpl.instance.getTerritory(
+                    widget.user.id.isNotEmpty
+                        ? widget.user.id
+                        : widget.user.email,
+                  );
+                  final lat = t.latitude ?? 10.3140;
+                  final lon = t.longitude ?? 123.9720;
+                  if (!mounted) return;
+                  TileCachingSheet.show(
+                    context,
+                    currentCenter: LatLng(lat, lon),
+                    currentZoom: 15.0,
                   );
                 },
               ),

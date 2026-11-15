@@ -142,6 +142,7 @@ class FirebaseAuthDatasource {
       } else {
         await docRef.set({
           'email': user.email,
+          'role': user.isAdmin ? 'admin' : 'player',
           if (user.displayName.isNotEmpty) 'displayName': user.displayName,
           if (user.photoUrl.isNotEmpty) 'photoUrl': user.photoUrl,
           'lastActive': FieldValue.serverTimestamp(),

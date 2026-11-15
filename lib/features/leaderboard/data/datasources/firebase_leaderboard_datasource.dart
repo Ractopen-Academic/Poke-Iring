@@ -91,7 +91,7 @@ class FirebaseLeaderboardDataSource {
       try {
         final snapshot = await _db
             .collection(_collectionName)
-            .limit(100)
+            .limit(250)
             .get()
             .timeout(const Duration(milliseconds: 2000));
         if (snapshot.docs.isNotEmpty) {

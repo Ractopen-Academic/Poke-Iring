@@ -174,7 +174,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     }
   }
 
+  int _loadSeq = 0;
+
   Future<void> _loadLeaderboard() async {
+    final seq = ++_loadSeq;
     setState(() => _isLoading = true);
 
     final filter = LeaderboardFilter(
@@ -197,7 +200,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       filter: filter,
     );
 
-    if (!mounted) return;
+    if (!mounted || seq != _loadSeq) return;
 
     setState(() {
       _entries = entries;

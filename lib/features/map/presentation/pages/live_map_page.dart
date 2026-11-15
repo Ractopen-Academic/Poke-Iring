@@ -19,7 +19,6 @@ import '../../domain/entities/user_location.dart';
 import '../widgets/cat_marker_avatar.dart';
 import '../widgets/cute_paw_compass_pointer.dart';
 import '../widgets/peeking_cat_recenter_button.dart';
-import '../widgets/tile_caching_sheet.dart';
 
 class LiveMapPage extends StatefulWidget {
   final LatLng initialCenter;
@@ -528,43 +527,6 @@ class _LiveMapPageState extends State<LiveMapPage>
                 ),
               ),
             ),
-          Positioned(
-            right: 16,
-            bottom: 172,
-            child: Tooltip(
-              message: 'Precache map tiles for region',
-              child: Material(
-                color: AppColors.dynamicSurface,
-                shape: const CircleBorder(),
-                elevation: 3,
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () {
-                    final center = _mapController.camera.center;
-                    final zoom = _mapController.camera.zoom;
-                    TileCachingSheet.show(
-                      context,
-                      currentCenter: center,
-                      currentZoom: zoom,
-                    );
-                  },
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.dynamicBorder),
-                    ),
-                    child: const Icon(
-                      Icons.cloud_download_rounded,
-                      size: 22,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
           Positioned(
             right: 16,
             bottom: 108,

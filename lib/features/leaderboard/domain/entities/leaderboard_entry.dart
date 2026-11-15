@@ -16,6 +16,7 @@ class LeaderboardEntry {
   final double distanceKm;
   final int mythicPaws;
   final bool isCurrentUser;
+  final bool isAdmin;
 
   const LeaderboardEntry({
     required this.id,
@@ -32,6 +33,7 @@ class LeaderboardEntry {
     required this.distanceKm,
     this.mythicPaws = 0,
     this.isCurrentUser = false,
+    this.isAdmin = false,
   });
 
   LeaderboardTier get tier => LeaderboardTier.fromPoints(points);
@@ -74,6 +76,7 @@ class LeaderboardEntry {
       'distanceKm': distanceKm,
       'mythicPaws': mythicPaws,
       'isCurrentUser': isCurrentUser,
+      'isAdmin': isAdmin,
     };
   }
 
@@ -93,6 +96,7 @@ class LeaderboardEntry {
       distanceKm: (map['distanceKm'] as num?)?.toDouble() ?? 0.0,
       mythicPaws: (map['mythicPaws'] as num?)?.toInt() ?? 0,
       isCurrentUser: map['isCurrentUser'] as bool? ?? false,
+      isAdmin: map['isAdmin'] as bool? ?? false,
     );
   }
 
@@ -137,6 +141,9 @@ class LeaderboardEntry {
         (data['name'] as String?) ??
         'Explorer ${id.substring(0, id.length > 5 ? 5 : id.length)}';
 
+    final role = (data['role'] as String?)?.toLowerCase();
+    final isAdmin = role == 'admin' || (data['isAdmin'] as bool? ?? false);
+
     return LeaderboardEntry(
       id: id,
       rank: 0,
@@ -152,6 +159,7 @@ class LeaderboardEntry {
       distanceKm: distanceKm,
       mythicPaws: mythicPaws,
       isCurrentUser: currentUserId != null && id == currentUserId,
+      isAdmin: isAdmin,
     );
   }
 
@@ -170,6 +178,7 @@ class LeaderboardEntry {
     double? distanceKm,
     int? mythicPaws,
     bool? isCurrentUser,
+    bool? isAdmin,
   }) {
     return LeaderboardEntry(
       id: id ?? this.id,
@@ -186,6 +195,7 @@ class LeaderboardEntry {
       distanceKm: distanceKm ?? this.distanceKm,
       mythicPaws: mythicPaws ?? this.mythicPaws,
       isCurrentUser: isCurrentUser ?? this.isCurrentUser,
+      isAdmin: isAdmin ?? this.isAdmin,
     );
   }
 }
