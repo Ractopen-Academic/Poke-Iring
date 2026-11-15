@@ -102,7 +102,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.gingerSoft,
+                                color: AppColors.primary.withAlpha(28),
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: AppColors.dynamicBorder,
@@ -111,7 +111,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                               child: const Icon(
                                 Icons.mark_email_unread_outlined,
                                 size: 28,
-                                color: AppColors.primaryDark,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
@@ -141,13 +141,15 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: _isError
-                                    ? const Color(0xFFFEF2F2)
-                                    : AppColors.gingerSoft,
+                                    ? Colors.red.withAlpha(
+                                        AppColors.isCalicoLight ? 24 : 40,
+                                      )
+                                    : AppColors.primary.withAlpha(24),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: _isError
-                                      ? const Color(0xFFFECACA)
-                                      : AppColors.gingerBorder,
+                                      ? Colors.red.shade400.withAlpha(140)
+                                      : AppColors.primary.withAlpha(100),
                                 ),
                               ),
                               child: Text(
@@ -155,8 +157,10 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: _isError
-                                      ? Colors.red.shade800
-                                      : AppColors.primaryDark,
+                                      ? (AppColors.isCalicoLight
+                                            ? Colors.red.shade900
+                                            : const Color(0xFFFCA5A5))
+                                      : AppColors.dynamicTextPrimary,
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w600,
                                 ),

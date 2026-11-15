@@ -94,10 +94,8 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
               color: AppColors.primary,
               size: 23,
             ),
-            onPressed: () => ReyalOrPakeGamePage.navigate(
-              context,
-              user: widget.user,
-            ),
+            onPressed: () =>
+                ReyalOrPakeGamePage.navigate(context, user: widget.user),
           ),
           IconButton(
             tooltip: 'Paw Points Exchange',
@@ -258,10 +256,12 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                           ),
                           const SizedBox(height: 10),
                           StreamBuilder<SeasonPeriod>(
-                            stream: SeasonServiceImpl.instance.watchCurrentSeason(),
+                            stream: SeasonServiceImpl.instance
+                                .watchCurrentSeason(),
                             builder: (context, snapshot) {
                               final season =
-                                  snapshot.data ?? SeasonPeriod.defaultSeason1();
+                                  snapshot.data ??
+                                  SeasonPeriod.defaultSeason1();
                               return GestureDetector(
                                 onTap: () {
                                   SeasonDetailsSheet.show(

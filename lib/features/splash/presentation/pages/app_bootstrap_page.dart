@@ -32,6 +32,7 @@ class BootstrapResult {
 
 class AppBootstrapPage extends StatefulWidget {
   final Widget Function(BuildContext context, BootstrapResult result) onReady;
+  final String? userId;
   final NetworkInfo? networkInfo;
   final LocationService? locationService;
   final TilePrecacheService? tilePrecacheService;
@@ -39,6 +40,7 @@ class AppBootstrapPage extends StatefulWidget {
   const AppBootstrapPage({
     super.key,
     required this.onReady,
+    this.userId,
     this.networkInfo,
     this.locationService,
     this.tilePrecacheService,
@@ -182,7 +184,7 @@ class _AppBootstrapPageState extends State<AppBootstrapPage>
             }
           } else {
             final t = await TerritoryServiceImpl.instance
-                .getTerritory('local_explorer')
+                .getTerritory(widget.userId ?? 'local_explorer')
                 .timeout(const Duration(milliseconds: 1000));
             if (t.latitude != null && t.longitude != null) {
               spawnCenter = LatLng(t.latitude!, t.longitude!);

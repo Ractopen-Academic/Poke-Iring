@@ -46,7 +46,9 @@ class _RewardStorePageState extends State<RewardStorePage> {
         backgroundColor: AppColors.dynamicSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          item.type == RewardType.catFood ? 'Redeem Real Cat Food' : 'Pledge Donation',
+          item.type == RewardType.catFood
+              ? 'Redeem Real Cat Food'
+              : 'Pledge Donation',
           style: TextStyle(
             fontWeight: FontWeight.w800,
             color: AppColors.dynamicTextPrimary,
@@ -80,13 +82,18 @@ class _RewardStorePageState extends State<RewardStorePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel', style: TextStyle(color: AppColors.dynamicTextSecondary)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.dynamicTextSecondary),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Confirm'),
@@ -111,6 +118,15 @@ class _RewardStorePageState extends State<RewardStorePage> {
                     : 'Success! Your welfare donation pledge was recorded.',
               ),
               backgroundColor: Colors.green.shade700,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Not enough Paw Points or reward unavailable.',
+              ),
+              backgroundColor: Colors.red.shade700,
             ),
           );
         }
@@ -142,8 +158,8 @@ class _RewardStorePageState extends State<RewardStorePage> {
             final filteredCatalog = _selectedFilter == null
                 ? RewardItem.catalog
                 : RewardItem.catalog
-                    .where((item) => item.type == _selectedFilter)
-                    .toList();
+                      .where((item) => item.type == _selectedFilter)
+                      .toList();
 
             return CustomScrollView(
               slivers: [
@@ -154,10 +170,7 @@ class _RewardStorePageState extends State<RewardStorePage> {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            AppColors.primary,
-                            AppColors.primaryDark,
-                          ],
+                          colors: [AppColors.primary, AppColors.primaryDark],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -240,12 +253,15 @@ class _RewardStorePageState extends State<RewardStorePage> {
                         _FilterChip(
                           label: 'Real Cat Food',
                           isSelected: _selectedFilter == RewardType.catFood,
-                          onTap: () => setState(() => _selectedFilter = RewardType.catFood),
+                          onTap: () => setState(
+                            () => _selectedFilter = RewardType.catFood,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         _FilterChip(
                           label: 'Welfare Donations',
-                          isSelected: _selectedFilter == RewardType.welfareDonation,
+                          isSelected:
+                              _selectedFilter == RewardType.welfareDonation,
                           onTap: () => setState(
                             () => _selectedFilter = RewardType.welfareDonation,
                           ),
@@ -258,153 +274,159 @@ class _RewardStorePageState extends State<RewardStorePage> {
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final item = filteredCatalog[index];
-                        final canAfford = balance >= item.costPawPoints;
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = filteredCatalog[index];
+                      final canAfford = balance >= item.costPawPoints;
 
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 14),
-                          decoration: BoxDecoration(
-                            color: AppColors.dynamicSurface,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: AppColors.primary.withAlpha(35),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(12),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.dynamicSurface,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: AppColors.primary.withAlpha(35),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(14),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(14),
-                                  child: Image.network(
-                                    item.imageUrl,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(12),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.network(
+                                  item.imageUrl,
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => Container(
                                     width: 80,
                                     height: 80,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) => Container(
-                                      width: 80,
-                                      height: 80,
-                                      color: AppColors.primary.withAlpha(30),
-                                      child: const Icon(
-                                        Icons.pets_rounded,
-                                        color: AppColors.primary,
-                                      ),
+                                    color: AppColors.primary.withAlpha(30),
+                                    child: const Icon(
+                                      Icons.pets_rounded,
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 2,
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary.withAlpha(
+                                              25,
                                             ),
-                                            decoration: BoxDecoration(
-                                              color: AppColors.primary.withAlpha(25),
-                                              borderRadius: BorderRadius.circular(6),
-                                            ),
-                                            child: Text(
-                                              item.badgeText,
-                                              style: const TextStyle(
-                                                color: AppColors.primary,
-                                                fontSize: 10.5,
-                                                fontWeight: FontWeight.w700,
-                                              ),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
                                             ),
                                           ),
-                                          const Spacer(),
-                                          Text(
-                                            '${item.costPawPoints} pts',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w900,
-                                              fontSize: 14,
-                                              color: canAfford
-                                                  ? AppColors.primary
-                                                  : AppColors.dynamicTextSecondary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        item.title,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 14,
-                                          color: AppColors.dynamicTextPrimary,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        item.description,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 11.5,
-                                          color: AppColors.dynamicTextSecondary,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        height: 34,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: canAfford
-                                                ? AppColors.primary
-                                                : AppColors.dynamicSurface,
-                                            foregroundColor: canAfford
-                                                ? Colors.white
-                                                : AppColors.dynamicTextSecondary,
-                                            elevation: 0,
-                                            side: BorderSide(
-                                              color: canAfford
-                                                  ? Colors.transparent
-                                                  : AppColors.primary.withAlpha(60),
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                          onPressed: () => _handleRedeem(item),
                                           child: Text(
-                                            canAfford
-                                                ? (item.type == RewardType.catFood
-                                                    ? 'Redeem Food'
-                                                    : 'Pledge Donation')
-                                                : 'Need ${item.costPawPoints - balance} pts',
+                                            item.badgeText,
                                             style: const TextStyle(
-                                              fontSize: 12,
+                                              color: AppColors.primary,
+                                              fontSize: 10.5,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
                                         ),
+                                        const Spacer(),
+                                        Text(
+                                          '${item.costPawPoints} pts',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 14,
+                                            color: canAfford
+                                                ? AppColors.primary
+                                                : AppColors
+                                                      .dynamicTextSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      item.title,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14,
+                                        color: AppColors.dynamicTextPrimary,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      item.description,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11.5,
+                                        color: AppColors.dynamicTextSecondary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 34,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: canAfford
+                                              ? AppColors.primary
+                                              : AppColors.dynamicSurface,
+                                          foregroundColor: canAfford
+                                              ? Colors.white
+                                              : AppColors.dynamicTextSecondary,
+                                          elevation: 0,
+                                          side: BorderSide(
+                                            color: canAfford
+                                                ? Colors.transparent
+                                                : AppColors.primary.withAlpha(
+                                                    60,
+                                                  ),
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () => _handleRedeem(item),
+                                        child: Text(
+                                          canAfford
+                                              ? (item.type == RewardType.catFood
+                                                    ? 'Redeem Food'
+                                                    : 'Pledge Donation')
+                                              : 'Need ${item.costPawPoints - balance} pts',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      childCount: filteredCatalog.length,
-                    ),
+                        ),
+                      );
+                    }, childCount: filteredCatalog.length),
                   ),
                 ),
               ],
@@ -437,7 +459,9 @@ class _FilterChip extends StatelessWidget {
           color: isSelected ? AppColors.primary : AppColors.dynamicSurface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.primary.withAlpha(40),
+            color: isSelected
+                ? AppColors.primary
+                : AppColors.primary.withAlpha(40),
           ),
         ),
         child: Text(

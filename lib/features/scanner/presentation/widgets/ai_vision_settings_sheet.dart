@@ -51,7 +51,8 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
           _currentStatus =
               'Direct Key: (${AiConfigService.instance.maskedKey})';
         } else {
-          _currentStatus = 'No key set (scans cannot be verified)';
+          _currentStatus =
+              'Default Proxy: ${AiConfigService.defaultVisionProxyUrl}';
         }
         _isLoading = false;
       });
@@ -73,7 +74,8 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
       } else if (key.isNotEmpty) {
         _currentStatus = 'Direct Key: (${AiConfigService.instance.maskedKey})';
       } else {
-        _currentStatus = 'No key set (scans cannot be verified)';
+        _currentStatus =
+            'Default Proxy: ${AiConfigService.defaultVisionProxyUrl}';
       }
     });
 

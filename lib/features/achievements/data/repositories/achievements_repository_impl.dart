@@ -299,22 +299,35 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
       return 0;
     }
 
-    // Mark claimed
-    await prefs.setBool(claimedKey, true);
-    unawaited(AudioHapticService.instance.tierUp());
+    final cloudClaimToken = '${achievementId}_${tier.name}';
 
-    // Sync Paw Points reward with Firestore if available
-    if (_isFirebaseAvailable) {
+    // Sync & verify Paw Points reward with Firestore if available
+    if (_isFirebaseAvailable && userId.isNotEmpty) {
       try {
         final db = _firestore ?? FirebaseFirestore.instance;
-        await db.collection('users').doc(userId).set({
+        final userRef = db.collection('users').doc(userId);
+        final snap = await userRef.get();
+        final claimedServer =
+            (snap.data()?['claimedMilestones'] as List<dynamic>? ?? const [])
+                .map((e) => e.toString())
+                .toSet();
+        if (claimedServer.contains(cloudClaimToken)) {
+          await prefs.setBool(claimedKey, true);
+          return 0;
+        }
+        await userRef.set({
           'totalPawPoints': FieldValue.increment(milestone.rewardPawPoints),
+          'claimedMilestones': FieldValue.arrayUnion([cloudClaimToken]),
           'lastActive': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
       } catch (e) {
         debugPrint('Firebase claimMilestoneReward sync error: $e');
       }
     }
+
+    // Mark claimed locally
+    await prefs.setBool(claimedKey, true);
+    unawaited(AudioHapticService.instance.tierUp());
 
     await _emitState(userId);
     return milestone.rewardPawPoints;

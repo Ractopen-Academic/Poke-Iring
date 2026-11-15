@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -40,7 +41,9 @@ class _StoryViewerPageState extends State<StoryViewerPage>
   void initState() {
     super.initState();
     _stories = List.from(widget.stories);
-    _currentIndex = widget.initialIndex.clamp(0, _stories.length - 1);
+    _currentIndex = _stories.isEmpty
+        ? 0
+        : widget.initialIndex.clamp(0, _stories.length - 1);
 
     _progressController =
         AnimationController(vsync: this, duration: _storyDuration)
@@ -257,7 +260,7 @@ class _StoryViewerPageState extends State<StoryViewerPage>
           return _buildFallbackFelineGraphic(story);
         }
       }
-      if (url.startsWith('file://') || url.startsWith('/')) {
+      if (!kIsWeb && (url.startsWith('file://') || url.startsWith('/'))) {
         return Image.file(
           File(url.replaceFirst('file://', '')),
           fit: BoxFit.cover,

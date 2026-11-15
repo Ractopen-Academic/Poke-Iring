@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_version.dart';
+import '../services/apk_download_service.dart';
 import '../../features/auth/presentation/widgets/calico_login_mascot.dart';
 import 'app_version_badge.dart';
 
@@ -284,6 +285,32 @@ class VersionUpdateRequiredView extends StatelessWidget {
                             color: AppColors.dynamicTextSecondary,
                           ),
                         ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              ApkDownloadService.instance.downloadDevApk();
+                            },
+                            icon: const Icon(Icons.download_rounded, size: 18),
+                            label: const Text(
+                              'Download Latest Dev APK',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -429,16 +456,15 @@ class AccountSuspendedLockoutView extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                reason.isNotEmpty
-                                    ? reason
-                                    : 'Account flagged for safety or fair-play violations.',
+                                reason.isNotEmpty ? reason : 'Account flagged for safety or fair-play violations.',
                                 style: TextStyle(
                                   fontSize: 13,
                                   height: 1.4,
                                   color: AppColors.dynamicTextPrimary,
                                 ),
                               ),
-                              if (!isPermanentBan && suspendedUntil != null) ...[
+                              if (!isPermanentBan &&
+                                  suspendedUntil != null) ...[
                                 const SizedBox(height: 10),
                                 Row(
                                   children: [
@@ -488,9 +514,12 @@ class AccountSuspendedLockoutView extends StatelessWidget {
                               ),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.dynamicTextPrimary,
-                                side: BorderSide(color: AppColors.dynamicBorder),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 13),
+                                side: BorderSide(
+                                  color: AppColors.dynamicBorder,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 13,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -514,8 +543,7 @@ class AccountSuspendedLockoutView extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 13),
+                              padding: const EdgeInsets.symmetric(vertical: 13),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

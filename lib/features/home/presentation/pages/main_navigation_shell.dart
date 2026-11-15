@@ -69,9 +69,6 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   static String? _activeSessionUserId;
 
   late int _currentIndex;
-  bool _isShowingMap = false;
-  bool _keepMapVisibleDuringExit = false;
-  Timer? _mapExitTimer;
 
   late final AnimationController _tabEnterController;
   late final Animation<double> _tabFade;
@@ -91,15 +88,13 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-          body: DashboardPage(
-            user: widget.user,
-            authRepository: widget.authRepository,
-            onOpenMap: () {
-              Navigator.pop(context);
-              _setMapVisible(true);
-            },
-          ),
+        builder: (context) => DashboardPage(
+          user: widget.user,
+          authRepository: widget.authRepository,
+          onOpenMap: () {
+            Navigator.pop(context);
+            _selectTab(1);
+          },
         ),
       ),
     );
@@ -116,7 +111,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       LiveMapPage(
         key: const PageStorageKey<String>('map_tab'),
         locationService: _locationService,
-        isMapActive: _currentIndex == 1 && !_isShowingMap,
+        isMapActive: _currentIndex == 1,
         currentUserId: widget.user.id.isNotEmpty
             ? widget.user.id
             : widget.user.email,
@@ -144,8 +139,9 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   @override
   void initState() {
     super.initState();
-    final currentUserId =
-        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+    final currentUserId = widget.user.id.isNotEmpty
+        ? widget.user.id
+        : widget.user.email;
     if (_activeSessionUserId != currentUserId) {
       _activeSessionUserId = currentUserId;
       _activeTabIndex = 0;
@@ -208,10 +204,10 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         : widget.user.email;
 
     await TerritorySetupDialog.checkAndShow(context, userId: userId);
-    if (!mounted || _isShowingMap) return;
+    if (!mounted) return;
 
     await Future<void>.delayed(const Duration(milliseconds: 180));
-    if (!mounted || _isShowingMap) return;
+    if (!mounted) return;
 
     await EventPopupModal.checkAndShow(
       context,
@@ -226,7 +222,6 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   @override
   void dispose() {
     CalicoThemeController.instance.removeListener(_handleCoatModeChanged);
-    _mapExitTimer?.cancel();
     _tabEnterController.dispose();
     _networkSubscription?.cancel();
     _locationSubscription?.cancel();
@@ -237,33 +232,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     if (mounted) setState(() {});
   }
 
-  void _setMapVisible(bool show) {
-    if (_isShowingMap == show) return;
-    _mapExitTimer?.cancel();
-    if (show) {
-      setState(() {
-        _isShowingMap = true;
-        _keepMapVisibleDuringExit = true;
-      });
-    } else {
-      setState(() {
-        _isShowingMap = false;
-        _keepMapVisibleDuringExit = true;
-      });
-      _tabEnterController.forward(from: 0.0);
-      _mapExitTimer = Timer(const Duration(milliseconds: 240), () {
-        if (mounted && !_isShowingMap) {
-          setState(() => _keepMapVisibleDuringExit = false);
-        }
-      });
-    }
-  }
-
   void _selectTab(int index) {
-    final changed = _currentIndex != index || _isShowingMap;
-    if (_isShowingMap) {
-      _setMapVisible(false);
-    }
+    final changed = _currentIndex != index;
     _activeTabIndex = index;
     setState(() {
       _currentIndex = index;
@@ -278,7 +248,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   void _handleIringCenterTap() {
     final now = DateTime.now();
     if (_lastSnapLaunchTime != null &&
-        now.difference(_lastSnapLaunchTime!) < const Duration(milliseconds: 600)) {
+        now.difference(_lastSnapLaunchTime!) <
+            const Duration(milliseconds: 600)) {
       return;
     }
     _lastSnapLaunchTime = now;
@@ -306,68 +277,26 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         final showOffline = !_isOnline && !_dismissedOfflineBanner;
         final showGpsDisabled =
             !_isLocationServiceEnabled && !_dismissedGpsBanner && !showOffline;
-        final mapOnStage = _isShowingMap || _keepMapVisibleDuringExit;
+        final isRadarTab = _currentIndex == 1;
 
         return Scaffold(
           extendBody: true,
           backgroundColor: AppColors.dynamicBackground,
           body: Stack(
             children: [
-              Offstage(
-                offstage: _isShowingMap && !_keepMapVisibleDuringExit,
-                child: IgnorePointer(
-                  ignoring: _isShowingMap,
-                  child: AnimatedScale(
-                    scale: _isShowingMap ? 0.95 : 1.0,
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeOutCubic,
-                    child: AnimatedOpacity(
-                      opacity: _isShowingMap ? 0.0 : 1.0,
-                      duration: const Duration(milliseconds: 200),
-                      child: FadeTransition(
-                        opacity: _tabFade,
-                        child: SlideTransition(
-                          position: _tabSlide,
-                          child: IndexedStack(
-                            index: _currentIndex,
-                            children: _buildPages(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Offstage(
-                offstage: !mapOnStage,
-                child: IgnorePointer(
-                  ignoring: !_isShowingMap,
-                  child: AnimatedSlide(
-                    offset: _isShowingMap ? Offset.zero : const Offset(0, 0.03),
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeOutCubic,
-                    child: AnimatedOpacity(
-                      opacity: _isShowingMap ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOutCubic,
-                      child: TickerMode(
-                        enabled: _isShowingMap,
-                        child: LiveMapPage(
-                          locationService: _locationService,
-                          isMapActive: _isShowingMap,
-                          currentUserId: widget.user.id.isNotEmpty
-                              ? widget.user.id
-                              : widget.user.email,
-                          onClose: () => _setMapVisible(false),
-                        ),
-                      ),
-                    ),
+              FadeTransition(
+                opacity: _tabFade,
+                child: SlideTransition(
+                  position: _tabSlide,
+                  child: IndexedStack(
+                    index: _currentIndex,
+                    children: _buildPages(),
                   ),
                 ),
               ),
               if (showOffline)
                 Positioned(
-                  top: _isShowingMap ? 56 : 0,
+                  top: isRadarTab ? 56 : 0,
                   left: 0,
                   right: 0,
                   child: SafeArea(
@@ -388,12 +317,12 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                 )
               else if (showGpsDisabled)
                 Positioned(
-                  top: _isShowingMap ? 56 : 0,
+                  top: isRadarTab ? 56 : 0,
                   left: 0,
                   right: 0,
                   child: SafeArea(
                     child: FelineStatusBanner(
-                      message: 'GPS disabled. Exploration map centered on Bankal default zone.',
+                      message: 'GPS disabled. Exploration map centered on default zone.',
                       icon: Icons.location_off,
                       actionLabel: 'Enable',
                       onAction: () => _locationService.openLocationSettings(),
@@ -402,7 +331,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                     ),
                   ),
                 ),
-              if (_isShowingMap)
+              if (isRadarTab)
                 FloatingSnapIringButton(
                   onTap: _openQuickSnapCamera,
                   bottomSafeMargin: 246.0,
@@ -411,12 +340,12 @@ class _MainNavigationShellState extends State<MainNavigationShell>
           ),
           floatingActionButton: IringCenterButton(
             onTap: _handleIringCenterTap,
-            isMapOpen: _isShowingMap,
+            isMapOpen: isRadarTab,
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: AppBottomNavBar(
-            currentIndex: _isShowingMap ? -1 : _currentIndex,
+            currentIndex: _currentIndex,
             onTabSelected: _selectTab,
           ),
         );

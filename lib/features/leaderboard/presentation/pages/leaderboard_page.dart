@@ -108,7 +108,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       setState(() {
         _activeBarangay = updated.barangay;
         _activeCity = updated.city;
-        _activeRegion = updated.province;
+        _activeRegion = updated.region;
         _activeCountry = updated.country;
       });
       _loadLeaderboard();
@@ -123,7 +123,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         setState(() {
           _activeBarangay = t.barangay;
           _activeCity = t.city;
-          _activeRegion = t.province;
+          _activeRegion = t.region;
           _activeCountry = t.country;
         });
         _loadLeaderboard();
@@ -167,7 +167,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       setState(() {
         _activeBarangay = locked.barangay;
         _activeCity = locked.city;
-        _activeRegion = locked.province;
+        _activeRegion = locked.region;
         _activeCountry = locked.country;
       });
       _loadLeaderboard();
@@ -281,7 +281,8 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                       userId: widget.currentUserId,
                       userPoints: _userStanding?.points ?? 120,
                       userRank: _userStanding?.rank ?? 4,
-                      divisionTitle: _userStanding?.tier.fullTitle ??
+                      divisionTitle:
+                          _userStanding?.tier.fullTitle ??
                           'Division 2 • Alley Prowler',
                       onRolloverCompleted: _loadLeaderboard,
                     );
@@ -294,8 +295,9 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                     decoration: BoxDecoration(
                       color: AppColors.primary.withAlpha(20),
                       borderRadius: BorderRadius.circular(10),
-                      border:
-                          Border.all(color: AppColors.primary.withAlpha(50)),
+                      border: Border.all(
+                        color: AppColors.primary.withAlpha(50),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,

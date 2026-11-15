@@ -11,8 +11,14 @@ void main() {
       const northEast = LatLng(10.3290, 123.9900);
       const southWest = LatLng(10.2990, 123.9540);
 
-      final minX15 = TilePrecacheServiceImpl.lonToTileX(southWest.longitude, 15);
-      final maxX15 = TilePrecacheServiceImpl.lonToTileX(northEast.longitude, 15);
+      final minX15 = TilePrecacheServiceImpl.lonToTileX(
+        southWest.longitude,
+        15,
+      );
+      final maxX15 = TilePrecacheServiceImpl.lonToTileX(
+        northEast.longitude,
+        15,
+      );
       final minY15 = TilePrecacheServiceImpl.latToTileY(northEast.latitude, 15);
       final maxY15 = TilePrecacheServiceImpl.latToTileY(southWest.latitude, 15);
 

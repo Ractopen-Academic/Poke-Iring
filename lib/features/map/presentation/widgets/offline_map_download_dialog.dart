@@ -80,8 +80,7 @@ class _OfflineMapDownloadDialogState extends State<OfflineMapDownloadDialog> {
     final isOnline = await NetworkInfoImpl().isConnected;
     if (!isOnline) {
       setState(() {
-        _errorMessage =
-            'Active internet connection required to download offline map tiles.';
+        _errorMessage = 'Active internet connection required to download offline map tiles.';
       });
       return;
     }

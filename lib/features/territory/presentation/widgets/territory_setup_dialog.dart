@@ -138,8 +138,10 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
             Container(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF2E241E), Color(0xFF1E1714)],
+                gradient: LinearGradient(
+                  colors: AppColors.isCalicoLight
+                      ? const [Color(0xFFFBF6F0), Color(0xFFF4ECE1)]
+                      : const [Color(0xFF2E241E), Color(0xFF1E1714)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -152,17 +154,17 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(35),
+                      color: AppColors.primary.withAlpha(30),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
                       Icons.verified_user_rounded,
-                      color: Colors.white,
+                      color: AppColors.primary,
                       size: 26,
                     ),
                   ),
                   const SizedBox(width: 14),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -171,7 +173,7 @@ class _TerritorySetupDialogState extends State<TerritorySetupDialog> {
                           style: TextStyle(
                             fontSize: 16.5,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: AppColors.dynamicTextPrimary,
                           ),
                         ),
                         SizedBox(height: 2),

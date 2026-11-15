@@ -66,30 +66,37 @@ void main() {
 
     test('catalog contains real-life cat food and animal welfare items', () {
       expect(RewardItem.catalog, isNotEmpty);
-      final hasCatFood = RewardItem.catalog.any((i) => i.type == RewardType.catFood);
-      final hasDonation = RewardItem.catalog.any((i) => i.type == RewardType.welfareDonation);
+      final hasCatFood = RewardItem.catalog.any(
+        (i) => i.type == RewardType.catFood,
+      );
+      final hasDonation = RewardItem.catalog.any(
+        (i) => i.type == RewardType.welfareDonation,
+      );
 
       expect(hasCatFood, isTrue);
       expect(hasDonation, isTrue);
     });
 
-    test('redeemReward decrements points balance and registers redemption', () async {
-      final service = RewardsService.instance;
-      service.pointsNotifier.value = 500;
+    test(
+      'redeemReward decrements points balance and registers redemption',
+      () async {
+        final service = RewardsService.instance;
+        service.pointsNotifier.value = 500;
 
-      final foodItem = RewardItem.catalog.firstWhere(
-        (i) => i.type == RewardType.catFood,
-      );
+        final foodItem = RewardItem.catalog.firstWhere(
+          (i) => i.type == RewardType.catFood,
+        );
 
-      final success = await service.redeemReward(
-        userId: 'user-test',
-        item: foodItem,
-      );
+        final success = await service.redeemReward(
+          userId: 'user-test',
+          item: foodItem,
+        );
 
-      expect(success, isTrue);
-      expect(service.pointsNotifier.value, 500 - foodItem.costPawPoints);
-      expect(service.redemptionsNotifier.value.first.itemId, foodItem.id);
-    });
+        expect(success, isTrue);
+        expect(service.pointsNotifier.value, 500 - foodItem.costPawPoints);
+        expect(service.redemptionsNotifier.value.first.itemId, foodItem.id);
+      },
+    );
 
     test('redeemReward rejects when balance is insufficient', () async {
       final service = RewardsService.instance;

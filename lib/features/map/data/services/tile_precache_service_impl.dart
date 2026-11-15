@@ -104,8 +104,7 @@ class TilePrecacheServiceImpl implements TilePrecacheService {
               .downloadFile(
                 url,
                 authHeaders: const {
-                  'User-Agent':
-                      'PokeIringApp/1.0 (Mobile; Android; Contact: ractopen@users.noreply.github.com)',
+                  'User-Agent': 'PokeIringApp/1.0 (Mobile; Android; Contact: ractopen@users.noreply.github.com)',
                 },
               )
               .timeout(const Duration(milliseconds: 2500));

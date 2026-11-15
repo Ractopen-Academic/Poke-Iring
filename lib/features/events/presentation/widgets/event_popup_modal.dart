@@ -99,9 +99,10 @@ class _EventPopupModalState extends State<EventPopupModal> {
   }
 
   void _openEventCenter() {
+    final parentContext = Navigator.of(context, rootNavigator: true).context;
     _dismissDialog();
     EventCenterSheet.show(
-      context,
+      parentContext,
       userId: widget.userId,
       userDisplayName: widget.userDisplayName,
       userPhotoUrl: widget.userPhotoUrl,

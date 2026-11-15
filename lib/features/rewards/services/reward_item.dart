@@ -97,15 +97,15 @@ class RewardRedemption {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'userId': userId,
-        'itemId': itemId,
-        'title': title,
-        'costPawPoints': costPawPoints,
-        'type': type.name,
-        'timestamp': timestamp.toIso8601String(),
-        'status': status,
-      };
+    'id': id,
+    'userId': userId,
+    'itemId': itemId,
+    'title': title,
+    'costPawPoints': costPawPoints,
+    'type': type.name,
+    'timestamp': timestamp.toIso8601String(),
+    'status': status,
+  };
 
   factory RewardRedemption.fromJson(Map<String, dynamic> json) =>
       RewardRedemption(

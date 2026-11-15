@@ -373,7 +373,6 @@ class FirebaseSightingsDataSource {
         yield* db
             .collection('sightings')
             .where('userId', isEqualTo: userId)
-            .orderBy('createdAt', descending: true)
             .snapshots()
             .map((snapshot) {
               final list = snapshot.docs.map((doc) {
@@ -385,9 +384,12 @@ class FirebaseSightingsDataSource {
                       .toIso8601String();
                 }
                 return CatSighting.fromMap(data);
-              }).toList();
+              }).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
               return list;
+            })
+            .handleError((Object e) {
+              debugPrint('Firestore watchSightingsByUser stream error: $e');
             });
         return;
       } catch (e) {
@@ -405,30 +407,33 @@ class FirebaseSightingsDataSource {
     final userSightings = _localSightings
         .where((s) => s.userId == userId)
         .toList();
-    if (userSightings.isNotEmpty) {
-      return List.unmodifiable(userSightings);
-    }
-    return List.unmodifiable(_localSightings);
+    return List.unmodifiable(userSightings);
   }
 
   Future<void> boopSighting({
     required String sightingId,
     required String userId,
   }) async {
+    if (userId.isEmpty) return;
     if (_isFirebaseAvailable) {
       try {
         final db = firestore ?? FirebaseFirestore.instance;
         final docRef = db.collection('sightings').doc(sightingId);
         final doc = await docRef.get();
         if (doc.exists) {
-          final authorId = doc.data()?['userId']?.toString();
+          final data = doc.data() ?? {};
+          final boopedByRaw = data['boopedBy'] as List<dynamic>? ?? const [];
+          if (boopedByRaw.map((e) => e.toString()).contains(userId)) {
+            return; // Already booped on server — prevent duplicate point farming
+          }
+          final authorId = data['userId']?.toString();
           await docRef.update({
             'boopsCount': FieldValue.increment(1),
             'boopedBy': FieldValue.arrayUnion([userId]),
           });
 
-          // Award +5 community points to author
-          if (authorId != null && authorId.isNotEmpty) {
+          // Award +5 community points to author (if not self-booping)
+          if (authorId != null && authorId.isNotEmpty && authorId != userId) {
             await db.collection('users').doc(authorId).set({
               'totalPawPoints': FieldValue.increment(5),
             }, SetOptions(merge: true));

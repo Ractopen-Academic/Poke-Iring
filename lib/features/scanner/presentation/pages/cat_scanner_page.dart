@@ -179,8 +179,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
             if (mounted) {
               setState(() {
                 _isCameraPermissionDenied = true;
-                _errorMessage =
-                    'Camera permission is required to spot and record live feline sightings.';
+                _errorMessage = 'Camera permission is required to spot and record live feline sightings.';
               });
             }
             return;
@@ -189,8 +188,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
           if (mounted) {
             setState(() {
               _isCameraPermissionDenied = true;
-              _errorMessage =
-                  'Camera access is blocked in system settings. Tap "Open Settings" to enable.';
+              _errorMessage = 'Camera access is blocked in system settings. Tap "Open Settings" to enable.';
             });
           }
           return;
@@ -218,6 +216,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
       }
 
       final bytes = await file.readAsBytes();
+      if (!mounted) return;
       setState(() {
         _isCameraPermissionDenied = false;
         _capturedImageBytes = bytes;
@@ -489,19 +488,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF8E1),
+                  color: AppColors.dynamicSurface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFFFD54F),
+                    color: AppColors.primary.withAlpha(110),
                     width: 1.2,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(12),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: Column(
                   children: [
@@ -509,52 +501,29 @@ class _CatScannerPageState extends State<CatScannerPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.inventory_2_outlined,
+                          Icons.auto_awesome_rounded,
                           size: 18,
-                          color: Color(0xFFE65100),
+                          color: AppColors.primary,
                         ),
                         SizedBox(width: 8),
                         Text(
-                          'Background Cataloging Active',
+                          'Verifying Feline Encounter',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFFE65100),
+                            color: AppColors.primary,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Your scanned cat is being processed and cataloged into your Album & Iring-Dex. You can keep exploring or wait here for live sticker generation.',
+                    Text(
+                      'Gemini Vision is inspecting coat markings and generating your custom Iring sticker. Keep this screen open to review and save.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF5D4037),
+                        color: AppColors.dynamicTextSecondary,
                         height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFE65100),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Continue Exploring Territory',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
                       ),
                     ),
                   ],
@@ -956,34 +925,41 @@ class _CatScannerPageState extends State<CatScannerPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.shade900.withAlpha(40),
+                color: Colors.red.withAlpha(AppColors.isCalicoLight ? 24 : 40),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red.shade400.withAlpha(120)),
+                border: Border.all(
+                  color: Colors.red.shade400.withAlpha(140),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
                     _errorMessage!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12.5,
-                      color: Color(0xFFFCA5A5),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.isCalicoLight
+                          ? Colors.red.shade900
+                          : const Color(0xFFFCA5A5),
                     ),
                   ),
                   if (_isCameraPermissionDenied && !kIsWeb) ...[
                     const SizedBox(height: 8),
                     TextButton.icon(
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFFFCA5A5),
-                        backgroundColor: Colors.white.withAlpha(20),
+                        foregroundColor: AppColors.isCalicoLight
+                            ? Colors.red.shade900
+                            : const Color(0xFFFCA5A5),
+                        backgroundColor: AppColors.dynamicSurface.withAlpha(90),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 6,
                         ),
                         alignment: Alignment.centerLeft,
                       ),
-                      onPressed: () =>
-                          const AppPermissionService().openAppSettingsIfNeeded(),
+                      onPressed: () => const AppPermissionService()
+                          .openAppSettingsIfNeeded(),
                       icon: const Icon(Icons.settings_rounded, size: 16),
                       label: const Text(
                         'Open App Settings to Grant Camera Access',
@@ -1171,62 +1147,89 @@ class _CatScannerPageState extends State<CatScannerPage> {
                         color: AppColors.dynamicTextSecondary,
                       ),
                     ),
-                    DropdownButton<String>(
-                      value: _userChosenBreed ?? result.breed,
-                      dropdownColor: AppColors.dynamicSurface,
-                      underline: const SizedBox.shrink(),
-                      icon: const Icon(Icons.arrow_drop_down, color: AppColors.primary),
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.dynamicTextPrimary,
+                    Flexible(
+                      child: Builder(
+                        builder: (context) {
+                          const knownBreeds = [
+                            'Uncategorized',
+                            'Domestic Shorthair (Puspin)',
+                            'Siamese',
+                            'Persian',
+                            'British Shorthair',
+                            'Bengal',
+                            'Scottish Fold',
+                            'Ragdoll',
+                            'Russian Blue',
+                            'Maine Coon',
+                            'Sphynx',
+                            'Other',
+                          ];
+                          final rawBreed = _userChosenBreed ?? result.breed;
+                          final safeBreed = knownBreeds.contains(rawBreed)
+                              ? rawBreed
+                              : 'Uncategorized';
+                          return DropdownButton<String>(
+                            isExpanded: false,
+                            value: safeBreed,
+                            dropdownColor: AppColors.dynamicSurface,
+                            underline: const SizedBox.shrink(),
+                            icon: const Icon(
+                              Icons.arrow_drop_down,
+                              color: AppColors.primary,
+                            ),
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.dynamicTextPrimary,
+                            ),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() => _userChosenBreed = val);
+                              }
+                            },
+                            items: knownBreeds
+                                .map(
+                                  (breed) => DropdownMenuItem(
+                                    value: breed,
+                                    child: Text(
+                                      breed,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          );
+                        },
                       ),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() => _userChosenBreed = val);
-                        }
-                      },
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'Uncategorized',
-                          child: Text('Uncategorized'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Domestic Shorthair (Puspin)',
-                          child: Text('Domestic Shorthair (Puspin)'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Siamese',
-                          child: Text('Siamese'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Persian',
-                          child: Text('Persian'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'British Shorthair',
-                          child: Text('British Shorthair'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Bengal',
-                          child: Text('Bengal'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Scottish Fold',
-                          child: Text('Scottish Fold'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Ragdoll',
-                          child: Text('Ragdoll'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Other',
-                          child: Text('Other'),
-                        ),
-                      ],
                     ),
                   ],
                 ),
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withAlpha(
+                        AppColors.isCalicoLight ? 24 : 40,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.red.shade400.withAlpha(140),
+                      ),
+                    ),
+                    child: Text(
+                      _errorMessage!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.isCalicoLight
+                            ? Colors.red.shade900
+                            : const Color(0xFFFCA5A5),
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(

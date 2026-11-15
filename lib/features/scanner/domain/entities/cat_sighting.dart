@@ -62,7 +62,8 @@ class CatSighting {
   });
 
   /// Check if the community has completed human verification
-  bool get isHumanVerified => humanUpvotes >= 2 && humanUpvotes > humanDownvotes;
+  bool get isHumanVerified =>
+      humanUpvotes >= 2 && humanUpvotes > humanDownvotes;
 
   CatSighting copyWith({
     String? id,
@@ -250,7 +251,9 @@ class CatSighting {
                 ? DateTime.tryParse(map['createdAt']) ?? DateTime.now()
                 : DateTime.now())
           : DateTime.now(),
-      aiVerified: map['aiVerified'] == null ? true : (map['aiVerified'] == true),
+      aiVerified: map['aiVerified'] == null
+          ? true
+          : (map['aiVerified'] == true),
       aiConfidence: (map['aiConfidence'] as num?)?.toDouble() ?? 0.95,
       humanUpvotes: (map['humanUpvotes'] as num?)?.toInt() ?? 0,
       humanDownvotes: (map['humanDownvotes'] as num?)?.toInt() ?? 0,

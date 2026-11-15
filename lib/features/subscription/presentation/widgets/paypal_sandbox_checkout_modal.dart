@@ -164,47 +164,51 @@ class _PayPalSandboxCheckoutModalState
 
   void _switchSandboxBuyerEmail() async {
     final controller = TextEditingController(text: _buyerEmail);
-    final newEmail = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.dynamicSurface,
-        title: Text(
-          'Switch PayPal Account',
-          style: TextStyle(color: AppColors.dynamicTextPrimary),
+    try {
+      final newEmail = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.dynamicSurface,
+          title: Text(
+            'Switch PayPal Account',
+            style: TextStyle(color: AppColors.dynamicTextPrimary),
+          ),
+          content: TextField(
+            controller: controller,
+            style: TextStyle(color: AppColors.dynamicTextPrimary),
+            decoration: InputDecoration(
+              labelText: 'PayPal Account Email',
+              labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
+              hintText: 'e.g. explorer@pokeiring.app',
+              hintStyle: TextStyle(
+                color: AppColors.dynamicTextSecondary.withAlpha(120),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.dynamicTextSecondary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: paypalNavy,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Apply'),
+            ),
+          ],
         ),
-        content: TextField(
-          controller: controller,
-          style: TextStyle(color: AppColors.dynamicTextPrimary),
-          decoration: InputDecoration(
-            labelText: 'PayPal Account Email',
-            labelStyle: TextStyle(color: AppColors.dynamicTextSecondary),
-            hintText: 'e.g. explorer@pokeiring.app',
-            hintStyle: TextStyle(
-              color: AppColors.dynamicTextSecondary.withAlpha(120),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.dynamicTextSecondary),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: paypalNavy,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Apply'),
-          ),
-        ],
-      ),
-    );
-    if (newEmail != null && newEmail.isNotEmpty && mounted) {
-      setState(() => _buyerEmail = newEmail);
+      );
+      if (newEmail != null && newEmail.isNotEmpty && mounted) {
+        setState(() => _buyerEmail = newEmail);
+      }
+    } finally {
+      controller.dispose();
     }
   }
 

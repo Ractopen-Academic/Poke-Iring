@@ -60,34 +60,46 @@ class ExplorerHealthService {
 
     if (savedDate != todayKey) {
       await prefs.setString('explorer_health_date', todayKey);
+      await prefs.remove('explorer_health_baseline');
       await prefs.setInt('explorer_health_total', 0);
     }
 
-    _subscription = Pedometer.stepCountStream.listen((event) async {
-      final int totalSteps = event.steps;
-      final int baselineSteps = prefs.getInt('explorer_health_total') ?? 0;
-      final int todaySteps;
+    try {
+      _subscription = Pedometer.stepCountStream.listen(
+        (event) async {
+          final currentDayKey = _todayDateKey();
+          final storedDate = prefs.getString('explorer_health_date');
+          final int totalSteps = event.steps;
 
-      if (totalSteps >= baselineSteps) {
-        todaySteps = totalSteps - baselineSteps;
-      } else {
-        todaySteps = 0;
-      }
+          int? baselineSteps = prefs.getInt('explorer_health_baseline');
+          if (storedDate != currentDayKey ||
+              baselineSteps == null ||
+              totalSteps < baselineSteps) {
+            baselineSteps = totalSteps;
+            await prefs.setString('explorer_health_date', currentDayKey);
+            await prefs.setInt('explorer_health_baseline', baselineSteps);
+          }
 
-      final snapshot = ExplorerHealthSnapshot(
-        stepsToday: todaySteps,
-        distanceKm: todaySteps * 0.00075,
-        caloriesBurned: todaySteps * 0.04,
-        activeMinutes: (todaySteps / 120).floor(),
-        updatedAt: DateTime.now(),
+          final int todaySteps = totalSteps - baselineSteps;
+
+          final snapshot = ExplorerHealthSnapshot(
+            stepsToday: todaySteps,
+            distanceKm: todaySteps * 0.00075,
+            caloriesBurned: todaySteps * 0.04,
+            activeMinutes: (todaySteps / 120).floor(),
+            updatedAt: DateTime.now(),
+          );
+
+          _latest = snapshot;
+          _controller?.add(snapshot);
+
+          await prefs.setInt('explorer_health_total', todaySteps);
+        },
+        onError: (_) {
+          // Hardware step counter unavailable (e.g., Web or unsupported sensor)
+        },
       );
-
-      _latest = snapshot;
-      _controller?.add(snapshot);
-
-      await prefs.setInt('explorer_health_total', totalSteps);
-      await prefs.setString('explorer_health_date', todayKey);
-    });
+    } catch (_) {}
 
     _latest = ExplorerHealthSnapshot(
       stepsToday: 0,

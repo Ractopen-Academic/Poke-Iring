@@ -13,7 +13,7 @@ on:
           - debug
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-apk:
@@ -56,7 +56,7 @@ jobs:
         env:
           # Public URL of the admin Vision proxy (repo Variable, not a secret).
           # The Gemini key stays on Vercel and is never baked into the APK.
-          VISION_PROXY_URL: ${{ vars.VISION_PROXY_URL }}
+          VISION_PROXY_URL: ${{ vars.VISION_PROXY_URL || 'https://poke-iring-admin.vercel.app/api/vision' }}
         run: |
           BUILD_TYPE="${{ inputs.build_type || 'release' }}"
           DEFINES="--dart-define=VISION_PROXY_URL=${VISION_PROXY_URL}"
@@ -71,6 +71,7 @@ jobs:
           BUILD_TYPE="${{ inputs.build_type || 'release' }}"
           mkdir -p output
           find build/app/outputs/flutter-apk -type f -name "*.apk" -exec cp {} "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" \;
+          cp "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" "output/pokeiring-dev.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
@@ -78,3 +79,18 @@ jobs:
           name: pokeiring-android14-arm64-apk
           path: output/*.apk
           retention-days: 14
+
+      - name: Publish Dev APK to GitHub Releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BUILD_TYPE="${{ inputs.build_type || 'release' }}"
+          TAG="dev-latest"
+          TITLE="Poke: Iring Dev Build (${BUILD_TYPE})"
+          NOTES="Automated Android 14+ (arm64-v8a) development APK build from commit ${GITHUB_SHA}."
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" output/pokeiring-dev.apk "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" --clobber
+            gh release edit "$TAG" --title "$TITLE" --notes "$NOTES" --prerelease
+          else
+            gh release create "$TAG" output/pokeiring-dev.apk "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" --title "$TITLE" --notes "$NOTES" --prerelease --target "${GITHUB_SHA}"
+          fi

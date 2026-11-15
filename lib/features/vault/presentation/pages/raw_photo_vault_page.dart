@@ -63,19 +63,21 @@ class RawPhotoVaultPage extends StatelessWidget {
                         margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFF8E1),
+                          color: AppColors.dynamicSurface,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFFFD54F)),
+                          border: Border.all(
+                            color: AppColors.primary.withAlpha(110),
+                          ),
                         ),
                         child: Row(
                           children: [
                             const Icon(
                               Icons.workspace_premium_rounded,
                               size: 24,
-                              color: Color(0xFFFFA000),
+                              color: AppColors.primary,
                             ),
                             const SizedBox(width: 12),
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -84,14 +86,14 @@ class RawPhotoVaultPage extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF4E342E),
+                                      color: AppColors.dynamicTextPrimary,
                                     ),
                                   ),
                                   Text(
                                     'Join Feline Club to archive uncompressed 12MP+ RAW master photos.',
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Color(0xFF6D4C41),
+                                      color: AppColors.dynamicTextSecondary,
                                     ),
                                   ),
                                 ],

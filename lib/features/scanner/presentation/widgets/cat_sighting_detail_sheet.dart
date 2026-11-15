@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -67,6 +70,32 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
     );
   }
 
+  Widget _buildStickerImage(String url) {
+    if (url.isEmpty) {
+      return const Icon(Icons.pets, color: AppColors.primary, size: 32);
+    }
+    if (url.startsWith('data:image')) {
+      try {
+        final commaIdx = url.indexOf(',');
+        if (commaIdx != -1) {
+          final Uint8List bytes = base64Decode(url.substring(commaIdx + 1));
+          return Image.memory(
+            bytes,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.pets, color: AppColors.primary, size: 32),
+          );
+        }
+      } catch (_) {}
+    }
+    return CachedNetworkImage(
+      imageUrl: url,
+      fit: BoxFit.cover,
+      errorWidget: (context, url, error) =>
+          const Icon(Icons.pets, color: AppColors.primary, size: 32),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -111,21 +140,7 @@ class _CatSightingDetailSheetState extends State<CatSightingDetailSheet> {
                   ],
                 ),
                 child: ClipOval(
-                  child: widget.sighting.stickerUrl.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: widget.sighting.stickerUrl,
-                          fit: BoxFit.cover,
-                          errorWidget: (context, url, error) => const Icon(
-                            Icons.pets,
-                            color: AppColors.primary,
-                            size: 32,
-                          ),
-                        )
-                      : const Icon(
-                          Icons.pets,
-                          color: AppColors.primary,
-                          size: 32,
-                        ),
+                  child: _buildStickerImage(widget.sighting.stickerUrl),
                 ),
               ),
               const SizedBox(width: 14),

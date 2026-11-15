@@ -390,6 +390,49 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
   }
 
   Widget _buildQuestsTab(FelineEvent event, UserEventWallet wallet) {
+    if (event.quests.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.event_note_rounded,
+                size: 40,
+                color: AppColors.dynamicTextSecondary.withAlpha(140),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'No Festival Quests Yet',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.dynamicTextPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'This event does not have special quests configured. Explore your territory and snap cats to earn event points!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: AppColors.dynamicTextSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final claimedBg = AppColors.isCalicoLight
+        ? Colors.green.shade50
+        : const Color(0xFF1B3828);
+    final claimedFg = AppColors.isCalicoLight
+        ? Colors.green.shade800
+        : const Color(0xFF4ADE80);
+
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
       itemCount: event.quests.length,
@@ -417,7 +460,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
                   color: isCompleted
-                      ? const Color(0xFF1B3828)
+                      ? claimedBg
                       : AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -425,9 +468,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                   isCompleted
                       ? Icons.check_circle_rounded
                       : Icons.event_available_rounded,
-                  color: isCompleted
-                      ? const Color(0xFF4ADE80)
-                      : AppColors.primary,
+                  color: isCompleted ? claimedFg : AppColors.primary,
                   size: 20,
                 ),
               ),
@@ -490,18 +531,18 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1B3828),
+                    color: claimedBg,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF4ADE80).withAlpha(80),
+                      color: claimedFg.withAlpha(80),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Claimed',
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF4ADE80),
+                      color: claimedFg,
                     ),
                   ),
                 )

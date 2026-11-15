@@ -75,34 +75,51 @@ void main() {
 
   tearDownAll(client.close);
 
-  test('real cat photos (TheCatAPI) are recognised as cats', () async {
-    final urls = await catUrls(5);
-    var hits = 0;
-    for (final url in urls) {
-      final r = await classify(url);
-      // ignore: avoid_print
-      print('[CAT ] ${r.isCat ? 'PASS' : 'MISS'} ${r.conf} ${r.detail}  $url');
-      if (r.isCat) hits++;
-    }
-    // Allow at most one miss for odd crops / multi-animal stock photos.
-    expect(hits, greaterThanOrEqualTo(urls.length - 1));
-  }, skip: skip, timeout: const Timeout(Duration(minutes: 4)));
+  test(
+    'real cat photos (TheCatAPI) are recognised as cats',
+    () async {
+      final urls = await catUrls(5);
+      var hits = 0;
+      for (final url in urls) {
+        final r = await classify(url);
+        // ignore: avoid_print
+        print(
+          '[CAT ] ${r.isCat ? 'PASS' : 'MISS'} ${r.conf} ${r.detail}  $url',
+        );
+        if (r.isCat) hits++;
+      }
+      // Allow at most one miss for odd crops / multi-animal stock photos.
+      expect(hits, greaterThanOrEqualTo(urls.length - 1));
+    },
+    skip: skip,
+    timeout: const Timeout(Duration(minutes: 4)),
+  );
 
-  test('dog photos are rejected', () async {
-    for (final url in await dogUrls(3)) {
-      final r = await classify(url);
-      // ignore: avoid_print
-      print('[DOG ] ${r.isCat ? 'FALSE+' : 'REJECT'} ${r.detail}  $url');
-      expect(r.isCat, isFalse, reason: 'dog accepted as cat: $url');
-    }
-  }, skip: skip, timeout: const Timeout(Duration(minutes: 3)));
+  test(
+    'dog photos are rejected',
+    () async {
+      for (final url in await dogUrls(3)) {
+        final r = await classify(url);
+        // ignore: avoid_print
+        print('[DOG ] ${r.isCat ? 'FALSE+' : 'REJECT'} ${r.detail}  $url');
+        expect(r.isCat, isFalse, reason: 'dog accepted as cat: $url');
+      }
+    },
+    skip: skip,
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
 
-  test('photos of people are rejected', () async {
-    for (final url in peopleUrls) {
-      final r = await classify(url);
-      // ignore: avoid_print
-      print('[HUMN] ${r.isCat ? 'FALSE+' : 'REJECT'} ${r.detail}  $url');
-      expect(r.isCat, isFalse, reason: 'person accepted as cat: $url');
-    }
-  }, skip: skip, timeout: const Timeout(Duration(minutes: 3)));
+  test(
+    'photos of people are rejected',
+    () async {
+      for (final url in peopleUrls) {
+        final r = await classify(url);
+        // ignore: avoid_print
+        print('[HUMN] ${r.isCat ? 'FALSE+' : 'REJECT'} ${r.detail}  $url');
+        expect(r.isCat, isFalse, reason: 'person accepted as cat: $url');
+      }
+    },
+    skip: skip,
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
 }

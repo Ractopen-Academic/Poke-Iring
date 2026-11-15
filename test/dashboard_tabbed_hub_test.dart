@@ -107,10 +107,41 @@ void main() {
       expect(find.text('Force Cloud Recache'), findsOneWidget);
       expect(find.text('Purge Offline & Test Cache'), findsOneWidget);
 
+      // Download Dev APK option in Explorer Account Settings
+      expect(find.text('Download Dev APK'), findsOneWidget);
+
       // Sign Out Button
       expect(find.text('Sign Out'), findsOneWidget);
 
       await tester.pump(const Duration(milliseconds: 600));
+    });
+
+    testWidgets('tapping Download Dev APK in Settings opens download dialog', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DashboardPage(user: testUser, authRepository: fakeAuth),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 600));
+
+      // Switch to Settings
+      await tester.tap(find.text('Settings'));
+      await tester.pump(const Duration(milliseconds: 250));
+
+      final downloadTile = find.text('Download Dev APK');
+      await tester.ensureVisible(downloadTile);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(downloadTile);
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.text('GitHub Actions Dev Release'), findsOneWidget);
+      expect(find.text('Copy Link'), findsOneWidget);
+      expect(find.text('Download APK'), findsOneWidget);
+
+      await tester.tap(find.text('Copy Link'));
+      await tester.pump(const Duration(milliseconds: 300));
     });
 
     testWidgets('developer gesture (5 taps on version) unlocks dev tools', (

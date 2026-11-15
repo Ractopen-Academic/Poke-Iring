@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_version.dart';
+import '../../../../core/services/apk_download_service.dart';
 import '../../../../core/services/app_cache_coordinator.dart';
 import '../../../../core/services/data_purge_service.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -268,10 +269,154 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         ),
         actions: [
+          TextButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _showDownloadApkDialog();
+            },
+            icon: const Icon(Icons.android_rounded, size: 16),
+            label: const Text(
+              'Download APK',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text(
               'Close',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleDirectApkDownload() async {
+    final opened = await ApkDownloadService.instance.downloadDevApk();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.primary,
+        content: Text(
+          opened
+              ? 'Downloading Poke: Iring Dev APK (${AppVersion.releaseTag})...'
+              : 'Direct APK download link copied to clipboard: ${AppVersion.devApkDownloadUrl}',
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+
+  void _showDownloadApkDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.dynamicSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: AppColors.dynamicBorder),
+        ),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.android_rounded,
+              size: 22,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Download Dev APK',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.dynamicTextPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Install the latest compiled Android development build generated automatically by GitHub Actions.',
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.4,
+                color: AppColors.dynamicTextSecondary,
+              ),
+            ),
+            const SizedBox(height: 14),
+            _buildAboutMetaRow('Build Tag', AppVersion.releaseTag),
+            const SizedBox(height: 6),
+            _buildAboutMetaRow('Target ABI', 'Android 14+ (arm64-v8a)'),
+            const SizedBox(height: 6),
+            _buildAboutMetaRow('Channel', 'GitHub Actions Dev Release'),
+            const SizedBox(height: 6),
+            _buildAboutMetaRow('Data Sync', 'Backend Authoritative'),
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(18),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.primary.withAlpha(55)),
+              ),
+              child: SelectableText(
+                AppVersion.devApkDownloadUrl,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.dynamicTextPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await ApkDownloadService.instance.copyDownloadLink();
+              if (ctx.mounted) Navigator.pop(ctx);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: AppColors.primaryDark,
+                    content: Text(
+                      'APK download URL copied to clipboard.',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Text(
+              'Copy Link',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: AppColors.dynamicTextSecondary,
+              ),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _handleDirectApkDownload();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            icon: const Icon(Icons.download_rounded, size: 16),
+            label: const Text(
+              'Download APK',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
@@ -306,7 +451,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ? widget.user.id
         : widget.user.email;
 
-    final bottomPadding = MediaQuery.of(context).padding.bottom + 96.0;
+    final bottomPadding = MediaQuery.of(context).padding.bottom + 24.0;
 
     return Scaffold(
       backgroundColor: AppColors.dynamicBackground,
@@ -495,10 +640,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 title: 'Download Offline Map Area',
                 subtitle: 'Select crop rectangle to cache map for offline exploration',
                 onTap: () async {
-                  final t = await TerritoryServiceImpl.instance
-                      .getTerritory(widget.user.id.isNotEmpty
-                          ? widget.user.id
-                          : widget.user.email);
+                  final t = await TerritoryServiceImpl.instance.getTerritory(
+                    widget.user.id.isNotEmpty
+                        ? widget.user.id
+                        : widget.user.email,
+                  );
                   final lat = t.latitude ?? 10.3140;
                   final lon = t.longitude ?? 123.9720;
                   if (!mounted) return;
@@ -551,6 +697,14 @@ class _DashboardPageState extends State<DashboardPage> {
                   size: 18,
                   color: AppColors.primary,
                 ),
+                showDivider: true,
+              ),
+              _SettingsTile(
+                icon: Icons.android_rounded,
+                title: 'Download Dev APK',
+                subtitle:
+                    'Get latest Android 64-bit dev build (${AppVersion.releaseTag})',
+                onTap: _showDownloadApkDialog,
                 showDivider: true,
               ),
               _SettingsTile(

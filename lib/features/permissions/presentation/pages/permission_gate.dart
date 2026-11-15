@@ -212,19 +212,16 @@ class _PermissionGateState extends State<PermissionGate> {
       }
 
       return AppBootstrapPage(
+        userId: widget.user.id.isNotEmpty
+            ? widget.user.id
+            : widget.user.email,
         onReady: (context, result) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               setState(() => _cachedBootstrapResult = result);
             }
           });
-          return MainNavigationShell(
-            key: const PageStorageKey('main_navigation_shell'),
-            user: widget.user,
-            authRepository: widget.authRepository,
-            initialOnline: result.isOnline,
-            initialLocationStatus: result.locationStatus,
-          );
+          return Scaffold(backgroundColor: AppColors.dynamicBackground);
         },
       );
     }

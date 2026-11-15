@@ -14,9 +14,7 @@ class ReyalOrPakeGamePage extends StatefulWidget {
   static Future<void> navigate(BuildContext context, {required AuthUser user}) {
     return Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => ReyalOrPakeGamePage(user: user),
-      ),
+      MaterialPageRoute(builder: (_) => ReyalOrPakeGamePage(user: user)),
     );
   }
 
@@ -48,6 +46,10 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
     'British Shorthair',
     'Bengal',
     'Scottish Fold',
+    'Ragdoll',
+    'Russian Blue',
+    'Maine Coon',
+    'Sphynx',
     'Other',
   ];
 
@@ -77,17 +79,9 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
   }
 
   void _submitPakeVote(CatSighting sighting) async {
-    final userId =
-        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
-
-    setState(() {
-      _votedSightingIds.add(sighting.id);
-      if (sighting.photoUrl.isNotEmpty) _votedImageUrls.add(sighting.photoUrl);
-      if (sighting.imageFingerprint.isNotEmpty) {
-        _votedFingerprints.add(sighting.imageFingerprint);
-      }
-      _sessionEarnedPoints += 5;
-    });
+    final userId = widget.user.id.isNotEmpty
+        ? widget.user.id
+        : widget.user.email;
 
     try {
       final earned = await _datasource.voteSightingAudit(
@@ -96,34 +90,40 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
         isCat: false,
       );
 
-      await RewardsService.instance.addPoints(
-        userId,
-        earned,
-        'Reyal or Pake: Flagged Pake',
-      );
+      if (!mounted) return;
+      setState(() {
+        _votedSightingIds.add(sighting.id);
+        if (sighting.photoUrl.isNotEmpty) {
+          _votedImageUrls.add(sighting.photoUrl);
+        }
+        if (sighting.imageFingerprint.isNotEmpty) {
+          _votedFingerprints.add(sighting.imageFingerprint);
+        }
+        _sessionEarnedPoints += earned;
+      });
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('+$earned Paw Points! Voted Pake (Fake/Not a Cat).'),
-            duration: const Duration(seconds: 1),
-            backgroundColor: AppColors.primaryDark,
-          ),
-        );
-        _advanceToNext();
-      }
+      RewardsService.instance.syncUserPoints(userId);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('+$earned Paw Points! Voted Pake (Fake/Not a Cat).'),
+          duration: const Duration(seconds: 1),
+          backgroundColor: AppColors.primaryDark,
+        ),
+      );
+      _advanceToNext();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
 
   void _submitReyalAudit(CatSighting sighting) async {
-    final userId =
-        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+    final userId = widget.user.id.isNotEmpty
+        ? widget.user.id
+        : widget.user.email;
 
     final breedGuess = _selectedBreed ?? 'Uncategorized';
     final patternGuess = _selectedPattern ?? '';
@@ -139,9 +139,12 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
         guessedColor: colorGuess,
       );
 
+      if (!mounted) return;
       setState(() {
         _votedSightingIds.add(sighting.id);
-        if (sighting.photoUrl.isNotEmpty) _votedImageUrls.add(sighting.photoUrl);
+        if (sighting.photoUrl.isNotEmpty) {
+          _votedImageUrls.add(sighting.photoUrl);
+        }
         if (sighting.imageFingerprint.isNotEmpty) {
           _votedFingerprints.add(sighting.imageFingerprint);
         }
@@ -152,11 +155,7 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
         _selectedColor = null;
       });
 
-      await RewardsService.instance.addPoints(
-        userId,
-        earned,
-        'Reyal or Pake: Reyal Audit Match',
-      );
+      RewardsService.instance.syncUserPoints(userId);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -167,16 +166,17 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                   : '+$earned Paw Points! Verification recorded.',
             ),
             duration: const Duration(seconds: 2),
-            backgroundColor: earned >= 15 ? Colors.green.shade800 : AppColors.primary,
+            backgroundColor: earned >= 15
+                ? Colors.green.shade800
+                : AppColors.primary,
           ),
         );
         _advanceToNext();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -188,16 +188,19 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
       _selectedPattern = null;
       _selectedColor = null;
     });
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    if (_pageController.hasClients) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final userId =
-        widget.user.id.isNotEmpty ? widget.user.id : widget.user.email;
+    final userId = widget.user.id.isNotEmpty
+        ? widget.user.id
+        : widget.user.email;
 
     return Scaffold(
       backgroundColor: AppColors.dynamicBackground,
@@ -386,8 +389,8 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                       final sighting = candidates[index];
                       final alreadyVoted =
                           _votedSightingIds.contains(sighting.id) ||
-                              sighting.verifiedByUsers.contains(userId) ||
-                              sighting.rejectedByUsers.contains(userId);
+                          sighting.verifiedByUsers.contains(userId) ||
+                          sighting.rejectedByUsers.contains(userId);
 
                       return AnimatedBuilder(
                         animation: _pageController,
@@ -422,10 +425,12 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                                           child: ClipRRect(
                                             borderRadius:
                                                 const BorderRadius.vertical(
-                                              top: Radius.circular(24),
-                                            ),
-                                            child: sighting.photoUrl
-                                                    .startsWith('data:image')
+                                                  top: Radius.circular(24),
+                                                ),
+                                            child:
+                                                sighting.photoUrl.startsWith(
+                                                  'data:image',
+                                                )
                                                 ? Image.memory(
                                                     Uri.parse(sighting.photoUrl)
                                                         .data!
@@ -451,8 +456,9 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                                               vertical: 5,
                                             ),
                                             decoration: BoxDecoration(
-                                              color:
-                                                  Colors.black.withAlpha(165),
+                                              color: Colors.black.withAlpha(
+                                                165,
+                                              ),
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
@@ -486,8 +492,9 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                                               vertical: 4,
                                             ),
                                             decoration: BoxDecoration(
-                                              color:
-                                                  Colors.black.withAlpha(165),
+                                              color: Colors.black.withAlpha(
+                                                165,
+                                              ),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                             ),
@@ -521,7 +528,8 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                                                     sighting.breed,
                                                     style: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.w900,
+                                                      fontWeight:
+                                                          FontWeight.w900,
                                                       color: AppColors
                                                           .dynamicTextPrimary,
                                                     ),
@@ -540,9 +548,9 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                                             Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
                                               decoration: BoxDecoration(
                                                 color: AppColors.primary
                                                     .withAlpha(20),
@@ -591,8 +599,7 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                                             children: [
                                               Expanded(
                                                 child: OutlinedButton.icon(
-                                                  style:
-                                                      OutlinedButton.styleFrom(
+                                                  style: OutlinedButton.styleFrom(
                                                     foregroundColor:
                                                         Colors.red.shade600,
                                                     side: BorderSide(
@@ -601,21 +608,21 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                                                     ),
                                                     padding:
                                                         const EdgeInsets.symmetric(
-                                                      vertical: 12,
-                                                    ),
-                                                    shape:
-                                                        RoundedRectangleBorder(
+                                                          vertical: 12,
+                                                        ),
+                                                    shape: RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              12),
+                                                            12,
+                                                          ),
                                                     ),
                                                   ),
-                                                  onPressed: () => _submitPakeVote(
-                                                    sighting,
-                                                  ),
+                                                  onPressed: () =>
+                                                      _submitPakeVote(sighting),
                                                   icon: const Icon(
-                                                      Icons.close_rounded,
-                                                      size: 18),
+                                                    Icons.close_rounded,
+                                                    size: 18,
+                                                  ),
                                                   label: const Text(
                                                     'Pake (+5 pts)',
                                                     style: TextStyle(
@@ -629,32 +636,34 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                                               const SizedBox(width: 12),
                                               Expanded(
                                                 child: ElevatedButton.icon(
-                                                  style: ElevatedButton
-                                                      .styleFrom(
+                                                  style: ElevatedButton.styleFrom(
                                                     backgroundColor:
                                                         Colors.green.shade700,
                                                     foregroundColor:
                                                         Colors.white,
                                                     padding:
                                                         const EdgeInsets.symmetric(
-                                                      vertical: 12,
-                                                    ),
-                                                    shape:
-                                                        RoundedRectangleBorder(
+                                                          vertical: 12,
+                                                        ),
+                                                    shape: RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              12),
+                                                            12,
+                                                          ),
                                                     ),
                                                   ),
                                                   onPressed: () {
                                                     setState(() {
-                                                      _isInspectingDetails = true;
-                                                      _selectedBreed = 'Uncategorized';
+                                                      _isInspectingDetails =
+                                                          true;
+                                                      _selectedBreed =
+                                                          'Uncategorized';
                                                     });
                                                   },
                                                   icon: const Icon(
-                                                      Icons.verified_rounded,
-                                                      size: 18),
+                                                    Icons.verified_rounded,
+                                                    size: 18,
+                                                  ),
                                                   label: const Text(
                                                     'Reyal (Inspect)',
                                                     style: TextStyle(
@@ -729,8 +738,13 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
               isDense: true,
               labelText: 'Breed Category',
               labelStyle: const TextStyle(fontSize: 12),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 8,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             items: _breedOptions.map((b) {
               return DropdownMenuItem<String>(
@@ -745,13 +759,21 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
           // Pattern Selection Dropdown
           DropdownButtonFormField<String>(
             initialValue: _selectedPattern,
-            hint: const Text('Coat Pattern (optional +5 pts)', style: TextStyle(fontSize: 12)),
+            hint: const Text(
+              'Coat Pattern (optional +5 pts)',
+              style: TextStyle(fontSize: 12),
+            ),
             decoration: InputDecoration(
               isDense: true,
               labelText: 'Coat Pattern',
               labelStyle: const TextStyle(fontSize: 12),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 8,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             items: _patternOptions.map((p) {
               return DropdownMenuItem<String>(
@@ -766,13 +788,21 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
           // Color Selection Dropdown
           DropdownButtonFormField<String>(
             initialValue: _selectedColor,
-            hint: const Text('Dominant Color (optional +3 pts)', style: TextStyle(fontSize: 12)),
+            hint: const Text(
+              'Dominant Color (optional +3 pts)',
+              style: TextStyle(fontSize: 12),
+            ),
             decoration: InputDecoration(
               isDense: true,
               labelText: 'Dominant Color',
               labelStyle: const TextStyle(fontSize: 12),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 8,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             items: _colorOptions.map((c) {
               return DropdownMenuItem<String>(
@@ -795,12 +825,20 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade700,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
                 onPressed: () => _submitReyalAudit(sighting),
                 icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
-                label: const Text('Submit Audit', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5)),
+                label: const Text(
+                  'Submit Audit',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+                ),
               ),
             ],
           ),
@@ -813,11 +851,7 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
     return Container(
       color: AppColors.primary.withAlpha(30),
       alignment: Alignment.center,
-      child: const Icon(
-        Icons.pets_rounded,
-        size: 54,
-        color: AppColors.primary,
-      ),
+      child: const Icon(Icons.pets_rounded, size: 54, color: AppColors.primary),
     );
   }
 }

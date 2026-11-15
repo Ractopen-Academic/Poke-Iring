@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -243,7 +244,7 @@ class StoryCircleItem extends StatelessWidget {
         placeholder: (context, url) => _buildShimmerPlaceholder(),
         errorWidget: (context, url, error) => _buildStylizedBreedFallback(),
       );
-    } else if (url.startsWith('file://') || url.startsWith('/')) {
+    } else if (!kIsWeb && (url.startsWith('file://') || url.startsWith('/'))) {
       // Local file path
       imageWidget = Image.file(
         File(url.replaceFirst('file://', '')),

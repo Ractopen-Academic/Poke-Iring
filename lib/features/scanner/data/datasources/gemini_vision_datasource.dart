@@ -103,63 +103,74 @@ Guidelines:
     // 1. User's personal API key is prioritized first if they configured one.
     final personalKey = await _configService.getApiKey();
     if (personalKey != null && personalKey.isNotEmpty) {
-      final directResult = await _analyzeViaDirectKey(personalKey, imageBytes);
-      if (directResult != null) {
+      try {
+        final directResult = await _analyzeViaDirectKeyOrThrow(
+          personalKey,
+          imageBytes,
+        );
         return applyConfidenceGate(directResult);
+      } catch (e) {
+        debugPrint(
+          'Personal Gemini key failed or errored ($e); falling back to Vision proxy.',
+        );
       }
-      debugPrint('Personal Gemini key failed or errored; falling back to Vision proxy.');
     }
 
     // 2. Vision proxy (routes via Vercel server proxy with zero user configuration needed).
-    final proxyUrl = await _configService.getProxyUrl(allowDefault: allowDefaultProxy);
+    String? proxyError;
+    final proxyUrl = await _configService.getProxyUrl(
+      allowDefault: allowDefaultProxy,
+    );
     if (proxyUrl != null && proxyUrl.isNotEmpty) {
-      final result = await _analyzeViaProxy(proxyUrl, imageBytes);
-      if (result != null) return applyConfidenceGate(result);
-      debugPrint('Vision proxy unavailable.');
+      final outcome = await _analyzeViaProxyWithError(proxyUrl, imageBytes);
+      if (outcome.result != null) return applyConfidenceGate(outcome.result!);
+      proxyError = outcome.error;
+      debugPrint('Vision proxy unavailable: $proxyError');
     }
 
     // 3. Fallback when neither personal key nor vision proxy succeeded
+    if (proxyError != null && proxyError.isNotEmpty) {
+      return CatScanResult.notACat(proxyError);
+    }
+
     if (personalKey == null) {
-      debugPrint('No personal Gemini key configured and proxy unavailable. Scan rejected.');
+      debugPrint(
+        'No personal Gemini key configured and proxy unavailable. Scan rejected.',
+      );
       return CatScanResult.notACat(unavailableReason);
     }
 
     return CatScanResult.notACat(failedReason);
   }
 
-  Future<CatScanResult?> _analyzeViaDirectKey(
+  Future<CatScanResult> _analyzeViaDirectKeyOrThrow(
     String apiKey,
     Uint8List imageBytes,
   ) async {
-    try {
-      final model = GenerativeModel(
-        model: _modelName,
-        apiKey: apiKey,
-        httpClient: _httpClient,
-        generationConfig: GenerationConfig(
-          temperature: 0.1,
-          responseMimeType: 'application/json',
-        ),
-      );
+    final model = GenerativeModel(
+      model: _modelName,
+      apiKey: apiKey,
+      httpClient: _httpClient,
+      generationConfig: GenerationConfig(
+        temperature: 0.1,
+        responseMimeType: 'application/json',
+      ),
+    );
 
-      final response = await model
-          .generateContent([
-            Content.multi([
-              TextPart(visionPrompt),
-              DataPart(detectMimeType(imageBytes), imageBytes),
-            ]),
-          ])
-          .timeout(const Duration(seconds: 45));
+    final response = await model
+        .generateContent([
+          Content.multi([
+            TextPart(visionPrompt),
+            DataPart(detectMimeType(imageBytes), imageBytes),
+          ]),
+        ])
+        .timeout(const Duration(seconds: 45));
 
-      final text = response.text;
-      if (text == null || text.trim().isEmpty) {
-        throw const FormatException('Empty response from Gemini Vision');
-      }
-      return parseModelJson(text);
-    } catch (e) {
-      debugPrint('Direct Gemini Vision inference failed: $e');
-      return null;
+    final text = response.text;
+    if (text == null || text.trim().isEmpty) {
+      throw const FormatException('Empty response from Gemini Vision');
     }
+    return parseModelJson(text);
   }
 
   /// Rejects positive results the model is not confident about.
@@ -215,7 +226,7 @@ Guidelines:
     return 'image/jpeg';
   }
 
-  Future<CatScanResult?> _analyzeViaProxy(
+  Future<({CatScanResult? result, String? error})> _analyzeViaProxyWithError(
     String proxyUrl,
     Uint8List imageBytes,
   ) async {
@@ -239,24 +250,45 @@ Guidelines:
       if (response.statusCode == 200) {
         final jsonMap = jsonDecode(response.body) as Map<String, dynamic>;
         if (jsonMap['ok'] == true && jsonMap['data'] != null) {
-          return CatScanResult.fromJson(
-            Map<String, dynamic>.from(jsonMap['data'] as Map),
+          return (
+            result: CatScanResult.fromJson(
+              Map<String, dynamic>.from(jsonMap['data'] as Map),
+            ),
+            error: null,
           );
         }
       }
+
+      String? serverMsg;
+      try {
+        final err = (jsonDecode(response.body) as Map)['error'];
+        if (err is String && err.isNotEmpty) serverMsg = err;
+      } catch (_) {}
+
       // Client-side problems (not signed in, image too large, rate limited)
       // are final: surface the server's message instead of retrying.
       if (const {401, 413, 429}.contains(response.statusCode)) {
-        String message = 'Verification refused (${response.statusCode}).';
-        try {
-          final err = (jsonDecode(response.body) as Map)['error'];
-          if (err is String && err.isNotEmpty) message = err;
-        } catch (_) {}
-        return CatScanResult.notACat(message);
+        return (
+          result: CatScanResult.notACat(
+            serverMsg ?? 'Verification refused (${response.statusCode}).',
+          ),
+          error: null,
+        );
       }
+
+      if (response.statusCode == 404) {
+        return (
+          result: null,
+          error:
+              'Vision proxy endpoint returned 404 (not deployed at $proxyUrl). '
+              'Configure a personal Gemini API key in AI Vision Settings or deploy /api/vision.',
+        );
+      }
+
+      return (result: null, error: null);
     } catch (e) {
       debugPrint('Error invoking vision proxy at $proxyUrl: $e');
+      return (result: null, error: null);
     }
-    return null;
   }
 }

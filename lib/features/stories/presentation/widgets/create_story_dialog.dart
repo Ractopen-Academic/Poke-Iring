@@ -143,7 +143,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? file = await _picker.pickImage(source: source);
-      if (file == null) return;
+      if (file == null || !mounted) return;
 
       setState(() => _isCompressing = true);
 
@@ -334,7 +334,7 @@ class _CreateStoryDialogState extends State<CreateStoryDialog> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Highlight a cat find to neighborhood explorers for the next 24 hours.',
+              'Highlight a cat find to neighborhood explorers for the next ${_formatDurationLabel(_selectedDuration)}.',
               style: TextStyle(
                 fontSize: 12.5,
                 color: AppColors.dynamicTextSecondary,

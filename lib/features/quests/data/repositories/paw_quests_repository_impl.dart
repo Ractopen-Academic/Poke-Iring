@@ -106,6 +106,32 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
       prefs = await SharedPreferences.getInstance();
     } catch (_) {}
 
+    Set<String> cloudClaimedIds = const <String>{};
+    Map<String, double> cloudProgress = const <String, double>{};
+    if (_isFirebaseAvailable && userId.isNotEmpty) {
+      try {
+        final db = _firestore ?? FirebaseFirestore.instance;
+        final userDoc = await db
+            .collection('users')
+            .doc(userId)
+            .get()
+            .timeout(const Duration(milliseconds: 1200));
+        if (userDoc.exists) {
+          final data = userDoc.data() ?? {};
+          final rawClaimed = data['claimedQuests'] as List<dynamic>?;
+          if (rawClaimed != null) {
+            cloudClaimedIds = rawClaimed.map((e) => e.toString()).toSet();
+          }
+          final rawProg = data['questProgress'] as Map<String, dynamic>?;
+          if (rawProg != null) {
+            cloudProgress = rawProg.map(
+              (k, v) => MapEntry(k, (v as num?)?.toDouble() ?? 0.0),
+            );
+          }
+        }
+      } catch (_) {}
+    }
+
     // 1. Fetch active pool from datasource
     final pool = await _questDataSource.getQuestPool();
     final activeTemplates = pool.where((t) => t.isActive).toList();
@@ -118,7 +144,7 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
     final dateKey =
         '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
 
-    // 3. Sunday midnight expiration for weekly quests
+    // 3. Sunday midnight expiration for weekly quests (Monday-Sunday ISO boundary)
     final daysUntilSunday = DateTime.sunday - now.weekday;
     final sundayMidnight = DateTime(
       now.year,
@@ -128,9 +154,13 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
       59,
       59,
     );
-    final weekNumber = ((now.difference(DateTime(now.year, 1, 1)).inDays) / 7)
-        .ceil();
-    final weekKey = '${now.year}_w$weekNumber';
+    final mondayOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day - (now.weekday - DateTime.monday),
+    );
+    final weekKey =
+        '${mondayOfWeek.year}_${mondayOfWeek.month.toString().padLeft(2, '0')}_${mondayOfWeek.day.toString().padLeft(2, '0')}';
 
     // Seeded selection for daily quests
     final activeDaily = effectivePool
@@ -178,6 +208,7 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
           : null;
 
       final progress =
+          cloudProgress[instanceId] ??
           prefs?.getDouble('quest_progress_${userId}_$instanceId') ??
           (legacyStepsKey != null
               ? prefs?.getDouble('quest_progress_${userId}_$legacyStepsKey')
@@ -191,11 +222,12 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
           0.0;
 
       final isClaimed =
-          prefs?.getBool('quest_claimed_${userId}_$instanceId') ??
-          (legacyStepsKey != null
-              ? prefs?.getBool('quest_claimed_${userId}_$legacyStepsKey')
-              : null) ??
-          false;
+          cloudClaimedIds.contains(instanceId) ||
+          (prefs?.getBool('quest_claimed_${userId}_$instanceId') ??
+              (legacyStepsKey != null
+                  ? prefs?.getBool('quest_claimed_${userId}_$legacyStepsKey')
+                  : null) ??
+              false);
 
       quests.add(
         PawQuest(
@@ -225,6 +257,7 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
           : null;
 
       final progress =
+          cloudProgress[instanceId] ??
           prefs?.getDouble('quest_progress_${userId}_$instanceId') ??
           (legacyStepsKey != null
               ? prefs?.getDouble('quest_progress_${userId}_$legacyStepsKey')
@@ -235,11 +268,12 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
           0.0;
 
       final isClaimed =
-          prefs?.getBool('quest_claimed_${userId}_$instanceId') ??
-          (legacyStepsKey != null
-              ? prefs?.getBool('quest_claimed_${userId}_$legacyStepsKey')
-              : null) ??
-          false;
+          cloudClaimedIds.contains(instanceId) ||
+          (prefs?.getBool('quest_claimed_${userId}_$instanceId') ??
+              (legacyStepsKey != null
+                  ? prefs?.getBool('quest_claimed_${userId}_$legacyStepsKey')
+                  : null) ??
+              false);
 
       quests.add(
         PawQuest(
@@ -412,11 +446,37 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
       orElse: () => throw ArgumentError('Quest not found: $questId'),
     );
 
-    if (!quest.isCompleted) {
+    if (!quest.isCompleted || quest.isClaimed) {
       return 0;
     }
 
-    // 1. Mark claimed locally
+    // 1. Authoritative backend check & atomic increment when Firebase is available
+    if (_isFirebaseAvailable && userId.isNotEmpty) {
+      try {
+        final db = _firestore ?? FirebaseFirestore.instance;
+        final userRef = db.collection('users').doc(userId);
+        final userSnap = await userRef.get();
+        final existingClaims =
+            (userSnap.data()?['claimedQuests'] as List<dynamic>? ?? const [])
+                .map((e) => e.toString())
+                .toSet();
+        if (existingClaims.contains(quest.id) ||
+            existingClaims.contains(questId)) {
+          await prefs.setBool(claimedKey, true);
+          await prefs.setBool('quest_claimed_${userId}_${quest.id}', true);
+          return 0;
+        }
+        await userRef.set({
+          'totalPawPoints': FieldValue.increment(quest.rewardPawPoints),
+          'claimedQuests': FieldValue.arrayUnion([quest.id, questId]),
+          'lastActive': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Firebase claimReward error ($e). Claimed locally.');
+      }
+    }
+
+    // 2. Mark claimed locally
     await prefs.setBool(claimedKey, true);
     await prefs.setBool('quest_claimed_${userId}_${quest.id}', true);
     unawaited(AudioHapticService.instance.claimQuest());
@@ -435,19 +495,6 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
         incrementBy: quest.rewardPawPoints.toDouble(),
       ),
     );
-
-    // 2. Increment user total Paw Points in Firestore if available
-    if (_isFirebaseAvailable) {
-      try {
-        final db = _firestore ?? FirebaseFirestore.instance;
-        await db.collection('users').doc(userId).set({
-          'totalPawPoints': FieldValue.increment(quest.rewardPawPoints),
-          'lastActive': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (e) {
-        debugPrint('Firebase claimReward error ($e). Claimed locally.');
-      }
-    }
 
     await _emitQuests(userId);
     return quest.rewardPawPoints;
