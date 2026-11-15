@@ -12,7 +12,7 @@ import '../../../achievements/presentation/widgets/equipped_title_badge.dart';
 import '../../../achievements/presentation/widgets/title_selection_sheet.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../events/presentation/widgets/active_events_carousel.dart';
-import '../../../games/presentation/pages/reyal_or_pake_game_page.dart';
+import '../../../games/presentation/pages/games_hub_page.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
 import '../../../quests/presentation/widgets/paw_quests_section.dart';
@@ -88,14 +88,13 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
         elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Games (Reyal or Pake?)',
+            tooltip: 'Cat Arcade & Mini-Games',
             icon: const Icon(
               Icons.sports_esports_rounded,
               color: AppColors.primary,
               size: 23,
             ),
-            onPressed: () =>
-                ReyalOrPakeGamePage.navigate(context, user: widget.user),
+            onPressed: () => GamesHubPage.navigate(context, user: widget.user),
           ),
           IconButton(
             tooltip: 'Paw Points Exchange',
