@@ -212,9 +212,7 @@ class _PermissionGateState extends State<PermissionGate> {
       }
 
       return AppBootstrapPage(
-        userId: widget.user.id.isNotEmpty
-            ? widget.user.id
-            : widget.user.email,
+        userId: widget.user.id.isNotEmpty ? widget.user.id : widget.user.email,
         onReady: (context, result) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {

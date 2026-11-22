@@ -533,9 +533,7 @@ class _EventCenterSheetState extends State<EventCenterSheet> {
                   decoration: BoxDecoration(
                     color: claimedBg,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: claimedFg.withAlpha(80),
-                    ),
+                    border: Border.all(color: claimedFg.withAlpha(80)),
                   ),
                   child: Text(
                     'Claimed',

@@ -135,8 +135,7 @@ class GamesHubPage extends StatelessWidget {
             const SizedBox(height: 12),
             _GameCard(
               title: 'Flappy Cat',
-              subtitle:
-                  'Tap to glide your calico cat through scratching posts and earn +2 Paw Points per post.',
+              subtitle: 'Tap to glide your calico cat through scratching posts and earn +2 Paw Points per post.',
               badge: 'Arcade',
               icon: Icons.flutter_dash_rounded,
               onTap: () => FlappyCatGamePage.navigate(context, user: user),
@@ -144,8 +143,7 @@ class GamesHubPage extends StatelessWidget {
             const SizedBox(height: 12),
             _GameCard(
               title: 'Reyal or Pake?',
-              subtitle:
-                  'Audit community cat sightings to verify real cats and earn Paw Points.',
+              subtitle: 'Audit community cat sightings to verify real cats and earn Paw Points.',
               badge: 'Community Audit',
               icon: Icons.verified_user_rounded,
               onTap: () => ReyalOrPakeGamePage.navigate(context, user: user),

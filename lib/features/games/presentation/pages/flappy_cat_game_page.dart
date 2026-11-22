@@ -669,7 +669,11 @@ class _FlappyCatPainter extends CustomPainter {
 
   void _drawRopeStripes(Canvas canvas, Rect rect, Paint paint) {
     for (var y = rect.top + 10; y < rect.bottom - 10; y += 12) {
-      canvas.drawLine(Offset(rect.left + 2, y), Offset(rect.right - 2, y), paint);
+      canvas.drawLine(
+        Offset(rect.left + 2, y),
+        Offset(rect.right - 2, y),
+        paint,
+      );
     }
   }
 

@@ -56,8 +56,7 @@ class ResponsiveWebShell extends StatelessWidget {
                       child: MediaQuery(
                         data: MediaQuery.of(context).copyWith(
                           size: Size(targetWidth, targetHeight),
-                          padding: MediaQuery.of(context)
-                              .padding
+                          padding: MediaQuery.of(context).padding
                               .copyWith(top: 24),
                         ),
                         child: child,
