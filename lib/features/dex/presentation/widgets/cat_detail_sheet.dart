@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
 import '../../../showcase/services/showcase_service.dart';
+import '../../../vault/data/services/photo_vault_service_impl.dart';
+import '../../../vault/domain/entities/vault_photo_entry.dart';
 import '../../domain/entities/feline_dex_species.dart';
 import '../../domain/entities/iring_dex_entry.dart';
 
@@ -85,22 +88,61 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
     }
   }
 
-  void _handleSaveSticker() {
+  Future<void> _handleSaveSticker() async {
+    final sighting = _featuredSighting;
+    if (sighting == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No sighting record available to archive yet.'),
+        ),
+      );
+      return;
+    }
+
+    final photoSource = sighting.stickerUrl.isNotEmpty
+        ? sighting.stickerUrl
+        : sighting.photoUrl;
+    final entry = VaultPhotoEntry(
+      id: 'vault_${sighting.id}',
+      userId: sighting.userId.isNotEmpty ? sighting.userId : 'explorer',
+      sightingId: sighting.id,
+      breedName: sighting.breed.isNotEmpty
+          ? sighting.breed
+          : widget.entry.species.name,
+      photoUrl: photoSource,
+      fileSizeBytes: photoSource.length,
+      resolutionWidth: 320,
+      resolutionHeight: 320,
+      capturedAt: sighting.createdAt,
+      isRawMaster: false,
+      locationLabel: '${sighting.barangay}, ${sighting.city}',
+    );
+    await PhotoVaultServiceImpl.instance.archivePhoto(entry);
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Saved ${widget.entry.species.name} transparent sticker cutout to local album.',
+          'Archived ${widget.entry.species.name} cutout to your Explorer Photo Vault.',
         ),
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _handleShareCard() {
+  Future<void> _handleShareCard() async {
+    final species = widget.entry.species;
+    final location = widget.entry.bestLocation ?? 'Local territory';
+    final summary =
+        'Poke: Iring Discovery — ${species.formattedNumber} ${species.name} '
+        '(${species.commonName}) | ${species.rarity.displayName} | '
+        '+${widget.entry.bestPawPoints} Paw Points | Spotted in $location';
+    await Clipboard.setData(ClipboardData(text: summary));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Sharing ${widget.entry.species.name} discovery card with local explorers.',
+          'Copied ${species.name} discovery card summary to clipboard.',
         ),
         duration: const Duration(seconds: 2),
       ),

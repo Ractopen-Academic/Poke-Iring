@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:image/image.dart' as img;
 import 'package:pokeiring/core/services/ai_config_service.dart';
+import 'package:pokeiring/core/services/image_compression_service.dart';
 import 'package:pokeiring/features/auth/domain/entities/auth_user.dart';
 import 'package:pokeiring/features/scanner/data/datasources/firebase_sightings_datasource.dart';
 import 'package:pokeiring/features/scanner/data/datasources/gemini_vision_datasource.dart';
@@ -256,7 +257,7 @@ void main() {
       expect(find.text('Cat Scanner & Vision'), findsOneWidget);
       expect(find.text('Spot a Neighborhood Cat'), findsOneWidget);
       expect(find.text('Snap Real-Time Cat Encounter'), findsOneWidget);
-      expect(find.text('Choose from Gallery'), findsNothing);
+      expect(find.text('Upload from Gallery'), findsOneWidget);
       expect(find.text('Paw Points Scoring Matrix'), findsOneWidget);
       expect(find.text('Base Discovery'), findsOneWidget);
       expect(find.text('+50 pts'), findsOneWidget);
@@ -309,5 +310,32 @@ void main() {
       expect(find.text('500 pts / day'), findsOneWidget);
       expect(find.text('Got It'), findsOneWidget);
     });
+  });
+
+  group('ImageCompressionService Scanner Compression', () {
+    test(
+      'compressScannerImage downscales oversized photos within 1280px bounds',
+      () async {
+        final largeImg = img.Image(width: 2400, height: 1800);
+        img.fill(largeImg, color: img.ColorRgb8(210, 120, 45));
+        final rawBytes = Uint8List.fromList(
+          img.encodeJpg(largeImg, quality: 95),
+        );
+
+        final result = await ImageCompressionService().compressScannerImage(
+          rawBytes,
+        );
+
+        expect(result.compressedBytes, isNotEmpty);
+        expect(
+          result.width,
+          lessThanOrEqualTo(ImageCompressionService.maxScannerDimension),
+        );
+        expect(
+          result.height,
+          lessThanOrEqualTo(ImageCompressionService.maxScannerDimension),
+        );
+      },
+    );
   });
 }

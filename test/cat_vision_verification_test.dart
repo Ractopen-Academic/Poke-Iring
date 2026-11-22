@@ -283,4 +283,33 @@ void main() {
     );
     expect(GeminiVisionDataSource.detectMimeType(jpegBytes), 'image/jpeg');
   });
+
+  test(
+    'personal key 429 quota error surfaces rate-limit message when proxy fails',
+    () async {
+      await config.setApiKey('test-key');
+      await config.setProxyUrl('https://proxy.example/api/vision');
+      final ds = GeminiVisionDataSource(
+        configService: config,
+        httpClient: MockClient((req) async {
+          if (req.url.host.contains('googleapis')) {
+            return http.Response(
+              jsonEncode({
+                'error': {
+                  'code': 429,
+                  'message': 'Quota exceeded',
+                  'status': 'RESOURCE_EXHAUSTED',
+                },
+              }),
+              429,
+            );
+          }
+          return http.Response('Not Found', 404);
+        }),
+      );
+      final result = await ds.analyzeCatPhoto(jpegBytes);
+      expect(result.isCat, isFalse);
+      expect(result.rejectionReason, contains('rate limit'));
+    },
+  );
 }

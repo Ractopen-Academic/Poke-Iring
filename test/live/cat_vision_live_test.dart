@@ -7,7 +7,11 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:pokeiring/core/services/ai_config_service.dart';
+import 'package:pokeiring/features/dex/data/repositories/dex_repository_impl.dart';
+import 'package:pokeiring/features/scanner/data/datasources/firebase_sightings_datasource.dart';
 import 'package:pokeiring/features/scanner/data/datasources/gemini_vision_datasource.dart';
+import 'package:pokeiring/features/scanner/data/repositories/cat_scanner_repository_impl.dart';
+import 'package:pokeiring/features/scanner/domain/entities/cat_sighting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// LIVE end-to-end check of the real Gemini classifier against real photos.
@@ -118,6 +122,91 @@ void main() {
         print('[HUMN] ${r.isCat ? 'FALSE+' : 'REJECT'} ${r.detail}  $url');
         expect(r.isCat, isFalse, reason: 'person accepted as cat: $url');
       }
+    },
+    skip: skip,
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
+
+  test(
+    'purebred cat breeds (Siamese, Bengal) classify, save, and unlock matching Dex species',
+    () async {
+      final breedTargets = <({String imgUrl, String expectedDexName})>[
+        (
+          imgUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Siamese_cat_Vaillante.JPG/330px-Siamese_cat_Vaillante.JPG',
+          expectedDexName: 'Siamese',
+        ),
+        (
+          imgUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Paintedcats_Red_Star_standing.jpg/330px-Paintedcats_Red_Star_standing.jpg',
+          expectedDexName: 'Bengal',
+        ),
+      ];
+
+      final sightingsDs = FirebaseSightingsDataSource();
+      final repo = CatScannerRepositoryImpl(
+        geminiDataSource: ds,
+        firebaseDataSource: sightingsDs,
+      );
+      final dexRepo = DexRepositoryImpl(dataSource: sightingsDs);
+      const userId = 'live-breed-e2e-user';
+
+      for (final target in breedTargets) {
+        final imgRes = await client.get(
+          Uri.parse(target.imgUrl),
+          headers: {'User-Agent': 'PokeIringTest/1.0 (pokeiring.app)'},
+        );
+        expect(imgRes.statusCode, 200);
+
+        final scan = await repo.scanImage(imgRes.bodyBytes);
+        // ignore: avoid_print
+        print(
+          '[BRED] expected=${target.expectedDexName} got=${scan.breed} / ${scan.coatPattern} conf=${scan.confidence} (${target.imgUrl})',
+        );
+        expect(scan.isCat, isTrue);
+
+        final sticker = await repo.generateStickerCutout(
+          imageBytes: imgRes.bodyBytes,
+          scanResult: scan,
+        );
+        expect(sticker, isNotEmpty);
+
+        await repo.saveSighting(
+          sighting: CatSighting(
+            id: 'live_${target.expectedDexName.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}',
+            userId: userId,
+            authorName: 'LiveTester',
+            photoUrl: target.imgUrl,
+            stickerUrl: '',
+            latitude: 10.314,
+            longitude: 123.972,
+            geohash: 'w721x',
+            barangay: 'Bankal',
+            city: 'Lapu-Lapu City',
+            region: 'Central Visayas',
+            country: 'Philippines',
+            breed: scan.breed,
+            coatPattern: scan.coatPattern,
+            dominantColor: scan.dominantColor,
+            rarityMultiplier: scan.rarityMultiplier,
+            pawPoints: scan.totalPawPoints,
+            quirk: scan.quirk,
+            createdAt: DateTime.now(),
+          ),
+          originalBytes: imgRes.bodyBytes,
+          stickerBytes: sticker,
+        );
+
+        await Future<void>.delayed(const Duration(seconds: 13));
+      }
+
+      final entries = await dexRepo.getDexEntries(userId);
+      final discoveredNames = entries
+          .where((e) => e.isDiscovered)
+          .map((e) => e.species.name)
+          .toList();
+      // ignore: avoid_print
+      print('[DEX ] unlocked=$discoveredNames');
+      expect(discoveredNames, contains('Siamese'));
+      expect(discoveredNames, contains('Bengal'));
     },
     skip: skip,
     timeout: const Timeout(Duration(minutes: 3)),

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pokeiring/features/auth/domain/entities/auth_user.dart';
@@ -112,19 +114,79 @@ void main() {
   });
 
   group('DexRepositoryImpl', () {
-    test('maps fallback seed sightings into dex entries', () async {
+    test('maps user sightings accurately into dex species without false double-matches', () async {
       final dataSource = FirebaseSightingsDataSource();
       final repository = DexRepositoryImpl(dataSource: dataSource);
+      final now = DateTime.now();
 
-      final entries = await repository.getDexEntries('test-explorer');
+      await dataSource.saveSighting(
+        sighting: CatSighting(
+          id: 'dex-test-calico',
+          userId: 'test-explorer-breeds',
+          authorName: 'Tester',
+          photoUrl: '',
+          stickerUrl: '',
+          latitude: 10.314,
+          longitude: 123.972,
+          geohash: 'w721x',
+          barangay: 'Bankal',
+          city: 'Lapu-Lapu City',
+          region: 'Central Visayas',
+          country: 'Philippines',
+          breed: 'Domestic Shorthair (Puspin)',
+          coatPattern: 'Calico',
+          dominantColor: 'Orange, Black & White',
+          rarityMultiplier: 1.4,
+          pawPoints: 100,
+          quirk: 'Lounging on a bench.',
+          createdAt: now,
+        ),
+        originalBytes: Uint8List(0),
+        stickerBytes: Uint8List(0),
+      );
+
+      await dataSource.saveSighting(
+        sighting: CatSighting(
+          id: 'dex-test-siamese',
+          userId: 'test-explorer-breeds',
+          authorName: 'Tester',
+          photoUrl: '',
+          stickerUrl: '',
+          latitude: 10.314,
+          longitude: 123.972,
+          geohash: 'w721x',
+          barangay: 'Bankal',
+          city: 'Lapu-Lapu City',
+          region: 'Central Visayas',
+          country: 'Philippines',
+          breed: 'Siamese',
+          coatPattern: 'Colorpoint',
+          dominantColor: 'Seal Point',
+          rarityMultiplier: 1.6,
+          pawPoints: 130,
+          quirk: 'Observing sparrows.',
+          createdAt: now,
+        ),
+        originalBytes: Uint8List(0),
+        stickerBytes: Uint8List(0),
+      );
+
+      final entries = await repository.getDexEntries('test-explorer-breeds');
       expect(entries.length, equals(16));
 
       final discovered = entries.where((e) => e.isDiscovered).toList();
-      expect(discovered, isNotEmpty);
+      expect(discovered.length, equals(2));
       expect(
         discovered.any((e) => e.species.coatPattern.contains('Calico')),
         isTrue,
       );
+      expect(discovered.any((e) => e.species.name == 'Siamese'), isTrue);
+      // Calico + Siamese should not falsely unlock Classic Tabby Puspin (#001)
+      expect(discovered.any((e) => e.species.id == 'dex_001'), isFalse);
+
+      // Seed sightings belong to their respective seed authors
+      final seedEntries = await repository.getDexEntries('dev-user-calico');
+      expect(seedEntries.where((e) => e.isDiscovered), isNotEmpty);
     });
   });
 

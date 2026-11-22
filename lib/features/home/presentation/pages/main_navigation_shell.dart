@@ -17,7 +17,6 @@ import '../../../leaderboard/presentation/pages/leaderboard_page.dart';
 import '../../../map/domain/repositories/map_repository.dart';
 import '../../../map/presentation/pages/live_map_page.dart';
 import '../../../scanner/presentation/pages/cat_scanner_page.dart';
-import '../../../scanner/presentation/widgets/floating_snap_iring_button.dart';
 import '../../../territory/presentation/widgets/territory_setup_dialog.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import '../widgets/iring_center_button.dart';
@@ -107,6 +106,8 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         user: widget.user,
         onOpenLeaderboard: () => _selectTab(3),
         onOpenAccount: _openAccountPage,
+        onOpenRadar: () => _selectTab(1),
+        onOpenScanner: _openQuickSnapCamera,
       ),
       LiveMapPage(
         key: const PageStorageKey<String>('map_tab'),
@@ -256,17 +257,19 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     _openQuickSnapCamera();
   }
 
-  void _openQuickSnapCamera() {
-    Navigator.push(
+  Future<void> _openQuickSnapCamera() async {
+    final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => CatScannerPage(
           user: widget.user,
           locationService: _locationService,
-          autoLaunchCamera: true,
         ),
       ),
     );
+    if (saved == true && mounted) {
+      _selectTab(1);
+    }
   }
 
   @override
@@ -330,11 +333,6 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                           setState(() => _dismissedGpsBanner = true),
                     ),
                   ),
-                ),
-              if (isRadarTab)
-                FloatingSnapIringButton(
-                  onTap: _openQuickSnapCamera,
-                  bottomSafeMargin: 246.0,
                 ),
             ],
           ),

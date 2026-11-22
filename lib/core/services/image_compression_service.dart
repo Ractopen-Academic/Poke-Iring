@@ -34,6 +34,20 @@ class ImageCompressionService {
   static const int maxAvatarDimension = 360;
   static const int avatarJpegQuality = 85;
 
+  static const int maxScannerDimension = 1280;
+  static const int scannerJpegQuality = 82;
+
+  Future<ImageCompressionResult> compressScannerImage(
+    Uint8List rawBytes,
+  ) async {
+    return compute(_compressImageIsolate, {
+      'bytes': rawBytes,
+      'maxWidth': maxScannerDimension,
+      'maxHeight': maxScannerDimension,
+      'quality': scannerJpegQuality,
+    });
+  }
+
   Future<ImageCompressionResult> compressStoryImage(
     Uint8List rawBytes, {
     bool isClubMember = false,

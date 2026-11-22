@@ -111,14 +111,16 @@ class _IringDexPageState extends State<IringDexPage> {
     }).toList();
   }
 
-  void _openCamera() {
-    Navigator.push(
+  Future<void> _openCamera() async {
+    final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            CatScannerPage(user: widget.user, autoLaunchCamera: true),
+        builder: (context) => CatScannerPage(user: widget.user),
       ),
     );
+    if (saved == true && mounted) {
+      AppCacheCoordinator.instance.refreshDex();
+    }
   }
 
   @override
@@ -169,11 +171,6 @@ class _IringDexPageState extends State<IringDexPage> {
                 }
               });
             },
-          ),
-          IconButton(
-            tooltip: 'Snap Cat',
-            icon: const Icon(Icons.camera_alt_outlined),
-            onPressed: _openCamera,
           ),
           const SizedBox(width: 8),
         ],
@@ -474,12 +471,7 @@ class _IringDexPageState extends State<IringDexPage> {
               sighting: sighting,
               onTap: () {
                 final species = FelineDexSpecies.canonicalSpecies.firstWhere(
-                  (s) =>
-                      s.coatPattern.toLowerCase() ==
-                          sighting.coatPattern.toLowerCase() ||
-                      s.name.toLowerCase().contains(
-                        sighting.breed.toLowerCase(),
-                      ),
+                  (s) => DexRepositoryImpl.matchesSpecies(s, sighting),
                   orElse: () => FelineDexSpecies.canonicalSpecies.first,
                 );
                 final entry = IringDexEntry.fromSightings(

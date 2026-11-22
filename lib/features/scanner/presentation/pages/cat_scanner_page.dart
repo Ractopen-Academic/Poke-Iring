@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/services/app_permission_service.dart';
 import '../../../../core/services/audio_haptic_service.dart';
+import '../../../../core/services/image_compression_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
@@ -64,11 +65,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
   bool _isReviewingSnap = false;
   bool _showAsyncNotice = false;
   Timer? _asyncNoticeTimer;
-  String _selectedFilter = 'normal';
-  String _selectedZoom = '1x';
   double _activeEventMultiplier = 1.0;
 
   final TextEditingController _customNoteController = TextEditingController();
+  final ImageCompressionService _compressionService = ImageCompressionService();
   String? _userChosenBreed;
   String? _userChosenPattern;
   String? _userChosenColor;
@@ -80,6 +80,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
 
   double _lockedLatitude = 10.3140;
   double _lockedLongitude = 123.9720;
+  late String _resolvedBarangay;
+  late String _resolvedCity;
+  late String _resolvedRegion;
+  String _resolvedCountry = 'Philippines';
 
   @override
   void initState() {
@@ -90,17 +94,47 @@ class _CatScannerPageState extends State<CatScannerPage> {
     _locationService = widget.locationService ?? LocationServiceImpl();
     _lockedLatitude = widget.currentLatitude;
     _lockedLongitude = widget.currentLongitude;
+    _resolvedBarangay = widget.currentBarangay;
+    _resolvedCity = widget.currentCity;
+    _resolvedRegion = widget.currentRegion;
     _acquireCurrentLocation();
+    _loadResolvedTerritory();
     _refreshEventMultiplier();
     _checkLostImageRecovery();
 
     if (widget.autoLaunchCamera) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          _pickAndAnalyze();
+          _pickImage(ImageSource.camera);
         }
       });
     }
+  }
+
+  Future<void> _loadResolvedTerritory() async {
+    final userId = widget.user.id.isNotEmpty
+        ? widget.user.id
+        : widget.user.email;
+    try {
+      final territory = await TerritoryServiceImpl.instance
+          .getTerritory(userId)
+          .timeout(const Duration(seconds: 2));
+      if (!mounted) return;
+      setState(() {
+        if (territory.barangay.isNotEmpty) {
+          _resolvedBarangay = territory.barangay;
+        }
+        if (territory.city.isNotEmpty) {
+          _resolvedCity = territory.city;
+        }
+        if (territory.region.isNotEmpty) {
+          _resolvedRegion = territory.region;
+        }
+        if (territory.country.isNotEmpty) {
+          _resolvedCountry = territory.country;
+        }
+      });
+    } catch (_) {}
   }
 
   Future<void> _checkLostImageRecovery() async {
@@ -169,9 +203,9 @@ class _CatScannerPageState extends State<CatScannerPage> {
 
   bool _isCameraPermissionDenied = false;
 
-  Future<void> _pickAndAnalyze() async {
+  Future<void> _pickImage(ImageSource source) async {
     try {
-      if (!kIsWeb) {
+      if (source == ImageSource.camera && !kIsWeb) {
         const permService = AppPermissionService();
         final status = await permService.checkCamera();
         if (status == AppPermissionState.denied) {
@@ -196,27 +230,31 @@ class _CatScannerPageState extends State<CatScannerPage> {
         }
       }
 
-      AudioHapticService.instance.snapShutter();
+      if (source == ImageSource.camera) {
+        AudioHapticService.instance.snapShutter();
+      }
       _acquireCurrentLocation();
       final XFile? file = await _picker.pickImage(
-        source: ImageSource.camera,
+        source: source,
         maxWidth: 1400,
         maxHeight: 1400,
         imageQuality: 85,
       );
 
       if (file == null) {
-        // User voluntarily cancelled the system camera capture
-        if (widget.autoLaunchCamera &&
-            _capturedImageBytes == null &&
-            _scanResult == null &&
-            mounted) {
-          Navigator.maybePop(context);
-        }
         return;
       }
 
-      final bytes = await file.readAsBytes();
+      final rawBytes = await file.readAsBytes();
+      Uint8List bytes = rawBytes;
+      try {
+        final compressed = await _compressionService.compressScannerImage(
+          rawBytes,
+        );
+        if (compressed.compressedBytes.isNotEmpty) {
+          bytes = compressed.compressedBytes;
+        }
+      } catch (_) {}
       if (!mounted) return;
       setState(() {
         _isCameraPermissionDenied = false;
@@ -316,10 +354,10 @@ class _CatScannerPageState extends State<CatScannerPage> {
       final userId = widget.user.id.isNotEmpty
           ? widget.user.id
           : widget.user.email;
-      String barangay = widget.currentBarangay;
-      String city = widget.currentCity;
-      String region = widget.currentRegion;
-      String country = 'Philippines';
+      String barangay = _resolvedBarangay;
+      String city = _resolvedCity;
+      String region = _resolvedRegion;
+      String country = _resolvedCountry;
       try {
         final territory = await TerritoryServiceImpl.instance
             .getTerritory(userId)
@@ -583,7 +621,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Encounter Captured',
+                      'Encounter Ready for Verification',
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
@@ -593,20 +631,19 @@ class _CatScannerPageState extends State<CatScannerPage> {
                   ],
                 ),
               ),
-              Row(
-                children: [
-                  _zoomChip('1x'),
-                  const SizedBox(width: 4),
-                  _zoomChip('2x'),
-                  const SizedBox(width: 4),
-                  _zoomChip('3x'),
-                ],
+              TextButton.icon(
+                onPressed: () => _pickImage(ImageSource.gallery),
+                icon: const Icon(Icons.photo_library_outlined, size: 16),
+                label: const Text(
+                  'Gallery',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 14),
           Container(
-            height: 380,
+            height: 360,
             decoration: BoxDecoration(
               color: Colors.black,
               borderRadius: BorderRadius.circular(24),
@@ -622,45 +659,13 @@ class _CatScannerPageState extends State<CatScannerPage> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                _applyFilterToImage(_capturedImageBytes!),
-                const CameraViewfinderReticle(),
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(160),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'Filter: ${_selectedFilter.toUpperCase()}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
+                Image.memory(
+                  _capturedImageBytes!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _filterButton('Natural', 'normal', Icons.lens_blur),
-                const SizedBox(width: 8),
-                _filterButton('Warm Sun', 'warm', Icons.wb_sunny_outlined),
-                const SizedBox(width: 8),
-                _filterButton('Vivid Sun', 'vivid', Icons.filter_hdr_outlined),
-                const SizedBox(width: 8),
-                _filterButton('Mono Night', 'mono', Icons.nights_stay_outlined),
+                const CameraViewfinderReticle(),
               ],
             ),
           ),
@@ -670,7 +675,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
               Expanded(
                 flex: 1,
                 child: OutlinedButton.icon(
-                  onPressed: _pickAndAnalyze,
+                  onPressed: () => _pickImage(ImageSource.camera),
                   icon: const Icon(Icons.refresh_rounded, size: 18),
                   label: const Text('Retake'),
                   style: OutlinedButton.styleFrom(
@@ -692,7 +697,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 child: ElevatedButton.icon(
                   onPressed: () => _runAnalysis(_capturedImageBytes!),
                   icon: const Icon(Icons.auto_awesome_rounded, size: 18),
-                  label: const Text('Analyze Cat'),
+                  label: const Text('Verify & Identify Cat'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -709,169 +714,6 @@ class _CatScannerPageState extends State<CatScannerPage> {
         ],
       ),
     );
-  }
-
-  Widget _zoomChip(String zoom) {
-    final isSelected = _selectedZoom == zoom;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedZoom = zoom),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.dynamicSurface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
-          ),
-        ),
-        child: Text(
-          zoom,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _filterButton(String label, String filterKey, IconData icon) {
-    final isSelected = _selectedFilter == filterKey;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedFilter = filterKey),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.dynamicSurface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.dynamicBorder,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(12),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 15,
-              color: isSelected ? Colors.white : AppColors.dynamicTextSecondary,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.dynamicTextPrimary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _applyFilterToImage(Uint8List bytes) {
-    Widget image = Image.memory(
-      bytes,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-    );
-
-    switch (_selectedFilter) {
-      case 'warm':
-        return ColorFiltered(
-          colorFilter: const ColorFilter.matrix(<double>[
-            1.1,
-            0.0,
-            0.0,
-            0.0,
-            15.0,
-            0.0,
-            1.0,
-            0.0,
-            0.0,
-            8.0,
-            0.0,
-            0.0,
-            0.9,
-            0.0,
-            -10.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-            0.0,
-          ]),
-          child: image,
-        );
-      case 'vivid':
-        return ColorFiltered(
-          colorFilter: const ColorFilter.matrix(<double>[
-            1.2,
-            0.0,
-            0.0,
-            0.0,
-            -10.0,
-            0.0,
-            1.2,
-            0.0,
-            0.0,
-            -10.0,
-            0.0,
-            0.0,
-            1.2,
-            0.0,
-            -10.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-            0.0,
-          ]),
-          child: image,
-        );
-      case 'mono':
-        return ColorFiltered(
-          colorFilter: const ColorFilter.matrix(<double>[
-            0.2126,
-            0.7152,
-            0.0722,
-            0.0,
-            0.0,
-            0.2126,
-            0.7152,
-            0.0722,
-            0.0,
-            0.0,
-            0.2126,
-            0.7152,
-            0.0722,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            1.0,
-            0.0,
-          ]),
-          child: image,
-        );
-      case 'normal':
-      default:
-        return image;
-    }
   }
 
   Widget _buildCapturePrompt() {
@@ -912,7 +754,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Point your camera at a cat to verify its species, calculate Paw Points, and crop an interactive map pin sticker.',
+                  'Snap a cat photo or upload one from your gallery to verify its breed, calculate Paw Points, and pin it to the map.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13.5,
@@ -922,7 +764,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  onPressed: _pickAndAnalyze,
+                  onPressed: () => _pickImage(ImageSource.camera),
                   icon: const Icon(Icons.camera_alt),
                   label: const Text('Snap Real-Time Cat Encounter'),
                   style: ElevatedButton.styleFrom(
@@ -935,6 +777,20 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     elevation: 0,
                   ),
                 ),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library_outlined, size: 19),
+                  label: const Text('Upload from Gallery'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.dynamicTextPrimary,
+                    side: BorderSide(color: AppColors.dynamicBorder),
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -945,9 +801,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
               decoration: BoxDecoration(
                 color: Colors.red.withAlpha(AppColors.isCalicoLight ? 24 : 40),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.red.shade400.withAlpha(140),
-                ),
+                border: Border.all(color: Colors.red.shade400.withAlpha(140)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1069,6 +923,15 @@ class _CatScannerPageState extends State<CatScannerPage> {
     final result = _scanResult!;
 
     if (!result.isCat) {
+      final reason =
+          result.rejectionReason ??
+          'Our vision model could not identify a cat. Please frame the cat clearly and try again.';
+      final lowerReason = reason.toLowerCase();
+      final isConfigError =
+          lowerReason.contains('key') ||
+          lowerReason.contains('proxy') ||
+          lowerReason.contains('404') ||
+          lowerReason.contains('unavailable');
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -1082,7 +945,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                'No Feline Detected',
+                isConfigError ? 'AI Vision Needs Setup' : 'No Feline Detected',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -1091,7 +954,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                result.rejectionReason ?? 'Our vision model could not identify a cat. Please frame the cat clearly and try again.',
+                reason,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13.5,
@@ -1099,16 +962,36 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _reset,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                alignment: WrapAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: _reset,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Try Again'),
                   ),
-                ),
-                child: const Text('Try Again'),
+                  if (isConfigError)
+                    OutlinedButton.icon(
+                      onPressed: () => AiVisionSettingsSheet.show(context),
+                      icon: const Icon(Icons.tune_rounded, size: 17),
+                      label: const Text('AI Vision Settings'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.dynamicTextPrimary,
+                        side: BorderSide(color: AppColors.dynamicBorder),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
@@ -1153,12 +1036,32 @@ class _CatScannerPageState extends State<CatScannerPage> {
                       child: Image.memory(_stickerBytes!, fit: BoxFit.cover),
                     ),
                   ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withAlpha(28),
+                    borderRadius: BorderRadius.circular(99),
+                    border: Border.all(color: Colors.green.withAlpha(90)),
+                  ),
+                  child: Text(
+                    'Verified Cat • ${(result.confidence * 100).round()}% Confidence',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF2E7D32),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Category: ',
+                      'Breed: ',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -1168,22 +1071,17 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     Flexible(
                       child: Builder(
                         builder: (context) {
-                          const knownBreeds = [
-                            'Uncategorized',
-                            'Domestic Shorthair (Puspin)',
-                            'Siamese',
-                            'Persian',
-                            'British Shorthair',
-                            'Bengal',
-                            'Scottish Fold',
-                            'Ragdoll',
-                            'Russian Blue',
-                            'Maine Coon',
-                            'Sphynx',
-                            'Other',
+                          final rawBreed = (_userChosenBreed ?? result.breed)
+                              .trim();
+                          final breedOptions = <String>[
+                            ...CatScanResult.canonicalBreeds,
                           ];
-                          final rawBreed = _userChosenBreed ?? result.breed;
-                          final safeBreed = knownBreeds.contains(rawBreed)
+                          if (rawBreed.isNotEmpty &&
+                              rawBreed != 'Unknown' &&
+                              !breedOptions.contains(rawBreed)) {
+                            breedOptions.insert(0, rawBreed);
+                          }
+                          final safeBreed = breedOptions.contains(rawBreed)
                               ? rawBreed
                               : 'Uncategorized';
                           return DropdownButton<String>(
@@ -1205,7 +1103,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                                 setState(() => _userChosenBreed = val);
                               }
                             },
-                            items: knownBreeds
+                            items: breedOptions
                                 .map(
                                   (breed) => DropdownMenuItem(
                                     value: breed,
@@ -1252,19 +1150,81 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 4,
+                    vertical: 2,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Text(
-                    'Pattern: ${_userChosenPattern ?? result.coatPattern} • ${_userChosenColor ?? result.dominantColor}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
-                    ),
+                  child: Builder(
+                    builder: (context) {
+                      final rawPattern =
+                          (_userChosenPattern ?? result.coatPattern).trim();
+                      final patternOptions = <String>[
+                        ...CatScanResult.canonicalCoatPatterns,
+                      ];
+                      if (rawPattern.isNotEmpty &&
+                          !patternOptions.contains(rawPattern)) {
+                        patternOptions.insert(0, rawPattern);
+                      }
+                      final safePattern = patternOptions.contains(rawPattern)
+                          ? rawPattern
+                          : patternOptions.first;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Pattern: ',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          DropdownButton<String>(
+                            value: safePattern,
+                            isDense: true,
+                            dropdownColor: AppColors.dynamicSurface,
+                            underline: const SizedBox.shrink(),
+                            icon: const Icon(
+                              Icons.arrow_drop_down,
+                              size: 18,
+                              color: AppColors.primary,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primary,
+                            ),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() => _userChosenPattern = val);
+                              }
+                            },
+                            items: patternOptions
+                                .map(
+                                  (pattern) => DropdownMenuItem(
+                                    value: pattern,
+                                    child: Text(pattern),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                          Flexible(
+                            child: Text(
+                              ' • ${_userChosenColor ?? result.dominantColor}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -1389,7 +1349,7 @@ class _CatScannerPageState extends State<CatScannerPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Territory: ${widget.currentBarangay}, ${widget.currentCity}',
+                    'Territory: $_resolvedBarangay, $_resolvedCity',
                     style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,

@@ -60,7 +60,7 @@ class DexRepositoryImpl implements DexRepository {
 
     return effectiveSpecies.map((species) {
       final matches = sightings
-          .where((s) => _matchesSpecies(species, s))
+          .where((s) => matchesSpecies(species, s))
           .toList();
       return IringDexEntry.fromSightings(
         species: species,
@@ -69,16 +69,17 @@ class DexRepositoryImpl implements DexRepository {
     }).toList();
   }
 
-  bool _matchesSpecies(FelineDexSpecies species, CatSighting sighting) {
-    final sBreed = sighting.breed.toLowerCase();
-    final sCoat = sighting.coatPattern.toLowerCase();
-    final sColor = sighting.dominantColor.toLowerCase();
+  /// Resolves which canonical [FelineDexSpecies] a [CatSighting] belongs to.
+  static bool matchesSpecies(FelineDexSpecies species, CatSighting sighting) {
+    final sBreed = sighting.breed.toLowerCase().trim();
+    final sCoat = sighting.coatPattern.toLowerCase().trim();
+    final sColor = sighting.dominantColor.toLowerCase().trim();
 
     final specName = species.name.toLowerCase();
     final specCommon = species.commonName.toLowerCase();
     final specCoat = species.coatPattern.toLowerCase();
 
-    // Check specific breed names
+    // 1. Specific purebreds match first
     if (specName.contains('siamese') &&
         (sBreed.contains('siamese') || sCoat.contains('colorpoint'))) {
       return true;
@@ -90,7 +91,8 @@ class DexRepositoryImpl implements DexRepository {
     if (specName.contains('persian') && sBreed.contains('persian')) {
       return true;
     }
-    if (specName.contains('british shorthair') && sBreed.contains('british')) {
+    if (specName.contains('british shorthair') &&
+        (sBreed.contains('british') || sCoat.contains('solid blue'))) {
       return true;
     }
     if (specName.contains('scottish fold') && sBreed.contains('scottish')) {
@@ -111,52 +113,100 @@ class DexRepositoryImpl implements DexRepository {
       return true;
     }
 
-    // Check coat pattern variants
-    if (specCoat.contains('calico') &&
-        (sBreed.contains('calico') || sCoat.contains('calico'))) {
-      return true;
-    }
-    if (specCoat.contains('tortoiseshell') &&
-        (sBreed.contains('tortoiseshell') ||
-            sCoat.contains('tortie') ||
-            sCoat.contains('tortoiseshell'))) {
-      return true;
-    }
-    if (specCoat.contains('tuxedo') &&
-        (sBreed.contains('tuxedo') || sCoat.contains('tuxedo'))) {
-      return true;
-    }
-    if (specCoat.contains('orange tabby') &&
-        (sBreed.contains('orange') ||
-            sBreed.contains('ginger') ||
-            sCoat.contains('orange') ||
-            sColor.contains('ginger'))) {
-      return true;
-    }
-    if (specCoat.contains('solid black') &&
-        (sCoat.contains('black') || sColor.contains('black')) &&
-        !sCoat.contains('tuxedo') &&
-        !sCoat.contains('calico')) {
-      return true;
-    }
-    if (specCoat.contains('solid white') &&
-        (sCoat.contains('white') || sColor.contains('white')) &&
-        !sCoat.contains('tuxedo') &&
-        !sCoat.contains('calico')) {
-      return true;
-    }
+    // 2. Specialized native Puspin coat patterns
+    final isCalico = sBreed.contains('calico') || sCoat.contains('calico');
+    if (specCoat.contains('calico')) return isCalico;
+
+    final isTortie =
+        sBreed.contains('tortoiseshell') ||
+        sBreed.contains('tortie') ||
+        sCoat.contains('tortie') ||
+        sCoat.contains('tortoiseshell');
+    if (specCoat.contains('tortoiseshell')) return isTortie;
+
+    final isTuxedo =
+        sBreed.contains('tuxedo') ||
+        sCoat.contains('tuxedo') ||
+        (sCoat.contains('bicolor') &&
+            sColor.contains('black') &&
+            sColor.contains('white'));
+    if (specCoat.contains('tuxedo')) return isTuxedo;
+
+    final isGinger =
+        sBreed.contains('orange') ||
+        sBreed.contains('ginger') ||
+        sCoat.contains('orange') ||
+        sColor.contains('ginger');
+    if (specCoat.contains('orange tabby')) return isGinger;
+
+    final isSolidBlack =
+        (sCoat.contains('solid black') ||
+            (sCoat.contains('black') &&
+                !sCoat.contains('tuxedo') &&
+                !sCoat.contains('calico') &&
+                !sCoat.contains('bicolor')) ||
+            sColor == 'black' ||
+            sColor.contains('solid black')) &&
+        !sCoat.contains('bicolor') &&
+        !isTuxedo &&
+        !isCalico;
+    if (specCoat.contains('solid black')) return isSolidBlack;
+
+    final isSolidWhite =
+        (sCoat.contains('solid white') ||
+            (sCoat.contains('white') &&
+                !sCoat.contains('tuxedo') &&
+                !sCoat.contains('calico') &&
+                !sCoat.contains('bicolor')) ||
+            sColor == 'white' ||
+            sColor.contains('solid white')) &&
+        !sCoat.contains('bicolor') &&
+        !isTuxedo &&
+        !isCalico;
+    if (specCoat.contains('solid white')) return isSolidWhite;
+
+    // 3. Classic Tabby Puspin (dex_001): catches classic/brown tabbies and
+    // general domestic shorthair/bicolor/uncategorized street cats that do not
+    // belong to another specialized coat or purebred entry.
     if (species.id == 'dex_001') {
-      // Classic Puspin Tabby: matches general Tabby or Puspin without special markings
-      if (sBreed.contains('domestic shorthair') ||
-          sBreed.contains('puspin') ||
-          sCoat.contains('tabby')) {
-        return true;
+      final hasNamedPurebred =
+          sBreed.contains('siamese') ||
+          sBreed.contains('bengal') ||
+          sBreed.contains('persian') ||
+          sBreed.contains('british') ||
+          sBreed.contains('scottish') ||
+          sBreed.contains('ragdoll') ||
+          sBreed.contains('russian blue') ||
+          sBreed.contains('maine coon') ||
+          sBreed.contains('sphynx');
+      final hasSpecializedCoat =
+          isCalico ||
+          isTortie ||
+          isTuxedo ||
+          isGinger ||
+          isSolidBlack ||
+          isSolidWhite ||
+          sCoat.contains('colorpoint') ||
+          sCoat.contains('rosetted');
+
+      if (!hasNamedPurebred && !hasSpecializedCoat) {
+        return sCoat.contains('tabby') ||
+            sCoat.contains('bicolor') ||
+            sCoat.contains('solid gray') ||
+            sBreed.contains('domestic shorthair') ||
+            sBreed.contains('domestic longhair') ||
+            sBreed.contains('puspin') ||
+            sBreed.contains('uncategorized') ||
+            sBreed.contains('other') ||
+            sBreed.isEmpty;
       }
+      return false;
     }
 
-    return specCommon.contains(sBreed) ||
-        specName.contains(sBreed) ||
-        sBreed.contains(specName) ||
+    return (sBreed.isNotEmpty &&
+            (specCommon.contains(sBreed) ||
+                specName.contains(sBreed) ||
+                sBreed.contains(specName))) ||
         (specCoat.isNotEmpty && sCoat.contains(specCoat));
   }
 }

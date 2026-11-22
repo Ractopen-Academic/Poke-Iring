@@ -11,12 +11,15 @@ import '../../../achievements/domain/entities/explorer_title.dart';
 import '../../../achievements/presentation/widgets/equipped_title_badge.dart';
 import '../../../achievements/presentation/widgets/title_selection_sheet.dart';
 import '../../../auth/domain/entities/auth_user.dart';
+import '../../../dex/data/repositories/dex_repository_impl.dart';
+import '../../../dex/domain/entities/iring_dex_entry.dart';
 import '../../../events/presentation/widgets/active_events_carousel.dart';
 import '../../../games/presentation/pages/games_hub_page.dart';
 import '../../../health/services/explorer_health_service.dart';
 import '../../../leaderboard/presentation/widgets/home_leaderboard_preview.dart';
 import '../../../quests/presentation/widgets/paw_quests_section.dart';
 import '../../../rewards/presentation/pages/reward_store_page.dart';
+import '../../../scanner/presentation/pages/cat_scanner_page.dart';
 import '../../../seasons/data/services/season_service_impl.dart';
 import '../../../seasons/domain/entities/season_period.dart';
 import '../../../seasons/presentation/widgets/season_details_sheet.dart';
@@ -27,12 +30,16 @@ class HomeFeedPage extends StatefulWidget {
   final AuthUser user;
   final VoidCallback? onOpenLeaderboard;
   final VoidCallback? onOpenAccount;
+  final VoidCallback? onOpenRadar;
+  final VoidCallback? onOpenScanner;
 
   const HomeFeedPage({
     super.key,
     required this.user,
     this.onOpenLeaderboard,
     this.onOpenAccount,
+    this.onOpenRadar,
+    this.onOpenScanner,
   });
 
   @override
@@ -370,6 +377,27 @@ class _HomeFeedPageState extends State<HomeFeedPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _CatHuntLoopCard(
+                        userId: widget.user.id.isNotEmpty
+                            ? widget.user.id
+                            : widget.user.email,
+                        onSnapCat:
+                            widget.onOpenScanner ??
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      CatScannerPage(user: widget.user),
+                                ),
+                              );
+                            },
+                        onOpenRadar: widget.onOpenRadar,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     StoriesTray(user: widget.user),
                     const SizedBox(height: 16),
                     Padding(
@@ -568,6 +596,135 @@ class HomeMiniMetric extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CatHuntLoopCard extends StatelessWidget {
+  final String userId;
+  final VoidCallback onSnapCat;
+  final VoidCallback? onOpenRadar;
+
+  const _CatHuntLoopCard({
+    required this.userId,
+    required this.onSnapCat,
+    this.onOpenRadar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<IringDexEntry>>(
+      stream: DexRepositoryImpl().watchDexEntries(userId),
+      builder: (context, snapshot) {
+        final entries = snapshot.data ?? const <IringDexEntry>[];
+        final total = entries.isNotEmpty ? entries.length : 16;
+        final discovered = entries.where((e) => e.isDiscovered).length;
+        final totalSightings = entries.fold<int>(
+          0,
+          (sum, e) => sum + e.timesSighted,
+        );
+
+        return CalicoSpotCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withAlpha(28),
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: const Icon(
+                      Icons.camera_enhance_rounded,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Active Cat Hunt',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.dynamicTextPrimary,
+                          ),
+                        ),
+                        Text(
+                          '$discovered of $total species unlocked • $totalSightings sightings',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.dynamicTextSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: onSnapCat,
+                      icon: const Icon(Icons.camera_alt_rounded, size: 17),
+                      label: const Text(
+                        'Snap or Upload Cat',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                  if (onOpenRadar != null) ...[
+                    const SizedBox(width: 10),
+                    OutlinedButton.icon(
+                      onPressed: onOpenRadar,
+                      icon: const Icon(Icons.radar_rounded, size: 17),
+                      label: const Text(
+                        'Open Map',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.dynamicTextPrimary,
+                        side: BorderSide(color: AppColors.dynamicBorder),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 11,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -86,7 +86,7 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
               ? 'Vision proxy URL and settings saved.'
               : key.isNotEmpty
               ? 'Gemini API key saved to device.'
-              : 'Cleared settings. AI verification disabled.',
+              : 'Cleared overrides. Falling back to default Vision Proxy.',
         ),
       ),
     );
@@ -105,12 +105,13 @@ class _AiVisionSettingsSheetState extends State<AiVisionSettingsSheet> {
 
     setState(() {
       _isSaving = false;
-      _currentStatus = 'No key set (scans cannot be verified)';
+      _currentStatus =
+          'Default Proxy: ${AiConfigService.defaultVisionProxyUrl}';
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Cleared API settings. AI verification disabled.'),
+        content: Text('Cleared custom overrides. Using default Vision Proxy.'),
       ),
     );
     Navigator.pop(context);

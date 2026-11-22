@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../scanner/data/datasources/firebase_sightings_datasource.dart';
+import '../../../scanner/domain/entities/cat_scan_result.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
 import '../../../rewards/services/rewards_service.dart';
 
@@ -38,20 +39,7 @@ class _ReyalOrPakeGamePageState extends State<ReyalOrPakeGamePage> {
   String? _selectedColor;
   bool _isInspectingDetails = false;
 
-  static const List<String> _breedOptions = [
-    'Uncategorized',
-    'Domestic Shorthair (Puspin)',
-    'Siamese',
-    'Persian',
-    'British Shorthair',
-    'Bengal',
-    'Scottish Fold',
-    'Ragdoll',
-    'Russian Blue',
-    'Maine Coon',
-    'Sphynx',
-    'Other',
-  ];
+  static const List<String> _breedOptions = CatScanResult.canonicalBreeds;
 
   static const List<String> _patternOptions = [
     'Tabby',

@@ -4,6 +4,36 @@ class CatScanResult {
   static const int maxSingleSightingPoints = 180;
   static const int dailyPawPointsSoftCap = 500;
 
+  static const List<String> canonicalBreeds = [
+    'Domestic Shorthair (Puspin)',
+    'Domestic Longhair',
+    'Siamese',
+    'Persian',
+    'British Shorthair',
+    'Bengal',
+    'Scottish Fold',
+    'Ragdoll',
+    'Russian Blue',
+    'Maine Coon',
+    'Sphynx',
+    'Uncategorized',
+    'Other',
+  ];
+
+  static const List<String> canonicalCoatPatterns = [
+    'Tabby',
+    'Orange Tabby',
+    'Calico',
+    'Tortoiseshell',
+    'Tuxedo',
+    'Solid Black',
+    'Solid White',
+    'Solid Gray',
+    'Bicolor',
+    'Colorpoint',
+    'Rosetted',
+  ];
+
   final bool isCat;
   final double confidence;
   final String breed;
