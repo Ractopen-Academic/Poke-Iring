@@ -52,6 +52,16 @@ jobs:
             echo '{"project_info":{"project_number":"0","project_id":"pokeiring-ci","storage_bucket":"pokeiring-ci.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:0:android:0","android_client_info":{"package_name":"com.ryme.pokeiring"}},"oauth_client":[],"api_key":[{"current_key":"dummy"}],"services":{"analytics_service":{"status":1}}}],"configuration_version":"1"}' > android/app/google-services.json
           fi
 
+      - name: Ensure Debug Keystore for Signing Fallback
+        run: |
+          if [ ! -f android/key.properties ] && [ ! -f "$HOME/.android/debug.keystore" ]; then
+            mkdir -p "$HOME/.android"
+            keytool -genkey -v -keystore "$HOME/.android/debug.keystore" \
+              -storepass android -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
       - name: Build Android 14+ 64-bit APK
         env:
           # Public URL of the admin Vision proxy (repo Variable, not a secret).
