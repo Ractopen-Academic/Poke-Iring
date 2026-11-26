@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/feline_avatar.dart';
-import '../../../scanner/domain/entities/cat_sighting.dart';
 import '../../domain/entities/feline_dex_species.dart';
 import '../../domain/entities/iring_dex_entry.dart';
 
