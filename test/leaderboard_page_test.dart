@@ -12,7 +12,7 @@ void main() {
   });
   group('LeaderboardPage Widget', () {
     testWidgets(
-      'renders season banner, category tabs, podium and standing card',
+      'renders territory header, category tabs, podium and standing card',
       (tester) async {
         await tester.pumpWidget(
           MaterialApp(
@@ -31,7 +31,6 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Leaderboard'), findsOneWidget);
-        expect(find.textContaining('Season 1'), findsOneWidget);
         expect(find.text('Paw Points'), findsOneWidget);
         expect(find.text('Most Snapped'), findsOneWidget);
         expect(find.text('Most Walked'), findsOneWidget);
