@@ -15,7 +15,6 @@ import 'package:pokeiring/features/events/presentation/widgets/event_popup_modal
 import 'package:pokeiring/features/quests/domain/entities/paw_quest.dart';
 import 'package:pokeiring/features/quests/domain/repositories/paw_quests_repository.dart';
 import 'package:pokeiring/features/quests/presentation/widgets/paw_quests_section.dart';
-import 'package:pokeiring/features/subscription/presentation/widgets/feline_club_paywall_sheet.dart';
 
 class _FakeEventRepository implements EventRepository {
   final List<FelineEvent> events;
@@ -441,44 +440,5 @@ void main() {
       );
       expect(explicitAdmin.isAdminRole, isTrue);
     });
-  });
-
-  group('Feline Club Payment Tests', () {
-    testWidgets(
-      'allows selecting PayPal, GCash, and Maya gateways and routes to PayPal checkout',
-      (tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(body: FelineClubPaywallSheet(userId: 'u_tester')),
-          ),
-        );
-
-        await tester.pumpAndSettle();
-
-        expect(find.text('Payment Method'), findsOneWidget);
-        expect(find.text('PayPal'), findsOneWidget);
-        expect(find.text('GCash'), findsOneWidget);
-        expect(find.text('Maya'), findsOneWidget);
-
-        // Select GCash
-        await tester.ensureVisible(find.text('GCash'));
-        await tester.tap(find.text('GCash'));
-        await tester.pumpAndSettle();
-
-        // Tap Join Feline Club to trigger PayPal checkout flow
-        await tester.ensureVisible(find.text('Join Feline Club'));
-        await tester.tap(find.text('Join Feline Club'));
-        await tester.pumpAndSettle();
-
-        expect(find.text('PayPal Checkout'), findsOneWidget);
-        expect(find.text('paypal.com'), findsOneWidget);
-
-        // Cancel modal
-        await tester.tap(find.byIcon(Icons.close));
-        await tester.pumpAndSettle();
-
-        expect(find.text('PayPal Checkout'), findsNothing);
-      },
-    );
   });
 }

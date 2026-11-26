@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/services/audio_haptic_service.dart';
-import '../../../health/services/explorer_health_service.dart';
 import '../../domain/entities/achievement_tier.dart';
 import '../../domain/entities/explorer_title.dart';
 import '../../domain/entities/tiered_achievement.dart';
@@ -21,7 +20,6 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
 
   final FirebaseFirestore? _firestore;
   final FirebaseAchievementsDataSource _dataSource;
-  StreamSubscription<ExplorerHealthSnapshot>? _healthSubscription;
   final Map<String, StreamSubscription<List<TieredAchievement>>>
   _catalogSubscriptions = {};
 
@@ -62,7 +60,6 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
           StreamController<List<TieredAchievement>>.broadcast();
     }
 
-    _listenToHealthService(userId);
     _listenToCatalogUpdates(userId);
     _emitState(userId);
 
@@ -94,29 +91,6 @@ class AchievementsRepositoryImpl implements AchievementsRepository {
     }
     _emitState(userId);
     return _equippedTitleControllers[userId]!.stream;
-  }
-
-  void _listenToHealthService(String userId) {
-    _healthSubscription?.cancel();
-    _healthSubscription = ExplorerHealthService.instance.stream.listen((
-      snapshot,
-    ) async {
-      await setProgressMetric(
-        userId: userId,
-        metricKey: 'movement_steps',
-        value: snapshot.stepsToday.toDouble(),
-      );
-      await setProgressMetric(
-        userId: userId,
-        metricKey: 'movement_distance',
-        value: snapshot.distanceKm,
-      );
-      await setProgressMetric(
-        userId: userId,
-        metricKey: 'movement_calories',
-        value: snapshot.caloriesBurned,
-      );
-    });
   }
 
   Future<void> _emitState(String userId) async {

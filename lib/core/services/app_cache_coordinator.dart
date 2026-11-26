@@ -10,7 +10,6 @@ import '../../features/leaderboard/data/datasources/firebase_leaderboard_datasou
 import '../../features/leaderboard/domain/entities/leaderboard_entry.dart';
 import '../../features/quests/data/datasources/firebase_quest_datasource.dart';
 import '../../features/quests/domain/entities/quest_template.dart';
-import '../../features/seasons/data/datasources/firebase_seasons_datasource.dart';
 
 /// Detailed report of a cache invalidation and cloud re-synchronization cycle.
 class RecacheReport {
@@ -38,7 +37,7 @@ class AppCacheCoordinator {
   AppCacheCoordinator._internal();
 
   /// Forces a complete invalidation and fresh cloud synchronization across all feature catalogs:
-  /// Dex Species, Events, Quests, Leaderboard rankings, and Seasons.
+  /// Dex Species, Events, Quests, and Leaderboard rankings.
   Future<RecacheReport> forceRecacheAll({String? userId}) async {
     int syncedCount = 0;
     bool hasError = false;
@@ -79,15 +78,6 @@ class AppCacheCoordinator {
     } catch (e) {
       hasError = true;
       debugPrint('Recache leaderboard error: $e');
-    }
-
-    // 5. Active Season
-    try {
-      await FirebaseSeasonsDataSource.instance.forceRefreshActiveSeason();
-      syncedCount++;
-    } catch (e) {
-      hasError = true;
-      debugPrint('Recache season error: $e');
     }
 
     return RecacheReport(

@@ -4,9 +4,6 @@ import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/feline_avatar.dart';
 import '../../../scanner/domain/entities/cat_sighting.dart';
-import '../../../showcase/services/showcase_service.dart';
-import '../../../vault/data/services/photo_vault_service_impl.dart';
-import '../../../vault/domain/entities/vault_photo_entry.dart';
 import '../../domain/entities/feline_dex_species.dart';
 import '../../domain/entities/iring_dex_entry.dart';
 
@@ -29,19 +26,8 @@ class CatDetailSheet extends StatefulWidget {
 }
 
 class _CatDetailSheetState extends State<CatDetailSheet> {
-  bool _isPinned = false;
-
   CatSighting? get _featuredSighting =>
       widget.entry.sightings.isNotEmpty ? widget.entry.sightings.first : null;
-
-  @override
-  void initState() {
-    super.initState();
-    final sighting = _featuredSighting;
-    if (sighting != null) {
-      _isPinned = ShowcaseService.instance.isSightingPinned(sighting.id);
-    }
-  }
 
   Color _rarityColor(FelineRarityTier rarity) {
     switch (rarity) {
@@ -56,78 +42,6 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
       case FelineRarityTier.mythic:
         return const Color(0xFFFF9800);
     }
-  }
-
-  Future<void> _handleTogglePin() async {
-    final sighting = _featuredSighting;
-    if (sighting == null) return;
-
-    try {
-      final pinned = await ShowcaseService.instance.togglePinSighting(sighting);
-      if (!mounted) return;
-      setState(() => _isPinned = pinned);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            pinned
-                ? 'Pinned to your 9-card Explorer Showcase'
-                : 'Removed from your Showcase',
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceAll('StateError: ', '')),
-          backgroundColor: Colors.red.shade700,
-        ),
-      );
-    }
-  }
-
-  Future<void> _handleSaveSticker() async {
-    final sighting = _featuredSighting;
-    if (sighting == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No sighting record available to archive yet.'),
-        ),
-      );
-      return;
-    }
-
-    final photoSource = sighting.stickerUrl.isNotEmpty
-        ? sighting.stickerUrl
-        : sighting.photoUrl;
-    final entry = VaultPhotoEntry(
-      id: 'vault_${sighting.id}',
-      userId: sighting.userId.isNotEmpty ? sighting.userId : 'explorer',
-      sightingId: sighting.id,
-      breedName: sighting.breed.isNotEmpty
-          ? sighting.breed
-          : widget.entry.species.name,
-      photoUrl: photoSource,
-      fileSizeBytes: photoSource.length,
-      resolutionWidth: 320,
-      resolutionHeight: 320,
-      capturedAt: sighting.createdAt,
-      isRawMaster: false,
-      locationLabel: '${sighting.barangay}, ${sighting.city}',
-    );
-    await PhotoVaultServiceImpl.instance.archivePhoto(entry);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Archived ${widget.entry.species.name} cutout to your Explorer Photo Vault.',
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   Future<void> _handleShareCard() async {
@@ -391,88 +305,33 @@ class _CatDetailSheetState extends State<CatDetailSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Action buttons row: Pin to Showcase | Save Sticker | Share
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _handleTogglePin,
-                      icon: Icon(
-                        _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                        size: 15,
-                        color: _isPinned
-                            ? AppColors.primary
-                            : AppColors.dynamicTextPrimary,
-                      ),
-                      label: Text(
-                        _isPinned ? 'In Showcase' : 'Pin to Showcase',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: _isPinned
-                              ? AppColors.primary
-                              : AppColors.dynamicTextPrimary,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColors.dynamicFieldFill,
-                        padding: const EdgeInsets.symmetric(vertical: 11),
-                        side: BorderSide(
-                          color: _isPinned
-                              ? AppColors.primary
-                              : AppColors.dynamicBorder,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
+              // Share action button
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _handleShareCard,
+                  icon: Icon(
+                    Icons.share_outlined,
+                    size: 16,
+                    color: AppColors.dynamicTextPrimary,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _handleSaveSticker,
-                      icon: Icon(
-                        Icons.download_rounded,
-                        size: 15,
-                        color: AppColors.dynamicTextPrimary,
-                      ),
-                      label: Text(
-                        'Save Sticker',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.dynamicTextPrimary,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColors.dynamicFieldFill,
-                        padding: const EdgeInsets.symmetric(vertical: 11),
-                        side: BorderSide(color: AppColors.dynamicBorder),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.outlined(
-                    tooltip: 'Share Card',
-                    onPressed: _handleShareCard,
-                    icon: Icon(
-                      Icons.share_outlined,
-                      size: 18,
+                  label: Text(
+                    'Share Discovery Card',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.dynamicTextPrimary,
                     ),
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.dynamicFieldFill,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: BorderSide(color: AppColors.dynamicBorder),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: AppColors.dynamicFieldFill,
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    side: BorderSide(color: AppColors.dynamicBorder),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                ],
+                ),
               ),
               const SizedBox(height: 16),
             ] else ...[

@@ -16,18 +16,11 @@ import '../../../map/presentation/widgets/offline_map_download_dialog.dart';
 import '../../../map/presentation/widgets/tile_caching_sheet.dart';
 import '../../../scanner/data/datasources/firebase_sightings_datasource.dart';
 import '../../../scanner/presentation/widgets/ai_vision_settings_sheet.dart';
-import '../../../showcase/services/showcase_service.dart';
-import '../../../subscription/data/services/subscription_service_impl.dart';
 import '../../../territory/data/services/territory_service_impl.dart';
 import '../../../territory/domain/services/territory_service.dart';
-import '../../../vault/data/services/photo_vault_service_impl.dart';
-import '../../../vault/presentation/pages/raw_photo_vault_page.dart';
 import 'main_navigation_shell.dart';
 import '../widgets/dashboard_coat_theme_card.dart';
-import '../widgets/dashboard_feline_club_card.dart';
 import '../widgets/dashboard_profile_card.dart';
-import '../widgets/dashboard_showcase_card.dart';
-import '../widgets/dashboard_stats_card.dart';
 import '../widgets/dashboard_territory_card.dart';
 
 /// Tabbed Hub for the Explorer Account: Overview & Settings.
@@ -57,19 +50,12 @@ class _DashboardPageState extends State<DashboardPage> {
   bool _isLoggingOut = false;
   late final TerritoryService _territoryService;
   bool _isAutoDetectingTerritory = false;
-  bool _isPublicShowcase = true;
 
   @override
   void initState() {
     super.initState();
     _territoryService =
         widget.territoryService ?? TerritoryServiceImpl.instance;
-    _loadShowcasePrivacy();
-  }
-
-  void _loadShowcasePrivacy() {
-    final enabled = ShowcaseService.instance.isPublicShowcaseEnabled;
-    if (mounted) setState(() => _isPublicShowcase = enabled);
   }
 
   Future<void> _runAutoTerritorySync({bool showSpinner = false}) async {
@@ -175,8 +161,6 @@ class _DashboardPageState extends State<DashboardPage> {
       disableTestSeeds: true,
     );
     FirebaseSightingsDataSource.instance.clearTestData();
-    PhotoVaultServiceImpl.instance.clearTestData();
-    SubscriptionServiceImpl.instance.clearTestData();
 
     if (mounted) {
       setState(() {});
@@ -587,26 +571,14 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           DashboardProfileCard(user: widget.user),
           const SizedBox(height: 12),
-          DashboardStatsCard(userId: userId),
-          const SizedBox(height: 12),
           DashboardTerritoryCard(
             userId: userId,
             territoryService: _territoryService,
             isAutoDetecting: _isAutoDetectingTerritory,
             onAutoSync: () => _runAutoTerritorySync(showSpinner: true),
           ),
-          const SizedBox(height: 12),
-          DashboardFelineClubCard(userId: userId),
           const SizedBox(height: 16),
           _buildHardwareSection(userId),
-          const SizedBox(height: 16),
-          DashboardShowcaseCard(
-            user: widget.user,
-            isPublicShowcase: _isPublicShowcase,
-            onPrivacyToggled: (val) {
-              if (mounted) setState(() => _isPublicShowcase = val);
-            },
-          ),
         ],
       ),
     );
@@ -768,20 +740,6 @@ class _DashboardPageState extends State<DashboardPage> {
             onTap: widget.onOpenMap!,
             showDivider: true,
           ),
-        _SettingsTile(
-          icon: Icons.photo_library_outlined,
-          title: 'RAW Photo Vault',
-          subtitle: 'Uncompressed master cat photographs',
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RawPhotoVaultPage(userId: userId),
-              ),
-            );
-          },
-          showDivider: true,
-        ),
         _SettingsTile(
           icon: Icons.military_tech_outlined,
           title: 'Achievements & Titles',

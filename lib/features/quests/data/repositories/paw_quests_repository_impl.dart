@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/services/audio_haptic_service.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
-import '../../../health/services/explorer_health_service.dart';
 import '../../domain/entities/paw_quest.dart';
 import '../../domain/entities/quest_template.dart';
 import '../../domain/repositories/paw_quests_repository.dart';
@@ -22,7 +21,6 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
 
   final FirebaseFirestore? _firestore;
   final FirebaseQuestDataSource _questDataSource;
-  StreamSubscription<ExplorerHealthSnapshot>? _healthSubscription;
 
   final Map<String, StreamController<List<PawQuest>>> _userControllers = {};
 
@@ -61,30 +59,9 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
       _userControllers[userId] = StreamController<List<PawQuest>>.broadcast();
     }
 
-    _listenToHealthService(userId);
     _emitQuests(userId);
 
     return _userControllers[userId]!.stream;
-  }
-
-  void _listenToHealthService(String userId) {
-    _healthSubscription?.cancel();
-    _healthSubscription = ExplorerHealthService.instance.stream.listen((snap) {
-      syncHealthProgress(
-        userId: userId,
-        stepsToday: snap.stepsToday,
-        distanceKm: snap.distanceKm,
-      );
-    });
-
-    final latest = ExplorerHealthService.instance.latest;
-    if (latest.stepsToday > 0 || latest.distanceKm > 0) {
-      syncHealthProgress(
-        userId: userId,
-        stepsToday: latest.stepsToday,
-        distanceKm: latest.distanceKm,
-      );
-    }
   }
 
   Future<void> _emitQuests(String userId) async {
