@@ -26,9 +26,6 @@ class CatDetailSheet extends StatefulWidget {
 }
 
 class _CatDetailSheetState extends State<CatDetailSheet> {
-  CatSighting? get _featuredSighting =>
-      widget.entry.sightings.isNotEmpty ? widget.entry.sightings.first : null;
-
   Color _rarityColor(FelineRarityTier rarity) {
     switch (rarity) {
       case FelineRarityTier.common:

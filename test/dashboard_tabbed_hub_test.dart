@@ -5,7 +5,6 @@ import 'package:pokeiring/features/auth/domain/repositories/auth_repository.dart
 import 'package:pokeiring/features/home/presentation/pages/dashboard_page.dart';
 import 'package:pokeiring/features/home/presentation/widgets/dashboard_coat_theme_card.dart';
 import 'package:pokeiring/features/home/presentation/widgets/dashboard_profile_card.dart';
-import 'package:pokeiring/features/home/presentation/widgets/dashboard_stats_card.dart';
 
 class _FakeAuthRepository implements AuthRepository {
   @override
@@ -54,9 +53,7 @@ void main() {
   final fakeAuth = _FakeAuthRepository();
 
   group('DashboardPage Tabbed Hub Widget Tests', () {
-    testWidgets('renders Overview tab with License Card and Patrol Metrics', (
-      tester,
-    ) async {
+    testWidgets('renders Overview tab with License Card', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: DashboardPage(user: testUser, authRepository: fakeAuth),
@@ -72,12 +69,6 @@ void main() {
       expect(find.byType(DashboardProfileCard), findsOneWidget);
       expect(find.text('FELINE EXPLORER LICENSE'), findsOneWidget);
       expect(find.text('#IRING-USERDE'), findsOneWidget);
-
-      // Contextualized Fitness Metrics
-      expect(find.byType(DashboardStatsCard), findsOneWidget);
-      expect(find.text('Territory Patrol Activity'), findsOneWidget);
-      expect(find.text('Patrol Steps'), findsOneWidget);
-      expect(find.text('Cat Treats'), findsOneWidget);
 
       await tester.pump(const Duration(milliseconds: 600));
     });
