@@ -16,6 +16,10 @@ if (keystorePropertiesFile.exists()) {
     }
 }
 
+val pokeiringMinSdk = (project.findProperty("pokeiringMinSdk") as String?)?.toIntOrNull() ?: 33
+val pokeiringTargetSdk = (project.findProperty("pokeiringTargetSdk") as String?)?.toIntOrNull()
+    ?: flutter.targetSdkVersion
+
 android {
     namespace = "com.ryme.pokeiring"
     compileSdk = flutter.compileSdkVersion
@@ -28,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId = "com.ryme.pokeiring"
-        minSdk = 34
-        targetSdk = flutter.targetSdkVersion
+        minSdk = pokeiringMinSdk
+        targetSdk = pokeiringTargetSdk
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

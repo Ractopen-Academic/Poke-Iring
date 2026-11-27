@@ -22,7 +22,7 @@ class FirestoreMapDatasource implements MapRemoteDatasource {
         .collection('live_sightings')
         .where(
           'expiresAt',
-          isGreaterThanOrEqualTo: Timestamp.now().toDate().toIso8601String(),
+          isGreaterThanOrEqualTo: DateTime.now().toUtc().toIso8601String(),
         )
         .snapshots()
         .map((snapshot) {

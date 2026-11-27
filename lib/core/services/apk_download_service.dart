@@ -11,6 +11,7 @@ class ApkDownloadService {
 
   String get directApkUrl => AppVersion.devApkDownloadUrl;
   String get releasePageUrl => AppVersion.devReleasePageUrl;
+  List<AndroidApkTarget> get targets => AppVersion.apkTargets;
 
   /// Attempts to open the direct APK download URL in the system browser (Android/Web).
   /// If no browser handler is available (e.g., headless test environment), copies the URL
@@ -27,6 +28,10 @@ class ApkDownloadService {
     return opened;
   }
 
+  Future<bool> downloadTargetApk(AndroidApkTarget target) {
+    return downloadDevApk(customUrl: target.downloadUrl);
+  }
+
   /// Copies the direct APK download link to the system clipboard.
   Future<void> copyDownloadLink({String? customUrl}) async {
     final targetUrl = (customUrl != null && customUrl.trim().isNotEmpty)
@@ -35,5 +40,9 @@ class ApkDownloadService {
     try {
       await Clipboard.setData(ClipboardData(text: targetUrl));
     } catch (_) {}
+  }
+
+  Future<void> copyTargetLink(AndroidApkTarget target) {
+    return copyDownloadLink(customUrl: target.downloadUrl);
   }
 }

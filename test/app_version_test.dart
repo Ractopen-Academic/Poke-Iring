@@ -13,5 +13,26 @@ void main() {
       expect(AppVersion.badgeDisplay, contains('Pre-Alpha'));
       expect(AppVersion.buildSubtitle, contains(AppVersion.buildDate));
     });
+
+    test('exposes separate APK targets for Android 13, 14, and 15+', () {
+      expect(AppVersion.apkTargets.length, equals(3));
+      expect(
+        AppVersion.apkTargets.map((t) => t.id).toList(),
+        equals(['android13', 'android14', 'android15up']),
+      );
+      expect(
+        AppVersion.android13ApkDownloadUrl,
+        endsWith('/pokeiring-android13.apk'),
+      );
+      expect(
+        AppVersion.android14ApkDownloadUrl,
+        endsWith('/pokeiring-android14.apk'),
+      );
+      expect(
+        AppVersion.android15UpApkDownloadUrl,
+        endsWith('/pokeiring-android15up.apk'),
+      );
+      expect(AppVersion.devApkDownloadUrl, endsWith('/pokeiring-dev.apk'));
+    });
   });
 }

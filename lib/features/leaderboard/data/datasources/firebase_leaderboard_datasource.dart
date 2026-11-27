@@ -50,6 +50,7 @@ class FirebaseLeaderboardDataSource {
       try {
         return _db
             .collection(_collectionName)
+            .limit(250)
             .snapshots()
             .map((snapshot) {
               if (snapshot.docs.isNotEmpty) {

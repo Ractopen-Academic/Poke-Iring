@@ -68,6 +68,7 @@ void main() {
         expect(text.contains('match /territories/{territoryId}'), isTrue);
         expect(text.contains('match /events/{eventId}'), isTrue);
         expect(text.contains('match /quest_pool/{questId}'), isTrue);
+        expect(text.contains('match /quest_templates/{questId}'), isTrue);
         expect(text.contains('match /achievement_tracks/{trackId}'), isTrue);
         expect(text.contains('match /seasons/{seasonId}'), isTrue);
       },

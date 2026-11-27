@@ -277,16 +277,20 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Future<void> _handleDirectApkDownload() async {
-    final opened = await ApkDownloadService.instance.downloadDevApk();
+  Future<void> _handleDirectApkDownload([AndroidApkTarget? target]) async {
+    final targetUrl = target?.downloadUrl ?? AppVersion.devApkDownloadUrl;
+    final label = target != null ? '${target.label} ' : '';
+    final opened = await ApkDownloadService.instance.downloadDevApk(
+      customUrl: targetUrl,
+    );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: AppColors.primary,
         content: Text(
           opened
-              ? 'Downloading Poke: Iring Dev APK (${AppVersion.releaseTag})...'
-              : 'Direct APK download link copied to clipboard: ${AppVersion.devApkDownloadUrl}',
+              ? 'Downloading Poke: Iring ${label}APK (${AppVersion.releaseTag})...'
+              : 'Direct APK download link copied to clipboard: $targetUrl',
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
@@ -294,118 +298,188 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _showDownloadApkDialog() {
+    var selectedTarget = AppVersion.apkTargets[1]; // Default to Android 14
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.dynamicSurface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppColors.dynamicBorder),
-        ),
-        title: Row(
-          children: [
-            const Icon(
-              Icons.android_rounded,
-              size: 22,
-              color: AppColors.primary,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Download Dev APK',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.dynamicTextPrimary,
-                ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.dynamicSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: AppColors.dynamicBorder),
+          ),
+          title: Row(
+            children: [
+              const Icon(
+                Icons.android_rounded,
+                size: 22,
+                color: AppColors.primary,
               ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Install the latest compiled Android development build generated automatically by GitHub Actions.',
-              style: TextStyle(
-                fontSize: 13,
-                height: 1.4,
-                color: AppColors.dynamicTextSecondary,
-              ),
-            ),
-            const SizedBox(height: 14),
-            _buildAboutMetaRow('Build Tag', AppVersion.releaseTag),
-            const SizedBox(height: 6),
-            _buildAboutMetaRow('Target ABI', 'Android 14+ (arm64-v8a)'),
-            const SizedBox(height: 6),
-            _buildAboutMetaRow('Channel', 'GitHub Actions Dev Release'),
-            const SizedBox(height: 6),
-            _buildAboutMetaRow('Data Sync', 'Backend Authoritative'),
-            const SizedBox(height: 14),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(18),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.primary.withAlpha(55)),
-              ),
-              child: SelectableText(
-                AppVersion.devApkDownloadUrl,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.dynamicTextPrimary,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              await ApkDownloadService.instance.copyDownloadLink();
-              if (ctx.mounted) Navigator.pop(ctx);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    backgroundColor: AppColors.primaryDark,
-                    content: Text(
-                      'APK download URL copied to clipboard.',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Download Dev APK',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.dynamicTextPrimary,
                   ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Select your Android version to download a dedicated 64-bit build compiled automatically by GitHub Actions.',
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: AppColors.dynamicTextSecondary,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: AppVersion.apkTargets.map((target) {
+                  final isSelected = selectedTarget.id == target.id;
+                  return Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        right: target.id == AppVersion.apkTargets.last.id
+                            ? 0
+                            : 6,
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () {
+                          setDialogState(() => selectedTarget = target);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.dynamicChromeTrack,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.dynamicBorder,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                target.label,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.dynamicTextPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                target.apiBadge,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected
+                                      ? Colors.white.withAlpha(220)
+                                      : AppColors.dynamicTextSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 14),
+              _buildAboutMetaRow('Build Tag', AppVersion.releaseTag),
+              const SizedBox(height: 6),
+              _buildAboutMetaRow('Target ABI', selectedTarget.subtitle),
+              const SizedBox(height: 6),
+              _buildAboutMetaRow('Channel', 'GitHub Actions Dev Release'),
+              const SizedBox(height: 6),
+              _buildAboutMetaRow('Data Sync', 'Backend Authoritative'),
+              const SizedBox(height: 14),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(18),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.primary.withAlpha(55)),
+                ),
+                child: SelectableText(
+                  selectedTarget.downloadUrl,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.dynamicTextPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await ApkDownloadService.instance.copyTargetLink(
+                  selectedTarget,
                 );
-              }
-            },
-            child: Text(
-              'Copy Link',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: AppColors.dynamicTextSecondary,
+                if (ctx.mounted) Navigator.pop(ctx);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: AppColors.primaryDark,
+                      content: Text(
+                        '${selectedTarget.label} APK download URL copied to clipboard.',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                'Copy Link',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.dynamicTextSecondary,
+                ),
               ),
             ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _handleDirectApkDownload();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _handleDirectApkDownload(selectedTarget);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              icon: const Icon(Icons.download_rounded, size: 16),
+              label: Text(
+                'Download ${selectedTarget.label}',
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
-            icon: const Icon(Icons.download_rounded, size: 16),
-            label: const Text(
-              'Download APK',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -696,7 +770,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 icon: Icons.android_rounded,
                 title: 'Download Dev APK',
                 subtitle:
-                    'Get latest Android 64-bit dev build (${AppVersion.releaseTag})',
+                    'Android 13, 14 & 15+ builds (${AppVersion.releaseTag})',
                 onTap: _showDownloadApkDialog,
                 showDivider: true,
               ),

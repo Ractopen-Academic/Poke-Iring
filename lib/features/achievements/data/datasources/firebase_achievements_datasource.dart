@@ -66,7 +66,7 @@ class FirebaseAchievementsDataSource {
                     _catalogController.add(tracks);
                   }
                 } else {
-                  seedDefaultCatalogIfEmpty();
+                  _emitFallbackCatalog();
                 }
               },
               onError: (err) {

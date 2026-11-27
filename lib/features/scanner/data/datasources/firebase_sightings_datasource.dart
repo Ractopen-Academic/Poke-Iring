@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/services/data_purge_service.dart';
-import '../../../../core/services/remote_config_service.dart';
 import '../../../achievements/data/repositories/achievements_repository_impl.dart';
 import '../../../quests/data/repositories/paw_quests_repository_impl.dart';
 import '../../domain/entities/cat_sighting.dart';
@@ -236,10 +235,7 @@ class FirebaseSightingsDataSource {
         );
         final stickerUrl = await stickerRef.getDownloadURL();
 
-        final awardedPoints =
-            RemoteConfigService.instance.config.doublePointsGlobal
-            ? sighting.pawPoints * 2
-            : sighting.pawPoints;
+        final awardedPoints = sighting.pawPoints;
 
         final persistedSighting = sighting.copyWith(
           photoUrl: photoUrl,
@@ -268,7 +264,7 @@ class FirebaseSightingsDataSource {
             timestamp: sighting.createdAt,
           ),
         );
-        _notifyAchievements(sighting);
+        _notifyAchievements(persistedSighting);
 
         return persistedSighting;
       } catch (e) {
@@ -318,7 +314,8 @@ class FirebaseSightingsDataSource {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userSightings = _localSightings
-          .where((s) => !s.id.startsWith('seed-'))
+          .where((s) => s.id.isNotEmpty && !s.id.startsWith('seed-'))
+          .take(20)
           .toList();
       final rawList = userSightings.map((s) => jsonEncode(s.toMap())).toList();
       await prefs.setStringList(_prefSightingsKey, rawList);

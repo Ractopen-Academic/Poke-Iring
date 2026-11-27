@@ -131,13 +131,7 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
       59,
       59,
     );
-    final mondayOfWeek = DateTime(
-      now.year,
-      now.month,
-      now.day - (now.weekday - DateTime.monday),
-    );
-    final weekKey =
-        '${mondayOfWeek.year}_${mondayOfWeek.month.toString().padLeft(2, '0')}_${mondayOfWeek.day.toString().padLeft(2, '0')}';
+    final weekKey = _currentWeekKey(now);
 
     // Seeded selection for daily quests
     final activeDaily = effectivePool
@@ -272,6 +266,15 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
     return quests;
   }
 
+  static String _currentWeekKey(DateTime now) {
+    final mondayOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day - (now.weekday - DateTime.monday),
+    );
+    return '${mondayOfWeek.year}_${mondayOfWeek.month.toString().padLeft(2, '0')}_${mondayOfWeek.day.toString().padLeft(2, '0')}';
+  }
+
   @override
   Future<void> syncHealthProgress({
     required String userId,
@@ -283,26 +286,28 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
       final now = DateTime.now();
       final dateKey =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
-      final weekNumber = ((now.difference(DateTime(now.year, 1, 1)).inDays) / 7)
-          .ceil();
-      final weekKey = '${now.year}_w$weekNumber';
+      final weekKey = _currentWeekKey(now);
+
+      final dailyStepsKey = 'quest_progress_${userId}_daily_steps_$dateKey';
+      final prevTodaySteps = prefs.getDouble(dailyStepsKey) ?? 0.0;
+      final stepDelta = (stepsToday.toDouble() - prevTodaySteps).clamp(
+        0.0,
+        double.infinity,
+      );
 
       // Daily Steps
-      await prefs.setDouble(
-        'quest_progress_${userId}_daily_steps_$dateKey',
-        stepsToday.toDouble(),
-      );
+      await prefs.setDouble(dailyStepsKey, stepsToday.toDouble());
       // Daily Distance
       await prefs.setDouble(
         'quest_progress_${userId}_daily_dist_$dateKey',
         distanceKm,
       );
 
-      // Weekly Steps
+      // Weekly Steps (accumulated across days within the Monday-Sunday week)
       final weeklyKey = 'quest_progress_${userId}_weekly_steps_$weekKey';
       final currentWeekly = prefs.getDouble(weeklyKey) ?? 0.0;
-      if (stepsToday.toDouble() > currentWeekly) {
-        await prefs.setDouble(weeklyKey, stepsToday.toDouble());
+      if (stepDelta > 0) {
+        await prefs.setDouble(weeklyKey, currentWeekly + stepDelta);
       }
 
       // Also update matching quest instances
@@ -317,15 +322,14 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
             q.type == QuestType.distance) {
           await prefs.setDouble('quest_progress_${userId}_${q.id}', distanceKm);
         } else if (q.category == QuestCategory.weekly &&
-            q.type == QuestType.steps) {
+            q.type == QuestType.steps &&
+            stepDelta > 0) {
           final cur =
               prefs.getDouble('quest_progress_${userId}_${q.id}') ?? 0.0;
-          if (stepsToday.toDouble() > cur) {
-            await prefs.setDouble(
-              'quest_progress_${userId}_${q.id}',
-              stepsToday.toDouble(),
-            );
-          }
+          await prefs.setDouble(
+            'quest_progress_${userId}_${q.id}',
+            cur + stepDelta,
+          );
         }
       }
 
@@ -372,10 +376,7 @@ class PawQuestsRepositoryImpl implements PawQuestsRepository {
   Future<void> recordBoop({required String userId}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final now = DateTime.now();
-      final weekNumber = ((now.difference(DateTime(now.year, 1, 1)).inDays) / 7)
-          .ceil();
-      final weekKey = '${now.year}_w$weekNumber';
+      final weekKey = _currentWeekKey(DateTime.now());
       final boopKey = 'quest_progress_${userId}_weekly_boop_$weekKey';
 
       final current = prefs.getDouble(boopKey) ?? 0.0;

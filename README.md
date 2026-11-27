@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
-[![Platform](https://img.shields.io/badge/Platform-Android%2014%2B-4CAF50)](#supported-platform)
+[![Platform](https://img.shields.io/badge/Platform-Android%2013%2B-4CAF50)](#supported-platform)
 [![Status](https://img.shields.io/badge/Status-Planning%20Stage-orange)](#project-status)
 
 > **Gotta Spot 'Em All.** A real-world feline exploration and discovery game for Android. Step outside, scan neighborhood cats with on-device machine learning, catalog sightings in your *Iring-dex*, and map feline waypoints with your community.
@@ -80,7 +80,7 @@ Leaderboard rankings are calculated via verified cat encounters:
 
 ### Supported Platform
 
-- **Android**: Android 14.0+ (API level 34+) (Target Platform)
+- **Android**: Android 13.0+ (API levels 33, 34, and 35+ — separate arm64-v8a builds via GitHub Actions)
 
 ---
 

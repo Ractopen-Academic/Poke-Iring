@@ -67,7 +67,7 @@ class FirebaseDexDataSource {
                     _speciesController.add(speciesList);
                   }
                 } else {
-                  seedDefaultSpeciesIfEmpty();
+                  _emitFallbackSpecies();
                 }
               },
               onError: (err) {

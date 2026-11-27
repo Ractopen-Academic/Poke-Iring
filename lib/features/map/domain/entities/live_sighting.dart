@@ -83,8 +83,8 @@ class LiveSighting {
       'rarity': rarity,
       'confidence': confidence,
       'thumbnailUrl': thumbnailUrl,
-      'createdAt': createdAt.toIso8601String(),
-      'expiresAt': expiresAt.toIso8601String(),
+      'createdAt': createdAt.toUtc().toIso8601String(),
+      'expiresAt': expiresAt.toUtc().toIso8601String(),
     };
   }
 

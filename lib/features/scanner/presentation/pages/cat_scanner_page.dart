@@ -11,6 +11,7 @@ import '../../../../core/services/audio_haptic_service.dart';
 import '../../../../core/services/image_compression_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/location_service_impl.dart';
+import '../../../../core/services/remote_config_service.dart';
 import '../../../../core/theme/calico_theme_controller.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../../events/data/repositories/event_repository_impl.dart';
@@ -170,8 +171,12 @@ class _CatScannerPageState extends State<CatScannerPage> {
     } catch (_) {}
   }
 
+  double get _globalMultiplier =>
+      RemoteConfigService.instance.config.doublePointsGlobal ? 2.0 : 1.0;
+
   int _effectivePawPoints(CatScanResult result) {
-    return (result.totalPawPoints * _activeEventMultiplier).round();
+    return (result.totalPawPoints * _activeEventMultiplier * _globalMultiplier)
+        .round();
   }
 
   String _formatMultiplier(double value) {
@@ -1305,6 +1310,8 @@ class _CatScannerPageState extends State<CatScannerPage> {
                     'Active Event Bonus',
                     _formatMultiplier(_activeEventMultiplier),
                   ),
+                if (_globalMultiplier > 1.0)
+                  _buildMatrixRow('Global Double Points', '2x'),
                 const Divider(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

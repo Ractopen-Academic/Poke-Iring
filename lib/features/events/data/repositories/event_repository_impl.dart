@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/feline_event.dart';
+import '../../domain/entities/profile_border.dart';
 import '../../domain/entities/user_event_wallet.dart';
 import '../../domain/repositories/event_repository.dart';
 import '../datasources/local_event_catalog.dart';
@@ -291,7 +292,18 @@ class EventRepositoryImpl implements EventRepository {
       return true; // Already unlocked
     }
 
-    final border = LocalEventCatalog.findBorder(borderId);
+    ProfileBorder? border;
+    final events = await getActiveEvents();
+    for (final ev in events) {
+      for (final b in ev.borders) {
+        if (b.id == borderId) {
+          border = b;
+          break;
+        }
+      }
+      if (border != null) break;
+    }
+    border ??= LocalEventCatalog.findBorder(borderId);
     if (border == null) return false;
 
     if (!wallet.canAfford(border.cost)) {
@@ -352,9 +364,35 @@ class EventRepositoryImpl implements EventRepository {
 
   @override
   Future<String?> getEquippedBorderId(String userId) async {
+    SharedPreferences? prefs;
     try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString('user_equipped_border_$userId');
+      prefs = await SharedPreferences.getInstance();
+    } catch (_) {}
+
+    if (_isFirebaseAvailable && userId.isNotEmpty) {
+      try {
+        final snap = await _db
+            .collection('users')
+            .doc(userId)
+            .get()
+            .timeout(const Duration(milliseconds: 1500));
+        if (snap.exists) {
+          final cloudBorder =
+              snap.data()?['equippedProfileBorderId'] as String?;
+          if (cloudBorder != null && cloudBorder.isNotEmpty) {
+            if (prefs != null) {
+              unawaited(
+                prefs.setString('user_equipped_border_$userId', cloudBorder),
+              );
+            }
+            return cloudBorder;
+          }
+        }
+      } catch (_) {}
+    }
+
+    try {
+      return prefs?.getString('user_equipped_border_$userId');
     } catch (_) {
       return null;
     }

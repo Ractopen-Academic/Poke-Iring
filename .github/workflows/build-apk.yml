@@ -17,8 +17,27 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build Android APK (${{ inputs.build_type || 'release' }})
+    name: Build ${{ matrix.label }} (${{ inputs.build_type || 'release' }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target_id: android13
+            label: Android 13 (API 33)
+            min_sdk: '33'
+            target_sdk: '33'
+            asset_file: pokeiring-android13.apk
+          - target_id: android14
+            label: Android 14 (API 34)
+            min_sdk: '34'
+            target_sdk: '34'
+            asset_file: pokeiring-android14.apk
+          - target_id: android15up
+            label: Android 15+ (API 35+)
+            min_sdk: '35'
+            target_sdk: '36'
+            asset_file: pokeiring-android15up.apk
 
     steps:
       - name: Checkout Repository
@@ -62,14 +81,16 @@ jobs:
               -dname "CN=Android Debug,O=Android,C=US"
           fi
 
-      - name: Build Android 14+ 64-bit APK
+      - name: Build ${{ matrix.label }} 64-bit APK
         env:
           # Public URL of the admin Vision proxy (repo Variable, not a secret).
           # The Gemini key stays on Vercel and is never baked into the APK.
           VISION_PROXY_URL: ${{ vars.VISION_PROXY_URL || 'https://poke-iring-admin.vercel.app/api/vision' }}
+          ORG_GRADLE_PROJECT_pokeiringMinSdk: ${{ matrix.min_sdk }}
+          ORG_GRADLE_PROJECT_pokeiringTargetSdk: ${{ matrix.target_sdk }}
         run: |
           BUILD_TYPE="${{ inputs.build_type || 'release' }}"
-          DEFINES="--dart-define=VISION_PROXY_URL=${VISION_PROXY_URL}"
+          DEFINES="--dart-define=VISION_PROXY_URL=${VISION_PROXY_URL} --dart-define=ANDROID_TARGET_LABEL=${{ matrix.target_id }}"
           if [ "$BUILD_TYPE" = "release" ]; then
             flutter build apk --release --target-platform android-arm64 --tree-shake-icons $DEFINES
           else
@@ -80,27 +101,61 @@ jobs:
         run: |
           BUILD_TYPE="${{ inputs.build_type || 'release' }}"
           mkdir -p output
-          find build/app/outputs/flutter-apk -type f -name "*.apk" -exec cp {} "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" \;
-          cp "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" "output/pokeiring-dev.apk"
+          APK_SRC=$(find build/app/outputs/flutter-apk -type f -name "*.apk" | head -n 1)
+          if [ -z "$APK_SRC" ]; then
+            echo "No APK output found for ${{ matrix.target_id }}" >&2
+            exit 1
+          fi
+          cp "$APK_SRC" "output/${{ matrix.asset_file }}"
+          cp "$APK_SRC" "output/pokeiring-${{ matrix.target_id }}-arm64-${BUILD_TYPE}.apk"
 
-      - name: Upload APK Artifact
+      - name: Upload ${{ matrix.label }} APK Artifact
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
-          name: pokeiring-android14-arm64-apk
+          name: pokeiring-${{ matrix.target_id }}-arm64-apk
           path: output/*.apk
           retention-days: 14
 
-      - name: Publish Dev APK to GitHub Releases
+  publish-release:
+    name: Publish Android 13 / 14 / 15+ APKs to GitHub Releases
+    needs: [ build-apk ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download All Target APK Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pokeiring-*-arm64-apk
+          path: release-assets
+          merge-multiple: true
+
+      - name: Prepare Universal Fallback Alias
+        run: |
+          ls -la release-assets
+          cp release-assets/pokeiring-android13.apk release-assets/pokeiring-dev.apk
+
+      - name: Upload Combined Workflow Artifact
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: pokeiring-all-android-apks
+          path: release-assets/*.apk
+          retention-days: 14
+
+      - name: Publish APKs to GitHub Releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BUILD_TYPE="${{ inputs.build_type || 'release' }}"
           TAG="dev-latest"
           TITLE="Poke: Iring Dev Build (${BUILD_TYPE})"
-          NOTES="Automated Android 14+ (arm64-v8a) development APK build from commit ${GITHUB_SHA}."
+          NOTES="Automated arm64-v8a APK builds from commit ${GITHUB_SHA}:
+          - pokeiring-android13.apk — Android 13 (API 33)
+          - pokeiring-android14.apk — Android 14 (API 34)
+          - pokeiring-android15up.apk — Android 15+ (API 35+)
+          - pokeiring-dev.apk — Universal fallback (Android 13+)"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" output/pokeiring-dev.apk "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" --clobber
+            gh release upload "$TAG" release-assets/*.apk --clobber
             gh release edit "$TAG" --title "$TITLE" --notes "$NOTES" --prerelease
           else
-            gh release create "$TAG" output/pokeiring-dev.apk "output/pokeiring-android14-arm64-${BUILD_TYPE}.apk" --title "$TITLE" --notes "$NOTES" --prerelease --target "${GITHUB_SHA}"
+            gh release create "$TAG" release-assets/*.apk --title "$TITLE" --notes "$NOTES" --prerelease --target "${GITHUB_SHA}"
           fi

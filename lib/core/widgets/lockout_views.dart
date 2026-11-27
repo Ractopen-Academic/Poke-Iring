@@ -224,10 +224,18 @@ class MaintenanceLockoutView extends StatelessWidget {
   }
 }
 
-class VersionUpdateRequiredView extends StatelessWidget {
+class VersionUpdateRequiredView extends StatefulWidget {
   final String requiredVersion;
 
   const VersionUpdateRequiredView({super.key, required this.requiredVersion});
+
+  @override
+  State<VersionUpdateRequiredView> createState() =>
+      _VersionUpdateRequiredViewState();
+}
+
+class _VersionUpdateRequiredViewState extends State<VersionUpdateRequiredView> {
+  AndroidApkTarget _selectedTarget = AppVersion.apkTargets[1];
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +285,7 @@ class VersionUpdateRequiredView extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Poke: Iring version $requiredVersion or higher is required to continue playing. Your current installed build is ${AppVersion.semanticVersion}. Please download the latest update.',
+                          'Poke: Iring version ${widget.requiredVersion} or higher is required to continue playing. Your current installed build is ${AppVersion.semanticVersion}. Select your Android version to download the latest update.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13.5,
@@ -285,17 +293,67 @@ class VersionUpdateRequiredView extends StatelessWidget {
                             color: AppColors.dynamicTextSecondary,
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 18),
+                        Row(
+                          children: AppVersion.apkTargets.map((target) {
+                            final isSelected = _selectedTarget.id == target.id;
+                            return Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  right:
+                                      target.id == AppVersion.apkTargets.last.id
+                                      ? 0
+                                      : 6,
+                                ),
+                                child: OutlinedButton(
+                                  onPressed: () =>
+                                      setState(() => _selectedTarget = target),
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: isSelected
+                                        ? AppColors.primary.withAlpha(28)
+                                        : AppColors.dynamicSurface,
+                                    foregroundColor: isSelected
+                                        ? AppColors.primary
+                                        : AppColors.dynamicTextSecondary,
+                                    side: BorderSide(
+                                      color: isSelected
+                                          ? AppColors.primary
+                                          : AppColors.dynamicBorder,
+                                      width: isSelected ? 1.5 : 1,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                      horizontal: 4,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    target.label,
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              ApkDownloadService.instance.downloadDevApk();
+                              ApkDownloadService.instance.downloadTargetApk(
+                                _selectedTarget,
+                              );
                             },
                             icon: const Icon(Icons.download_rounded, size: 18),
-                            label: const Text(
-                              'Download Latest Dev APK',
-                              style: TextStyle(
+                            label: Text(
+                              'Download ${_selectedTarget.label} APK',
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                               ),
